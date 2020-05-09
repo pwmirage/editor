@@ -3,8 +3,21 @@
 	<head>
 		<title>Tests</title>
 		<script type="module" src="test/DB.mjs"></script>
+		<style>
+			body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; }
+			.result { padding: 4px 6px; }
+			.passed { background-color: green; color: white; font-weight: bold; }
+			.failed { background-color: red; }
+		</style>
+		<script>
+			const marker = (passed) => {
+				return passed ? '<span class="result passed">PASSED</span>' : '<span class="result failed">FAILED</span>';
+			}
+			window.onload = () => {
+				document.querySelector('body').innerHTML += ('<p>DB test: ' + marker(window._testDBPass) + '</p');
+			};
+		</script>
 	</head>
 	<body>
-		<p>Empty page</p>
 	</body>
 </html>

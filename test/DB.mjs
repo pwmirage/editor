@@ -1,6 +1,20 @@
 import DB from '../script/DB.mjs'
+let g_pass = true;
 
-const assert = console.assert;
+const assert = (cond) => {
+	if (cond) return;
+
+	g_pass = false;
+	const stack = (new Error()).stack.toString();
+	const lines = stack.split('\n');
+	/* cut the first frame (assert) from the stacktrace */
+	lines.splice(0, 2);
+	console.error('Assertion Failed\n' + lines.join('\n'));
+
+	debugger;
+	if (typeof process !== 'undefined') process.exit();
+	stopExecution();
+}
 
 const db = new DB();
 
@@ -47,3 +61,8 @@ db.commit(obj);
 assert(obj._db.changesets[0].field == "value");
 assert(obj._db.changesets[1].field == "value2");
 assert(obj._db.changesets[2].field == "value3");
+
+console.log('DB tests passed');
+if (typeof window !== 'undefined') {
+	window._testDBPass = g_pass;
+}
