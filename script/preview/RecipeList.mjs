@@ -22,7 +22,7 @@ class RecipeList extends HTMLElement {
 			const item = db.items[item_id];
 			const icon_id = item ? item.icon : -1;
 			const item_el = Item.get_icon(icon_id);
-			item_el.appendChild(newElement('<span class="tooltip item-tooltip-static">Tooltip</span>'));
+			item_el.appendChild(newElement('<span class="tooltip"><span class="item-tooltip-static">Tooltip</span></span>'));
 			recipes.append(item_el);
 		}
 	}
