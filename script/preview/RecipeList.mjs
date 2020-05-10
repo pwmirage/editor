@@ -1,4 +1,4 @@
-import { newElement, newArrElements } from '../DomUtil.mjs';
+import { newElement, newArrElements, escape } from '../DomUtil.mjs';
 import { get, sleep } from '../Util.mjs';
 import Item from '../Item.mjs';
 import db from '../PWDB.mjs';
@@ -22,7 +22,14 @@ class RecipeList extends HTMLElement {
 			const item = db.items[item_id];
 			const icon_id = item ? item.icon : -1;
 			const item_el = Item.get_icon(icon_id);
-			item_el.appendChild(newElement('<span class="tooltip"><span class="item-tooltip-static">Tooltip</span></span>'));
+			if (item) {
+				const tooltip_container = newElement('<span class="tooltip"></span>');
+				const tooltip = newElement('<span class="item-tooltip-static"></span>');
+				tooltip_container.append(tooltip);
+				tooltip.append(newElement('<p class="title">' + escape(item.name) + ' (ID #' + item.id + ')</p>'));
+				tooltip.append(newElement('<p class="type">' + Item.TYPE_NAME[item.type] + '</p>'));
+				item_el.append(tooltip_container);
+			}
 			recipes.append(item_el);
 		}
 	}

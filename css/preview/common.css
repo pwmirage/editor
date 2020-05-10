@@ -4,6 +4,10 @@
 	font-weight: bold;
 }
 
+p {
+	margin: 0;
+}
+
 .item-container {
 	display: grid;
 	grid-template-columns: repeat(8, 34px);
@@ -46,3 +50,6 @@
 	transform: translate(-100%, 0%);
 }
 
+p.title {
+	white-space: nowrap;
+}
