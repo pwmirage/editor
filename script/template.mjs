@@ -3,7 +3,7 @@
 // Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
 // Licensed under the MIT license.
 
-var doT = {
+const doT = {
 	name: "doT",
 	version: "1.1.1-mirage",
 	templateSettings: {
@@ -27,15 +27,15 @@ var doT = {
 	log: true
 }, _globals;
 
-doT.encodeHTMLSource = function(doNotSkipEncoded) {
-	var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
-		matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
-	return function(code) {
-		return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
+const encodeHTMLSource = (doNotSkipEncoded) => {
+	const encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" };
+	const matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
+	return (code) => {
+		return code ? code.toString().replace(matchHTML, (m) => {return encodeHTMLRules[m] || m;}) : "";
 	};
 };
 
-_globals = (function(){ return this || (0,eval)("this"); }());
+_globals = (0,eval)("this");
 _globals.doT = doT;
 
 var startend = {
@@ -43,15 +43,15 @@ var startend = {
 	split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" }
 }, skip = /$^/;
 
-function resolveDefs(c, block, def) {
+const resolveDefs(c, block, def) => {
 	return ((typeof block === "string") ? block : block.toString())
-	.replace(c.define || skip, function(m, code, assign, value) {
+	.replace(c.define || skip, (m, code, assign, value) => {
 		if (code.indexOf("def.") === 0) {
 			code = code.substring(4);
 		}
 		if (!(code in def)) {
 			if (assign === ":") {
-				if (c.defineParams) value.replace(c.defineParams, function(m, param, v) {
+				if (c.defineParams) value.replace(c.defineParams, (m, param, v) => {
 					def[code] = {arg: param, text: v};
 				});
 				if (!(code in def)) def[code]= value;
@@ -61,8 +61,8 @@ function resolveDefs(c, block, def) {
 		}
 		return "";
 	})
-	.replace(c.use || skip, function(m, code) {
-		if (c.useParams) code = code.replace(c.useParams, function(m, s, d, param) {
+	.replace(c.use || skip, (m, code) => {
+		if (c.useParams) code = code.replace(c.useParams, (m, s, d, param) => {
 			if (def[d] && def[d].arg && param) {
 				var rw = (d+":"+param).replace(/'|\\/g, "_");
 				def.__exp = def.__exp || {};
@@ -75,11 +75,11 @@ function resolveDefs(c, block, def) {
 	});
 }
 
-function unescape(code) {
+const unescape = (code) => {
 	return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 }
 
-doT.template = function(tmpl, c, def) {
+const template = (tmpl, c, def) => {
 	c = c || doT.templateSettings;
 	var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 		str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
@@ -87,25 +87,25 @@ doT.template = function(tmpl, c, def) {
 	str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
 				.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 		.replace(/'|\\/g, "\\$&")
-		.replace(c.interpolate || skip, function(m, code) {
+		.replace(c.interpolate || skip, (m, code) => {
 			return cse.start + unescape(code) + cse.end;
 		})
-		.replace(c.encode || skip, function(m, code) {
+		.replace(c.encode || skip, (m, code) => {
 			needhtmlencode = true;
 			return cse.startencode + unescape(code) + cse.end;
 		})
-		.replace(c.conditional || skip, function(m, elsecase, code) {
+		.replace(c.conditional || skip, (m, elsecase, code) => {
 			return elsecase ?
 				(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
 				(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
 		})
-		.replace(c.iterate || skip, function(m, iterate, vname, iname) {
+		.replace(c.iterate || skip, (m, iterate, vname, iname) => {
 			if (!iterate) return "';} } out+='";
 			sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
 			return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 				+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 		})
-		.replace(c.evaluate || skip, function(m, code) {
+		.replace(c.evaluate || skip, (m, code) => {
 			return "';" + unescape(code) + "out+='";
 		})
 		+ "';return out;")
@@ -114,22 +114,13 @@ doT.template = function(tmpl, c, def) {
 		//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
 	if (needhtmlencode) {
-		if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = doT.encodeHTMLSource(c.doNotSkipEncoded);
+		if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = encodeHTMLSource(c.doNotSkipEncoded);
 		str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
-			+ doT.encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
+			+ encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
 			+ str;
 	}
-	try {
-		return new Function(c.varname, str);
-	} catch (e) {
-		/* istanbul ignore else */
-		if (typeof console !== "undefined") console.log("Could not create a template function: " + str);
-		throw e;
-	}
+
+	return new Function(c.varname, str);
 };
 
-doT.compile = function(tmpl, def) {
-	return doT.template(tmpl, null, def);
-};
-
-export default doT
+export default template
