@@ -6,26 +6,8 @@
 const doT = {
 	name: "doT",
 	version: "1.1.1-mirage",
-	templateSettings: {
-		evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
-		interpolate: /\{\{=([\s\S]+?)\}\}/g,
-		encode:      /\{\{!([\s\S]+?)\}\}/g,
-		use:         /\{\{#([\s\S]+?)\}\}/g,
-		useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-		defineParams:/^\s*([\w$]+):([\s\S]+)/,
-		conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-		iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-		varname:	"it",
-		strip:		true,
-		append:		true,
-		selfcontained: false,
-		doNotSkipEncoded: false
-	},
-	template: undefined, //fn, compile template
-	compile:  undefined, //fn, for express
 	log: true
-}, _globals;
+};
 
 const encodeHTMLSource = (doNotSkipEncoded) => {
 	const encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" };
@@ -34,9 +16,6 @@ const encodeHTMLSource = (doNotSkipEncoded) => {
 		return code ? code.toString().replace(matchHTML, (m) => {return encodeHTMLRules[m] || m;}) : "";
 	};
 };
-
-_globals = (0,eval)("this");
-_globals.doT = doT;
 
 var startend = {
 	append: { start: "'+(",      end: ")+'",      startencode: "'+encodeHTML(" },
@@ -79,8 +58,23 @@ const unescape = (code) => {
 	return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 }
 
-const template = (tmpl, c, def) => {
-	c = c || doT.templateSettings;
+const template = (tmpl, varnames, def) => {
+	const c = {
+		evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
+		interpolate: /\{\{=([\s\S]+?)\}\}/g,
+		encode:      /\{\{!([\s\S]+?)\}\}/g,
+		use:         /\{\{#([\s\S]+?)\}\}/g,
+		useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+		defineParams:/^\s*([\w$]+):([\s\S]+)/,
+		conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+		iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+		varname:	varnames,
+		strip:		true,
+		append:		true,
+		selfcontained: false,
+		doNotSkipEncoded: false
+	};
 	var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 		str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
