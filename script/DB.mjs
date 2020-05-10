@@ -155,6 +155,7 @@ class DB {
 		});
 
 		for (const obj of objects) {
+			if (!obj) continue;
 			obj_map.set(obj.id.toString(), obj);
 			this.init(name, obj);
 		}
