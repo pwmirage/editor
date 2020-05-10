@@ -3,6 +3,8 @@
 // Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
 // Licensed under the MIT license.
 
+import { get } from './Util.mjs';
+
 const doT = {
 	name: "doT",
 	version: "1.1.1-mirage",
@@ -22,7 +24,7 @@ var startend = {
 	split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" }
 }, skip = /$^/;
 
-const resolveDefs(c, block, def) => {
+const resolveDefs = (c, block, def) => {
 	return ((typeof block === "string") ? block : block.toString())
 	.replace(c.define || skip, (m, code, assign, value) => {
 		if (code.indexOf("def.") === 0) {
@@ -58,7 +60,7 @@ const unescape = (code) => {
 	return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 }
 
-const template = (tmpl, varnames, def) => {
+export const compile_string_tpl = (tmpl, varnames, def) => {
 	const c = {
 		evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 		interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -117,4 +119,37 @@ const template = (tmpl, varnames, def) => {
 	return new Function(c.varname, str);
 };
 
-export default template
+const loaded_files = [];
+export const load_tpl_file = async (filename) => {
+	if (loaded_files.includes(filename)) return;
+
+	const file = await get(filename);
+	if (!file.ok) {
+		throw new Error('Failed to load template: ' + file.url);
+	}
+
+	document.querySelector('body').insertAdjacentHTML('beforeend', file.data);
+	loaded_files.push(filename);
+};
+
+/* 2d map, 1st level key = (tpl_id + '.' + varnames), 2nd level = defines */
+const compiled_cache = new Map();
+export const compile_tpl = (tpl_id, varnames, defines) => {
+	const tpl_string = document.getElementById(tpl_id).text;
+	if (typeof varnames === 'object') {
+		varnames = varnames.join(',');
+	}
+
+	let cached_entries = compiled_cache.get(tpl_id + '.' + varnames);
+	if (!cached_entries) {
+		cached_entries = new Map();
+		compiled_cache.set(tpl_id + '.' + varnames, cached_entries);
+	}
+
+	const cached = cached_entries.get(defines);
+	if (cached) return cached;
+
+	const ret = compile_string_tpl(tpl_string, varnames, defines);
+	cached_entries.set(defines, ret);
+	return ret;
+}
