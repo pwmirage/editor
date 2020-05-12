@@ -1,7 +1,8 @@
 // doT.js
 // 2011-2014, Laura Doktorova, https://github.com/olado/doT
-// Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
+// Copyright(c) 2020 Darek Stojaczyk
 // Licensed under the MIT license.
+// Heavily modified for pwmirage.com
 
 import { get } from './Util.mjs';
 
@@ -103,7 +104,10 @@ export const compile_tpl = (tpl_id, defines) => {
 		.replace(/\{([\s\S]+?)\}/g, (m, code) => {
 			code = unescape(code)
 				.replace(/^assign (.*)$/, "local.$1;")
-				.replace(/\$/g, "local.");
+				.replace(/\$/g, "local.")
+				.replace(/^include id=['"]?([\s\S]+?)['"]?$/g, (m, id) => {
+					return ';out+=(' + compile_tpl(id, defines).toString().replace(/\n/g, "") + ')(local);';
+				});
 
 			if (code.startsWith('@@')) {
 				needhtmlencode = true;
