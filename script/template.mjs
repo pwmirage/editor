@@ -59,49 +59,6 @@ const unescape = (code) => {
 	return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 }
 
-export const compile_string_tpl = (tmpl, def) => {
-	const c = {
-		use:         /\{\{#([\s\S]+?)\}\}/g,
-		useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-		defineParams:/^\s*([\w$]+):([\s\S]+)/,
-		selfcontained: false,
-		doNotSkipEncoded: false
-	};
-	var cse = startend.split, needhtmlencode, sid = 0, indv,
-		str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
-
-	str = ("var out='" + (str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
-				.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""))
-		.replace(/'|\\/g, "\\$&")
-		.replace(/\{([\s\S]+?)\}/g, (m, code) => {
-			code = unescape(code)
-				.replace(/^assign (.*)$/, "local.$1;")
-				.replace(/\$/g, "local.");
-
-			if (code.startsWith('@@')) {
-				needhtmlencode = true;
-				return cse.startencode + code.substring(2) + cse.end;
-			} else if (code.startsWith('@')) {
-				return cse.start + code.substring(1) + cse.end;
-			}
-			return "';" + code + "out+='";
-		})
-		+ "';return out;")
-		.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
-		.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
-		//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
-
-	if (needhtmlencode) {
-		if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = encodeHTMLSource(c.doNotSkipEncoded);
-		str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
-			+ encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
-			+ str;
-	}
-
-	return new Function("local", str);
-};
-
 const loaded_files = [];
 export const load_tpl_file = async (filename) => {
 	if (loaded_files.includes(filename)) return;
@@ -132,7 +89,46 @@ export const compile_tpl = (tpl_id, varnames, defines) => {
 	const cached = cached_entries.get(defines);
 	if (cached) return cached;
 
-	const ret = compile_string_tpl(tpl_string, varnames, defines);
+	const c = {
+		use:         /\{\{#([\s\S]+?)\}\}/g,
+		useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+		defineParams:/^\s*([\w$]+):([\s\S]+)/,
+		selfcontained: false,
+		doNotSkipEncoded: false
+	};
+	var cse = startend.split, needhtmlencode, sid = 0, indv,
+		str  = (c.use || c.define) ? resolveDefs(c, tpl_string, defines || {}) : tpl_string;
+
+	str = ("var out='" + (str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
+				.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""))
+		.replace(/'|\\/g, "\\$&")
+		.replace(/\{([\s\S]+?)\}/g, (m, code) => {
+			code = unescape(code)
+				.replace(/^assign (.*)$/, "local.$1;")
+				.replace(/\$/g, "local.");
+
+			if (code.startsWith('@@')) {
+				needhtmlencode = true;
+				return cse.startencode + code.substring(2) + cse.end;
+			} else if (code.startsWith('@')) {
+				return cse.start + code.substring(1) + cse.end;
+			}
+			return "';" + code + "out+='";
+		})
+		+ "';return out;")
+		.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
+		.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
+		//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
+
+	if (needhtmlencode) {
+		if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = encodeHTMLSource(c.doNotSkipEncoded);
+		str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
+			+ encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
+			+ str;
+	}
+
+	const ret = new Function("local", str);
 	cached_entries.set(defines, ret);
 	return ret;
 }
