@@ -23,7 +23,7 @@ const load_iconset = (url) => {
 	});
 }
 
-const get_icon_src = (index) => {
+const get_icon = async (index) => {
 	if (Item.icons[index]) {
 		return Item.icons[index];
 	}
@@ -42,7 +42,12 @@ const get_icon_src = (index) => {
 	}
 
 	g_icon_canvas_ctx.drawImage(g_iconset_img, x * 32, y * 32, 32, 32, 0, 0, 32, 32);
-	Item.icons[index] = g_icon_canvas.toDataURL();
+	Item.icons[index] = await new Promise((resolve) => {
+		g_icon_canvas.toBlob((blob) => {
+			blob.url = URL.createObjectURL(blob);
+			resolve(blob);
+		}, 'image/jpeg');
+	});
 	return Item.icons[index];
 }
 
@@ -54,12 +59,11 @@ const gen_all_icons = async () => {
 
 	/* generate them in async chunks not to block the main thread */
 	while (index < icon_count) {
-		await new Promise((resolve, reject) => {
+		await (async () => {
 			for (let i = 0; i < 32; i++) {
-				get_icon_src(index++);
+				await get_icon(index++);
 			}
-			resolve();
-		});
+		})();
 	}
 
 	if (g_iconset_cache) {
@@ -68,7 +72,15 @@ const gen_all_icons = async () => {
 	}
 }
 
-export default class Item {
+const get_icon_src = (index) => {
+	const blob = Item.icons[index];
+	if (!blob) return 'img/itemslot.png';
+	if (!blob.url) blob.url = URL.createObjectURL(blob);
+
+	return blob.url;
+}
+
+export class Item extends HTMLElement {
 	static TYPE = {
 		MATERIAL: 2,
 		CHI_STONE: 12,
@@ -164,24 +176,29 @@ export default class Item {
 				};
 			});
 
+			customElements.define('pw-item', Item);
 			return;
 		} else {
 			await load_iconset(url);
 
 			/* ! don't await, just return */
-			return gen_all_icons();
+			return gen_all_icons().then(() => {
+				customElements.define('pw-item', Item);
+			});
 		}
 	}
 
-	static get_icon(icon_id) {
-		const icon = document.createElement('span')
-		icon.className = 'item';
-		if (icon_id == -1) {
-			icon.style.backgroundImage = 'url(img/itemslot.png)';
-		} else {
-			icon.style.backgroundImage = 'url(' + get_icon_src(icon_id) + ')';
-		}
+	constructor() {
+		super();
+	}
 
-		return icon;
+	connectedCallback() {
+		this.classList.add('item');
+
+		if (this.dataset.icon == -1) {
+			this.style.backgroundImage = 'url(img/itemslot.png)';
+		} else {
+			this.style.backgroundImage = 'url(' + get_icon_src(this.dataset.icon) + ')';
+		}
 	}
 }
