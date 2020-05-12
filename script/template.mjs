@@ -77,7 +77,8 @@ export const compile_tpl = (tpl_id) => {
 		//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
 	if (needhtmlencode) {
-		if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = encodeHTMLSource(c.doNotSkipEncoded);
+		const _globals = (0,eval)("this");
+		if (!c.selfcontained && !_globals._encodeHTML) _globals._encodeHTML = encodeHTMLSource(c.doNotSkipEncoded);
 		str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
 			+ encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
 			+ str;
