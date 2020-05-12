@@ -16,21 +16,20 @@ p {
 .item {
 	width: 32px;
 	height: 32px;
-	display: block;
+	display: inline-block;
 	margin: 1px;
 }
 
-.item > .tooltip {
+.tooltip {
 	display: none;
 	position: relative;
-	height: 100%;
 }
 
-.item:hover > .tooltip {
+*:hover > .tooltip {
 	display: block;
 }
 
-.item-tooltip-static {
+.pw-tooltip {
 	position: absolute;
 	top: 1px;
 	right: -3px;
@@ -44,10 +43,22 @@ p {
 	box-sizing: border-box;
 }
 
-.item-tooltip-static.left {
+.pw-tooltip.left {
 	right: auto;
 	left: -3px;
 	transform: translate(-100%, 0%);
+}
+
+#header {
+	display: flex;
+}
+
+#header > .item {
+	margin-right: 5px;
+}
+
+.name-container {
+	margin: auto;
 }
 
 p.title {

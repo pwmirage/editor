@@ -1,1 +1,1 @@
-import PWRecipeList from './RecipeList.mjs';
+import * as RecipeListExports from './RecipeList.mjs';
