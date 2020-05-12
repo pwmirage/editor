@@ -72,18 +72,15 @@ export const load_tpl_file = async (filename) => {
 	loaded_files.push(filename);
 };
 
-/* 2d map, 1st level key = (tpl_id + '.' + varnames), 2nd level = defines */
+/* 2d map, 1st level key = tpl_id, 2nd level = defines */
 const compiled_cache = new Map();
-export const compile_tpl = (tpl_id, varnames, defines) => {
+export const compile_tpl = (tpl_id, defines) => {
 	const tpl_string = document.getElementById(tpl_id).text;
-	if (typeof varnames === 'object') {
-		varnames = varnames.join(',');
-	}
 
-	let cached_entries = compiled_cache.get(tpl_id + '.' + varnames);
+	let cached_entries = compiled_cache.get(tpl_id);
 	if (!cached_entries) {
 		cached_entries = new Map();
-		compiled_cache.set(tpl_id + '.' + varnames, cached_entries);
+		compiled_cache.set(tpl_id, cached_entries);
 	}
 
 	const cached = cached_entries.get(defines);
