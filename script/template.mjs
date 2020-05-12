@@ -20,10 +20,6 @@ const encodeHTMLSource = (doNotSkipEncoded) => {
 	};
 };
 
-var startend = {
-	split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" }
-}, skip = /$^/;
-
 const resolveDefs = (c, block, def) => {
 	return ((typeof block === "string") ? block : block.toString())
 	.replace(c.define || skip, (m, code, assign, value) => {
@@ -95,7 +91,8 @@ export const compile_tpl = (tpl_id, defines) => {
 		selfcontained: false,
 		doNotSkipEncoded: false
 	};
-	var cse = startend.split, needhtmlencode, sid = 0, indv,
+	const cse = { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" },
+		needhtmlencode, sid = 0, indv,
 		str  = (c.use || c.define) ? resolveDefs(c, tpl_string, defines || {}) : tpl_string;
 
 	str = ("var out='" + (str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
