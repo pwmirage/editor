@@ -194,7 +194,12 @@ export class Item extends HTMLElement {
 		} else {
 			this.style.backgroundImage = 'url(img/item-unknown.png)';
 			g_iconset_promise.then(() => {
-				this.style.backgroundImage = 'url(' + get_icon_src(this.dataset.icon) + ')';
+				const img = document.createElement('img');
+				img.onload = () => {
+					img.style.opacity = 1;
+				};
+				img.src = get_icon_src(this.dataset.icon);
+				this.appendChild(img);
 			});
 		}
 	}

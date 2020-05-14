@@ -20,6 +20,11 @@ p {
 	margin: 1px;
 }
 
+.item > img {
+	opacity: 0;
+	transition: opacity 0.25s ease-in-out;
+}
+
 .tooltip {
 	display: none;
 	position: relative;
