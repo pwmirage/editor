@@ -4,6 +4,7 @@
 
 let g_init_started = false;
 let g_iconset_img;
+let g_iconset_promise;
 let g_icon_canvas;
 let g_icon_canvas_ctx;
 let g_iconset_cache;
@@ -136,6 +137,7 @@ export class Item extends HTMLElement {
 			return;
 		}
 		g_init_started = true;
+		customElements.define('pw-item', Item);
 
 		const cached = await new Promise((resolve, reject) => {
 			if (!window.indexedDB) {
@@ -160,7 +162,7 @@ export class Item extends HTMLElement {
 		});
 
 		if (cached) {
-			await new Promise((resolve, reject) => {
+			g_iconset_promise = new Promise((resolve, reject) => {
 				const cache = g_iconset_cache.transaction(['icons'], 'readonly').objectStore('icons');
 				const request = cache.get(0);
 				request.onerror = reject;
@@ -176,15 +178,13 @@ export class Item extends HTMLElement {
 				};
 			});
 
-			customElements.define('pw-item', Item);
 			return;
 		} else {
 			await load_iconset(url);
 
 			/* ! don't await, just return */
-			return gen_all_icons().then(() => {
-				customElements.define('pw-item', Item);
-			});
+			g_iconset_promise = gen_all_icons();
+			return g_iconset_promise;
 		}
 	}
 
@@ -198,7 +198,10 @@ export class Item extends HTMLElement {
 		if (this.dataset.icon == -1) {
 			this.style.backgroundImage = 'url(img/itemslot.png)';
 		} else {
-			this.style.backgroundImage = 'url(' + get_icon_src(this.dataset.icon) + ')';
+			this.style.backgroundImage = 'url(img/item-unknown.png)';
+			g_iconset_promise.then(() => {
+				this.style.backgroundImage = 'url(' + get_icon_src(this.dataset.icon) + ')';
+			});
 		}
 	}
 }
