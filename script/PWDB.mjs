@@ -3,7 +3,6 @@
  */
 
 import DB from './DB.mjs';
-import items from '../data/base/Items.mjs'
 
 const db = new DB();
 export default db;
@@ -17,4 +16,4 @@ const db_meta = {
 };
 
 db.register_type('metadata', [db_meta]);
-db.register_type('items', items);
+db.register_type('items', g_items);
