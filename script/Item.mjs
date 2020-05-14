@@ -24,7 +24,7 @@ const load_iconset = (url) => {
 	});
 }
 
-const get_icon = async (index) => {
+const get_icon = (index) => {
 	if (Item.icons[index]) {
 		return Item.icons[index];
 	}
@@ -43,12 +43,7 @@ const get_icon = async (index) => {
 	}
 
 	g_icon_canvas_ctx.drawImage(g_iconset_img, x * 32, y * 32, 32, 32, 0, 0, 32, 32);
-	Item.icons[index] = await new Promise((resolve) => {
-		g_icon_canvas.toBlob((blob) => {
-			blob.url = URL.createObjectURL(blob);
-			resolve(blob);
-		}, 'image/jpeg');
-	});
+	Item.icons[index] = g_icon_canvas.toDataURL('image/jpeg', 0.95);
 	return Item.icons[index];
 }
 
@@ -62,7 +57,7 @@ const gen_all_icons = async () => {
 	while (index < icon_count) {
 		await (async () => {
 			for (let i = 0; i < 32; i++) {
-				await get_icon(index++);
+				get_icon(index++);
 			}
 		})();
 	}
@@ -74,11 +69,10 @@ const gen_all_icons = async () => {
 }
 
 const get_icon_src = (index) => {
-	const blob = Item.icons[index];
-	if (!blob) return 'img/itemslot.png';
-	if (!blob.url) blob.url = URL.createObjectURL(blob);
+	const url = Item.icons[index];
+	if (!url) return 'img/itemslot.png';
 
-	return blob.url;
+	return url;
 }
 
 export class Item extends HTMLElement {
