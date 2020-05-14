@@ -15,3 +15,17 @@
 	</span>
 </script>
 
+<script id="recipe-list" type="text/x-dot-template">
+	<div id="recipes" class="item-container">
+		{foreach $recipes.tabs[0].items as item_id}
+			{assign item = $db.items[$item_id] }
+			{if $item}
+				<pw-item data-icon="{@$item.icon}">
+					<pw-recipe-tooltip></pw-recipe-tooltip>
+				</pw-item>
+			{else}
+				<pw-item data-icon="-1"></pw-item>
+			{/if}
+		{/foreach}
+	</div>
+</script>

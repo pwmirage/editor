@@ -4,24 +4,27 @@ import { Item } from '../Item.mjs';
 import db from '../PWDB.mjs';
 import { compile_tpl, load_tpl_file } from '../template.mjs';
 
+const newStyle = (url) => {
+	const linkElem = document.createElement('link');
+	linkElem.setAttribute('rel', 'stylesheet');
+	linkElem.setAttribute('href', url);
+	return linkElem;
+}
+
 export class RecipeTooltip extends HTMLElement {
 	constructor() {
 		super();
 
 		const shadow = this.attachShadow({mode: 'open'});
-		const linkElem = document.createElement('link');
-		linkElem.setAttribute('rel', 'stylesheet');
-		linkElem.setAttribute('href', 'css/preview/common.css');
-		shadow.append(linkElem);
+		shadow.append(newStyle('css/preview/common.css'));
 
 		this.tpl = compile_tpl('recipe-tooltip-tpl');
-		shadow.append(linkElem);
 	}
 
 	connectedCallback() {
 		const shadow = this.shadowRoot;
 		if (!this.diff) {
-			this.diff = JSON.parse(this.dataset.diff);
+			this.diff = this.dataset.diff ? JSON.parse(this.dataset.diff) : {};
 		}
 
 		this.classList.add('tooltip');
@@ -35,29 +38,18 @@ export class RecipeList extends HTMLElement {
 	constructor() {
 		super();
 
-		this.diff = JSON.parse(this.dataset.diff);
 		const shadow = this.attachShadow({mode: 'open'});
-		const linkElem = document.createElement('link');
-		linkElem.setAttribute('rel', 'stylesheet');
-		linkElem.setAttribute('href', 'css/preview/common.css');
-		shadow.append(linkElem);
+		shadow.append(newStyle('css/preview/common.css'));
 
-		const content = document.querySelector('#pw-recipe-list').content.cloneNode(true);
-		shadow.append(content);
-		const recipes = shadow.querySelector('#recipes');
-		for (let i = 0; i < 8 * 4; i++) {
-			const item_id = this.diff.tabs[0].items[i];
-			const item = db.items[item_id];
-			const icon_id = item ? item.icon : -1;
-			const item_el = document.createElement('pw-item');
-			item_el.dataset.icon = icon_id;
-			if (item) {
-				const tooltip = document.createElement('pw-recipe-tooltip');
-				tooltip.diff = item;
-				item_el.append(tooltip);
-			}
-			recipes.append(item_el);
+		this.tpl = compile_tpl('recipe-list');
+	}
+
+	connectedCallback() {
+		const shadow = this.shadowRoot;
+		if (!this.diff) {
+			this.diff = this.dataset.diff ? JSON.parse(this.dataset.diff) : {};
 		}
+		shadow.append(...newArrElements(this.tpl({ db, recipes: this.diff, Item })));
 	}
 }
 
