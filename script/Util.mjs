@@ -2,7 +2,7 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-const get = async (url, { is_json } = {}) => {
+export const get = async (url, { is_json } = {}) => {
 	const resp = await fetch(url, { method: 'GET', headers: {} });
 	if (!resp.ok) {
 		resp.data = {};
@@ -23,13 +23,10 @@ const get = async (url, { is_json } = {}) => {
 		}
 	}
 	return resp;
-};
+}
 
-const sleep = (msec) => {
+export const sleep = (msec) => {
 	return new Promise((resolve) => {
 		setTimeout(() => resolve(), msec);
 	});
 }
-
-
-export { get, sleep };
