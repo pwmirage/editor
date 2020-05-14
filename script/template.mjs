@@ -60,6 +60,9 @@ export const compile_tpl = (tpl_id) => {
 				.replace(/^assign (.*)$/, "local.$1;")
 				.replace(/^foreach(.*) as (.*)$/, "{ const backup = local[\"$2\"]; for (const $2 of $1) { local[\"$2\"] = $2;")
 				.replace(/^\/foreach$/g, "}; local[\"$2\"] = backup; };")
+				.replace(/^if (.*)$/g, ";if ($1) {")
+				.replace(/^else$/g, "} else {")
+				.replace(/^\/if$/g, ";}")
 				.replace(/\$/g, "local.")
 				.replace(/^include id=['"]?([\s\S]+?)['"]?$/g, (m, id) => {
 					return ';out+=(' + compile_tpl(id).toString().replace(/\n/g, "") + ')(local);';
