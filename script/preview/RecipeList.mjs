@@ -11,6 +11,13 @@ const newStyle = (url) => {
 	return linkElem;
 }
 
+const find_by_id = (tbl, id) => {
+	for (const obj of tbl) {
+		if (obj.id == id) return obj;
+	}
+	return null;
+}
+
 export class RecipeTooltip extends HTMLElement {
 	constructor() {
 		super();
@@ -46,10 +53,39 @@ export class RecipeList extends HTMLElement {
 
 	connectedCallback() {
 		const shadow = this.shadowRoot;
-		if (!this.diff) {
-			this.diff = this.dataset.diff ? JSON.parse(this.dataset.diff) : {};
+		if (!this.obj) this.obj = this.dataset.obj ? JSON.parse(this.dataset.obj) : {};
+		if (!this.db) this.db = this.dataset.db ? JSON.parse(this.dataset.db) : {};
+		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_recipes: this.obj, find_by_id, Item })));
+	}
+}
+
+export class Diff extends HTMLElement {
+	constructor() {
+		super();
+
+		const shadow = this.attachShadow({mode: 'open'});
+		shadow.append(newStyle('css/preview/common.css'));
+
+		this.tpl = compile_tpl('diff');
+	}
+
+	async connectedCallback() {
+		const shadow = this.shadowRoot;
+		if (!this.project) {
+			this.project = this.dataset.project || "";
 		}
-		shadow.append(...newArrElements(this.tpl({ db, recipes: this.diff, Item })));
+
+		const req = await get("uploads/preview/" + this.project + ".json", { is_json: true });
+		if (!req.ok) return;
+		const json = req.data;
+		for (const obj of json.npc_recipes) {
+			const list = document.createElement('pw-recipe-list');
+			list.db = json;
+			list.obj = obj;
+			shadow.append(list);
+		}
+
+		shadow.append(...newArrElements(this.tpl({ })));
 	}
 }
 
@@ -58,6 +94,7 @@ export class RecipeList extends HTMLElement {
 		load_tpl_file('tpl/preview.tpl'),
 		Item.set_iconset('img/iconlist_ivtrm.png'),
 	]);
-	customElements.define('pw-recipe-list', RecipeList);
 	customElements.define('pw-recipe-tooltip', RecipeTooltip);
+	customElements.define('pw-recipe-list', RecipeList);
+	customElements.define('pw-diff', Diff);
 })();
