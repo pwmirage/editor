@@ -38,6 +38,12 @@ function init_obj_data(obj, base) {
 	}
 }
 
+function new_obj(obj) {
+	const copy = {};
+	init_obj_data(copy, obj);
+	return copy;
+}
+
 function get_obj_diff(obj, prev) {
 	const diff = {};
 
@@ -60,7 +66,7 @@ function get_obj_diff(obj, prev) {
 		}
 	}
 
-	for (const field in obj) {
+	for (const field in diff) {
 		if (field !== undefined) {
 			return diff;
 		}
@@ -130,6 +136,7 @@ class DB {
 				} else {
 					map.set(k, v);
 				}
+				return true;
 			},
 			get(map, k) {
 				if (k === 'filter') {
@@ -250,9 +257,10 @@ class DB {
 			if (obj._db.changesets.length == 1) {
 				/* no changes and no history, just delete the original copy */
 				if (obj._db.commit_cb) {
-					obj._db.commit_cb(obj, null, obj);
+					obj._db.commit_cb(obj, {}, obj);
 				}
-				obj.db.changesets = undefined;
+				obj._db.latest_state = undefined;
+				obj._db.changesets = undefined;
 				return;
 			}
 
@@ -278,7 +286,7 @@ class DB {
 			if (obj._db.is_allocated && obj.id == 0) {
 				obj.id = this.new_id_start + this.new_id_offset;
 				this.new_id_offset++;
-				change.id = obj.id;
+				diff.id = obj.id;
 				this[obj._db.type][obj.id] = obj;
 			}
 
@@ -307,6 +315,31 @@ class DB {
 		let copy = {};
 		init_obj_data(copy, obj);
 		return copy;
+	}
+
+	/**
+	 * Create a new object of given type. The object won't have any id
+	 * assigned so far (it will be visible as 0) - it will be assigned
+	 * after any changes are committed. That's when commit_cb will be
+	 * called. The parameters are same as in register_commit_cb().
+	 * commit_cb is entirely optional.
+	 */
+	new(type, commit_cb) {
+		const arr = this[type];
+		if (!arr) throw new Error(`Unknown db type (${type})`);
+
+		let sample_el = null;
+		for (const sample of arr) {
+			sample_el = sample;
+			break;
+		}
+		if (!sample_el) throw new Error(`No existing db objects of type (${type})`);
+
+		const obj = new_obj(sample_el);
+		this.init(type, obj);
+		obj._db.is_allocated = true;
+		obj._db.commit_cb = commit_cb;
+		return obj;
 	}
 
 	is_obj_equal(obj, org) {
