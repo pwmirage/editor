@@ -120,6 +120,23 @@ assert(db.changelog.length == 2);
 	db.unregister_commit_cb(cb);
 }
 
+/* Test save / load */
+{
+	const dump = db.dump_all();
+
+	const db2 = new DB();
+	db2.new_id_start = 7;
+
+	db2.register_type("items", [{ id: 4096, field: "value", field2: "another" }]);
+
+	const db_json = JSON.parse(dump);
+	db2.load(db_json);
+
+	assert(db2.changelog.length == 2);
+	assert(db2.changelog[1].size == 2);
+	assert(db2.new_id_offset == 1);
+}
+
 console.log('DB tests passed');
 if (typeof window !== 'undefined') {
 	window._testDBPass = g_pass;

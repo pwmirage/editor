@@ -77,7 +77,7 @@ function get_obj_diff(obj, prev) {
 function dump(data) {
 	return JSON.stringify(data, function(k, v) {
 		/* keep the _db at its minimum */
-		if (k === '_db') return { __type: v.__obj._db.__type };
+		if (k === '_db') return { type: v.obj._db.type };
 		/* dont include any nulls, undefined results in no output at all */
 		if (v === null) return undefined;
 		/* stringify javascript sets */
@@ -374,6 +374,57 @@ class DB {
 		}
 
 		this.changelog.push(new Set());
+	}
+
+	/**
+	* Load the specified list of changes. All objects will be immediately
+	* committed to set their modified state.
+	*/
+	load(changesets, { join_changesets } = {}) {
+		const load_change = (change) => {
+			let org = this[change._db.type][change.id];
+			if (!org) {
+				org = this.new(change._db.type);
+				this.new_id_offset++;
+			}
+
+			this.open(org);
+			copy_obj_data(org, change);
+			if (org.id !== undefined) {
+				/* we've copied the id over, now it's time to fill the db entry */
+				this[org._db.type][org.id] = org;
+			}
+			this.commit(org);
+
+			/* call the init_cb again */
+			let type = this.type_info[change._db.type];
+			if (type.obj_init_cb) {
+				type.obj_init_cb(org);
+			}
+		}
+
+		if (!Array.isArray(changesets)) {
+			return load_change(changesets);
+		}
+
+		for (const changeset of changesets) {
+			if (!changeset) continue;
+			if (!Array.isArray(changeset)) {
+				load_change(changeset);
+				continue;
+			}
+
+			for (const change of changeset) {
+				if (!change) continue;
+				load_change(change);
+
+			}
+
+			if (!join_changesets && changeset != changesets[changesets.length - 1]) {
+				this.new_generation();
+			}
+		}
+
 	}
 }
 
