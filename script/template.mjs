@@ -63,6 +63,9 @@ export const compile_tpl = (tpl_id) => {
 				.replace(/^if (.*)$/g, ";if ($1) {")
 				.replace(/^else$/g, "} else {")
 				.replace(/^\/if$/g, ";}")
+				.replace(/^try$/g, ";try {")
+				.replace(/^catch$/g, "} catch (e) {")
+				.replace(/^\/try$/g, ";}")
 				.replace(/\$/g, "local.")
 				.replace(/^include id=['"]?([\s\S]+?)['"]?$/g, (m, id) => {
 					return ';out+=(' + compile_tpl(id).toString().replace(/\n/g, "") + ')(local);';
@@ -74,7 +77,7 @@ export const compile_tpl = (tpl_id) => {
 			} else if (code.startsWith('@')) {
 				return cse.start + code.substring(1) + cse.end;
 			}
-			return "';" + code + "out+='";
+			return "';" + code + ";out+='";
 		})
 		+ "';return out;")
 		.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
