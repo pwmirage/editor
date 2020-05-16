@@ -74,7 +74,7 @@ function get_obj_diff(obj, prev) {
 	return null;
 }
 
-function dump(data) {
+function dump(data, spacing = 2) {
 	return JSON.stringify(data, function(k, v) {
 		/* keep the _db at its minimum */
 		if (k === '_db') return { type: v.obj._db.type };
@@ -85,7 +85,7 @@ function dump(data) {
 			return [...v];
 		}
 		return v;
-	});
+	}, spacing);
 }
 
 class DB {
