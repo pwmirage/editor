@@ -16,4 +16,10 @@ const db_meta = {
 };
 
 db.register_type('metadata', [db_meta]);
-db.register_type('items', g_items);
+db.register_type('items', g_db.items);
+db.register_type('recipes', g_db.recipes);
+db.register_type('npc_goods', g_db.npc_goods);
+db.register_type('npc_recipes', g_db.npc_recipes);
+db.register_type('npc_spawns', g_db.npc_spawns);
+db.register_type('npcs', g_db.npcs);
+db.register_type('quests', g_db.quests);
