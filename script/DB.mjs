@@ -74,7 +74,17 @@ function get_obj_diff(obj, prev) {
 	return null;
 }
 
-function dump(data, spacing = 2) {
+function is_empty(obj) {
+	for (const f in obj) {
+		const v = obj[f];
+		if (v == 0 || v == '' || f == '_db') continue;
+		return false;
+	}
+
+	return true;
+}
+
+function dump(data, spacing = 1) {
 	return JSON.stringify(data, function(k, v) {
 		/* keep the _db at its minimum */
 		if (k === '_db') return { type: v.obj._db.type };
@@ -83,6 +93,9 @@ function dump(data, spacing = 2) {
 		/* stringify javascript sets */
 		if (typeof v === 'object' && v instanceof Set) {
 			return [...v];
+		}
+		if (typeof v === 'object' && !Array.isArray(v)) {
+			if (is_empty(v)) return undefined;
 		}
 		return v;
 	}, spacing);
@@ -424,7 +437,6 @@ class DB {
 				this.new_generation();
 			}
 		}
-
 	}
 }
 
