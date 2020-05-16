@@ -1,4 +1,3 @@
-if (typeof g_db === 'undefined') { var g_db = {}; }
 if (!g_db.recipes) g_db.recipes = [];
 g_db.recipes[4] = {id:4,name:"Blade of Hundred Battle",major_type:1,minor_type:2,craft_level:2,craft_id:158,bind:0,targets:[{id:29,prob:0.6700},{id:4519,prob:0.0300},{id:4707,prob:0.3000},{id:0,prob:0.0000},],fail_prob:0.0000,num_to_make:1,coins:0,duration:12.0000,xp:50,sp:15,mats:[{id:826,num:5},{id:772,num:3},{id:6754,num:1},]};
 g_db.recipes[7] = {id:7,name:"Wristbracer of Soothe Pneuma",major_type:5,minor_type:6,craft_level:4,craft_id:159,bind:0,targets:[{id:1858,prob:0.6700},{id:5088,prob:0.0300},{id:4966,prob:0.3000},{id:0,prob:0.0000},],fail_prob:0.0000,num_to_make:1,coins:0,duration:15.0000,xp:200,sp:50,mats:[{id:797,num:1},{id:775,num:1},{id:6763,num:1},]};

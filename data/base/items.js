@@ -1,4 +1,3 @@
-if (typeof g_db === 'undefined') { var g_db = {}; }
 if (!g_db.items) g_db.items = [];
 g_db.items[6]={id:6,type:0,name:"☆Steel Falchion",icon:5055,price:120,shop_price:240,pile_num_max:1,proc_type:0,};
 g_db.items[11]={id:11,type:0,name:"☆I-Beam Sledgehammer",icon:2463,price:80,shop_price:160,pile_num_max:1,proc_type:0,};
