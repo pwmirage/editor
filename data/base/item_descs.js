@@ -1,3 +1,4 @@
+if (typeof g_item_descs === 'undefined') { var g_item_descs = []; }
 g_item_descs[10037]="^ffcb4aThis ancient yet amazing invention has\rdelighted both young and old for centuries.\r^00ffffRight click to use.";
 g_item_descs[10042]="^00ffffSelect a catapult, and right click this item to control the catapult.";
 g_item_descs[10062]="^ffcb4aOne of the mystical scrolls the ancient god bestowed to Lothranis and Momaganon.\r Contains the power of Shen, which is one of the 28 constellations.";

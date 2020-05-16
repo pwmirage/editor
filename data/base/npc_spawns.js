@@ -1,3 +1,5 @@
+if (typeof g_db === 'undefined') { var g_db = {}; }
+if (!g_db.npc_spawns) g_db.npc_spawns = [];
 g_db.npc_spawns[0]={id:0,type:7336,count:1,fixed_y:0,pos:[-2524.99926758,217.73518372,4089.20043945],dir:[-0.65183371,0.00000000,0.75836200],spread:[0.00000000,0.00000000,0.00000000],auto_spawn:1,auto_respawn:1,trigger:0,max_num:0,path_id:0,path_type:0,path_speed:0,};
 g_db.npc_spawns[1]={id:1,type:7335,count:1,fixed_y:0,pos:[-2549.88500977,215.66525269,4109.93994141],dir:[0.49688008,0.00000000,0.86781931],spread:[0.00000000,0.00000000,0.00000000],auto_spawn:1,auto_respawn:1,trigger:0,max_num:0,path_id:0,path_type:0,path_speed:0,};
 g_db.npc_spawns[2]={id:2,type:7337,count:1,fixed_y:0,pos:[-2500.33007812,217.11416626,4100.19238281],dir:[-0.80849659,0.00000000,-0.58850098],spread:[0.00000000,0.00000000,0.00000000],auto_spawn:1,auto_respawn:1,trigger:0,max_num:0,path_id:0,path_type:0,path_speed:0,};
