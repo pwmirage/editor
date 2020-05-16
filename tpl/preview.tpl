@@ -27,7 +27,7 @@
 				{assign recipe = $find_by_id($db.recipes, $recipe_id)}
 				{assign tgt_item = $find_by_id($db.items, $recipe.targets[0].id)}
 				<pw-item data-icon="{@$tgt_item.icon}">
-					<pw-recipe-tooltip></pw-recipe-tooltip>
+					<pw-recipe-tooltip data-id="{@$recipe_id}"></pw-recipe-tooltip>
 				</pw-item>
 			{catch}
 				<pw-item data-icon="0"></pw-item>

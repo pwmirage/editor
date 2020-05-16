@@ -30,14 +30,13 @@ export class RecipeTooltip extends HTMLElement {
 
 	connectedCallback() {
 		const shadow = this.shadowRoot;
-		if (!this.diff) {
-			this.diff = this.dataset.diff ? JSON.parse(this.dataset.diff) : {};
+		this.db = this.getRootNode().host.db;
+		if (!this.obj) {
+			this.obj = find_by_id(this.db.recipes, this.dataset.id);
 		}
 
 		this.classList.add('tooltip');
-
-		const recipe = JSON.parse('{"id":2069,"name":"N/A","major_type":1,"minor_type":2050,"craft_level":6,"craft_id":158,"bind":0,"targets":[{"id":16076,"prob":1},{"id":0,"prob":0},{"id":0,"prob":0},{"id":0,"prob":0},{"id":0,"prob":0},{"id":0,"prob":0},{"id":0,"prob":0},{"id":0,"prob":0}],"fail_prob":0,"num_to_make":1,"coins":0,"duration":15,"xp":100,"sp":50,"mats":[{"id":16654,"num":1},{"id":3372,"num":2000},{"id":16467,"num":2},{"id":16468,"num":1},{"id":16545,"num":25},{"id":0,"num":0},{"id":0,"num":0},{"id":0,"num":0}],"_db":{"__type":"recipes"}}');
-		shadow.append(...newArrElements(this.tpl({ db, recipe, Item })));
+		shadow.append(...newArrElements(this.tpl({ db, recipe: this.obj, Item })));
 	}
 }
 
@@ -53,8 +52,10 @@ export class RecipeList extends HTMLElement {
 
 	connectedCallback() {
 		const shadow = this.shadowRoot;
-		if (!this.obj) this.obj = this.dataset.obj ? JSON.parse(this.dataset.obj) : {};
-		if (!this.db) this.db = this.dataset.db ? JSON.parse(this.dataset.db) : {};
+		this.db = this.getRootNode().host.db;
+		if (!this.obj) {
+			this.obj = find_by_id(this.db, this.dataset.id);
+		}
 		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_recipes: this.obj, find_by_id, Item })));
 	}
 }
@@ -77,7 +78,7 @@ export class Diff extends HTMLElement {
 
 		const req = await get("uploads/preview/" + this.project + ".json", { is_json: true });
 		if (!req.ok) return;
-		const json = req.data;
+		const json = this.db = req.data;
 		for (const obj of json.npc_recipes) {
 			const list = document.createElement('pw-recipe-list');
 			list.db = json;
