@@ -1,15 +1,8 @@
-import { newElement, newArrElements, escape } from '../DomUtil.mjs';
+import { newElement, newArrElements, newStyle, escape } from '../DomUtil.mjs';
 import { get, sleep } from '../Util.mjs';
 import { Item } from '../Item.mjs';
 import db from '../PWDB.mjs';
 import { compile_tpl, load_tpl_file } from '../template.mjs';
-
-const newStyle = (url) => {
-	const linkElem = document.createElement('link');
-	linkElem.setAttribute('rel', 'stylesheet');
-	linkElem.setAttribute('href', url);
-	return linkElem;
-}
 
 const find_by_id = (tbl, id) => {
 	for (const obj of tbl) {
@@ -18,17 +11,18 @@ const find_by_id = (tbl, id) => {
 	return null;
 }
 
-export class RecipeTooltip extends HTMLElement {
+class RecipeTooltip extends HTMLElement {
 	constructor() {
 		super();
-
 		const shadow = this.attachShadow({mode: 'open'});
 		shadow.append(newStyle('css/preview/common.css'));
-
-		this.tpl = compile_tpl('recipe-tooltip-tpl');
+		this.tpl = compile_tpl('pw-recipe-tooltip');
 	}
 
 	connectedCallback() {
+		if (this.initialized) return;
+		this.initialized = 1;
+
 		const shadow = this.shadowRoot;
 		this.db = this.getRootNode().host.db;
 		if (!this.obj) {
@@ -36,41 +30,91 @@ export class RecipeTooltip extends HTMLElement {
 		}
 
 		this.classList.add('tooltip');
-		shadow.append(...newArrElements(this.tpl({ db, recipe: this.obj, Item })));
+		shadow.append(...newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item })));
 	}
 }
 
-export class RecipeList extends HTMLElement {
+class Recipe extends HTMLElement {
 	constructor() {
 		super();
 
 		const shadow = this.attachShadow({mode: 'open'});
 		shadow.append(newStyle('css/preview/common.css'));
-
-		this.tpl = compile_tpl('recipe-list');
+		this.tpl = compile_tpl('pw-recipe');
 	}
 
+	static get observedAttributes() { return ['pw-id']; }
+
 	connectedCallback() {
+		if (this.initialized) return;
+		this.initialized = 1;
+
+		const shadow = this.shadowRoot;
+		this.db = this.getRootNode().host.db;
+	}
+
+	attributeChangedCallback(name, old_val, val) {
+		const shadow = this.shadowRoot;
+
+		switch (name) {
+		case 'pw-id': {
+			this.obj = find_by_id(this.db.recipes, val);
+			shadow.querySelectorAll('*:not(link)').forEach(i => i.remove());
+			shadow.append(...newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item })));
+			break;
+		}
+		}
+	}
+
+}
+
+class RecipeList extends HTMLElement {
+	constructor() {
+		super();
+
+		const shadow = this.attachShadow({mode: 'open'});
+		shadow.append(newStyle('css/preview/common.css'));
+		shadow.append(newStyle('css/preview/list.css'));
+
+		this.tpl = compile_tpl('pw-recipe-list');
+	}
+
+	static get observedAttributes() { return ['tab']; }
+
+	connectedCallback() {
+		if (this.initialized) return;
+		this.initialized = 1;
 		const shadow = this.shadowRoot;
 		this.db = this.getRootNode().host.db;
 		if (!this.obj) {
 			this.obj = find_by_id(this.db, this.dataset.id);
 		}
 		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_recipes: this.obj, find_by_id, Item })));
+		this.setTab(0);
+	}
+
+	setTab(idx) {
+		this.shadowRoot.querySelectorAll('#tabs > .tab').forEach(t => t.classList.remove('selected'));
+		this.shadowRoot.querySelector('#tabs > .tab[data-idx=\'' + idx + '\']').classList.add('selected');
+		this.shadowRoot.querySelectorAll('#recipes > pw-recipe').forEach(r => {
+			r.setAttribute('pw-id', this.obj.tabs[idx].recipes[r.dataset.idx]);
+		});
 	}
 }
 
-export class Diff extends HTMLElement {
+class Diff extends HTMLElement {
 	constructor() {
 		super();
 
 		const shadow = this.attachShadow({mode: 'open'});
 		shadow.append(newStyle('css/preview/common.css'));
 
-		this.tpl = compile_tpl('diff');
+		this.tpl = compile_tpl('pw-diff');
 	}
 
 	async connectedCallback() {
+		if (this.initialized) return;
+		this.initialized = 1;
 		const shadow = this.shadowRoot;
 		if (!this.project) {
 			this.project = this.dataset.project || "";
@@ -97,5 +141,6 @@ export class Diff extends HTMLElement {
 	]);
 	customElements.define('pw-recipe-tooltip', RecipeTooltip);
 	customElements.define('pw-recipe-list', RecipeList);
+	customElements.define('pw-recipe', Recipe);
 	customElements.define('pw-diff', Diff);
 })();

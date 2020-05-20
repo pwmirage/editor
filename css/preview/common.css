@@ -2,6 +2,12 @@
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 9pt;
 	font-weight: bold;
+	--color-header-bg: #9c3a3a;
+	--color-header-fg: #edeced;
+	--color-content-bg: #f1ecec;
+	--color-button-bg: #dccfcf;
+	--color-button-bg-darker: #b9a2a2;
+	--color-button-fg: #212121;
 }
 
 p {
@@ -11,6 +17,7 @@ p {
 .item-container {
 	display: grid;
 	grid-template-columns: repeat(8, 34px);
+	margin-bottom: -2px;
 }
 
 .item {
@@ -18,11 +25,6 @@ p {
 	height: 32px;
 	display: inline-block;
 	margin: 1px;
-}
-
-.item > img {
-	opacity: 0;
-	transition: opacity 0.25s ease-in-out;
 }
 
 .tooltip {
@@ -54,12 +56,22 @@ p {
 	transform: translate(-100%, 0%);
 }
 
-#header {
-	display: flex;
+.window {
+	border: 1px solid #e0e0e0;
+	display: inline-block;
+	background-color: var(--color-content-bg);
 }
 
-#header > .item {
-	margin-right: 5px;
+.window > .header {
+	display: flex;
+	padding: 8px;
+	margin: -1px;
+	background-color: var(--color-header-bg);
+	color: var(--color-header-fg);
+}
+
+.window > .content {
+	margin: 3px;
 }
 
 .name-container {

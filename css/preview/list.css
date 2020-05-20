@@ -1,0 +1,23 @@
+#tabs {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: calc(68.5px * 4);
+	margin: -1px;
+	margin-bottom: 3px;
+}
+
+#tabs > .tab {
+	width: 64.5px;
+	box-sizing: border-box;
+	margin: 2px;
+	padding: 5px;
+	background-color: var(--color-button-bg);
+	color: var(--color-button-fg);
+	border: 1px solid #b47a63;
+	font-size: 11px;
+	cursor: pointer;
+}
+
+#tabs > .tab.selected {
+	background-color: var(--color-button-bg-darker);
+}

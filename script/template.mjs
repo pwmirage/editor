@@ -12,6 +12,7 @@ const doT = {
 	log: true
 };
 
+
 const encodeHTMLSource = (doNotSkipEncoded) => {
 	const encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" };
 	const matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
@@ -19,6 +20,12 @@ const encodeHTMLSource = (doNotSkipEncoded) => {
 		return code ? code.toString().replace(matchHTML, (m) => {return encodeHTMLRules[m] || m;}) : "";
 	};
 };
+
+const getRoot = (el) => (el.shadowRoot ? el.shadowRoot : el.getRootNode()).host;
+
+const _globals = (0,eval)("this");
+_globals.encodeHTML = encodeHTMLSource;
+_globals.getRoot = getRoot;
 
 const unescape = (code) => {
 	return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
@@ -50,48 +57,43 @@ export const compile_tpl = (tpl_id) => {
 	};
 	const cse = { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" };
 	let str = tpl_string;
-	let needhtmlencode;
 
-	str = ("var out='" + (str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
+	str = ("var out=''; out+='" + (str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
 				.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""))
 		.replace(/'|\\/g, "\\$&")
-		.replace(/\{([\s\S]+?)\}/g, (m, code) => {
+		.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
+		.replace(/([\\]?)\{([\s\S]+?[^\\])\}/g, (m, lbrace_prefix, code) => {
+			if (lbrace_prefix === '\\') return m;
 			code = unescape(code)
+				.replace(/\\\}/g, '}')
+				.replace(/\$this/g, "getRoot(this)")
 				.replace(/^assign (.*)$/, "local.$1;")
-				.replace(/^foreach(.*) as (.*)$/, "{ const backup = local[\"$2\"]; for (const $2 of $1) { local[\"$2\"] = $2;")
-				.replace(/^\/foreach$/g, "}; local[\"$2\"] = backup; };")
+				.replace(/^for \s*(.*?)\s*=(.*?);(.*?);(.*?)$/, "{const backup_name=\"$1\"; const backup=local[backup_name]; for (let $1 = $2; $3; $4) { local[backup_name] = $1;")
+				.replace(/^foreach(.*) as (.*)$/, "{const backup_name=\"$2\"; const backup=local[backup_name]; for (const $2 of $1) { local[backup_name] = $2;")
+				.replace(/^\/(foreach|for)$/g, "}; local[backup_name] = backup; };")
 				.replace(/^if (.*)$/g, ";if ($1) {")
 				.replace(/^else$/g, "} else {")
 				.replace(/^\/if$/g, ";}")
-				.replace(/^try$/g, ";try {")
-				.replace(/^catch$/g, "} catch (e) {")
+				.replace(/^try$/g, ";const backup = out; try {")
+				.replace(/^catch$/g, "} catch (e) { out = backup;")
 				.replace(/^\/try$/g, ";}")
 				.replace(/\$/g, "local.")
 				.replace(/^include id=['"]?([\s\S]+?)['"]?$/g, (m, id) => {
-					return ';out+=(' + compile_tpl(id).toString().replace(/\n/g, "") + ')(local);';
+					return ';out+=(' + compile_tpl(id).toString().replace(/\n/g, "") + ')(local);\n';
 				});
 
 			if (code.startsWith('@@')) {
-				needhtmlencode = true;
-				return cse.startencode + code.substring(2) + cse.end;
+				return cse.start + '\'' + code.substring(2).replace(/\'/g, '\\\'') + '\'' + cse.end;
 			} else if (code.startsWith('@')) {
 				return cse.start + code.substring(1) + cse.end;
 			}
-			return "';" + code + ";out+='";
+			return "';" + code + ";\nout+='";
 		})
 		+ "';return out;")
-		.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
 		.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 		//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
-	if (needhtmlencode) {
-		const _globals = (0,eval)("this");
-		if (!c.selfcontained && !_globals._encodeHTML) _globals._encodeHTML = encodeHTMLSource(c.doNotSkipEncoded);
-		str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
-			+ encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
-			+ str;
-	}
-
+	console.log(str);
 	const ret = new Function("local", str);
 	compiled_cache.set(tpl_id, ret);
 	return ret;
