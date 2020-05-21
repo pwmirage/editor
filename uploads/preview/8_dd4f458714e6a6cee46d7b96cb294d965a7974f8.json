@@ -25,7 +25,12 @@
    "id_petname_service": 0,
    "id_equipbind_service": 0,
    "_db": {
-    "type": "npcs"
+    "type": "npcs",
+    "prev": {
+     "name": "Papa Crane ",
+     "id_task_in_service": 24713,
+     "id_make_service": 0
+    }
    },
    "_tpl_name": "Papa Crane "
   }
@@ -2552,7 +2557,28 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      null,
+      null,
+      null,
+      null,
+      {
+       "id": 14098,
+       "num": 12
+      },
+      {
+       "num": 12
+      }
+     ]
+    }
    }
   },
   {
@@ -2614,7 +2640,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 35
+      },
+      {
+       "num": 35
+      },
+      {
+       "num": 35
+      },
+      {
+       "num": 35
+      },
+      null,
+      {
+       "id": 14114,
+       "num": 32
+      },
+      {
+       "num": 32
+      }
+     ]
+    }
    }
   },
   {
@@ -2673,7 +2729,28 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      null,
+      null,
+      null,
+      null,
+      {
+       "id": 14097,
+       "num": 9
+      },
+      {
+       "num": 9
+      }
+     ]
+    }
    }
   },
   {
@@ -2732,7 +2809,28 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      null,
+      null,
+      null,
+      null,
+      {
+       "id": 14097,
+       "num": 9
+      },
+      {
+       "num": 9
+      }
+     ]
+    }
    }
   },
   {
@@ -2791,7 +2889,28 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      null,
+      null,
+      null,
+      null,
+      {
+       "id": 14097,
+       "num": 9
+      },
+      {
+       "num": 9
+      }
+     ]
+    }
    }
   },
   {
@@ -2853,7 +2972,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      null,
+      {
+       "id": 14098,
+       "num": 12
+      },
+      {
+       "num": 12
+      }
+     ]
+    }
    }
   },
   {
@@ -2915,7 +3064,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      null,
+      {
+       "id": 14098,
+       "num": 12
+      },
+      {
+       "num": 12
+      }
+     ]
+    }
    }
   },
   {
@@ -2977,7 +3156,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      {
+       "num": 10
+      },
+      null,
+      {
+       "id": 14098,
+       "num": 12
+      },
+      {
+       "num": 12
+      }
+     ]
+    }
    }
   },
   {
@@ -3039,7 +3248,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      null,
+      {
+       "id": 14104,
+       "num": 18
+      },
+      {
+       "num": 18
+      }
+     ]
+    }
    }
   },
   {
@@ -3101,7 +3340,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      null,
+      {
+       "id": 14104,
+       "num": 18
+      },
+      {
+       "num": 18
+      }
+     ]
+    }
    }
   },
   {
@@ -3163,7 +3432,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      null,
+      {
+       "id": 14104,
+       "num": 18
+      },
+      {
+       "num": 18
+      }
+     ]
+    }
    }
   },
   {
@@ -3225,7 +3524,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      null,
+      {
+       "id": 14109,
+       "num": 24
+      },
+      {
+       "num": 24
+      }
+     ]
+    }
    }
   },
   {
@@ -3287,7 +3616,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      null,
+      {
+       "id": 14109,
+       "num": 24
+      },
+      {
+       "num": 24
+      }
+     ]
+    }
    }
   },
   {
@@ -3349,7 +3708,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      null,
+      {
+       "id": 14109,
+       "num": 24
+      },
+      {
+       "num": 24
+      }
+     ]
+    }
    }
   },
   {
@@ -3411,7 +3800,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      null,
+      {
+       "id": 14111,
+       "num": 24
+      },
+      {
+       "num": 6
+      }
+     ]
+    }
    }
   },
   {
@@ -3473,7 +3892,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      null,
+      {
+       "id": 14111,
+       "num": 32
+      },
+      {
+       "num": 32
+      }
+     ]
+    }
    }
   },
   {
@@ -3535,7 +3984,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      null,
+      {
+       "id": 14112,
+       "num": 24
+      },
+      {
+       "num": 1
+      }
+     ]
+    }
    }
   },
   {
@@ -3597,7 +4076,37 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      null,
+      {
+       "id": 14111,
+       "num": 24
+      },
+      {
+       "num": 24
+      }
+     ]
+    }
    }
   },
   {
@@ -10866,7 +11375,30 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 7
+      },
+      {
+       "num": 7
+      },
+      {
+       "num": 7
+      },
+      {
+       "num": 7
+      },
+      null
+     ]
+    }
    }
   },
   {
@@ -10922,7 +11454,30 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      {
+       "num": 17
+      },
+      null
+     ]
+    }
    }
   },
   {
@@ -10978,7 +11533,30 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      null
+     ]
+    }
    }
   },
   {
@@ -11034,7 +11612,30 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      {
+       "num": 12
+      },
+      null
+     ]
+    }
    }
   },
   {
@@ -11090,7 +11691,30 @@
     null
    ],
    "_db": {
-    "type": "recipes"
+    "type": "recipes",
+    "prev": {
+     "targets": [
+      null,
+      null,
+      null,
+      null
+     ],
+     "mats": [
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      {
+       "num": 15
+      },
+      null
+     ]
+    }
    }
   }
  ],
