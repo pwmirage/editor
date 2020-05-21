@@ -326,7 +326,7 @@ class DB {
 
 	clone(obj) {
 		let copy = {};
-		init_obj_data(copy, obj);
+		copy_obj_data(copy, obj);
 		return copy;
 	}
 
@@ -359,7 +359,7 @@ class DB {
 		for (const f in obj) {
 			if (obj[f] === obj._db) continue;
 			if (typeof(org[f]) === 'object') {
-				if (!is_obj_equal(org[f], obj[f])) return false;
+				if (!this.is_obj_equal(org[f], obj[f])) return false;
 			}
 			if (obj[f] !== org[f]) return false;
 		}
