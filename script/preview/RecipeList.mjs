@@ -16,6 +16,7 @@ class RecipeTooltip extends HTMLElement {
 		super();
 		const shadow = this.attachShadow({mode: 'open'});
 		shadow.append(newStyle('css/preview/common.css'));
+		shadow.append(newStyle('css/preview/pw-recipe-tooltip.css'));
 		this.tpl = compile_tpl('pw-recipe-tooltip');
 	}
 

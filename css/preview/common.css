@@ -36,6 +36,22 @@ p {
 	display: block;
 }
 
+.force-visible,
+.force-visible > * {
+	display: block !important;
+}
+
+.blackfocusbox {
+	display: none;
+	background-color: #000;
+	opacity: 0.5;
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+
 .pw-tooltip {
 	position: absolute;
 	top: 1px;
@@ -72,12 +88,4 @@ p {
 
 .window > .content {
 	margin: 3px;
-}
-
-.name-container {
-	margin: auto;
-}
-
-p.title {
-	white-space: nowrap;
 }
