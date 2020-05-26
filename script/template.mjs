@@ -41,6 +41,12 @@ export const load_tpl_file = async (filename) => {
 	}
 
 	document.querySelector('body').insertAdjacentHTML('beforeend', file.data);
+	for (const script of document.querySelectorAll('script.reload')) {
+		const new_script = document.createElement('script');
+		new_script.text = script.text;
+		script.remove();
+		document.head.append(new_script);
+	}
 	loaded_files.push(filename);
 };
 

@@ -14,6 +14,15 @@ p {
 	margin: 0;
 }
 
+.flex-equal {
+	display: flex;
+}
+
+.flex-equal > * {
+	flex-grow: 1;
+	flex-basis: 0;
+}
+
 .item-container {
 	display: grid;
 	grid-template-columns: repeat(8, 34px);

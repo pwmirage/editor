@@ -1,3 +1,9 @@
+<script class="reload">
+	function get_default(val, def) {
+		return val !== undefined ? val : def;
+	}
+</script>
+
 <script id="pw-recipe-tooltip" type="text/x-dot-template">
 	{assign recipe_id = $this.getAttribute('pw-id') || this.getRootNode().host.getAttribute('pw-id')}
 	{if $recipe_id > 0}
@@ -19,7 +25,11 @@
 			{if $prev._tpl_name}<p class="nowrap prev">Tpl: {@$prev._tpl_name || "(unnamed)"}</p>{/if}
 			<p class="nowrap data">Tpl: {@$recipe._db.tpl_name || "(unnamed)"}</p>
 
-			<p style="margin: 5px 0;">Crafted:</p>
+			<p style="margin: 5px 0;">
+				{if $prev.num_to_make}<span class="nowrap prev">Crafted: {@$prev.num_to_make}x:</span>{/if}
+				<span class="nowrap data">Crafted: {@$recipe.num_to_make}x:</span>
+			</p>
+
 			{if $prev.targets}
 				<div class="targets prev nowrap"">
 					{for i = 0; i < 4; i++}
@@ -28,9 +38,9 @@
 								<span class="nowrap data prob">0%</span>
 								<pw-item data-icon="-1"></pw-item>
 							{else}
-								{assign tgt_item = $find_by_id($db.items, $prev.targets[$i].id) || { icon: 0 \}}
-								<span class="nowrap data prob">{@($prev.targets[$i].prob * 100) || "0"}%</span>
-								<pw-item data-icon="{@$tgt_item.icon}"></pw-item>
+								{assign tgt_item = $find_by_id($db.items, $prev.targets[$i].id || recipe.targets[$i].id) || { icon: 0 \}}
+								<span class="nowrap data prob">{@get_default($prev.targets[$i].prob, $recipe.targets[$i].prob) * 100}%</span>
+								<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 							{/if}
 						</div>
 					{/for}
@@ -45,43 +55,85 @@
 						{else}
 							{assign tgt_item = $find_by_id($db.items, $recipe.targets[$i].id) || { icon: 0 \}}
 							<span class="nowrap data prob">{@($recipe.targets[$i].prob * 100) || "0"}%</span>
-							<pw-item data-icon="{@$tgt_item.icon}"></pw-item>
+							<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 						{/if}
 					</div>
 				{/for}
 			</div>
 
+			<p style="margin-top: 5px;">
+				{if $prev.craft_id !== undefined || $prev.craft_level !== undefined || $prev.fail_prob !== undefined}
+					<div class="nowrap prev flex-equal">
+						<span>
+							{if get_default($prev.craft_id, $recipe.craft_id) === 0}
+								Generic Craft
+							{else}
+								(Craft #{@get_default($prev.craft_id, $recipe.craft_id)})
+								Lv {@get_default($prev.craft_level, $recipe.craft_level)}
+							{/if}
+						</span>
+						<span>Fail chance: {@get_default($prev.fail_prob, $recipe.fail_prob) * 100}%</span>
+					</div>
+				{/if}
+				<div class="nowrap data flex-equal">
+					<span>
+						{if $recipe.craft_id === 0}
+							Generic Craft
+						{else}
+							(Craft #{@$recipe.craft_id})&nbsp;
+							Lv {@$recipe.craft_level}
+						{/if}
+					</span>
+					<span>Fail chance: {@$recipe.fail_prob * 100}%</span>
+				</div>
+			</p>
+
 			<p style="margin: 5px 0;">Mats:</p>
-			{if $prev.mats}
-				<div class="materials prev nowrap"">
-					{for i = 0; i < 4; i++}
+			{for off = 0; off < 8; off += 4}
+				{if $prev.mats}
+					<div class="materials prev nowrap"">
+						{for i = $off; i < $off + 4; i++}
+							<div class="target">
+								{if !$prev.mats[$i]}
+									<span class="nowrap data num">0</span>
+									<pw-item data-icon="-1"></pw-item>
+								{else}
+									{assign tgt_item = $find_by_id($db.items, $prev.mats[$i].id || $recipe.mats[$i].id) || { icon: 0 \}}
+									<span class="nowrap data num">{@$prev.mats[$i].num || "0"}</span>
+									<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
+								{/if}
+							</div>
+						{/for}
+					</div>
+				{/if}
+				<div class="materials data nowrap"">
+					{for i = $off; i < $off + 4; i++}
 						<div class="target">
-							{if !$prev.mats[$i]}
+							{if !$recipe.mats[$i]}
 								<span class="nowrap data num">0</span>
 								<pw-item data-icon="-1"></pw-item>
 							{else}
-								{assign tgt_item = $find_by_id($db.items, $prev.mats[$i].id) || { icon: 0 \}}
-								<span class="nowrap data num">{@$prev.mats[$i].num || "0"}</span>
-								<pw-item data-icon="{@$tgt_item.icon}"></pw-item>
+								{assign tgt_item = $find_by_id($db.items, $recipe.mats[$i].id) || { icon: 0 \}}
+								<span class="nowrap data num">{@$recipe.mats[$i].num || "0"}</span>
+								<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 							{/if}
 						</div>
 					{/for}
 				</div>
-			{/if}
-			<div class="materials data nowrap"">
-				{for i = 0; i < 4; i++}
-					<div class="target">
-						{if !$recipe.mats[$i]}
-							<span class="nowrap data num">0</span>
-							<pw-item data-icon="-1"></pw-item>
-						{else}
-							{assign tgt_item = $find_by_id($db.items, $recipe.mats[$i].id) || { icon: 0 \}}
-							<span class="nowrap data num">{@$recipe.mats[$i].num || "0"}</span>
-							<pw-item data-icon="{@$tgt_item.icon}"></pw-item>
-						{/if}
+			{/for}
+
+			<p style="margin-top: 5px;">
+				{if $prev.coins}
+					<div class="nowrap prev flex-equal">
+						<span>Coins: {@$prev.coins}</span>
 					</div>
-				{/for}
-			</div>
+				{/if}
+				<div class="nowrap data flex-equal">
+					<span>Coins: {@$recipe.coins}</span>
+				</div>
+			</p>
+
+			<p style="margin-top: 3px;"></p>
 
 		</span>
 	{/if}
