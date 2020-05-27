@@ -188,19 +188,16 @@ export class Item extends HTMLElement {
 
 	connectedCallback() {
 		this.classList.add('item');
+		if (this.dataset.icon == -1) return;
 
-		if (this.dataset.icon == -1) {
-			this.style.backgroundImage = 'url(img/itemslot.png)';
-		} else {
-			this.style.backgroundImage = 'url(img/item-unknown.png)';
-			g_iconset_promise.then(() => {
-				const img = document.createElement('img');
-				img.onload = () => {
-					img.style.opacity = 1;
-				};
-				img.src = get_icon_src(this.dataset.icon);
-				this.appendChild(img);
-			});
-		}
+		this.style.backgroundImage = 'url(img/item-unknown.png)';
+		g_iconset_promise.then(() => {
+			const img = document.createElement('img');
+			img.onload = () => {
+				img.style.opacity = 1;
+			};
+			img.src = get_icon_src(this.dataset.icon);
+			this.appendChild(img);
+		});
 	}
 }
