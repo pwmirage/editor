@@ -90,7 +90,7 @@
 
 			<p style="margin: 5px 0;">Mats:</p>
 			{for off = 0; off < 8; off += 4}
-				{if $prev.mats}
+				{if $prev.mats && ($prev.mats[$off] || $prev.mats[$off + 1] || $prev.mats[$off + 2] || $prev.mats[$off + 3])}
 					<div class="materials prev nowrap"">
 						{for i = $off; i < $off + 4; i++}
 							<div class="target">

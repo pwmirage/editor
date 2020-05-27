@@ -35,6 +35,21 @@
 
 #tabs > .tab > .prev:before,
 #tabs > .tab > .data:before {
-		border-left: 1px solid #b47a63;
-		background-color:#b9a2a2;
+	border-left: 1px solid #b47a63;
+	background-color:#b9a2a2;
+}
+
+pw-recipe {
+	position: relative;
+}
+
+pw-recipe:not(.modified):after {
+	content: ' ';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255, 255, 255, 0.5);
+	pointer-events: none;
 }

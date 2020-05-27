@@ -11,6 +11,12 @@ const find_by_id = (tbl, id) => {
 	return null;
 }
 
+const query_mod_fields = (root) => {
+	return root.querySelector('.prev') ||
+		root.querySelector('.diff-plus') ||
+		root.querySelector('.modified');
+};
+
 class RecipeTooltip extends HTMLElement {
 	constructor() {
 		super();
@@ -32,6 +38,12 @@ class RecipeTooltip extends HTMLElement {
 
 		this.classList.add('tooltip');
 		shadow.append(...newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item })));
+
+		if (query_mod_fields(shadow)) {
+			this.classList.add('modified');
+		} else {
+			this.classList.remove('modified');
+		}
 	}
 }
 
@@ -62,6 +74,12 @@ class Recipe extends HTMLElement {
 			this.obj = find_by_id(this.db.recipes, val);
 			shadow.querySelectorAll('*:not(link)').forEach(i => i.remove());
 			shadow.append(...newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item })));
+
+			if (query_mod_fields(shadow)) {
+				this.classList.add('modified');
+			} else {
+				this.classList.remove('modified');
+			}
 			break;
 		}
 		}
