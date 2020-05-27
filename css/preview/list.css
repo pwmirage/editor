@@ -1,3 +1,12 @@
+.window {
+	width: 280px;
+}
+
+.window > .header .prev,
+.window > .header .prev + .data {
+	margin-left: 8px;
+}
+
 #tabs {
 	display: flex;
 	flex-wrap: wrap;

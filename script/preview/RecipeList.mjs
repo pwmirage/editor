@@ -22,6 +22,7 @@ class RecipeTooltip extends HTMLElement {
 		super();
 		const shadow = this.attachShadow({mode: 'open'});
 		shadow.append(newStyle('css/preview/common.css'));
+		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		shadow.append(newStyle('css/preview/pw-recipe-tooltip.css'));
 		this.tpl = compile_tpl('pw-recipe-tooltip');
 	}
@@ -52,6 +53,7 @@ class Recipe extends HTMLElement {
 		super();
 
 		const shadow = this.attachShadow({mode: 'open'});
+		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		shadow.append(newStyle('css/preview/common.css'));
 		this.tpl = compile_tpl('pw-recipe');
 	}
@@ -93,6 +95,7 @@ class RecipeList extends HTMLElement {
 
 		const shadow = this.attachShadow({mode: 'open'});
 		shadow.append(newStyle('css/preview/common.css'));
+		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		shadow.append(newStyle('css/preview/list.css'));
 
 		this.tpl = compile_tpl('pw-recipe-list');
@@ -143,11 +146,59 @@ class RecipeList extends HTMLElement {
 	}
 }
 
+class NPC extends HTMLElement {
+	constructor() {
+		super();
+
+		const shadow = this.attachShadow({mode: 'open'});
+		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+		shadow.append(newStyle('css/preview/common.css'));
+		shadow.append(newStyle('css/preview/npc.css'));
+		this.tpl = compile_tpl('pw-npc');
+	}
+
+	static get observedAttributes() { return ['pw-id']; }
+
+	connectedCallback() {
+		if (this.initialized) return;
+		this.initialized = 1;
+
+		this.db = this.getRootNode().host.db;
+		if (this.obj) this.reinit();
+	}
+
+	reinit() {
+		const shadow = this.shadowRoot;
+		shadow.querySelectorAll('*:not(link)').forEach(i => i.remove());
+		shadow.append(...newArrElements(this.tpl({ db: this.db, npc: this.obj, find_by_id })));
+
+		if (query_mod_fields(shadow)) {
+			this.classList.add('modified');
+		} else {
+			this.classList.remove('modified');
+		}
+	}
+
+	attributeChangedCallback(name, old_val, val) {
+		const shadow = this.shadowRoot;
+
+		switch (name) {
+		case 'pw-id': {
+			this.obj = find_by_id(this.db.npcs, val);
+			this.reinit();
+			break;
+		}
+		}
+	}
+}
+
+
 class Diff extends HTMLElement {
 	constructor() {
 		super();
 
 		const shadow = this.attachShadow({mode: 'open'});
+		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		shadow.append(newStyle('css/preview/common.css'));
 
 		this.tpl = compile_tpl('pw-diff');
@@ -164,6 +215,13 @@ class Diff extends HTMLElement {
 		const req = await get("uploads/preview/" + this.project + ".json", { is_json: true });
 		if (!req.ok) return;
 		const json = this.db = req.data;
+		for (const obj of json.npcs) {
+			const el = document.createElement('pw-npc');
+			el.db = json;
+			el.obj = obj;
+			shadow.append(el);
+		}
+
 		for (const obj of json.npc_recipes) {
 			const list = document.createElement('pw-recipe-list');
 			list.db = json;
@@ -180,8 +238,9 @@ class Diff extends HTMLElement {
 		load_tpl_file('tpl/preview.tpl'),
 		Item.set_iconset('img/iconlist_ivtrm.png'),
 	]);
+	customElements.define('pw-npc', NPC);
 	customElements.define('pw-recipe-tooltip', RecipeTooltip);
-	customElements.define('pw-recipe-list', RecipeList);
 	customElements.define('pw-recipe', Recipe);
+	customElements.define('pw-recipe-list', RecipeList);
 	customElements.define('pw-diff', Diff);
 })();
