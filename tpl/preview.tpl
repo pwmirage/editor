@@ -133,6 +133,20 @@
 				</div>
 			</p>
 
+			<p style="margin-top: 5px;">
+			{if $prev.xp !== undefined || $prev.sp !== undefined || $prev.duration !== undefined}
+				<div class="nowrap prev flex-equal">
+					<span>Craft time {@get_default($prev.duration, $recipe.duration)}s</span>
+					<span>Gained XP: {@get_default($prev.xp, $recipe.xp)}</span>
+					<span>SP: {@get_default($prev.sp, $recipe.sp)}</span>
+				</div>
+			{/if}
+			<div class="nowrap data flex-equal">
+				<span>Craft time {@$recipe.duration}s</span>
+				<span>Gained XP: {@$recipe.xp}</span>
+				<span>SP: {@$recipe.sp}</span>
+			</div>
+
 			<p style="margin-top: 3px;"></p>
 
 		</span>
@@ -159,12 +173,20 @@
 
 <script id="pw-recipe-list" type="text/x-dot-template">
 	<div class="window">
-		<div class="header"><p>Recipe list: {@$npc_recipes.name}</p></div>
+		{assign prev = $npc_recipes._db.prev || {\}}
+		<div class="header">
+			{if $prev.name}<p class="prev">Recipe list: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>{/if}
+			<p class="data">Recipe list: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>
+		</div>
 		<div class="content">
 			<div id="tabs">
 				{for i = 0; i < 8; i++}
 					{assign tab = $npc_recipes.tabs[i]}
-					<span class="tab" data-idx="{@$i}" onclick="{@@$this}.setTab({@$i});">{if $tab}{@$tab.title}{/if}</span>
+					{assign prev_tab = $prev.tabs ? $prev.tabs[i] : null}
+					<span class="tab" data-idx="{@$i}" onclick="{@@$this}.setTab({@$i});">
+						{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
+						{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
+					</span>
 				{/foreach}
 			</div>
 

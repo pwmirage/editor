@@ -91,14 +91,28 @@ class RecipeList extends HTMLElement {
 			this.obj = find_by_id(this.db, this.dataset.id);
 		}
 		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_recipes: this.obj, find_by_id, Item })));
-		this.setTab(0);
+
+		let idx = 0;
+		for (; idx < 8; idx++) {
+			const tab = this.obj.tabs[idx];
+			if (!tab) continue;
+			this.setTab(idx);
+			break;
+		}
+
+		if (idx == 8) {
+			this.shadowRoot.querySelectorAll('#recipes > pw-recipe').forEach(r => {
+				r.setAttribute('pw-id', 0);
+			});
+		}
 	}
 
 	setTab(idx) {
+		if (!this.obj.tabs[idx]) return;
 		this.shadowRoot.querySelectorAll('#tabs > .tab').forEach(t => t.classList.remove('selected'));
 		this.shadowRoot.querySelector('#tabs > .tab[data-idx=\'' + idx + '\']').classList.add('selected');
 		this.shadowRoot.querySelectorAll('#recipes > pw-recipe').forEach(r => {
-			r.setAttribute('pw-id', this.obj.tabs[idx].recipes[r.dataset.idx]);
+			r.setAttribute('pw-id', this.obj.tabs[idx].recipes[r.dataset.idx] || 0);
 		});
 	}
 }

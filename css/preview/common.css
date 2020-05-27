@@ -27,13 +27,13 @@ p {
 	display: grid;
 	grid-template-columns: repeat(8, 34px);
 	margin-bottom: -2px;
+	padding: 1px;
 }
 
 .item {
 	width: 32px;
 	height: 32px;
 	display: inline-block;
-	margin: 1px;
 }
 
 .tooltip {
@@ -48,6 +48,11 @@ p {
 .force-visible,
 .force-visible > * {
 	display: block !important;
+}
+
+.force-hidden,
+.force-hidden > * {
+	display: none !important;
 }
 
 .blackfocusbox {
@@ -97,4 +102,36 @@ p {
 
 .window > .content {
 	margin: 3px;
+}
+
+.data,
+.prev,
+.diff-plus {
+	position: relative;
+}
+
+.prev + .data {
+	transform: translateY(-100%);
+}
+
+.prev {
+	transform: translateY(100%);
+	color: #808080;
+}
+
+.prev + .data:before,
+.diff-plus:before,
+.prev:before {
+	content: '+';
+	color: #32dc32;
+	font-family: "Courier New", Courier, monospace;
+	font-size: 14px;
+	position: absolute;
+	left: -10px;
+	top: calc(50% - 8px);
+}
+
+.prev:before {
+	content: '-';
+	color: red;
 }
