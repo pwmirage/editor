@@ -106,7 +106,7 @@ class RecipeList extends HTMLElement {
 		const shadow = this.shadowRoot;
 		this.db = this.getRootNode().host.db;
 		if (!this.obj) {
-			this.obj = find_by_id(this.db, this.dataset.id);
+			this.obj = find_by_id(this.db.npc_recipes, this.dataset.id);
 		}
 		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_recipes: this.obj, find_by_id, Item })));
 
@@ -114,6 +114,12 @@ class RecipeList extends HTMLElement {
 		for (; idx < 8; idx++) {
 			const tab = this.obj.tabs[idx];
 			if (!tab) continue;
+			if (this.obj._db.prev && this.obj._db.prev.tabs && !this.obj._db.prev.tabs[idx]) continue;
+			if (tab.recipes.every(rid => {
+				const r = find_by_id(this.db.recipes, rid);
+				if (!r) return true;
+				return !r._db.prev;
+			})) continue;
 			this.setTab(idx);
 			break;
 		}
@@ -131,6 +137,8 @@ class RecipeList extends HTMLElement {
 		this.shadowRoot.querySelector('#tabs > .tab[data-idx=\'' + idx + '\']').classList.add('selected');
 		this.shadowRoot.querySelectorAll('#recipes > pw-recipe').forEach(r => {
 			r.setAttribute('pw-id', this.obj.tabs[idx].recipes[r.dataset.idx] || 0);
+			const prev = this.obj._db.prev;
+			if (prev && prev.tabs && prev.tabs[idx] && prev.tabs[idx].recipes && prev.tabs[idx].recipes[r.dataset.idx]) r.classList.add('modified');
 		});
 	}
 }
