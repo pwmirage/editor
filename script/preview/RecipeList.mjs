@@ -113,6 +113,7 @@ class RecipeList extends HTMLElement {
 		}
 		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_recipes: this.obj, find_by_id, Item })));
 
+		const tab_els = shadow.querySelectorAll('#tabs > .tab');
 		let idx = 0;
 		for (; idx < 8; idx++) {
 			const tab = this.obj.tabs[idx];
@@ -123,12 +124,14 @@ class RecipeList extends HTMLElement {
 				if (!r) return true;
 				return !r._db.prev;
 			})) continue;
-			this.setTab(idx);
-			break;
+			tab_els[idx].classList.add('modified');
 		}
 
-		if (idx == 8) {
-			this.shadowRoot.querySelectorAll('#recipes > pw-recipe').forEach(r => {
+		const t = shadow.querySelector('#tabs .modified');
+		if (t) {
+			this.setTab(t.dataset.idx);
+		} else {
+			shadow.querySelectorAll('#recipes > pw-recipe').forEach(r => {
 				r.setAttribute('pw-id', 0);
 			});
 		}

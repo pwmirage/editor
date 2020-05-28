@@ -38,14 +38,20 @@
 	color: gray;
 }
 
-#tabs > .tab.selected {
+#tabs > .tab:not(.modified) {
+	color: gray;
+}
+
+#tabs > .tab.selected,
+#tabs > .tab.selected > .prev:before,
+#tabs > .tab.selected > .data:before {
 	background-color: var(--color-button-bg-darker);
 }
 
 #tabs > .tab > .prev:before,
 #tabs > .tab > .data:before {
 	border-left: 1px solid #b47a63;
-	background-color:#b9a2a2;
+	background-color: var(--color-button-bg);
 }
 
 pw-recipe {
