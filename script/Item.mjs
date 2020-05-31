@@ -182,22 +182,37 @@ export class Item extends HTMLElement {
 		}
 	}
 
+	static get observedAttributes() { return ['pw-icon']; }
+
 	constructor() {
 		super();
 	}
 
+	attributeChangedCallback(name, old_val, val) {
+		switch (name) {
+		case 'pw-icon': {
+			if (val == -1) {
+				this.style.backgroundImage = '';
+				const prev = this.querySelector('img');
+				if (prev) prev.remove();
+				return;
+			}
+
+			this.style.backgroundImage = 'url(img/item-unknown.png)';
+			g_iconset_promise.then(() => {
+				const prev = this.querySelector('img');
+				const img = document.createElement('img');
+				img.onload = () => {
+					img.style.opacity = 1;
+					if (prev) prev.remove();
+				};
+				img.src = get_icon_src(val);
+				this.appendChild(img);
+			});
+		}
+		}
+	}
 	connectedCallback() {
 		this.classList.add('item');
-		if (this.dataset.icon == -1) return;
-
-		this.style.backgroundImage = 'url(img/item-unknown.png)';
-		g_iconset_promise.then(() => {
-			const img = document.createElement('img');
-			img.onload = () => {
-				img.style.opacity = 1;
-			};
-			img.src = get_icon_src(this.dataset.icon);
-			this.appendChild(img);
-		});
 	}
 }

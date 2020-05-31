@@ -30,3 +30,5 @@ export const sleep = (msec) => {
 		setTimeout(() => resolve(), msec);
 	});
 }
+
+export const ROOT_URL = '/map/';

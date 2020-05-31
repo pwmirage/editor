@@ -58,7 +58,8 @@ pw-recipe {
 	position: relative;
 }
 
-pw-recipe:not(.modified):after {
+pw-recipe:not(.modified):after,
+pw-item:not(.modified):after {
 	content: ' ';
 	position: absolute;
 	left: 0;
@@ -68,3 +69,9 @@ pw-recipe:not(.modified):after {
 	background-color: rgba(255, 255, 255, 0.5);
 	pointer-events: none;
 }
+
+.item {
+	position: relative;
+	margin: 1px;
+}
+

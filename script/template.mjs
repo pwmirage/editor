@@ -79,6 +79,7 @@ export const compile_tpl = (tpl_id) => {
 				.replace(/^\/(foreach|for)$/g, "}; local[backup_name] = backup; };")
 				.replace(/^if (.*)$/g, ";if ($1) {")
 				.replace(/^else$/g, "} else {")
+				.replace(/^else if(.*)$/g, "} else if ($1) {")
 				.replace(/^\/if$/g, ";}")
 				.replace(/^try$/g, ";const backup = out; try {")
 				.replace(/^catch$/g, "} catch (e) { out = backup;")

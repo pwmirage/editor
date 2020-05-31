@@ -6,14 +6,18 @@
 
 <script id="pw-recipe-tooltip" type="text/x-dot-template">
 	{assign recipe_id = $this.getAttribute('pw-id') || this.getRootNode().host.getAttribute('pw-id')}
-	{if $recipe_id > 0}
+	{assign recipe = $find_by_id($db.recipes, $recipe_id)}
+	{if $recipe_id > 0 && !$recipe}
 		<span class="pw-tooltip">
-			{assign recipe = $find_by_id($db.recipes, $recipe_id)}
+			<p class="data nowrap">Unknown Recipe #{@$recipe_id}</p>
+		</span>
+	{else if $recipe_id > 0}
+		<span class="pw-tooltip">
 			{assign prev = $recipe._db.prev || {\}}
 
 			<p>
 				{if $prev.id == -1}
-					<p class="diff-plus" style="color: #32dc32;">(New) Recipe #{@$recipe.id}</span>
+					<p class="diff-plus" style="color: #32dc32;">(New) Recipe #{@$recipe.id}</p>
 				{else}
 					<p class="data">Recipe #{@$recipe.id}</p>
 				{/if}
@@ -36,11 +40,11 @@
 						<div class="target">
 							{if !$prev.targets[$i]}
 								<span class="data prob">0%</span>
-								<pw-item data-icon="-1"></pw-item>
+								<pw-item pw-icon="-1"></pw-item>
 							{else}
 								{assign tgt_item = $find_by_id($db.items, $prev.targets[$i].id || recipe.targets[$i].id) || { icon: 0 \}}
 								<span class="data prob">{@get_default($prev.targets[$i].prob, $recipe.targets[$i].prob) * 100}%</span>
-								<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
+								<pw-item pw-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 							{/if}
 						</div>
 					{/for}
@@ -51,11 +55,11 @@
 					<div class="target">
 						{if !$recipe.targets[$i]}
 							<span class="data prob">0%</span>
-							<pw-item data-icon="-1"></pw-item>
+							<pw-item pw-icon="-1"></pw-item>
 						{else}
 							{assign tgt_item = $find_by_id($db.items, $recipe.targets[$i].id) || { icon: 0 \}}
 							<span class="data prob">{@($recipe.targets[$i].prob * 100) || "0"}%</span>
-							<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
+							<pw-item pw-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 						{/if}
 					</div>
 				{/for}
@@ -96,11 +100,11 @@
 							<div class="target">
 								{if !$prev.mats[$i]}
 									<span class="data num">0</span>
-									<pw-item data-icon="-1"></pw-item>
+									<pw-item pw-icon="-1"></pw-item>
 								{else}
 									{assign tgt_item = $find_by_id($db.items, $prev.mats[$i].id || $recipe.mats[$i].id) || { icon: 0 \}}
 									<span class="data num">{@$prev.mats[$i].num || "0"}</span>
-									<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
+									<pw-item pw-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 								{/if}
 							</div>
 						{/for}
@@ -111,11 +115,11 @@
 						<div class="target">
 							{if !$recipe.mats[$i]}
 								<span class="data num">0</span>
-								<pw-item data-icon="-1"></pw-item>
+								<pw-item pw-icon="-1"></pw-item>
 							{else}
 								{assign tgt_item = $find_by_id($db.items, $recipe.mats[$i].id) || { icon: 0 \}}
 								<span class="data num">{@$recipe.mats[$i].num || "0"}</span>
-								<pw-item data-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
+								<pw-item pw-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 							{/if}
 						</div>
 					{/for}
@@ -154,21 +158,17 @@
 </script>
 
 <script id="pw-recipe" type="text/x-dot-template">
-	{try}
 		{assign recipe_id = $this.getAttribute('pw-id')}
 		{if $recipe_id == 0}
-			<pw-item data-icon="-1"></pw-item>
+			<pw-item pw-icon="-1"></pw-item>
 		{else}
-			{assign recipe = $find_by_id($db.recipes, $recipe_id)}
-			{assign tgt_item = $find_by_id($db.items, $recipe.targets[0].id) || { icon: 0 \}}
-			<pw-item data-icon="{@$tgt_item.icon}" onclick="this.classList.toggle('force-visible');">
+			{assign recipe = $find_by_id($db.recipes, $recipe_id) || { targets: [] \}}
+			{assign tgt_item = $find_by_id($db.items, $recipe.targets[0] ? ($recipe.targets[0].id || 0) : 0) || { icon: 0 \}}
+			<pw-item pw-icon="{@$tgt_item.icon}" onclick="this.classList.toggle('force-visible');">
 				<div class="blackfocusbox"></div>
 				<pw-recipe-tooltip onclick="event.stopPropagation();"></pw-recipe-tooltip>
 			</pw-item>
 		{/if}
-	{catch}
-		<pw-item data-icon="0"></pw-item>
-	{/try}
 </script>
 
 <script id="pw-recipe-list" type="text/x-dot-template">
@@ -226,6 +226,37 @@
 			</div>
 			{if $prev.greeting}<p class="prev">Greeting: {@$prev.greeting || ""}</p>{/if}
 			<p class="data">Greeting: {@$npc.greeting || ""}</p>
+		</div>
+	</div>
+</script>
+
+<script id="pw-goods-list" type="text/x-dot-template">
+	<div class="window">
+		{assign prev = $npc_goods._db.prev || {\}}
+		<div class="header">
+			<div>
+				{if $prev.name}<p class="prev">Goods list: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>{/if}
+				<p class="data">Goods list: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>
+			</div>
+			{if $npc_goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_goods._db.refs.length})</span>{/if}
+		</div>
+		<div class="content">
+			<div id="tabs">
+				{for i = 0; i < 8; i++}
+					{assign tab = $npc_goods.tabs[i]}
+					{assign prev_tab = $prev.tabs ? $prev.tabs[i] : null}
+					<span class="tab" data-idx="{@$i}" onclick="{@@$this}.setTab({@$i});">
+						{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
+						{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
+					</span>
+				{/foreach}
+			</div>
+
+			<div id="items" class="item-container">
+				{for i = 0; i < 32; i++}
+					<pw-item data-idx="{@$i}"></pw-item>
+				{/for}
+			</div>
 		</div>
 	</div>
 </script>

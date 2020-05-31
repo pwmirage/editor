@@ -8,6 +8,13 @@
 	--color-button-bg: #dccfcf;
 	--color-button-bg-darker: #b9a2a2;
 	--color-button-fg: #212121;
+	background-color: initial;
+	color: rgba(80, 44, 44, 1);
+	position: relative;
+	word-wrap: normal;
+	width: initial;
+	height: initial;
+	line-height: 1.2;
 }
 
 p, pre {
@@ -91,6 +98,7 @@ p, pre {
 }
 
 .window {
+	vertical-align: top;
 	border: 1px solid #e0e0e0;
 	display: inline-block;
 	background-color: var(--color-content-bg);
@@ -141,8 +149,7 @@ p, pre {
 }
 
 .item {
-	background-color: #000;
-	background-immage: url(img/itemslot.png);
+	background-image: url(../../img/itemslot.png);
 }
 
 .nowrap {
