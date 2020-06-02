@@ -99,6 +99,7 @@ p, pre {
 
 .window {
 	position: relative;
+	width: 280px;
 	vertical-align: top;
 	border: 1px solid #e0e0e0;
 	display: inline-block;

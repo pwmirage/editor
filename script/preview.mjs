@@ -104,7 +104,9 @@ class PreviewElement extends HTMLElement {
 				this.shadowRoot.querySelectorAll('.window.loading').forEach(w => {
 					w.classList.remove('loading');
 				});
-				if (this.onload) this.onload();
+				setTimeout(() => {
+					if (this.onload) this.onload();
+				}, 10);
 			};
 			if (this.init.constructor.name === 'AsyncFunction') {
 				this.init().then(postInit);
@@ -266,6 +268,41 @@ class NPC extends PreviewElement {
 	}
 }
 
+class NPCSpawn extends PreviewElement {
+	constructor() {
+		super('pw-npc-spawn');
+		this.tpl = compile_tpl('pw-npc-spawn');
+	}
+
+	static get observedAttributes() { return ['pw-id']; }
+
+	init() {
+		super.init();
+		const shadow = this.shadowRoot;
+		shadow.querySelectorAll('*:not(link):not(style)').forEach(i => i.remove());
+		shadow.append(...newArrElements(this.tpl({ db: this.db, npc_spawn: this.obj, find_by_id })));
+
+		if (query_mod_fields(shadow)) {
+			this.classList.add('modified');
+		} else {
+			this.classList.remove('modified');
+		}
+	}
+
+	attributeChangedCallback(name, old_val, val) {
+		const shadow = this.shadowRoot;
+
+		switch (name) {
+		case 'pw-id': {
+			this.obj = find_by_id(this.db.npc_spawns, val);
+			this.init();
+			break;
+		}
+		}
+	}
+}
+
+
 class GoodsList extends PreviewElement {
 	constructor() {
 		super('pw-goods-list');
@@ -356,6 +393,7 @@ class Diff extends PreviewElement {
 
 		const el_types = {
 			npcs: { type: 'pw-npc', title: 'NPC' },
+			npc_spawns: { type: 'pw-npc-spawn', title: 'NPC Spawner' },
 			npc_recipes: { type: 'pw-recipe-list', title: 'NPC Crafts' },
 			npc_goods: { type: 'pw-goods-list', title: 'NPC Goods' },
 		};
@@ -364,6 +402,7 @@ class Diff extends PreviewElement {
 		const max_cnt = this.dataset.maxItems || 99999;
 		const menu_el = shadow.querySelector('#menu');
 		const pw_container = shadow.querySelector('#element');
+
 		for (const arr in this.db) {
 			if (arr === 'metadata') continue;
 			const el_type = el_types[arr];
@@ -371,11 +410,13 @@ class Diff extends PreviewElement {
 
 			for (const obj of this.db[arr]) {
 				cur_cnt++;
-				if (cur_cnt > max_cnt) break;
+				if (cur_cnt > max_cnt) {
+					continue;
+				}
 
 				const tab_el = document.createElement('div')
 				const p = document.createElement('p');
-				p.textContent = el_type.title;
+				p.textContent = cur_cnt + '. ' + el_type.title;
 				tab_el.append(p);
 
 				p.onclick = () => {
@@ -390,7 +431,6 @@ class Diff extends PreviewElement {
 					tab_el.classList.add('selected');
 
 					if (!tab_el.pwElement) {
-						console.log('new element');
 						const pw_el = document.createElement(el_type.type);
 						pw_el.obj = obj;
 						pw_el.db = this.db;
@@ -412,6 +452,15 @@ class Diff extends PreviewElement {
 				menu_el.append(tab_el);
 			}
 		}
+
+		if (cur_cnt > max_cnt) {
+			const tab_el = document.createElement('div')
+			const p = document.createElement('p');
+			p.textContent = '+ ' + (cur_cnt - max_cnt) + ' more'
+			tab_el.className = 'disabled';
+			tab_el.append(p);
+			menu_el.append(tab_el);
+		}
 	}
 }
 
@@ -421,6 +470,7 @@ class Diff extends PreviewElement {
 		Item.set_iconset('/map/img/iconlist_ivtrm.png'),
 	]);
 	customElements.define('pw-npc', NPC);
+	customElements.define('pw-npc-spawn', NPCSpawn);
 	customElements.define('pw-recipe-tooltip', RecipeTooltip);
 	customElements.define('pw-recipe', Recipe);
 	customElements.define('pw-recipe-list', RecipeList);

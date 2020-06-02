@@ -261,6 +261,29 @@
 	</div>
 </script>
 
+<script id="pw-npc-spawn" type="text/x-dot-template">
+	<div class="window loading">
+		{assign prev = $npc_spawn._db.prev || {\}}
+		<div class="header">
+			<div>
+				<p class="data">NPC Spawner #{@$npc_spawn.id}</p>
+			</div>
+			{if $npc_spawn._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_spawn._db.refs.length})</span>{/if}
+		</div>
+		<div class="content">
+			{assign rounddot2 = (f) => parseInt(f * 100) / 100}
+			{if $prev.pos}<p class="prev">Pos: {@$rounddot2($prev.pos[0] || $npc_spawn.pos[0])},{@$rounddot2($prev.pos[2] || $npc_spawn.pos[2])} ({@$rounddot2($prev.pos[1] || $npc_spawn.pos[1])})</p>{/if}
+			<p class="data">Pos: {@$rounddot2($npc_spawn.pos[0])},{@$rounddot2($npc_spawn.pos[2])} ({@$rounddot2($npc_spawn.pos[1])})</p>
+			{if $prev.type}
+				{assign npc = $find_by_id($db.npcs, $prev.type)}
+				<p class="prev">NPC: {if $npc}{@$npc.name} (Tpl: {@$npc.tpl_name || "unnamed"}){else}("unknown"){/if} #{@$prev.type}</p>
+			{/if}
+			{assign npc = $find_by_id($db.npcs, $npc_spawn.type)}
+			<p class="data">NPC: {if $npc}{@$npc.name} (Tpl: {@$npc.tpl_name || "unnamed"}){else}("unknown"){/if} #{@$npc_spawn.type}</p>
+		</div>
+	</div>
+</script>
+
 <script id="pw-diff" type="text/x-dot-template">
 	<div id="container">
 		<div id="menu"></div>
