@@ -88,7 +88,7 @@ p, pre {
 	background-color: rgba(0, 0, 0, 0.8);
 	color: white;
 	box-sizing: border-box;
-	z-index: 2;
+	z-index: 99;
 }
 
 .pw-tooltip.left {
@@ -98,6 +98,7 @@ p, pre {
 }
 
 .window {
+	position: relative;
 	vertical-align: top;
 	border: 1px solid #e0e0e0;
 	display: inline-block;
@@ -150,6 +151,7 @@ p, pre {
 
 .item {
 	background-image: url(../../img/itemslot.png);
+	background-color: #000;
 }
 
 .nowrap {

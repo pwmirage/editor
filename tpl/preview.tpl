@@ -172,12 +172,12 @@
 </script>
 
 <script id="pw-recipe-list" type="text/x-dot-template">
-	<div class="window">
+	<div class="window loading">
 		{assign prev = $npc_recipes._db.prev || {\}}
 		<div class="header">
 			<div>
-				{if $prev.name}<p class="prev">Recipe list: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>{/if}
-				<p class="data">Recipe list: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>
+				{if $prev.name}<p class="prev">NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>{/if}
+				<p class="data">NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>
 			</div>
 			{if $npc_recipes._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_recipes._db.refs.length})</span>{/if}
 		</div>
@@ -203,7 +203,7 @@
 </script>
 
 <script id="pw-npc" type="text/x-dot-template">
-	<div class="window">
+	<div class="window loading">
 		{assign prev = $npc._db.prev || {\}}
 		<div class="header">
 			<div>
@@ -231,7 +231,7 @@
 </script>
 
 <script id="pw-goods-list" type="text/x-dot-template">
-	<div class="window">
+	<div class="window loading">
 		{assign prev = $npc_goods._db.prev || {\}}
 		<div class="header">
 			<div>
@@ -262,4 +262,8 @@
 </script>
 
 <script id="pw-diff" type="text/x-dot-template">
+	<div id="container">
+		<div id="menu"></div>
+		<div id="element"></div>
+	</div>
 </script>

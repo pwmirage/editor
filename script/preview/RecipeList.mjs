@@ -26,22 +26,109 @@ const is_empty = (obj) => {
 	return false;
 }
 
-class RecipeTooltip extends HTMLElement {
-	constructor() {
+const css_essentials = `
+.window {
+	position: relative;
+	vertical-align: top;
+	border: 1px solid #e0e0e0;
+	display: inline-block;
+	background-color: #f1ecec;
+}
+
+.window.loading {
+	width: 280px;
+	height: 261px;
+	overflow: hidden;
+}
+.window.loading > * {
+	visibility: hidden;
+}
+
+@keyframes spinner {
+	to { transform: rotate(360deg); }
+}
+
+.window.loading:before {
+	content: '';
+	visibility: visible;
+	box-sizing: border-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	margin-top: -10px;
+	margin-left: -10px;
+	border-radius: 50%;
+	border-top: 2px solid #07d;
+	border-right: 2px solid transparent;
+	animation: spinner .6s linear infinite;
+}
+`;
+
+class PreviewElement extends HTMLElement {
+	constructor(element_name) {
 		super();
 		const shadow = this.attachShadow({mode: 'open'});
+		const link = newStyle();
+		const style = document.createElement('style');
+		style.textContent = css_essentials;
+		shadow.append(style);
 		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
 		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/pw-recipe-tooltip.css'));
-		this.tpl = compile_tpl('pw-recipe-tooltip');
+		this.tpl = compile_tpl(element_name);
+	}
+
+	load_promises = [];
+
+	addStyle(url) {
+		const promise = new Promise((resolve) => {
+			const style = newStyle();
+			style.onload = resolve;
+			style.setAttribute('href', url);
+			this.shadowRoot.append(style);
+		});
+		this.load_promises.push(promise);
+		return promise;
+	}
+
+	async init() {
+		if (!this.db) this.db = this.getRootNode().host.db;
 	}
 
 	connectedCallback() {
-		if (this.initialized) return;
-		this.initialized = 1;
+		if (!this.initialized) {
+			this.initialized = 1;
+			const postInit = async () => {
+				await Promise.all(this.load_promises);
+				this.shadowRoot.querySelectorAll('.window.loading').forEach(w => {
+					w.classList.remove('loading');
+				});
+				if (this.onload) this.onload();
+			};
+			if (this.init.constructor.name === 'AsyncFunction') {
+				this.init().then(postInit);
+			} else {
+				this.init();
+				postInit();
+			}
+		} else {
+			setTimeout(() => {
+				if (this.onload) this.onload();
+			}, 10);
+		}
+	}
+}
 
+class RecipeTooltip extends PreviewElement {
+	constructor() {
+		super('pw-recipe-tooltip');
+		this.addStyle(ROOT_URL + 'css/preview/pw-recipe-tooltip.css');
+	}
+
+	init() {
+		super.init();
 		const shadow = this.shadowRoot;
-		this.db = this.getRootNode().host.db;
 		if (!this.obj) {
 			this.obj = find_by_id(this.db.recipes, this.dataset.id);
 		}
@@ -57,25 +144,12 @@ class RecipeTooltip extends HTMLElement {
 	}
 }
 
-class Recipe extends HTMLElement {
+class Recipe extends PreviewElement {
 	constructor() {
-		super();
-
-		const shadow = this.attachShadow({mode: 'open'});
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
-		this.tpl = compile_tpl('pw-recipe');
+		super('pw-recipe');
 	}
 
 	static get observedAttributes() { return ['pw-id']; }
-
-	connectedCallback() {
-		if (this.initialized) return;
-		this.initialized = 1;
-
-		const shadow = this.shadowRoot;
-		this.db = this.getRootNode().host.db;
-	}
 
 	attributeChangedCallback(name, old_val, val) {
 		const shadow = this.shadowRoot;
@@ -83,7 +157,7 @@ class Recipe extends HTMLElement {
 		switch (name) {
 		case 'pw-id': {
 			this.obj = find_by_id(this.db.recipes, val);
-			shadow.querySelectorAll('*:not(link)').forEach(i => i.remove());
+			shadow.querySelectorAll('*:not(link):not(style)').forEach(i => i.remove());
 			shadow.append(...newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item })));
 
 			if (query_mod_fields(shadow)) {
@@ -98,25 +172,18 @@ class Recipe extends HTMLElement {
 
 }
 
-class RecipeList extends HTMLElement {
+class RecipeList extends PreviewElement {
 	constructor() {
-		super();
-
-		const shadow = this.attachShadow({mode: 'open'});
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/list.css'));
-
+		super('pw-recipe-list');
+		this.addStyle(ROOT_URL + 'css/preview/list.css');
 		this.tpl = compile_tpl('pw-recipe-list');
 	}
 
 	static get observedAttributes() { return ['tab']; }
 
-	connectedCallback() {
-		if (this.initialized) return;
-		this.initialized = 1;
+	init() {
+		super.init();
 		const shadow = this.shadowRoot;
-		this.db = this.getRootNode().host.db;
 		if (!this.obj) {
 			this.obj = find_by_id(this.db.npc_recipes, this.dataset.id);
 		}
@@ -164,30 +231,19 @@ class RecipeList extends HTMLElement {
 	}
 }
 
-class NPC extends HTMLElement {
+class NPC extends PreviewElement {
 	constructor() {
-		super();
-
-		const shadow = this.attachShadow({mode: 'open'});
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/npc.css'));
+		super('pw-npc');
+		this.addStyle(ROOT_URL + 'css/preview/npc.css');
 		this.tpl = compile_tpl('pw-npc');
 	}
 
 	static get observedAttributes() { return ['pw-id']; }
 
-	connectedCallback() {
-		if (this.initialized) return;
-		this.initialized = 1;
-
-		this.db = this.getRootNode().host.db;
-		if (this.obj) this.reinit();
-	}
-
-	reinit() {
+	init() {
+		super.init();
 		const shadow = this.shadowRoot;
-		shadow.querySelectorAll('*:not(link)').forEach(i => i.remove());
+		shadow.querySelectorAll('*:not(link):not(style)').forEach(i => i.remove());
 		shadow.append(...newArrElements(this.tpl({ db: this.db, npc: this.obj, find_by_id })));
 
 		if (query_mod_fields(shadow)) {
@@ -203,32 +259,25 @@ class NPC extends HTMLElement {
 		switch (name) {
 		case 'pw-id': {
 			this.obj = find_by_id(this.db.npcs, val);
-			this.reinit();
+			this.init();
 			break;
 		}
 		}
 	}
 }
 
-class GoodsList extends HTMLElement {
+class GoodsList extends PreviewElement {
 	constructor() {
-		super();
-
-		const shadow = this.attachShadow({mode: 'open'});
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/list.css'));
-
+		super('pw-goods-list');
+		this.addStyle(ROOT_URL + 'css/preview/list.css');
 		this.tpl = compile_tpl('pw-goods-list');
 	}
 
 	static get observedAttributes() { return ['tab']; }
 
-	connectedCallback() {
-		if (this.initialized) return;
-		this.initialized = 1;
+	init() {
+		super.init();
 		const shadow = this.shadowRoot;
-		this.db = this.getRootNode().host.db;
 		if (!this.obj) {
 			this.obj = find_by_id(this.db.npc_goods, this.dataset.id);
 		}
@@ -284,20 +333,14 @@ class GoodsList extends HTMLElement {
 	}
 }
 
-class Diff extends HTMLElement {
+class Diff extends PreviewElement {
 	constructor() {
-		super();
-
-		const shadow = this.attachShadow({mode: 'open'});
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
-
+		super('pw-diff');
+		this.addStyle(ROOT_URL + 'css/preview/pw-diff.css');
 		this.tpl = compile_tpl('pw-diff');
 	}
 
-	async connectedCallback() {
-		if (this.initialized) return;
-		this.initialized = 1;
+	async init() {
 		const shadow = this.shadowRoot;
 		if (!this.project) {
 			this.project = this.dataset.project || "";
@@ -307,36 +350,68 @@ class Diff extends HTMLElement {
 		if (!req.ok) return;
 		const json = this.db = req.data;
 
-		let cur_cnt = 0;
-		const max_cnt = this.dataset.maxItems || 99999;
-		for (const obj of json.npcs) {
-			cur_cnt++;
-			if (cur_cnt > max_cnt) break;
-			const el = document.createElement('pw-npc');
-			el.db = json;
-			el.obj = obj;
-			shadow.append(el);
-		}
-
-		for (const obj of json.npc_recipes) {
-			cur_cnt++;
-			if (cur_cnt > max_cnt) break;
-			const list = document.createElement('pw-recipe-list');
-			list.db = json;
-			list.obj = obj;
-			shadow.append(list);
-		}
-
-		for (const obj of json.npc_goods) {
-			cur_cnt++;
-			if (cur_cnt > max_cnt) break;
-			const list = document.createElement('pw-goods-list');
-			list.db = json;
-			list.obj = obj;
-			shadow.append(list);
-		}
+		super.init();
 
 		shadow.append(...newArrElements(this.tpl({ })));
+
+		const el_types = {
+			npcs: { type: 'pw-npc', title: 'NPC' },
+			npc_recipes: { type: 'pw-recipe-list', title: 'NPC Crafts' },
+			npc_goods: { type: 'pw-goods-list', title: 'NPC Goods' },
+		};
+
+		let cur_cnt = 0;
+		const max_cnt = this.dataset.maxItems || 99999;
+		const menu_el = shadow.querySelector('#menu');
+		const pw_container = shadow.querySelector('#element');
+		for (const arr in this.db) {
+			if (arr === 'metadata') continue;
+			const el_type = el_types[arr];
+			if (!el_type) continue;
+
+			for (const obj of this.db[arr]) {
+				cur_cnt++;
+				if (cur_cnt > max_cnt) break;
+
+				const tab_el = document.createElement('div')
+				const p = document.createElement('p');
+				p.textContent = el_type.title;
+				tab_el.append(p);
+
+				p.onclick = () => {
+					const selected = menu_el.querySelector('.selected');
+					if (selected == tab_el) {
+						/* nothing to do */
+						return;
+					}
+
+					const prev_el = pw_container.children[0];
+					if (selected) selected.classList.remove('selected');
+					tab_el.classList.add('selected');
+
+					if (!tab_el.pwElement) {
+						console.log('new element');
+						const pw_el = document.createElement(el_type.type);
+						pw_el.obj = obj;
+						pw_el.db = this.db;
+						tab_el.pwElement = pw_el;
+					}
+
+					if (prev_el) {
+						tab_el.pwElement.style.display = 'none';
+						tab_el.pwElement.onload = () => {
+							if (prev_el) pw_container.removeChild(prev_el);
+							tab_el.pwElement.style.display = 'block';
+							tab_el.pwElement.onload = null;
+						}
+					}
+					pw_container.appendChild(tab_el.pwElement);
+				};
+				if (cur_cnt == 1) p.click();
+
+				menu_el.append(tab_el);
+			}
+		}
 	}
 }
 

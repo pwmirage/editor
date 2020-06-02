@@ -24,7 +24,7 @@ const newStyle = (url) => {
 	const linkElem = document.createElement('link');
 	linkElem.setAttribute('rel', 'stylesheet');
 	linkElem.setAttribute('type', 'text/css');
-	linkElem.setAttribute('href', url);
+	if (url) linkElem.setAttribute('href', url);
 	return linkElem;
 }
 
