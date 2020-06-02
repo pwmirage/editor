@@ -1,8 +1,8 @@
-import { newElement, newArrElements, newStyle, escape } from '../DomUtil.mjs';
-import { get, sleep, ROOT_URL } from '../Util.mjs';
-import { Item } from '../Item.mjs';
-import db from '../PWDB.mjs';
-import { compile_tpl, load_tpl_file } from '../template.mjs';
+import { newElement, newArrElements, newStyle, escape } from './DomUtil.mjs';
+import { get, sleep, ROOT_URL } from './Util.mjs';
+import { Item } from './Item.mjs';
+import db from './PWDB.mjs';
+import { compile_tpl, load_tpl_file } from './template.mjs';
 
 const find_by_id = (tbl, id) => {
 	for (const obj of tbl) {
@@ -234,7 +234,7 @@ class RecipeList extends PreviewElement {
 class NPC extends PreviewElement {
 	constructor() {
 		super('pw-npc');
-		this.addStyle(ROOT_URL + 'css/preview/npc.css');
+		this.addStyle(ROOT_URL + 'css/preview/pw-npc.css');
 		this.tpl = compile_tpl('pw-npc');
 	}
 
