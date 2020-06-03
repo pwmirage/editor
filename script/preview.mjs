@@ -370,6 +370,40 @@ class GoodsList extends PreviewElement {
 	}
 }
 
+class ItemList extends PreviewElement {
+	constructor() {
+		super('pw-item-list');
+		this.addStyle(ROOT_URL + 'css/preview/list.css');
+		this.tpl = compile_tpl('pw-item-list');
+	}
+
+	init() {
+		super.init();
+		const shadow = this.shadowRoot;
+		shadow.append(...newArrElements(this.tpl({ find_by_id, Item })));
+
+		let item_idx = this.dataset.itemIdx || 0;
+		shadow.querySelectorAll('#items > pw-item').forEach(r => {
+			let item;
+			while (item_idx < this.db.items.length) {
+				item = this.db.items[item_idx];
+				item_idx++;
+				if (item._db.prev) break;
+			}
+
+			if (item_idx >= this.db.items.length) {
+				r.setAttribute('pw-icon', -1);
+				return;
+			}
+
+			r.setAttribute('pw-icon', item.icon);
+			r.classList.add('modified');
+			r.setAttribute('title', item.name);
+		});
+	}
+}
+
+
 class Diff extends PreviewElement {
 	constructor() {
 		super('pw-diff');
@@ -396,6 +430,7 @@ class Diff extends PreviewElement {
 			npc_spawns: { type: 'pw-npc-spawn', title: 'NPC Spawner' },
 			npc_recipes: { type: 'pw-recipe-list', title: 'NPC Crafts' },
 			npc_goods: { type: 'pw-goods-list', title: 'NPC Goods' },
+			items: { type: 'pw-item-list', title: 'Items' },
 		};
 
 		let cur_cnt = 0;
@@ -403,12 +438,18 @@ class Diff extends PreviewElement {
 		const menu_el = shadow.querySelector('#menu');
 		const pw_container = shadow.querySelector('#element');
 
+		let items_listed = false;
 		for (const arr in this.db) {
 			if (arr === 'metadata') continue;
 			const el_type = el_types[arr];
 			if (!el_type) continue;
-
 			for (const obj of this.db[arr]) {
+				if (arr == 'items') {
+					if (!obj._db.prev) continue;
+					if (items_listed) continue;
+					items_listed = true;
+				}
+
 				cur_cnt++;
 				if (cur_cnt > max_cnt) {
 					continue;
@@ -475,5 +516,6 @@ class Diff extends PreviewElement {
 	customElements.define('pw-recipe', Recipe);
 	customElements.define('pw-recipe-list', RecipeList);
 	customElements.define('pw-goods-list', GoodsList);
+	customElements.define('pw-item-list', ItemList);
 	customElements.define('pw-diff', Diff);
 })();

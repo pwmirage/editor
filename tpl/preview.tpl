@@ -284,6 +284,24 @@
 	</div>
 </script>
 
+<script id="pw-item-list" type="text/x-dot-template">
+	<div class="window loading">
+		<div class="header">
+			<div>
+				<p class="data">Modified Items</p>
+			</div>
+		</div>
+		<div class="content">
+			<div id="items" class="item-container">
+				{for i = 0; i < 32; i++}
+					<pw-item data-idx="{@$i}"></pw-item>
+				{/for}
+			</div>
+		</div>
+	</div>
+</script>
+
+
 <script id="pw-diff" type="text/x-dot-template">
 	<div id="container">
 		<div id="menu"></div>
