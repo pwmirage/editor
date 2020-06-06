@@ -176,8 +176,12 @@
 		{assign prev = $npc_recipes._db.prev || {\}}
 		<div class="header">
 			<div>
-				{if $prev.name}<p class="prev">NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>{/if}
-				<p class="data">NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>
+				{if $prev.id == -1}
+					<p class="data diff-plus">(New) NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>
+				{else}
+					{if $prev.name}<p class="prev">NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>{/if}
+					<p class="data">NPC Crafts: {@$npc_recipes.name || "(unnamed)"} #{@$npc_recipes.id}</p>
+				{/if}
 			</div>
 			{if $npc_recipes._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_recipes._db.refs.length})</span>{/if}
 		</div>
@@ -207,8 +211,12 @@
 		{assign prev = $npc._db.prev || {\}}
 		<div class="header">
 			<div>
-				{if $prev.name}<p class="prev">NPC: {@$prev.name || "(unnamed)"} #{@$npc.id}</p>{/if}
-				<p class="data">NPC: {@$npc.name || "(unnamed)"} #{@$npc.id}</p>
+				{if $prev.id == -1}
+					<p class="diff-plus">(New) NPC: {@$npc.name || "(unnamed)"} #{@$npc.id}</p>
+				{else}
+					{if $prev.name}<p class="prev">NPC: {@$prev.name || "(unnamed)"} #{@$npc.id}</p>{/if}
+					<p class="data">NPC: {@$npc.name || "(unnamed)"} #{@$npc.id}</p>
+				{/if}
 			</div>
 		</div>
 		<div class="content">
@@ -235,8 +243,12 @@
 		{assign prev = $npc_goods._db.prev || {\}}
 		<div class="header">
 			<div>
-				{if $prev.name}<p class="prev">Goods list: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>{/if}
-				<p class="data">Goods list: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>
+				{if $prev.id == -1}
+					<p class="data diff-plus">(New) NPC Goods: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>
+				{else}
+					{if $prev.name}<p class="prev">NPC Goods: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>{/if}
+					<p class="data">NPC Goods: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>
+				{/if}
 			</div>
 			{if $npc_goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_goods._db.refs.length})</span>{/if}
 		</div>
@@ -266,7 +278,11 @@
 		{assign prev = $npc_spawn._db.prev || {\}}
 		<div class="header">
 			<div>
-				<p class="data">NPC Spawner #{@$npc_spawn.id}</p>
+				{if $prev.id == -1}
+					<p class="diff-plus">(New) NPC Spawner #{@$npc_spawn.id}</p>
+				{else}
+					<p class="data">NPC Spawner#{@$npc_spawn.id}</p>
+				{/if}
 			</div>
 			{if $npc_spawn._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_spawn._db.refs.length})</span>{/if}
 		</div>

@@ -124,6 +124,11 @@ p, pre {
 	position: relative;
 }
 
+.diff-plus {
+	margin-left: 8px;
+	color: #bbe8bb;
+}
+
 .prev + .data {
 	transform: translateY(-100%);
 }
