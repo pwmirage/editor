@@ -439,6 +439,7 @@ class Diff extends PreviewElement {
 		const pw_container = shadow.querySelector('#element');
 
 		let items_listed = false;
+		let parent_container = menu_el;
 		for (const arr in this.db) {
 			if (arr === 'metadata') continue;
 			const el_type = el_types[arr];
@@ -450,12 +451,16 @@ class Diff extends PreviewElement {
 					items_listed = true;
 				}
 
-				cur_cnt++;
-				if (cur_cnt > max_cnt) {
-					continue;
-				}
+				if (cur_cnt == max_cnt) {
+					const tab_el = document.createElement('div')
+					tab_el.className = 'disabled more';
 
-				const tab_el = document.createElement('div')
+					menu_el.append(tab_el);
+					parent_container = tab_el;
+				}
+				cur_cnt++;
+
+				const tab_el = document.createElement('div');
 				const p = document.createElement('p');
 				p.textContent = cur_cnt + '. ' + el_type.title;
 				tab_el.append(p);
@@ -490,18 +495,24 @@ class Diff extends PreviewElement {
 				};
 				if (cur_cnt == 1) p.click();
 
-				menu_el.append(tab_el);
+				parent_container.append(tab_el);
 			}
 		}
 
 		if (cur_cnt > max_cnt) {
-			const tab_el = document.createElement('div')
 			const p = document.createElement('p');
-			p.textContent = '+ ' + (cur_cnt - max_cnt) + ' more'
-			tab_el.className = 'disabled';
-			tab_el.append(p);
-			menu_el.append(tab_el);
+			p.textContent = '+ ' + (cur_cnt - max_cnt) + ' more';
+			p.onclick = () => {
+				if (parent_container.classList.toggle('expanded')) {
+					p.textContent = '^ ' + (cur_cnt - max_cnt) + ' less';
+				} else {
+					p.textContent = '+ ' + (cur_cnt - max_cnt) + ' more';
+				}
+			};
+			parent_container.append(p);
 		}
+
+		this.classList.add('loaded');
 	}
 }
 
