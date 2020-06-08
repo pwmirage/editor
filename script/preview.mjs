@@ -578,7 +578,10 @@ class Diff extends PreviewElement {
 					if (prev_el) {
 						tab_el.pwElement.style.display = 'none';
 						tab_el.pwElement.onload = () => {
-							if (prev_el) pw_container.removeChild(prev_el);
+							try {
+								pw_container.removeChild(prev_el);
+							} catch (e) {}
+
 							tab_el.pwElement.style.display = 'block';
 							tab_el.pwElement.onload = null;
 						}
