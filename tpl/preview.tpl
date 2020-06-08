@@ -166,7 +166,7 @@
 			{assign recipe = $find_by_id($db.recipes, $recipe_id) || { targets: [] \}}
 			{assign tgt_item = $find_by_id($db.items, $recipe.targets[0] ? ($recipe.targets[0].id || 0) : 0) || { icon: 0 \}}
 			<pw-item pw-icon="{@$tgt_item.icon}" class="{@$classes}" onclick="this.classList.toggle('force-visible');">
-				<div class="blackfocusbox"></div>
+				<div class="blackfocusbox" title=""></div>
 				<pw-recipe-tooltip onclick="event.stopPropagation();"></pw-recipe-tooltip>
 			</pw-item>
 		{/if}
@@ -323,7 +323,7 @@
 						{continue}
 					{/if}
 					<pw-item pw-icon="{@$item.icon}" class="modified" title="{@$item.name}" onclick="this.classList.toggle('force-visible');">
-						<div class="blackfocusbox"></div>
+						<div class="blackfocusbox" title=""></div>
 						<span class="tooltip">
 							<pre class="pw-tooltip" style="width: 300px;">
 								<p>
