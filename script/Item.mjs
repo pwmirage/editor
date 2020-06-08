@@ -198,7 +198,6 @@ export class Item extends HTMLElement {
 				return;
 			}
 
-			this.style.backgroundImage = 'url(img/item-unknown.png)';
 			g_iconset_promise.then(() => {
 				const prev = this.querySelector('img');
 				const img = document.createElement('img');
