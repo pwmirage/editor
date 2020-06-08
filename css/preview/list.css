@@ -82,7 +82,7 @@ pw-item.mini-item.force-visible[pw-id="0"]:after {
 	content: ' ';
 	position: absolute;
 	left: 4px !important;
-	top: 4px!important;
+	top: 0px!important;
 	width: 7px !important;
 	height: 7px !important;
 	background-color: rgba(48, 224, 48, 0.7);

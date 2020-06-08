@@ -45,6 +45,7 @@ pw-item {
 	height: 32px;
 	background-image: url(../../img/itemslot.png);
 	background-color: #000;
+	margin-bottom: 2px;
 }
 
 pw-item > img {

@@ -20,7 +20,7 @@
 .target,
 .material {
 	display: flex;
-	margin: 2px 3px;
+	margin: 1px 3px;
 	min-width: 60px;
 }
 
