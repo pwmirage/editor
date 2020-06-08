@@ -11,7 +11,7 @@ const newElement = (html_str) => {
 const newArrElements = (html_str) => {
 	const template = document.createElement('template');
 	template.innerHTML = html_str.trim();
-	return template.content.childNodes;
+	return [...template.content.childNodes];
 }
 
 const escape = (html_str) => {

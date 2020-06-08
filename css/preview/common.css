@@ -10,7 +10,7 @@
 	--color-button-fg: #212121;
 	background-color: initial;
 	color: rgba(80, 44, 44, 1);
-	position: relative;
+	position: static;
 	word-wrap: normal;
 	width: initial;
 	height: initial;
@@ -39,10 +39,26 @@ p, pre {
 	padding: 1px;
 }
 
-.item {
+pw-item {
+	display: block;
 	width: 32px;
 	height: 32px;
-	display: inline-block;
+	background-image: url(../../img/itemslot.png);
+	background-color: #000;
+}
+
+pw-item > img {
+    width: inherit;
+    height: inherit;
+}
+
+.mini-item,
+.mini-item:after {
+	position: absolute;
+	left: -1px !important;
+	bottom: -0.5px !important;
+	width: 16px !important;
+	height: 16px !important;
 }
 
 .tooltip {
@@ -153,11 +169,6 @@ p, pre {
 .prev:before {
 	content: '-';
 	color: red;
-}
-
-.item {
-	background-image: url(../../img/itemslot.png);
-	background-color: #000;
 }
 
 .nowrap {

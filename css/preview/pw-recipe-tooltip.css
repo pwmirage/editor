@@ -19,16 +19,15 @@
 
 .target,
 .material {
-	display: inline-block;
-	vertical-align: top;
-	margin: 0 3px;
+	display: flex;
+	margin: 2px 3px;
 	min-width: 60px;
 }
 
 .targets .prob,
 .materials .num {
 	display: inline-block;
-	margin: 7px 2px 0 0;
+	margin: 5px 3px 0 0;
 	vertical-align: top;
 	white-space: nowrap;
 	min-width: 26px;
@@ -40,7 +39,6 @@
 	width: 24px;
 	height: 24px;
 }
-
 
 .diff-plus {
 	margin-left: 0;

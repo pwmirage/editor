@@ -1,4 +1,26 @@
 {
+ "metadata": [
+  {
+   "id": 0,
+   "tag": "version",
+   "base": 0,
+   "edit_time": 0,
+   "project": {
+    "id": "127",
+    "name": "fixing me up",
+    "create_time": 1586383081,
+    "author": "Entei",
+    "author_id": 8,
+    "base": "github/48_additional_fixes_to_the_fashion_npcs.json"
+   },
+   "_db": {
+    "type": "metadata",
+    "prev": {
+     "id": -1
+    }
+   }
+  }
+ ],
  "npc_spawns": [],
  "npcs": [],
  "npc_recipes": [
@@ -5639,7 +5661,7 @@
    "type": 33,
    "name": "Small Guardian Charm",
    "icon": 5360,
-   "total_hp": 10000,
+   "total_hp": 35000,
    "trigger_amount": 0.5,
    "cool_time": 10000,
    "price": 500,
@@ -5648,7 +5670,8 @@
    "proc_type": 16403,
    "_db": {
     "type": "items"
-   }
+   },
+   "desc": "^00ffffQuest reward. Unable to be traded or discarded. Protected from death.\rUnable to be removed if equipped.\r^ffcb4aEquip a new Guardian Charm to replace an old one."
   },
   {
    "id": 13604,
@@ -5672,7 +5695,7 @@
    "type": 34,
    "name": "Small Spirit Charm",
    "icon": 5356,
-   "total_mp": 15000,
+   "total_mp": 55000,
    "trigger_amount": 0.75,
    "cool_time": 5000,
    "price": 500,
@@ -5681,7 +5704,8 @@
    "proc_type": 16403,
    "_db": {
     "type": "items"
-   }
+   },
+   "desc": "^00ffffQuest reward. Unable to be traded or discarded. Protected from death.\rUnable to be removed if equipped.\r^ffcb4aEquip a new Spirit Charm to replace an old one."
   },
   {
    "id": 13605,

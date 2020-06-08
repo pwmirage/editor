@@ -22,8 +22,9 @@ const is_empty = (obj) => {
 	if (typeof obj === 'object' && Array.isArray(obj)) {
 		if (obj.length == 0) return true;
 		if (obj.every(i => i === null)) return true;
+		return false;
 	}
-	return false;
+	return Object.keys(obj).length == 0;
 }
 
 const css_essentials = `
@@ -93,7 +94,12 @@ class PreviewElement extends HTMLElement {
 	}
 
 	async init() {
-		if (!this.db) this.db = this.getRootNode().host.db;
+		let parent = this;
+		while (!this.db) {
+			parent = parent.getRootNode().host;
+			if (!parent) break;
+			this.db = parent.db;
+		}
 	}
 
 	connectedCallback() {
@@ -109,8 +115,10 @@ class PreviewElement extends HTMLElement {
 				}, 10);
 			};
 			if (this.init.constructor.name === 'AsyncFunction') {
-				this.init().then(postInit);
+				this.initPromise = this.init();
+				this.initPromise.then(postInit);
 			} else {
+				this.initPromise = Promise.resolve();
 				this.init();
 				postInit();
 			}
@@ -153,14 +161,17 @@ class Recipe extends PreviewElement {
 
 	static get observedAttributes() { return ['pw-id']; }
 
-	attributeChangedCallback(name, old_val, val) {
+	async attributeChangedCallback(name, old_val, val) {
 		const shadow = this.shadowRoot;
+		await this.initPromise;
 
 		switch (name) {
 		case 'pw-id': {
 			this.obj = find_by_id(this.db.recipes, val);
-			shadow.querySelectorAll('*:not(link):not(style)').forEach(i => i.remove());
-			shadow.append(...newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item })));
+			shadow.querySelectorAll(':scope > .templated').forEach(i => i.remove());
+			const elements = newArrElements(this.tpl({ db: this.db, recipe: this.obj, find_by_id, Item }));
+			elements.forEach(e => e.classList.add('templated'));
+			shadow.append(...elements);
 
 			if (query_mod_fields(shadow)) {
 				this.classList.add('modified');
@@ -215,7 +226,7 @@ class RecipeList extends PreviewElement {
 		if (t) {
 			this.setTab(t.dataset.idx);
 		} else {
-			shadow.querySelectorAll('#recipes > pw-recipe').forEach(r => {
+			shadow.querySelectorAll('#recipes > div > pw-recipe').forEach(r => {
 				r.setAttribute('pw-id', 0);
 			});
 		}
@@ -225,10 +236,43 @@ class RecipeList extends PreviewElement {
 		if (!this.obj.tabs[idx] || is_empty(this.obj.tabs[idx].recipes)) return;
 		this.shadowRoot.querySelectorAll('#tabs > .tab').forEach(t => t.classList.remove('selected'));
 		this.shadowRoot.querySelector('#tabs > .tab[data-idx=\'' + idx + '\']').classList.add('selected');
-		this.shadowRoot.querySelectorAll('#recipes > pw-recipe').forEach(r => {
+		this.shadowRoot.querySelectorAll('#recipes > div > pw-recipe:first-child').forEach(r => {
 			r.setAttribute('pw-id', this.obj.tabs[idx].recipes[r.dataset.idx] || 0);
 			const prev = this.obj._db.prev;
 			if (prev && prev.tabs && prev.tabs[idx] && prev.tabs[idx].recipes && prev.tabs[idx].recipes[r.dataset.idx]) r.classList.add('modified');
+		});
+
+		this.shadowRoot.querySelectorAll('#recipes > div > pw-recipe:last-child').forEach(r => {
+			const prev = this.obj._db.prev;
+			if (!prev || ((!prev.tabs || !prev.tabs[idx]) && prev.id != -1)) {
+				r.setAttribute('pw-id', 0);
+				r.classList.remove('force-visible');
+				return;
+			}
+
+			if (prev.id == -1 || is_empty(prev.tabs[idx]) || !prev.tabs[idx].recipes) {
+				/* this is a brand new tab */
+				if (this.obj.tabs[idx].recipes[r.dataset.idx]) {
+					r.setAttribute('pw-id', 0);
+					r.classList.add('force-visible');
+					return;
+				} else {
+					r.setAttribute('pw-id', 0);
+					r.classList.remove('force-visible');
+					return;
+				}
+			}
+
+			if (prev.tabs[idx].recipes[r.dataset.idx] === 0) {
+				r.classList.add('force-visible');
+			} else {
+				r.classList.remove('force-visible');
+			}
+
+
+			r.setAttribute('pw-id', prev.tabs[idx].recipes[r.dataset.idx] || 0);
+			const prev_recipe = find_by_id(this.db.recipes, prev.tabs[idx].recipes[r.dataset.idx]);
+			if (prev_recipe && prev_recipe._db.prev) r.classList.add('modified');
 		});
 	}
 }
@@ -255,8 +299,9 @@ class NPC extends PreviewElement {
 		}
 	}
 
-	attributeChangedCallback(name, old_val, val) {
+	async attributeChangedCallback(name, old_val, val) {
 		const shadow = this.shadowRoot;
+		await this.initPromise;
 
 		switch (name) {
 		case 'pw-id': {
@@ -289,8 +334,9 @@ class NPCSpawn extends PreviewElement {
 		}
 	}
 
-	attributeChangedCallback(name, old_val, val) {
+	async attributeChangedCallback(name, old_val, val) {
 		const shadow = this.shadowRoot;
+		await this.initPromise;
 
 		switch (name) {
 		case 'pw-id': {
@@ -354,7 +400,7 @@ class GoodsList extends PreviewElement {
 		if (!this.obj.tabs[idx] || is_empty(this.obj.tabs[idx].items)) return;
 		this.shadowRoot.querySelectorAll('#tabs > .tab').forEach(t => t.classList.remove('selected'));
 		this.shadowRoot.querySelector('#tabs > .tab[data-idx=\'' + idx + '\']').classList.add('selected');
-		this.shadowRoot.querySelectorAll('#items > pw-item').forEach(r => {
+		this.shadowRoot.querySelectorAll('#items > div > pw-item:first-child').forEach(r => {
 			const item_id = this.obj.tabs[idx].items[r.dataset.idx] || 0;
 			const item = find_by_id(this.db.items, item_id);
 			r.setAttribute('pw-icon', item_id == 0 ? -1 : (item ? item.icon : 0));
@@ -366,6 +412,39 @@ class GoodsList extends PreviewElement {
 			r.setAttribute('title', item ? item.name : '(unknown #' + item_id + ')');
 			const prev = this.obj._db.prev;
 			if (prev && prev.tabs && prev.tabs[idx] && prev.tabs[idx].items && prev.tabs[idx].items[r.dataset.idx]) r.classList.add('modified');
+		});
+
+		this.shadowRoot.querySelectorAll('#items> div > pw-item:last-child').forEach(r => {
+			const prev = this.obj._db.prev;
+			if (!prev || ((!prev.tabs || !prev.tabs[idx]) && prev.id != -1)) {
+				r.setAttribute('pw-id', 0);
+				r.classList.remove('force-visible');
+				return;
+			}
+
+			if (prev.id == -1 || is_empty(prev.tabs[idx]) || !prev.tabs[idx].items) {
+				/* this is a brand new tab */
+				if (this.obj.tabs[idx].items[r.dataset.idx]) {
+					r.setAttribute('pw-id', 0);
+					r.classList.add('force-visible');
+					return;
+				} else {
+					r.setAttribute('pw-id', 0);
+					r.classList.remove('force-visible');
+					return;
+				}
+			}
+
+			if (prev.tabs[idx].items[r.dataset.idx] === 0) {
+				r.classList.add('force-visible');
+			} else {
+				r.classList.remove('force-visible');
+			}
+
+
+			r.setAttribute('pw-id', prev.tabs[idx].items[r.dataset.idx] || 0);
+			const prev_item = find_by_id(this.db.items, prev.tabs[idx].items[r.dataset.idx]);
+			if (prev_item && prev_item._db.prev) r.classList.add('modified');
 		});
 	}
 }
@@ -380,7 +459,7 @@ class ItemList extends PreviewElement {
 	init() {
 		super.init();
 		const shadow = this.shadowRoot;
-		shadow.append(...newArrElements(this.tpl({ find_by_id, Item })));
+		shadow.append(...newArrElements(this.tpl({ items: this.items, find_by_id, Item })));
 
 		let item_idx = this.dataset.itemIdx || 0;
 		shadow.querySelectorAll('#items > pw-item').forEach(r => {
@@ -438,7 +517,8 @@ class Diff extends PreviewElement {
 		const menu_el = shadow.querySelector('#menu');
 		const pw_container = shadow.querySelector('#element');
 
-		let items_listed = false;
+		let items_queued = [];
+		let items_tab = null;
 		let parent_container = menu_el;
 		for (const arr in this.db) {
 			if (arr === 'metadata') continue;
@@ -447,8 +527,10 @@ class Diff extends PreviewElement {
 			for (const obj of this.db[arr]) {
 				if (arr == 'items') {
 					if (!obj._db.prev) continue;
-					if (items_listed) continue;
-					items_listed = true;
+					if (items_queued.length < 32) {
+						items_queued.push(obj);
+						if (items_tab) continue;
+					}
 				}
 
 				if (cur_cnt == max_cnt) {
@@ -465,6 +547,15 @@ class Diff extends PreviewElement {
 				p.textContent = cur_cnt + '. ' + el_type.title;
 				tab_el.append(p);
 
+				if (arr == 'items') {
+					tab_el.items = items_queued;
+					if (items_queued.length < 32) {
+						items_tab = tab_el;
+					} else {
+						items_tab = null;
+					}
+				}
+
 				p.onclick = () => {
 					const selected = menu_el.querySelector('.selected');
 					if (selected == tab_el) {
@@ -478,6 +569,7 @@ class Diff extends PreviewElement {
 
 					if (!tab_el.pwElement) {
 						const pw_el = document.createElement(el_type.type);
+						if (tab_el.items) pw_el.items = tab_el.items;
 						pw_el.obj = obj;
 						pw_el.db = this.db;
 						tab_el.pwElement = pw_el;
@@ -493,10 +585,13 @@ class Diff extends PreviewElement {
 					}
 					pw_container.appendChild(tab_el.pwElement);
 				};
-				if (cur_cnt == 1) p.click();
 
 				parent_container.append(tab_el);
 			}
+		}
+
+		if (menu_el.children.length > 0) {
+			menu_el.children[0].children[0].click();
 		}
 
 		if (cur_cnt > max_cnt) {

@@ -159,12 +159,13 @@
 
 <script id="pw-recipe" type="text/x-dot-template">
 		{assign recipe_id = $this.getAttribute('pw-id')}
+		{assign classes = $this.classList.contains('mini-item') ? 'mini-item' : ''}
 		{if $recipe_id == 0}
-			<pw-item pw-icon="-1"></pw-item>
+			<pw-item pw-icon="-1" class="{@$classes}"></pw-item>
 		{else}
 			{assign recipe = $find_by_id($db.recipes, $recipe_id) || { targets: [] \}}
 			{assign tgt_item = $find_by_id($db.items, $recipe.targets[0] ? ($recipe.targets[0].id || 0) : 0) || { icon: 0 \}}
-			<pw-item pw-icon="{@$tgt_item.icon}" onclick="this.classList.toggle('force-visible');">
+			<pw-item pw-icon="{@$tgt_item.icon}" class="{@$classes}" onclick="this.classList.toggle('force-visible');">
 				<div class="blackfocusbox"></div>
 				<pw-recipe-tooltip onclick="event.stopPropagation();"></pw-recipe-tooltip>
 			</pw-item>
@@ -199,7 +200,10 @@
 
 			<div id="recipes" class="item-container">
 				{for i = 0; i < 32; i++}
-					<pw-recipe data-idx="{@$i}"></pw-recipe>
+					<div style="position: relative;">
+						<pw-recipe data-idx="{@$i}"></pw-recipe>
+						<pw-recipe data-idx="{@$i}" class="mini-item"></pw-recipe>
+					</div>
 				{/for}
 			</div>
 		</div>
@@ -266,7 +270,10 @@
 
 			<div id="items" class="item-container">
 				{for i = 0; i < 32; i++}
-					<pw-item data-idx="{@$i}"></pw-item>
+					<div style="position: relative;">
+						<pw-item data-idx="{@$i}"></pw-item>
+						<pw-itemdata-idx="{@$i}" class="mini-item"></pw-item>
+					</div>
 				{/for}
 			</div>
 		</div>
@@ -310,13 +317,28 @@
 		<div class="content">
 			<div id="items" class="item-container">
 				{for i = 0; i < 32; i++}
-					<pw-item data-idx="{@$i}"></pw-item>
+					{assign item = $items[i]}
+					{if !$item}
+						<pw-item pw-icon="-1"></pw-item>
+						{continue}
+					{/if}
+					<pw-item pw-icon="{@$item.icon}" class="modified" title="{@$item.name}" onclick="this.classList.toggle('force-visible');">
+						<div class="blackfocusbox"></div>
+						<span class="tooltip">
+							<pre class="pw-tooltip" style="width: 300px;">
+								<p>
+									Under construction, raw data only
+									<hr style="width: 100%"/>
+								</p>
+								{@JSON.stringify($item, null, 2)}
+							</pre>
+						</span>
+					</pw-item>
 				{/for}
 			</div>
 		</div>
 	</div>
 </script>
-
 
 <script id="pw-diff" type="text/x-dot-template">
 	<div id="container">
