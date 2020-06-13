@@ -107,6 +107,7 @@ class PreviewElement extends HTMLElement {
 			this.initialized = 1;
 			const postInit = async () => {
 				await Promise.all(this.load_promises);
+				this.shadowRoot.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 				this.shadowRoot.querySelectorAll('.window.loading').forEach(w => {
 					w.classList.remove('loading');
 				});

@@ -145,16 +145,11 @@ pw-item > img {
 	color: #bbe8bb;
 }
 
-.prev + .data {
-	transform: translateY(-100%);
-}
-
 .prev {
-	transform: translateY(100%);
 	color: #808080;
 }
 
-.prev + .data:before,
+.data.new:before,
 .diff-plus:before,
 .prev:before {
 	content: '+';

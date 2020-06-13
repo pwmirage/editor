@@ -4,6 +4,6 @@
 }
 
 .window > .header .prev,
-.window > .header .prev + .data {
+.window > .header .data.new {
 	margin-left: 8px;
 }
