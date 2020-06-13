@@ -29,7 +29,7 @@
 			{if $prev._tpl_name}<p class="prev">Tpl: {@$prev._tpl_name || "(unnamed)"}</p>{/if}
 			<p class="data">Tpl: {@$recipe._db.tpl_name || "(unnamed)"}</p>
 
-			<p style="margin: 5px 0;">
+			<p style="display: flex; flex-direction: column; margin: 5px 0;">
 				{if $prev.num_to_make}<span class="prev">Crafted: {@$prev.num_to_make}x:</span>{/if}
 				<span class="data">Crafted: {@$recipe.num_to_make}x:</span>
 			</p>
@@ -42,8 +42,8 @@
 								<span class="data prob">0%</span>
 								<pw-item pw-icon="-1"></pw-item>
 							{else}
-								{assign tgt_item = $find_by_id($db.items, $prev.targets[$i].id || recipe.targets[$i].id) || { icon: 0 \}}
-								<span class="data prob">{@get_default($prev.targets[$i].prob, $recipe.targets[$i].prob) * 100}%</span>
+								{assign tgt_item = $find_by_id($db.items, $prev.targets[$i].id || $recipe.targets[$i].id) || { icon: 0 \}}
+								<span class="data prob">{@get_default($prev.targets[$i].prob, $recipe.targets[$i] ? $recipe.targets[$i].prob : 0) * 100}%</span>
 								<pw-item pw-icon="{@$tgt_item.icon}" title="{@$tgt_item.name}"></pw-item>
 							{/if}
 						</div>

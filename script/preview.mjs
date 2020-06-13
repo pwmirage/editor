@@ -378,7 +378,7 @@ class GoodsList extends PreviewElement {
 			const tab = this.obj.tabs[idx];
 			if (!tab) continue;
 			if (this.obj._db.prev && this.obj._db.prev.tabs && !this.obj._db.prev.tabs[idx]) continue;
-			if (this.obj._db.prev.tabs[idx].title === undefined && tab.items.every(id => {
+			if (this.obj._db.prev.tabs && this.obj._db.prev.tabs[idx].title === undefined && tab.items.every(id => {
 				const r = find_by_id(this.db.items, id);
 				if (!r) return true;
 				return !r._db.prev;
@@ -404,9 +404,9 @@ class GoodsList extends PreviewElement {
 			const item_id = this.obj.tabs[idx].items[r.dataset.idx] || 0;
 			const item = find_by_id(this.db.items, item_id);
 			r.setAttribute('pw-icon', item_id == 0 ? -1 : (item ? item.icon : 0));
-			if ((item && item._db.prev) ||
-				(this.obj._db.prev.tabs[idx] && this.obj._db.prev.tabs[idx].items && this.obj._db.prev.tabs[idx].items[r.dataset.idx])) {
-				r.classList.add(modified);
+			if ((item && item._db.prev) || this.obj._db.prev.id == -1 ||
+				(this.obj._db.prev.tabs && this.obj._db.prev.tabs[idx] && this.obj._db.prev.tabs[idx].items && this.obj._db.prev.tabs[idx].items[r.dataset.idx])) {
+				r.classList.add('modified');
 			}
 
 			r.setAttribute('title', item ? item.name : '(unknown #' + item_id + ')');
@@ -464,13 +464,13 @@ class ItemList extends PreviewElement {
 		let item_idx = this.dataset.itemIdx || 0;
 		shadow.querySelectorAll('#items > pw-item').forEach(r => {
 			let item;
-			while (item_idx < this.db.items.length) {
-				item = this.db.items[item_idx];
+			while (item_idx < this.items.length) {
+				item = this.items[item_idx];
 				item_idx++;
 				if (item._db.prev) break;
 			}
 
-			if (item_idx >= this.db.items.length) {
+			if (item_idx >= this.items.length) {
 				r.setAttribute('pw-icon', -1);
 				return;
 			}
@@ -496,7 +496,7 @@ class Diff extends PreviewElement {
 			this.project = this.dataset.project || "";
 		}
 
-		const req = await get(ROOT_URL + '/uploads/preview/' + this.project + ".json", { is_json: true });
+		const req = await get(ROOT_URL + 'get_preview.php?' + this.project, { is_json: true });
 		if (!req.ok) return;
 		const json = this.db = req.data;
 
@@ -529,7 +529,9 @@ class Diff extends PreviewElement {
 					if (!obj._db.prev) continue;
 					if (items_queued.length < 32) {
 						items_queued.push(obj);
-						if (items_tab) continue;
+						if (items_tab) {
+							continue;
+						}
 					}
 				}
 
@@ -548,12 +550,11 @@ class Diff extends PreviewElement {
 				tab_el.append(p);
 
 				if (arr == 'items') {
-					tab_el.items = items_queued;
-					if (items_queued.length < 32) {
-						items_tab = tab_el;
-					} else {
-						items_tab = null;
+					items_tab = tab_el;
+					if (items_queued.length == 32) {
+						items_queued = [obj];
 					}
+					tab_el.items = items_queued;
 				}
 
 				p.onclick = () => {
@@ -616,8 +617,8 @@ class Diff extends PreviewElement {
 
 (async () => {
 	await Promise.all([
-		load_tpl_file('/map/tpl/preview.tpl'),
-		Item.set_iconset('/map/img/iconlist_ivtrm.png'),
+		load_tpl_file(ROOT_URL + 'tpl/preview.tpl'),
+		Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png'),
 	]);
 	customElements.define('pw-npc', NPC);
 	customElements.define('pw-npc-spawn', NPCSpawn);

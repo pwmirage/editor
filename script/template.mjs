@@ -100,7 +100,6 @@ export const compile_tpl = (tpl_id) => {
 		.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 		//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
-	console.log(str);
 	const ret = new Function("local", str);
 	compiled_cache.set(tpl_id, ret);
 	return ret;
