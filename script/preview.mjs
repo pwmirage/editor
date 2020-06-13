@@ -596,9 +596,14 @@ class Diff extends PreviewElement {
 			}
 		}
 
-		if (menu_el.children.length > 0) {
-			menu_el.children[0].children[0].click();
+		if (menu_el.children.length == 0) {
+				const tab_el = document.createElement('div')
+				tab_el.className = 'disabled';
+				tab_el.textContent = 'No changes';
+
+				menu_el.append(tab_el);
 		}
+		menu_el.children[0].children[0].click();
 
 		if (cur_cnt > max_cnt) {
 			const p = document.createElement('p');
