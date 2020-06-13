@@ -1,5 +1,5 @@
 import { newElement, newArrElements, newStyle, escape } from './DomUtil.mjs';
-import { get, sleep, ROOT_URL } from './Util.mjs';
+import { get, sleep, ROOT_URL, VERSION, on_version_ready } from './Util.mjs';
 import { Item } from './Item.mjs';
 import db from './PWDB.mjs';
 import { compile_tpl, load_tpl_file } from './template.mjs';
@@ -75,7 +75,7 @@ class PreviewElement extends HTMLElement {
 		const style = document.createElement('style');
 		style.textContent = css_essentials;
 		shadow.append(style);
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css'));
+		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css?v=' + VERSION));
 		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		this.tpl = compile_tpl(element_name);
 	}
@@ -134,7 +134,7 @@ class PreviewElement extends HTMLElement {
 class RecipeTooltip extends PreviewElement {
 	constructor() {
 		super('pw-recipe-tooltip');
-		this.addStyle(ROOT_URL + 'css/preview/pw-recipe-tooltip.css');
+		this.addStyle(ROOT_URL + 'css/preview/pw-recipe-tooltip.css?v=' + VERSION);
 	}
 
 	init() {
@@ -189,7 +189,7 @@ class Recipe extends PreviewElement {
 class RecipeList extends PreviewElement {
 	constructor() {
 		super('pw-recipe-list');
-		this.addStyle(ROOT_URL + 'css/preview/list.css');
+		this.addStyle(ROOT_URL + 'css/preview/list.css?v=' + VERSION);
 		this.tpl = compile_tpl('pw-recipe-list');
 	}
 
@@ -281,7 +281,7 @@ class RecipeList extends PreviewElement {
 class NPC extends PreviewElement {
 	constructor() {
 		super('pw-npc');
-		this.addStyle(ROOT_URL + 'css/preview/pw-npc.css');
+		this.addStyle(ROOT_URL + 'css/preview/pw-npc.css?v=' + VERSION);
 		this.tpl = compile_tpl('pw-npc');
 	}
 
@@ -353,7 +353,7 @@ class NPCSpawn extends PreviewElement {
 class GoodsList extends PreviewElement {
 	constructor() {
 		super('pw-goods-list');
-		this.addStyle(ROOT_URL + 'css/preview/list.css');
+		this.addStyle(ROOT_URL + 'css/preview/list.css?v=' + VERSION);
 		this.tpl = compile_tpl('pw-goods-list');
 	}
 
@@ -453,7 +453,7 @@ class GoodsList extends PreviewElement {
 class ItemList extends PreviewElement {
 	constructor() {
 		super('pw-item-list');
-		this.addStyle(ROOT_URL + 'css/preview/list.css');
+		this.addStyle(ROOT_URL + 'css/preview/list.css?v=' + VERSION);
 		this.tpl = compile_tpl('pw-item-list');
 	}
 
@@ -487,7 +487,7 @@ class ItemList extends PreviewElement {
 class Diff extends PreviewElement {
 	constructor() {
 		super('pw-diff');
-		this.addStyle(ROOT_URL + 'css/preview/pw-diff.css');
+		this.addStyle(ROOT_URL + 'css/preview/pw-diff.css?v=' + VERSION);
 		this.tpl = compile_tpl('pw-diff');
 	}
 
@@ -624,9 +624,10 @@ class Diff extends PreviewElement {
 }
 
 (async () => {
+	await on_version_ready;
 	await Promise.all([
-		load_tpl_file(ROOT_URL + 'tpl/preview.tpl'),
-		Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png'),
+		load_tpl_file(ROOT_URL + 'tpl/preview.tpl?v=' + VERSION),
+		Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + VERSION),
 	]);
 	customElements.define('pw-npc', NPC);
 	customElements.define('pw-npc-spawn', NPCSpawn);

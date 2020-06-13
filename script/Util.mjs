@@ -31,4 +31,9 @@ export const sleep = (msec) => {
 	});
 }
 
-export const ROOT_URL = '/map/';
+export const ROOT_URL = '/editor/';
+export let VERSION = '0';
+
+export const on_version_ready = get(ROOT_URL + 'version.php', { is_json: 1 }).then(r => {
+	VERSION = r.data.mtime;
+});
