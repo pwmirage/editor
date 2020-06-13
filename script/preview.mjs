@@ -578,14 +578,16 @@ class Diff extends PreviewElement {
 
 					if (prev_el) {
 						tab_el.pwElement.style.display = 'none';
-						tab_el.pwElement.onload = () => {
+						const reload_tab = () => {
 							try {
 								pw_container.removeChild(prev_el);
-							} catch (e) {}
-
-							tab_el.pwElement.style.display = 'block';
-							tab_el.pwElement.onload = null;
-						}
+								tab_el.pwElement.style.display = 'block';
+								tab_el.pwElement.onload = null;
+							} catch (e) {
+								setTimeout(reload_tab, 20);
+							}
+						};
+						tab_el.pwElement.onload = reload_tab;
 					}
 					pw_container.appendChild(tab_el.pwElement);
 				};
