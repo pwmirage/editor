@@ -600,7 +600,9 @@ class Diff extends PreviewElement {
 		if (menu_el.children.length == 0) {
 				const tab_el = document.createElement('div')
 				tab_el.className = 'disabled';
-				tab_el.textContent = 'No changes';
+				const p = document.createElement('p');
+				p.textContent = 'No changes';
+				tab_el.append(p);
 
 				menu_el.append(tab_el);
 		}
