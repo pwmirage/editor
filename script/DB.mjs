@@ -102,26 +102,24 @@ function dump(data, spacing = 1) {
 }
 
 class DB {
-	/* assoc array:
-	 *  array name => array metadata
-	 */
-	type_info = {};
-
-	/* 2d array of changesets. First level is the changeset generation, second level is just
-	 * a collection. This is stored specifically for dumping the changes to JSON easily. */
-	changelog = [
-		new Set(),
-	];
-
-	/* callbacks to be called on commit() */
-	commit_cbs = new Set();
-	/* static offset for new IDs in this DB */
-	new_id_start = 0;
-	/* increment-only offset for new IDs in this DB. Increments with every new obj */
-	new_id_offset = 0;
-
 	constructor() {
+		/* assoc array:
+		 *  array name => array metadata
+		 */
+		this.type_info = {};
 
+		/* 2d array of changesets. First level is the changeset generation, second level is just
+		 * a collection. This is stored specifically for dumping the changes to JSON easily. */
+		this.changelog = [
+			new Set(),
+		];
+
+		/* callbacks to be called on commit() */
+		this.commit_cbs = new Set();
+		/* static offset for new IDs in this DB */
+		this.new_id_start = 0;
+		/* increment-only offset for new IDs in this DB. Increments with every new obj */
+		this.new_id_offset = 0;
 	}
 
 	/**
