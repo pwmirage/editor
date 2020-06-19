@@ -226,6 +226,68 @@ const export_project = async (user, hash, export_type) => {
 	const db = new_db();
 
 	switch (export_type) {
+	case 'cache': {
+		const { project, deps } = await get_local_project(file);
+		const modified = new Map();
+		db.register_commit_cb((obj) => {
+			if (obj._db.type == 'metadata') return;
+			modified.set(obj, true);
+		});
+
+		for (let i = deps.length - 1; i >= 0; i--) {
+			await db.load(deps[i]);
+		}
+
+		await db.load(project);
+		normalize_project(modified);
+		for (let obj of modified.keys()) {
+			if (db.is_obj_equal(obj, obj._db.changesets[0])) {
+				/* this was modified back and forth, but no diff at the end */
+				modified.delete(obj);
+			}
+		}
+
+		const modified_arr = Array.from(modified.keys());
+		const base_cache_str = JSON.stringify(modified_arr, (k, v) => {
+			if (k === '_db') return { type: v.type };
+			if (v === null) return undefined;
+			return v;
+		}, 1);
+		await save_file('uploads/cache/' + file + '.json', base_cache_str);
+		break;
+	}
+	case 'export': {
+		const { project, deps } = await get_local_project(file);
+		for (let i = deps.length - 1; i >= 0; i--) {
+			await db.load(deps[i]);
+		}
+
+		const project_changes = new Map();
+		const org_id = Symbol();
+		db.register_commit_cb((obj) => {
+			if (obj._db.type == 'metadata' && obj.id != 0) return;
+			if (!obj._db[org_id]) obj._db[org_id] = obj._db.latest_state;
+			project_changes.set(obj, true);
+		});
+
+		await db.load(project);
+		normalize_project(project_changes);
+		for (let obj of project_changes.keys()) {
+			if (db.is_obj_equal(obj, obj._db[org_id])) {
+				/* this was modified back and forth, but no diff at the end */
+				project_changes.delete(obj);
+			}
+		}
+
+		const project_changes_arr = Array.from(project_changes.keys());
+		const cache_str = JSON.stringify(project_changes_arr, (k, v) => {
+			if (k === '_db') return { type: v.type, latest_state: v[org_id] };
+			if (v === null) return undefined;
+			return v;
+		}, 1);
+		await save_file('uploads/export/' + file + '.json', cache_str);
+		break;
+	}
 	case 'preview': {
 		console.log(db.npc_recipes[15612].tabs[1]);
 		const { project, deps } = await get_local_project(file);
@@ -385,6 +447,8 @@ const request_handler = async (request, response) => {
 	const req_type = url_parts[1];
 
 	switch (req_type) {
+	case 'export':
+	case 'cache':
 	case 'preview':
 		const user = url_parts[2];
 		const hash = url_parts[3];
