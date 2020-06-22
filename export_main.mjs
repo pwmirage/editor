@@ -289,11 +289,9 @@ const export_project = async (user, hash, export_type) => {
 		break;
 	}
 	case 'preview': {
-		console.log(db.npc_recipes[15612].tabs[1]);
 		const { project, deps } = await get_local_project(file);
 		for (let i = deps.length - 1; i >= 0; i--) {
 			await db.load(deps[i]);
-			console.log(db.npc_recipes[15612].tabs[1]);
 		}
 
 		db.new_generation();
@@ -311,7 +309,6 @@ const export_project = async (user, hash, export_type) => {
 		});
 
 		await db.load(project);
-		console.log(db.npc_recipes[15612].tabs[1]);
 
 		/* minimize all objects */
 		for (const [obj, cnt] of mod_refcnt.entries()) {
