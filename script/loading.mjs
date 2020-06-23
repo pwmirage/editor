@@ -20,6 +20,15 @@ export const hide_loading_tag = async (tag) => {
 	}, 100);
 }
 
+export const show_error_tag = (name) => {
+	const p = show_loading_tag(name);
+	p.classList.add('error-tag');
+	setTimeout(() => {
+		page_init.then(setTimeout(() => { hide_loading_tag(p); }, 8000));
+	}, 100);
+	return p;
+}
+
 document.mgeLoad = async ({ id, fadeIn }) => {
 	let loading_el = document.querySelector('#mgeArea > .loading');
 
@@ -55,7 +64,11 @@ document.mgeLoad = async ({ id, fadeIn }) => {
 
 	await sleep(500);
 
-	document.mgeEdit({id});
+	try {
+		await document.mgeEdit({id});
+	} catch (e) {
+		show_error_tag(e.message);
+	}
 
 	hide_loading_tag(tag);
 	curtains.className = 'showCurtain hideCurtain';
