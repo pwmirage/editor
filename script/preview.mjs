@@ -3,6 +3,7 @@ import { get, sleep, ROOT_URL, VERSION, on_version_ready } from './Util.mjs';
 import { Item } from './Item.mjs';
 import db from './PWDB.mjs';
 import { compile_tpl, load_tpl_file } from './template.mjs';
+import { show_loading_tag, hide_loading_tag } from './loading.mjs';
 
 const find_by_id = (tbl, id) => {
 	for (const obj of tbl) {
@@ -625,11 +626,21 @@ class Diff extends PreviewElement {
 	}
 }
 
+
+
 (async () => {
 	await on_version_ready;
 	await Promise.all([
-		load_tpl_file(ROOT_URL + 'tpl/preview.tpl?v=' + VERSION),
-		Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + VERSION),
+		((async () => {
+			const tag = show_loading_tag('Fetching preview scheme');
+			await load_tpl_file(ROOT_URL + 'tpl/preview.tpl?v=' + VERSION)
+			hide_loading_tag(tag);
+		})()),
+		((async () => {
+			const tag = show_loading_tag('Loading item icons');
+			await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + VERSION),
+			hide_loading_tag(tag);
+		})()),
 	]);
 	customElements.define('pw-npc', NPC);
 	customElements.define('pw-npc-spawn', NPCSpawn);
