@@ -24,7 +24,7 @@
 #curtain{
 	position: absolute;
 	width: 100vw;
-	height: 100vh;
+	height: calc(100vh - 50px);
 	display: none;
 }
 

@@ -67,6 +67,7 @@ document.mgeLoad = async ({ id, fadeIn }) => {
 	try {
 		await document.mgeEdit({id});
 	} catch (e) {
+		console.error(e);
 		show_error_tag(e.message);
 	}
 
