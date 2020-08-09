@@ -1,6 +1,8 @@
 /* copyright */
 import { get, sleep, ROOT_URL, VERSION } from './Util.mjs';
 import { newElement, newArrElements, escape } from './DomUtil.mjs';
+import db from './PWDB.mjs';
+import Window from './Window.mjs';
 
 export default class Map {
 	constructor() {
@@ -8,7 +10,6 @@ export default class Map {
 		this.bg = null;
 		this.pos_label = null;
 		this.map_bounds = null;
-		this.window_area_bounds = null;
 		/* size of the actual image (unscaled) */
 		this.bg_img_realsize = {
 			w: 0,
@@ -35,33 +36,32 @@ export default class Map {
 	static async add_elements(parent) {
 		const shadow_el = document.createElement('div');
 		shadow_el.id = 'pw-map';
-		parent.prepend(shadow_el);
 		const shadow = shadow_el.attachShadow({mode: 'open'});
 		const tpl = await get(ROOT_URL + 'tpl/editor.tpl');
 		const els = newArrElements(tpl.data);
 		shadow.append(...els);
+		parent.prepend(shadow_el);
+		Window.set_container(shadow.querySelector('#pw-windows'));
+		await db.load_map('world');
 	}
 
 	reinit(mapname) {
 		return new Promise((resolve, reject) => {
 			this.shadow = document.querySelector('#pw-map').shadowRoot;
-			const pw_map = this.shadow.querySelector('#pw-map');
-			this.bg = pw_map.querySelector('.bg');
-			pw_map.style.display = 'initial';
-			this.bg.onload = () => {
+			const canvas = this.shadow.querySelector('#pw-map-canvas');
+			const overlay = this.shadow.querySelector('#pw-map-overlay');
+			this.bg = canvas.querySelector('.bg');
+			this.pw_map = canvas.querySelector('#pw-map');
+			canvas.style.display = 'initial';
+			this.bg.onload = async () => {
 				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
-				this.map_bounds = pw_map.getBoundingClientRect();
+				this.map_bounds = canvas.getBoundingClientRect();
 
 				this.bg_img_realsize.w = this.bg.width;
 				this.bg_img_realsize.h = this.bg.height;
 
-				const win = this.shadow.querySelector('.window');
-				win.style.width = '200px';
-				win.style.height = '400px';
-				win.onclick = () => { console.log("Hello world!"); };
-
-				pw_map.onmousedown = (e) => this.onmousedown(e);
-				pw_map.onwheel = (e) => this.onwheel(e);
+				canvas.onmousedown = (e) => this.onmousedown(e);
+				canvas.onwheel = (e) => this.onwheel(e);
 				this.onmousemove_fn = (e) => this.onmousemove(e);
 				this.onmouseup_fn = (e) => this.onmouseup(e);
 
@@ -72,6 +72,24 @@ export default class Map {
 					await this.close();
 				};
 
+				const marker_img = await new Promise((resolve, reject) => {
+					const img = new Image();
+					img.onload = () => resolve(img);
+					img.onerror = reject;
+					img.src = ROOT_URL + 'img/marker.png';
+				});
+
+				overlay.width = 10000;
+				overlay.height = 10000 * this.bg.height / this.bg.width;
+				overlay.style.width = this.bg.width + 'px';
+				overlay.style.height = this.bg.height + 'px';
+				var ctx = overlay.getContext("2d");
+				for (const spawner of db.spawners_world) {
+					const x = (0.5 + spawner.pos[0] / 2 / 4096) * overlay.width;
+					const y = (0.5 - spawner.pos[2] / 2 / 5632) * overlay.height;
+					ctx.drawImage(marker_img, x - 16, y - 16, 32, 32);
+				}
+				Window.open('welcome');
 				resolve();
 			};
 			this.bg.onerror = reject;
@@ -79,8 +97,16 @@ export default class Map {
 		});
 	}
 
+	init_markers(pos) {
+		console.log(this.map_bounds);
+		const marker = newElement('<div class="map-marker"></div>');
+		marker.style.left = x + '%';
+		marker.style.top = y + '%';
+		this.pw_map.append(marker);
+	}
+
 	close() {
-		const pw_map = this.shadow.querySelector('#pw-map');
+		const pw_map = this.shadow.querySelector('#pw-map-canvas');
 		window.removeEventListener('mousemove', this.onmousemove_fn);
 		window.removeEventListener('mouseup', this.onmouseup_fn);
 		pw_map.style.display = 'none';
@@ -97,9 +123,6 @@ export default class Map {
 
 	onmousemove(e) {
 		e.preventDefault();
-		const win = this.shadow.querySelector('.window');
-		win.style.left = e.clientX + 'px';
-		win.style.top = e.clientY + 'px';
 
 		if (this.drag.is_drag) {
 			const new_offset = {
@@ -113,11 +136,32 @@ export default class Map {
 		}
 
 		const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
+		map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
+		map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
+
+		const marker_size = 64 * this.bg_img_realsize.w / 10000;
+
+		let hover = false;
+		for (const spawner of db.spawners_world) {
+			const x = spawner.pos[0];
+			const y = spawner.pos[2];
+
+			if (map_coords.x >= x - marker_size / 2 &&
+			    map_coords.y < y + marker_size / 2 &&
+			    map_coords.x < x + marker_size / 2 &&
+			    map_coords.y >= y - marker_size / 2) {
+				hover = true;
+			}
+
+		}
+		document.body.style.cursor = hover ? 'pointer' : '';
 		this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
+		Window.onmousemove(e);
 	}
 
 	onmouseup(e) {
 		this.drag.is_drag = false;
+		Window.onmouseup(e);
 	}
 
 	onwheel(e) {
@@ -128,7 +172,7 @@ export default class Map {
 
 	move_to(new_offset) {
 		this.pos.offset = new_offset;
-		this.bg.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
+		this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
 	}
 
 	zoom(delta, origin) {
@@ -224,10 +268,10 @@ function zoom(delta, cursor)
 	var new_coords = {
 		x: g_map.pos.offset.x
 			 + ((g_map.pos.offset.x + cursor.x) / old_scale
-				 - (g_map.pos.offset.x + cursor.x) / g_map.pos.scale) * g_map.pos.scale, 
+				 - (g_map.pos.offset.x + cursor.x) / g_map.pos.scale) * g_map.pos.scale,
 		y: g_map.pos.offset.y
 			 + ((g_map.pos.offset.y + cursor.y) / old_scale
-				 - (g_map.pos.offset.y + cursor.y) / g_map.pos.scale) * g_map.pos.scale, 
+				 - (g_map.pos.offset.y + cursor.y) / g_map.pos.scale) * g_map.pos.scale,
 	};
 
 	move_bg_to(new_coords);
