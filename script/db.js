@@ -438,4 +438,6 @@ class DB {
 	}
 }
 
-export default DB
+if (typeof window === 'undefined') {
+	eval('export default DB');
+}

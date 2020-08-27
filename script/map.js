@@ -1,10 +1,8 @@
-/* copyright */
-import { get, sleep, ROOT_URL, VERSION } from './Util.mjs';
-import { newElement, newArrElements, escape } from './DomUtil.mjs';
-import db from './PWDB.mjs';
-import Window from './Window.mjs';
+/* SPDX-License-Identifier: MIT
+ * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
+ */
 
-export default class Map {
+class PWMap {
 	constructor() {
 		this.shadow = null;
 		this.bg = null;
@@ -45,6 +43,10 @@ export default class Map {
 		await db.load_map('world');
 	}
 
+	add_marker() {
+
+	}
+
 	reinit(mapname) {
 		return new Promise((resolve, reject) => {
 			this.shadow = document.querySelector('#pw-map').shadowRoot;
@@ -76,7 +78,7 @@ export default class Map {
 					const img = new Image();
 					img.onload = () => resolve(img);
 					img.onerror = reject;
-					img.src = ROOT_URL + 'img/marker.png';
+					img.src = Item.get_icon(17);
 				});
 
 				overlay.width = 10000;
@@ -84,10 +86,17 @@ export default class Map {
 				overlay.style.width = this.bg.width + 'px';
 				overlay.style.height = this.bg.height + 'px';
 				var ctx = overlay.getContext("2d");
+				const size = 32;
 				for (const spawner of db.spawners_world) {
-					const x = (0.5 + spawner.pos[0] / 2 / 4096) * overlay.width;
-					const y = (0.5 - spawner.pos[2] / 2 / 5632) * overlay.height;
-					ctx.drawImage(marker_img, x - 16, y - 16, 32, 32);
+					const pcx = 0.5 + spawner.pos[0] / 2 / 4096;
+					const pcy = 0.5 - spawner.pos[2] / 2 / 5632;
+					const x = parseInt(pcx * overlay.width);
+					const y = parseInt(pcy * overlay.height);
+					ctx.drawImage(marker_img, x - size/2, y - size/2, size, size);
+					ctx.beginPath();
+					ctx.strokeStyle = 'greenyellow';
+					ctx.rect(x - size/2, y - size/2, size, size);
+					ctx.stroke();
 				}
 				Window.open('welcome');
 				resolve();
@@ -95,14 +104,6 @@ export default class Map {
 			this.bg.onerror = reject;
 			this.bg.src = ROOT_URL + 'data/images/map/' + mapname + '.jpg';
 		});
-	}
-
-	init_markers(pos) {
-		console.log(this.map_bounds);
-		const marker = newElement('<div class="map-marker"></div>');
-		marker.style.left = x + '%';
-		marker.style.top = y + '%';
-		this.pw_map.append(marker);
 	}
 
 	close() {
@@ -196,98 +197,3 @@ export default class Map {
 	}
 
 };
-
-
-
-
-function map_onmousemove(mousex, mousey)
-{
-	if (!g_map.mpc_bounds) return;
-
-	if (g_map.drag.is_drag) {
-		var new_offset = {
-			x: g_map.pos.offset.x + (g_map.drag.origin.x - mousex),
-			y: g_map.pos.offset.y + (g_map.drag.origin.y - mousey)
-		};
-
-		move_bg_to(new_offset);
-	}
-
-	var map_coords = mouse_coords_to_map(mousex, mousey);
-	g_map.$pos_label.text('X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y));
-
-	g_map.drag.origin.x = mousex;
-	g_map.drag.origin.y = mousey;
-}
-
-function handle(e)
-{
-	if (e.which == 1 || e.which == 2) {
-		g_map.drag.origin.x = e.clientX;
-		g_map.drag.origin.y = e.clientY;
-		g_map.drag.is_drag= true;
-	}
-
-	if (g_map.map_click_cb) {
-		g_map.map_click_cb.call(g_map.$bg_img.get(0), e);
-	}
-
-	e.stopPropagation();
-	return false;
-}
-
-
-function set_scale(new_scale)
-{
-	if (new_scale < 0.125) {
-		return false;
-	}
-
-	var old_scale = g_map.pos.scale;
-	g_map.pos.scale = new_scale;
-
-	if ((new_scale < 1.0 && old_scale>= 1.0) ||
-			(new_scale >= 1.0 && old_scale < 1.0)) {
-		refresh_markers();
-	}
-
-	g_map.$bg_img.css('width', g_map.bg_img_realsize.w *	g_map.pos.scale+ 'px');
-	g_map.$bg_img.css('height', g_map.bg_img_realsize.h *	g_map.pos.scale+ 'px');
-
-	save_cfg();
-	return true;
-}
-
-function zoom(delta, cursor)
-{
-	var old_scale = g_map.pos.scale;
-	if (!set_scale( g_map.pos.scale* (1 + delta))) {
-		return;
-	}
-
-	var new_coords = {
-		x: g_map.pos.offset.x
-			 + ((g_map.pos.offset.x + cursor.x) / old_scale
-				 - (g_map.pos.offset.x + cursor.x) / g_map.pos.scale) * g_map.pos.scale,
-		y: g_map.pos.offset.y
-			 + ((g_map.pos.offset.y + cursor.y) / old_scale
-				 - (g_map.pos.offset.y + cursor.y) / g_map.pos.scale) * g_map.pos.scale,
-	};
-
-	move_bg_to(new_coords);
-}
-
-function zoom_handler(e)
-{
-	var delta = -Math.sign(e.originalEvent.deltaX + e.originalEvent.deltaY + e.originalEvent.deltaZ) / 10.0;
-	zoom(delta, g_map.drag.origin);
-	e.preventDefault();
-	return false;
-}
-
-function map_reset()
-{
-	const $mpc = $('#mpc');
-	move_bg_to({ x: -$mpc.width() * 0.25, y: -$mpc.height() * 0.25 });
-	set_scale($mpc.width() / g_map.bg_img_realsize.w * 0.5);
-}

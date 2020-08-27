@@ -24,29 +24,6 @@ const load_iconset = (url) => {
 	});
 }
 
-const get_icon = (index) => {
-	if (Item.icons[index]) {
-		return Item.icons[index];
-	}
-
-	if (!g_iconset_img) {
-		return Item.icons[0];
-	}
-
-	let width = g_iconset_img.width / 32;
-	let height = g_iconset_img.height / 32;
-	let x = index % width;
-	let y = parseInt(index / width);
-
-	if (index >= width * height) {
-		return Item.icons[0];
-	}
-
-	g_icon_canvas_ctx.drawImage(g_iconset_img, x * 32, y * 32, 32, 32, 0, 0, 32, 32);
-	Item.icons[index] = g_icon_canvas.toDataURL('image/jpeg', 0.95);
-	return Item.icons[index];
-}
-
 const gen_all_icons = async () => {
 	const width = g_iconset_img.width / 32;
 	const height = g_iconset_img.height / 32;
@@ -57,7 +34,7 @@ const gen_all_icons = async () => {
 	while (index < icon_count) {
 		await (async () => {
 			for (let i = 0; i < 32; i++) {
-				get_icon(index++);
+				Item.get_icon(index++);
 			}
 		})();
 	}
@@ -75,7 +52,7 @@ const get_icon_src = (index) => {
 	return url;
 }
 
-export class Item extends HTMLElement {
+class Item extends HTMLElement {
 	static TYPE = {
 		MATERIAL: 2,
 		CHI_STONE: 12,
@@ -156,7 +133,7 @@ export class Item extends HTMLElement {
 		});
 
 		if (cached) {
-			g_iconset_promise = new Promise((resolve, reject) => {
+			await new Promise((resolve, reject) => {
 				const cache = g_iconset_cache.transaction(['icons'], 'readonly').objectStore('icons');
 				const request = cache.get(0);
 				request.onerror = reject;
@@ -166,7 +143,7 @@ export class Item extends HTMLElement {
 						Item.icons = cache.arr;
 					} else {
 						await load_iconset(url);
-						gen_all_icons();
+						g_iconset_promise = gen_all_icons();
 					}
 					resolve();
 				};
@@ -183,6 +160,29 @@ export class Item extends HTMLElement {
 	}
 
 	static get observedAttributes() { return ['pw-icon']; }
+
+	static get_icon(index) {
+		if (Item.icons[index]) {
+			return Item.icons[index];
+		}
+
+		if (!g_iconset_img) {
+			return Item.icons[0];
+		}
+
+		let width = g_iconset_img.width / 32;
+		let height = g_iconset_img.height / 32;
+		let x = index % width;
+		let y = parseInt(index / width);
+
+		if (index >= width * height) {
+			return Item.icons[0];
+		}
+
+		g_icon_canvas_ctx.drawImage(g_iconset_img, x * 32, y * 32, 32, 32, 0, 0, 32, 32);
+		Item.icons[index] = g_icon_canvas.toDataURL('image/jpeg', 0.95);
+		return Item.icons[index];
+	}
 
 	constructor() {
 		super();
