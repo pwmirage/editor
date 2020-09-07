@@ -25,8 +25,11 @@ class Editor {
 			load_script(ROOT_URL + 'script/map.js?v=' + MG_VERSION),
 		]);
 
-		await load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
-		await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION)
+		await Promise.all([
+			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
+			await load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
+			await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION)
+		]);
 
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
 	}
@@ -52,7 +55,7 @@ class Editor {
 			show_error_tag(e.message);
 		}
 
-		await sleep(500);
+		//await sleep(500);
 		hide_loading_tag(tag);
 		stop_loading();
 	}

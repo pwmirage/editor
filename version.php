@@ -4,6 +4,6 @@ $time = max($time, filemtime('tpl'));
 $time = max($time, filemtime('css'));
 
 echo json_encode(array(
-	'mtime' => $time,
+	'mtime' => 1, //$time,
 ), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES);
 ?>

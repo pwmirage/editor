@@ -6,6 +6,7 @@ class Window {
 	static container;
 	static bounds;
 	static dragged_win;
+	static style_el = newStyle(ROOT_URL + 'css/window.css');
 
 	constructor(dom) {
 		this.dom = dom;
@@ -20,15 +21,22 @@ class Window {
 		Window.bounds = container.getBoundingClientRect();
 	}
 
-	static async open(win_id) {
+	static async open(win_id, { prev_win } = {}) {
 		const win = document.createElement('div');
 		win.className = 'window ' + win_id;
 		const shadow = win.attachShadow({mode: 'open'});
 		const tpl = await get(ROOT_URL + 'tpl/window/' + win_id + '.tpl');
 		const els = newArrElements(tpl.data);
+		shadow.append(Window.style_el.cloneNode());
 		shadow.append(...els);
 		Window.container.prepend(win);
 		return new Window(win);
+	}
+
+	static close_all() {
+		for (const win_dom of Window.container.children) {
+			Window.container.remove(win_dom);
+		}
 	}
 
 	static coords_to_window(x, y) {
@@ -93,4 +101,7 @@ class Window {
 		window_move(new_x, new_y);
 	}
 
+	close(win_id) {
+		this.dom.remove();
+	}
 }

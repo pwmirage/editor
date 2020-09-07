@@ -4,30 +4,31 @@
 
 const _fetch = async (url, { params, is_json }) => {
 	const resp = await fetch(url, params);
-	const data_txt = await resp.text();
-	resp.data = data_txt;
-	if (!resp.ok) {
-		if (is_json) {
-			resp.data = {};
-		}
-		return resp;
-	}
 
-	if (is_json) {
+	if (!is_json) {
+		resp.data = await resp.text();
+		if (!resp.ok) {
+			return resp;
+		}
+	} else {
 		try {
-			resp.data = JSON.parse(data_txt);
+			resp.data = await resp.json();
+			if (!resp.ok) {
+				return resp;
+			}
+
 			return resp;
 		} catch (e) {
 			console.error(e);
-			console.error(data_txt);
+			console.error(resp.data);
 			resp.data = {};
 		}
 	}
 	return resp;
 }
 
-const get = async (url, { is_json } = {}) => {
-	return _fetch(url, { is_json, params: { method: 'GET', headers: {} }});
+const get = async (url, { is_json, headers } = {}) => {
+	return _fetch(url, { is_json, params: { method: 'GET', headers: headers || {} }});
 }
 
 const post = async (url, { data, is_json } = {}) => {
@@ -71,4 +72,15 @@ const newStyle = (url) => {
 	linkElem.setAttribute('type', 'text/css');
 	if (url) linkElem.setAttribute('href', url);
 	return linkElem;
+}
+
+/* onclick callback for collapsible html elements */
+function collapsible_toggle(el) {
+	el.classList.toggle("active");
+	const content = el.nextElementSibling;
+	if (content.style.maxHeight){
+		content.style.maxHeight = null;
+	} else {
+		content.style.maxHeight = content.scrollHeight + "px";
+	}
 }

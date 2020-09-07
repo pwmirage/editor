@@ -43,15 +43,94 @@ class PWMap {
 		await db.load_map('world');
 	}
 
-	add_marker() {
+	async redraw_overlay(filters) {
+		const org_overlay = this.shadow.querySelector('#pw-map-overlay');
+		const overlay = org_overlay.cloneNode();
+		var ctx = overlay.getContext("2d");
+		ctx.clearRect(0, 0, overlay.width, overlay.height);
+		const size = 32;
 
+		const org_overlay_dots = this.shadow.querySelector('#pw-map-overlay-dots');
+		const overlay_dots = org_overlay_dots.cloneNode();
+		var ctx_dots = overlay_dots.getContext("2d");
+		ctx_dots.clearRect(0, 0, overlay_dots.width, overlay_dots.height);
+		ctx_dots.fillStyle = 'red';
+
+		const icons = {};
+		const get_spawner_icon = (type) => {
+			if (icons[type]) return icons[type];
+
+			return new Promise((resolve, reject) => {
+				const img = new Image();
+				img.onload = () => { icons[type] = img; resolve(img); };
+				img.onerror = reject;
+				if (type.startsWith('data:')) {
+					img.src = type;
+				} else {
+					img.src = ROOT_URL + 'img/spawner-' + type + '.png';
+				}
+			});
+		};
+
+		for (const spawner of db.spawners_world) {
+			let marker_img;
+
+			if (filters[spawner.is_npc ? 'npc' : 'mob'](spawner)) {
+				continue;
+			}
+
+			if (spawner.groups.length == 0) {
+				marker_img = await get_spawner_icon('unknown');
+			} else {
+				if (spawner.is_npc) {
+					marker_img = await get_spawner_icon('npc');
+				} else {
+					marker_img = await get_spawner_icon('mob');
+				}
+				//marker_img = await get_spawner_icon(Item.get_icon(group.type));
+			}
+
+			const pcx = 0.5 + spawner.pos[0] / 2 / 4096;
+			const pcy = 0.5 - spawner.pos[2] / 2 / 5632;
+			const x = parseInt(pcx * overlay.width);
+			const y = parseInt(pcy * overlay.height);
+			ctx.drawImage(marker_img, x - size/2, y - size/2, size, size);
+			ctx_dots.fillRect(x, y, 1, 1);
+			//ctx.beginPath();
+			//ctx.strokeStyle = 'greenyellow';
+			//ctx.rect(x - size/2, y - size/2, size, size);
+			//ctx.stroke();
+		}
+
+		for (const spawner of db.resources_world) {
+			let marker_img;
+
+			if (spawner.groups.length == 0) {
+				marker_img = await get_spawner_icon('unknown');
+			} else {
+				const res_id = spawner.groups[0].type;
+				const res = db.mines[res_id];
+				const mat_item = res.mat_item.find((it) => it && it.id > 0);
+				const item = db.items[mat_item ? mat_item.id : 0]; 
+				marker_img = await get_spawner_icon(item ? Item.get_icon(item.icon) : 'unknown');
+			}
+
+			const pcx = 0.5 + spawner.pos[0] / 2 / 4096;
+			const pcy = 0.5 - spawner.pos[2] / 2 / 5632;
+			const x = parseInt(pcx * overlay.width);
+			const y = parseInt(pcy * overlay.height);
+			ctx.drawImage(marker_img, x - size/2, y - size/2, size, size);
+			ctx_dots.fillRect(x, y, 1, 1);
+		}
+
+		org_overlay.replaceWith(overlay);
+		org_overlay_dots.replaceWith(overlay_dots);
 	}
 
 	reinit(mapname) {
 		return new Promise((resolve, reject) => {
 			this.shadow = document.querySelector('#pw-map').shadowRoot;
 			const canvas = this.shadow.querySelector('#pw-map-canvas');
-			const overlay = this.shadow.querySelector('#pw-map-overlay');
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
 			canvas.style.display = 'initial';
@@ -71,34 +150,21 @@ class PWMap {
 				window.addEventListener('mouseup', this.onmouseup_fn, { passive: false });
 
 				document.querySelector('#returnToWebsite').onclick = async () => {
+					await Window.close_all();
 					await this.close();
 				};
 
-				const marker_img = await new Promise((resolve, reject) => {
-					const img = new Image();
-					img.onload = () => resolve(img);
-					img.onerror = reject;
-					img.src = Item.get_icon(17);
-				});
-
-				overlay.width = 10000;
-				overlay.height = 10000 * this.bg.height / this.bg.width;
-				overlay.style.width = this.bg.width + 'px';
-				overlay.style.height = this.bg.height + 'px';
-				var ctx = overlay.getContext("2d");
-				const size = 32;
-				for (const spawner of db.spawners_world) {
-					const pcx = 0.5 + spawner.pos[0] / 2 / 4096;
-					const pcy = 0.5 - spawner.pos[2] / 2 / 5632;
-					const x = parseInt(pcx * overlay.width);
-					const y = parseInt(pcy * overlay.height);
-					ctx.drawImage(marker_img, x - size/2, y - size/2, size, size);
-					ctx.beginPath();
-					ctx.strokeStyle = 'greenyellow';
-					ctx.rect(x - size/2, y - size/2, size, size);
-					ctx.stroke();
+				const overlay_icons = this.shadow.querySelector('#pw-map-overlay');
+				const overlay_dots = this.shadow.querySelector('#pw-map-overlay-dots');
+				for (const overlay of [overlay_icons, overlay_dots]) {
+					overlay.width = 10000;
+					overlay.height = 10000 * this.bg.height / this.bg.width;
+					overlay.style.width = this.bg.width + 'px';
+					overlay.style.height = this.bg.height + 'px';
 				}
-				Window.open('welcome');
+				await this.redraw_overlay({ npc: () => false, mob: () => false });
+				//Window.open('welcome');
+				await open_map_legend_window();
 				resolve();
 			};
 			this.bg.onerror = reject;
@@ -143,18 +209,20 @@ class PWMap {
 		const marker_size = 64 * this.bg_img_realsize.w / 10000;
 
 		let hover = false;
-		for (const spawner of db.spawners_world) {
-			const x = spawner.pos[0];
-			const y = spawner.pos[2];
+		for (const spawners_group of [db.spawners_world, db.resources_world]) {
+			for (const spawner of spawners_group) {
+				const x = spawner.pos[0];
+				const y = spawner.pos[2];
 
-			if (map_coords.x >= x - marker_size / 2 &&
-			    map_coords.y < y + marker_size / 2 &&
-			    map_coords.x < x + marker_size / 2 &&
-			    map_coords.y >= y - marker_size / 2) {
-				hover = true;
+				if (map_coords.x >= x - marker_size / 2 &&
+				    map_coords.y < y + marker_size / 2 &&
+				    map_coords.x < x + marker_size / 2 &&
+				    map_coords.y >= y - marker_size / 2) {
+					hover = true;
+				}
 			}
-
 		}
+
 		document.body.style.cursor = hover ? 'pointer' : '';
 		this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
 		Window.onmousemove(e);
@@ -179,6 +247,8 @@ class PWMap {
 	zoom(delta, origin) {
 		const old_scale = this.pos.scale;
 		this.pos.scale = Math.max(0.100, this.pos.scale * (1 + delta));
+		const overlay = this.shadow.querySelector('#pw-map-overlay');
+		overlay.style.opacity = 1.0 / this.pos.scale;
 		const new_pos = {
 			x: this.pos.offset.x + ((this.pos.offset.x + origin.x) / old_scale
 				      - (this.pos.offset.x + origin.x) / this.pos.scale) * this.pos.scale,

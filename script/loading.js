@@ -1,6 +1,6 @@
 const g_loading = {
 	labels: null,
-	page_init: new Promise((resolve) => setTimeout(resolve, 1000)),
+	page_init: new Promise((resolve) => setTimeout(resolve, 10)),
 };
 
 let mg_loading_initialized = false;
@@ -63,7 +63,7 @@ const stop_loading = async () => {
 	const curtains = shadow.querySelector('#curtain');
 
 	curtains.className = 'showCurtain hideCurtain';
-	await sleep(900);
+	//await sleep(900);
 	curtains.className = '';
 	document.body.classList.remove('mge-loading-fullscreen');
 };

@@ -42,4 +42,4 @@ const load_script = (src, on_success = () => {}, on_fail = () => {}) => {
 	});
 }
 
-mg_init();
+const g_loaded = mg_init();
