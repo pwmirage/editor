@@ -85,6 +85,7 @@ const g_pwdb_init_promise = Promise.all([
 	pwdb_register_data_type('npc_sells'),
 	pwdb_register_data_type('npc_crafts'),
 	pwdb_register_data_type('npcs'),
+	pwdb_register_data_type('monsters'),
 ]);
 //pwdb_register_data_type('quests');
 

@@ -2,8 +2,6 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_watched;
-const icons = {};
 class PWMap {
 	constructor() {
 		this.shadow = null;
@@ -17,7 +15,6 @@ class PWMap {
 		};
 		/* map drag position / scroll */
 		this.pos = { scale: 1, offset: { x: 0, y: 0} };
-		this.dyn_overlay_pos = { scale: 1, offset: { x: 0, y: 0} };
 
 		this.drag = {
 			origin: {
@@ -26,6 +23,10 @@ class PWMap {
 			},
 			is_drag: false,
 		};
+
+		this.marker_img = {};
+		this.spawners_to_label = [];
+		this.hover_lbl = null
 	}
 
 	static async add_elements(parent) {
@@ -43,9 +44,10 @@ class PWMap {
 	reinit(mapname) {
 		return new Promise((resolve, reject) => {
 			this.shadow = document.querySelector('#pw-map').shadowRoot;
-			const canvas = this.shadow.querySelector('#pw-map-canvas');
+			const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
+			this.hover_lbl = this.shadow.querySelector('.label');
 			canvas.style.display = 'initial';
 			this.bg.onload = async () => {
 				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
@@ -115,29 +117,39 @@ class PWMap {
 			this.drag.origin.y = e.clientY;
 		}
 
-		const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
-		map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
-		map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
+		if (this.canvas.querySelector(':hover')) {
+			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
+			map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
+			map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
+			const spawner = this.get_marker_at(map_coords);
 
-		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale;
-
-		let hover = false;
-		for (const spawners_group of [db.spawners_world, db.resources_world]) {
-			for (const spawner of spawners_group) {
-				const x = spawner.pos[0];
-				const y = spawner.pos[2];
-
-				if (map_coords.x >= x - marker_size / 2 &&
-				    map_coords.y < y + marker_size / 2 &&
-				    map_coords.x < x + marker_size / 2 &&
-				    map_coords.y >= y - marker_size / 2) {
-					hover = true;
+			this.spawners_to_label = spawner ? [ spawner ] : [];
+			this.hover_lbl.style.display = spawner ? 'block' : 'none';
+			if (spawner) {
+				const type = spawner.groups[0]?.type;
+				let obj;
+				if (spawner._db.type == 'spawners_world') {
+					obj = db.npcs[type] || db.monsters[type];
+				} else {
+					obj = db.mines[type];
 				}
+				const name = obj?.name;
+
+				this.hover_lbl.style.left = (e.clientX - this.map_bounds.left + 20) + 'px';
+				this.hover_lbl.style.top = (e.clientY - this.map_bounds.top - 10) + 'px';
+				this.hover_lbl.textContent = name;
+			}
+
+			document.body.style.cursor = spawner ? 'pointer' : '';
+			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
+		} else {
+			if (this.spawners_to_label) {
+				this.hover_lbl.style.display = 'none';
+				this.spawners_to_label = [];
+				document.body.style.cursor = '';
 			}
 		}
 
-		document.body.style.cursor = hover ? 'pointer' : '';
-		this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
 		Window.onmousemove(e);
 	}
 
@@ -146,6 +158,15 @@ class PWMap {
 			this.redraw_dyn_overlay();
 		}
 		this.drag.is_drag = false;
+		const marker = this.get_hovered_marker(e);
+		if (marker) {
+			const type = marker.groups[0]?.type;
+			let obj;
+			if (marker._db.type == 'spawners_world') {
+				obj = db.npcs[type] || db.monsters[type];
+			}
+			if (obj) console.log(obj.name);
+		}
 		Window.onmouseup(e);
 	}
 
@@ -159,8 +180,32 @@ class PWMap {
 		return Math.min(28, 16 * Math.sqrt(this.pos.scale));
 	}
 
-	get_hovered_marker() {
+	get_hovered_marker(e) {
+		const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
+		map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
+		map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
 
+		return this.get_marker_at(map_coords);
+	}
+
+	get_marker_at(map_coords) {
+		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale;
+
+		for (const spawners_group of [db.spawners_world, db.resources_world]) {
+			for (const spawner of spawners_group) {
+				const x = spawner.pos[0];
+				const y = spawner.pos[2];
+
+				if (map_coords.x >= x - marker_size / 2 &&
+				    map_coords.y < y + marker_size / 2 &&
+				    map_coords.x < x + marker_size / 2 &&
+				    map_coords.y >= y - marker_size / 2) {
+					return spawner;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	async redraw_dyn_overlay() {
@@ -185,13 +230,13 @@ class PWMap {
 		const size = this.getmarkersize();
 
 		const get_spawner_icon = (type) => {
-			if (icons[type]) return icons[type];
+			if (this.marker_img[type]) return this.marker_img[type];
 
 			const img = new Image();
 			return new Promise((resolve, reject) => {
 				const img = new Image();
 				img.onload = () => {
-					icons[type] = img; resolve(img);
+					this.marker_img[type] = img; resolve(img);
 				};
 				img.onerror = reject;
 				if (type.startsWith('data:')) {
@@ -248,10 +293,15 @@ class PWMap {
 			}, 1));
 		}
 
+		for (const spawner of this.spawners_to_label) {
+			const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
+			const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
+			//ctx.fillRect(x + size / 2 + 20, y - 50, 150, 100);
+		}
 
 		this.move_dyn_overlay();
 
-		let rescaled = pos.scale != this.dyn_overlay_pos.scale;
+		let rescaled = pos.scale != overlay.last_rendered_pos.scale;
 		const prev_overlay = this.shadow.querySelector('.dyn-canvas.shown');
 		prev_overlay.classList.remove('shown');
 		overlay.classList.add('shown');
@@ -272,7 +322,7 @@ class PWMap {
 			this.dyn_overlay_timeout = setTimeout(fn, 300);
 		} else {
 			/* redraw moves immediately */
-			this.dyn_overlay_timeout = setTimeout(fn, 1);
+			this.dyn_overlay_timeout = setTimeout(fn, 300);
 		}
 	}
 
