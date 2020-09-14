@@ -8,6 +8,7 @@ let g_map = null;
 
 class Editor {
 	static loaded = false;
+	static navbar = null;
 
 	static async load() {
 		console.log('Editor loading');
@@ -23,6 +24,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/map.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/navbar.js?v=' + MG_VERSION),
 		]);
 
 		await Promise.all([
@@ -32,6 +34,9 @@ class Editor {
 		]);
 
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
+
+		const org_menu = document.querySelector('.mainMenu .boxMenu');
+		Editor.navbar = new Navbar(org_menu);
 	}
 
 	static async open({id}) {
