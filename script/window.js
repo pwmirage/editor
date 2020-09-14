@@ -16,12 +16,14 @@ class Window {
 		dom.onmousedown = (e) => this.onmousedown(e);
 	}
 
+	init() { }
+
 	static set_container(container) {
 		Window.container = container;
 		Window.bounds = container.getBoundingClientRect();
 	}
 
-	static async open(win_id, { prev_win } = {}) {
+	static async open(win_type, win_id) {
 		const dom = document.createElement('div');
 		dom.className = 'window ' + win_id;
 		const shadow = dom.attachShadow({mode: 'open'});
@@ -31,8 +33,18 @@ class Window {
 		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		shadow.append(...els);
 
+		const c = eval(win_type);
+		const win = new c(dom);
+		await win.init();
+
+		for (const el of shadow.querySelectorAll('[data-onclick]')) {
+			const f_str = el.dataset.onclick;
+			el.dataset.onclick = '';
+			const f = new Function('win', f_str);
+			el.onclick = (el) => f.call(el, win);
+		}
+
 		const menu = shadow.querySelector('.header > .menu');
-		const win = new Window(dom);
 
 		let button;
 		button = menu.querySelector('.minimize');

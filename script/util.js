@@ -73,14 +73,3 @@ const newStyle = (url) => {
 	if (url) linkElem.setAttribute('href', url);
 	return linkElem;
 }
-
-/* onclick callback for collapsible html elements */
-function collapsible_toggle(el) {
-	el.classList.toggle("active");
-	const content = el.nextElementSibling;
-	if (content.style.maxHeight){
-		content.style.maxHeight = null;
-	} else {
-		content.style.maxHeight = content.scrollHeight + "px";
-	}
-}

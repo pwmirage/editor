@@ -83,7 +83,7 @@ class PWMap {
 				await this.redraw_dyn_overlay();
 
 				//Window.open('welcome');
-				await open_map_legend_window();
+				await Window.open('LegendWindow', 'map_legend');
 				resolve();
 			};
 			this.bg.onerror = reject;
