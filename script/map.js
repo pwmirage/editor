@@ -222,14 +222,34 @@ class PWMap {
 		this.redrawing_dyn_overlay = 1;
 
 		const overlay = this.shadow.querySelector('.dyn-canvas:not(.shown)');
+		const pos = overlay.last_rendered_pos = { offset: {
+			x: this.pos.offset.x,
+			y: this.pos.offset.y
+		}, scale: this.pos.scale };
+
+		const drawn_spawners = { npc: [], mob: [], resource: [] };
+		for (const list of [db.spawners_world, db.resources_world]) {
+			for (const spawner of list) {
+				const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
+				const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
+
+				if (x > pos.offset.x && x <= pos.offset.x + overlay.width / 3 &&
+					y > pos.offset.y && y <= pos.offset.y + overlay.height / 3) {
+					if (list == db.resources_world) {
+						drawn_spawners.resource.push(spawner);
+					} else if (spawner.is_npc) {
+						drawn_spawners.npc.push(spawner);
+					} else {
+						drawn_spawners.mob.push(spawner);
+					}
+				}
+			}
+		}
+
 		const ctx = overlay.getContext("2d");
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, overlay.width, overlay.height);
 
-		const pos = overlay.last_rendered_pos = { offset: {
-			x: this.pos.offset.x,
-			y: this.pos.offset.y 
-		}, scale: this.pos.scale };
 		overlay.style.transformOrigin = (-pos.offset.x + overlay.width/3) + 'px ' + (-pos.offset.y + overlay.height/3) + 'px';
 		this.move_dyn_overlay();
 
@@ -263,41 +283,34 @@ class PWMap {
 		}
 
 		let i;
-		for (i = 0; i < db.spawners_world.length; i += 500) {
-			await new Promise((resolve) => setTimeout(async () => {
-				let j;
-				for (j = 0; j < 500; j++) {
-					if (i + j >= db.spawners_world.length) break;
-					const spawner = db.spawners_world[i + j];
-					if (!spawner) continue;
+		for (const list in drawn_spawners) {
+			let marker_img;
+			if (list == 'mob') {
+				marker_img = await get_spawner_icon('red');
+			} else if (list == 'npc') {
+				marker_img = await get_spawner_icon('yellow');
+			} else if (list == 'resource') {
+				marker_img = await get_spawner_icon('green');
+			}
 
-					const marker_img = await get_spawner_icon(spawner.is_npc ? 'yellow' : 'red');
-					const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
-					const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
-					const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
-					drawAt(marker_img, rad, x, y, size, size);
+			const spawner_list = drawn_spawners[list];
+			for (i = 0; i < spawner_list.length; i += 500) {
+				await new Promise((resolve) => setTimeout(async () => {
+					let j;
+					for (j = 0; j < 500; j++) {
+						if (i + j >= spawner_list.length) break;
+						const spawner = spawner_list[i + j];
+						if (!spawner) continue;
 
-				}
-				resolve();
-			}, 1));
-		}
+						const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
+						const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
+						const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
+						drawAt(marker_img, rad, x, y, size, size);
 
-		let marker_img = await get_spawner_icon('green');
-		for (i = 0; i < db.resources_world.length; i += 500) {
-			await new Promise((resolve) => setTimeout(async () => {
-				let j;
-				for (j = 0; j < 500; j++) {
-					if (i + j >= db.resources_world.length) break;
-					const spawner = db.resources_world[i + j];
-					if (!spawner) continue;
-
-					const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
-					const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
-					const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
-					drawAt(marker_img, rad, x, y, size, size);
-				}
-				resolve();
-			}, 1));
+					}
+					resolve();
+				}, 1));
+			}
 		}
 
 		for (const spawner of this.spawners_to_label) {
