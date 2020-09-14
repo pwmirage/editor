@@ -76,11 +76,9 @@ class PWMap {
 					//await this.close();
 				};
 
-				for (const overlay of this.shadow.querySelectorAll('.dyn-canvas')) {
-					overlay.width = canvas.offsetWidth * 3;
-					overlay.height = canvas.offsetHeight * 3;
-				}
-				await this.redraw_dyn_overlay();
+				this.resize_fn = () => this.redraw_dyn_overlay();
+				await this.resize_fn();
+				window.addEventListener('resize', this.resize_fn);
 
 				//Window.open('welcome');
 				await Window.open('LegendWindow', 'map_legend');
@@ -95,6 +93,7 @@ class PWMap {
 		const pw_map = this.shadow.querySelector('#pw-map-canvas');
 		window.removeEventListener('mousemove', this.onmousemove_fn);
 		window.removeEventListener('mouseup', this.onmouseup_fn);
+		window.removeEventListener('resize', this.resize_fn);
 		pw_map.style.display = 'none';
 		document.body.classList.remove('mge-fullscreen');
 	}
@@ -222,6 +221,16 @@ class PWMap {
 		this.redrawing_dyn_overlay = 1;
 
 		const overlay = this.shadow.querySelector('.dyn-canvas:not(.shown)');
+		if (overlay.width != 3 * this.canvas.offsetWidth ||
+			overlay.height != 3 * this.canvas.offsetHeight) {
+			overlay.width = this.canvas.offsetWidth * 3;
+			overlay.height = this.canvas.offsetHeight * 3;
+			overlay.style.left = -this.canvas.offsetWidth + 'px';
+			overlay.style.top = -this.canvas.offsetHeight + 'px';
+			overlay.style.width = overlay.width + 'px';
+			overlay.style.height = overlay.height + 'px';
+		}
+
 		const pos = overlay.last_rendered_pos = { offset: {
 			x: this.pos.offset.x,
 			y: this.pos.offset.y
@@ -233,8 +242,8 @@ class PWMap {
 				const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
 				const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
 
-				if (x > pos.offset.x && x <= pos.offset.x + overlay.width / 3 &&
-					y > pos.offset.y && y <= pos.offset.y + overlay.height / 3) {
+				if (x > pos.offset.x - overlay.width / 3&& x <= pos.offset.x + overlay.width * 2 / 3 &&
+					y > pos.offset.y -  overlay.height / 3 && y <= pos.offset.y + overlay.height * 2 / 3) {
 					if (list == db.resources_world) {
 						drawn_spawners.resource.push(spawner);
 					} else if (spawner.is_npc) {
