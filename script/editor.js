@@ -36,7 +36,9 @@ class Editor {
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
 
 		const org_menu = document.querySelector('.mainMenu .boxMenu');
-		Editor.navbar = new Navbar(org_menu);
+		if (org_menu) {
+			Editor.navbar = new Navbar(org_menu);
+		}
 	}
 
 	static async open({id}) {
