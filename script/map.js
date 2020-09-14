@@ -32,6 +32,10 @@ class PWMap {
 	static async add_elements(parent) {
 		const shadow_el = document.createElement('div');
 		shadow_el.id = 'pw-map';
+		shadow_el.style.position = 'absolute';
+		shadow_el.style.width = '100vw';
+		shadow_el.style.height = '100vh';
+		shadow_el.style.overflow = 'hidden';
 		const shadow = shadow_el.attachShadow({mode: 'open'});
 		const tpl = await get(ROOT_URL + 'tpl/editor.tpl');
 		const els = newArrElements(tpl.data);
@@ -48,7 +52,7 @@ class PWMap {
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
 			this.hover_lbl = this.shadow.querySelector('.label');
-			canvas.style.display = 'initial';
+			canvas.style.display = 'block';
 			this.bg.onload = async () => {
 				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
 				this.map_bounds = canvas.getBoundingClientRect();
@@ -65,8 +69,11 @@ class PWMap {
 				window.addEventListener('mouseup', this.onmouseup_fn, { passive: false });
 
 				document.querySelector('#returnToWebsite').onclick = async () => {
-					await Window.close_all();
-					await this.close();
+					const minimized = document.body.classList.toggle('mge-background');
+					document.querySelector('#returnToWebsite > a').dataset.tooltip =
+						minimized ? 'Open the editor' : 'Return to website';
+					//await Window.close_all();
+					//await this.close();
 				};
 
 				for (const overlay of this.shadow.querySelectorAll('.dyn-canvas')) {
