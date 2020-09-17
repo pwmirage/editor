@@ -23,7 +23,7 @@
 
 		.window {
 			position: absolute;
-			display: none;
+			visibility: hidden;
 		}
 
 		#pw-map {
@@ -62,10 +62,10 @@
 							prev_files = new_files;
 
 							const prev_win = g_win;
-							g_win = await Window.open('map_legend');
+							g_win = await Window.open('LegendWindow', 'map_legend');
 							if (prev_win) {
 								await sleep(150);
-								g_win.dom.style.display = 'block';
+								g_win.dom.style.visibility = 'visible';
 								await prev_win.close();
 							}
 						}
@@ -75,7 +75,7 @@
 				};
 
 				await fn();
-				g_win.dom.style.display = 'block';
+				g_win.dom.style.visibility = 'visible';
 
 			};
 		</script>
