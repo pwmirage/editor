@@ -1,0 +1,158 @@
+.window {
+	display: flex;
+	flex-direction: column;
+	transition: max-height 0.4s ease-in-out;
+}
+
+.window.maximized {
+	width: 100vw !important;
+	height: 100vh !important;
+	box-sizing: border-box;
+}
+
+.window > .content {
+	position: relative;
+	padding: 8px 12px;
+}
+
+.window.resizable:not(.minimized) > .content:after {
+	font-family: FontAwesome;
+	font-size: 14px;
+	content: '\00f065';
+	transform: rotate(90deg);
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+	color: #d1d1d1;
+	cursor: nwse-resize;
+}
+
+.window > .header {
+	background-color: #822525;
+	cursor: pointer;
+}
+
+.window > .header > span {
+	display: inline-block;
+	padding: 8px 12px;
+}
+
+.window > .header > .menu {
+	display: flex;
+	float: right;
+}
+
+.window > .header > .menu > * {
+	display: block;
+	width: 18px; /* more than most FontAwesome icons */
+	height: 100%;
+	padding: 10px 8px 10px 8px;
+}
+
+.window > .header > .menu > *:active {
+	filter: brightness(0.85);
+}
+
+.window > .header > .menu > .minimize:before { content: '\00f2d1'; }
+.window.minimized > .header > .menu > .minimize:before { content: '\00f2d2'; }
+.window.maximized > .header > .menu > .minimize { display: none; }
+
+.window > .header > .menu > .maximize:before { content: '\00f2d0'; }
+.window.maximized > .header > .menu > .maximize:before { content: '\00f2d2'; }
+
+.window > .content {
+	flex: 1;
+	background-color: #fafafa;
+	color: rgb(80, 44, 44);
+}
+
+.flex-columns {
+	display: flex;
+	flex-direction: row;
+}
+
+.flex-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.flex-columns > *:not(:last-child) {
+	margin-right: 10px;
+}
+
+.flex-wide {
+	flex: 1;
+}
+
+.v-centered {
+	display: flex;
+	align-items: center;
+}
+
+input[type=text] {
+	width: 100%;
+	padding: 4px 6px;
+	box-sizing: content-box;
+	border: 1px solid #555;
+	outline: none;
+}
+
+input[type=text]:focus {
+	background-color: #fff2f3;
+}
+
+input[type="text"].supershort,
+input[type="number"].supershort {
+	width: 32px;
+	height: 20px;
+	padding: 2px;
+}
+
+label { height: 25px; display: inline-flex; margin-top: -1px; }
+input[type="checkbox"] { opacity: 0; z-index: -1; height: 16px; }
+input[type="checkbox"]+span { text-align: left; display: inline-flex; height: 14px; margin-top: 2px; user-select: none; }
+input[type="checkbox"]+span:before { color: #4e4b42; font: 16pt FontAwesome; content: '\00f096'; width: 18pt; margin-left: -15pt; }
+input[type="checkbox"]+span:empty { margin-left: 16pt; }
+input[type="checkbox"]+span:empty:before { margin-left: -16pt; }
+input[type="checkbox"]:checked+span:before { content: '\00f046'; }
+input[type="checkbox"]:not(.radio):disabled+span { color: #999; }
+input[type="checkbox"]:not(.radio):not(:disabled)+span:hover:before { text-shadow: 0 1px 2px #77F; }
+input[type="checkbox"].radio+span:before { content: '\00f10c '; }
+input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
+
+.collapsible {
+	background-color: #d2d2d2;
+	cursor: pointer;
+	padding: 2px 4px;
+	width: 100%;
+	border: none;
+	text-align: left;
+	box-sizing: border-box;
+}
+
+.collapsible:after {
+	font-family: FontAwesome;
+	content: '\00f078';
+	font-weight: bold;
+	float: right;
+}
+
+.active, .collapsible:hover {
+	background-color: #e2e2e2;
+}
+
+.active:after {
+	content: '\00f077';
+}
+
+.collapsible + * {
+	padding: 0 13px;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+	background-color: #f1f1f1;
+}
+
+.child-padding-3 > * {
+	padding: 3px;
+}

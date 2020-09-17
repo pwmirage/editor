@@ -6,12 +6,16 @@ class Window {
 	static container;
 	static bounds;
 	static dragged_win;
+	static resized_win;
 
 	constructor(dom) {
 		this.dom = dom;
 		this.shadow = dom.shadowRoot;
 		this.dom_win = this.shadow.querySelector('.window');
+		this.dom_header = this.shadow.querySelector('.window > .header');
+		this.dom_content = this.shadow.querySelector('.window > .content');
 		this.dragOffset = { x: 0, y: 0 };
+		this.resizeOffset = { x: 0, y: 0 };
 
 		dom.onmousedown = (e) => this.onmousedown(e);
 	}
@@ -55,6 +59,11 @@ class Window {
 		if (button) button.onclick = () => win.close();
 
 		Window.container.prepend(dom);
+
+		win.full_bounds = win.dom_win.getBoundingClientRect();
+		win.dom_win.style.maxHeight = win.full_bounds.height + 'px';
+		win.move(10, 10);
+
 		return win;
 	}
 
@@ -83,43 +92,79 @@ class Window {
 
 	static onmouseup(e) {
 		Window.dragged_win = null;
+		Window.resized_win = null;
 	}
 
 	static onmousemove(e)
 	{
-		if (Window.dragged_win == null) {
-			return;
+		if (Window.dragged_win) {
+			const mousex = e.clientX - Window.bounds.left;
+			const mousey = e.clientY - Window.bounds.top;
+
+			const offset = Window.dragged_win.dragOffset;
+			Window.dragged_win.move(mousex - offset.x, mousey - offset.y);
+		} else if (Window.resized_win) {
+			const mousex = e.clientX - Window.bounds.left;
+			const mousey = e.clientY - Window.bounds.top;
+
+			const win = Window.resized_win;
+			const offset = win.resizeOffset;
+			let w = Math.max(250, (mousex - offset.x));
+			let h = Math.max(300, (mousey - offset.y));
+
+
+			win.dom_win.style.width = w + 'px';
+			win.dom_win.style.height = h + 'px';
+
+			const bounds = win.dom_content.getBoundingClientRect();
+			if (w < parseInt(bounds.width) || h - win.dom_header.offsetHeight > parseInt(bounds.height)) {
+				win.dom_win.style.width = bounds.width + 'px';
+				win.dom_win.style.height = (bounds.height + win.dom_header.offsetHeight) + 'px';
+			}
 		}
-
-		const mousex = e.clientX - Window.bounds.left;
-		const mousey = e.clientY - Window.bounds.top;
-
-		const offset = Window.dragged_win.dragOffset;
-		Window.dragged_win.move(mousex - offset.x, mousey - offset.y);
 	}
 
 	onmousedown(e) {
-		const bounds = this.dom.getBoundingClientRect();
-		const header = this.shadow.querySelector('.header');
+		const bounds = this.dom_win.getBoundingClientRect();
 
-		if (header) {
-			if (e.clientY - bounds.top > header.offsetHeight) {
+		if (e.clientY - bounds.top <= this.dom_header.offsetHeight) {
+			if (this.dom_win.classList.contains('maximized')) {
 				return;
 			}
-		}
 
-		if (this.dom_win.classList.contains('maximized')) {
-			return;
-		}
+			e.preventDefault();
+			Window.dragged_win = this;
+			Window.dragged_win.dragOffset.x = e.clientX - bounds.left;
+			Window.dragged_win.dragOffset.y = e.clientY - bounds.top;
+		} else if (this.dom_win.classList.contains('resizable') &&
+				e.clientX - bounds.left >= bounds.width - 18 &&
+				e.clientY - bounds.top >= bounds.height - 18) {
+			if (this.dom_win.classList.contains('minimized')) {
+				return;
+			}
 
-		e.preventDefault();
-		Window.dragged_win = this;
-		Window.dragged_win.dragOffset.x = e.clientX - bounds.left;
-		Window.dragged_win.dragOffset.y = e.clientY - bounds.top;
+			e.preventDefault();
+			Window.resized_win = this;
+			const height = this.dom_header.offsetHeight + this.dom_content.offsetHeight;
+			Window.resized_win.resizeOffset.x = e.clientX - bounds.width - Window.bounds.left;
+			Window.resized_win.resizeOffset.y = e.clientY - height - Window.bounds.top;
+			this.dom_win.style.maxHeight = '';
+		}
 	}
 
 	minimize() {
-		this.dom_win.classList.toggle('minimized');
+		const minimized = this.dom_win.classList.toggle('minimized');
+		if (minimized) {
+			this.full_bounds = this.dom_win.getBoundingClientRect();
+			this.dom_win.style.overflow = 'hidden';
+			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+			this.dom_win.style.maxHeight = this.dom_header.offsetHeight + 'px';
+		} else {
+			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+			setTimeout(() => {
+				this.dom_win.style.overflow = 'visible';
+			}, 400);
+		}
 	}
 
 	maximize() {
