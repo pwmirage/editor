@@ -107,7 +107,6 @@ class PWMap {
 	}
 
 	onmousemove(e) {
-		e.preventDefault();
 
 		if (this.drag.is_drag) {
 			const new_offset = {
@@ -115,10 +114,9 @@ class PWMap {
 				y: this.pos.offset.y + (this.drag.origin.y - e.clientY)
 			};
 			this.move_to(new_offset);
-			if (!this.dyn_overlay_timeout) {
-				this.dyn_overlay_timeout = setTimeout(() => this.redraw_dyn_overlay(), 300);
-			}
+			setTimeout(() => this.redraw_dyn_overlay(), 300);
 
+			e.preventDefault();
 			this.drag.origin.x = e.clientX;
 			this.drag.origin.y = e.clientY;
 		}
@@ -236,6 +234,25 @@ class PWMap {
 			y: this.pos.offset.y
 		}, scale: this.pos.scale };
 
+		const get_name = (spawner) => {
+			let name;
+			const type = spawner.groups[0]?.type || 0;
+
+			if (spawner._db.type.startsWith('resources_')) {
+				const res = db.mines[type];
+				name = res?.name;
+			} else if (spawner.is_npc) {
+				const npc = db.npcs[type];
+				name = npc?.name;
+			} else {
+				const mob = db.monsters[type];
+				name = mob?.name;
+			}
+
+			return (name ?? "(unknown)") || "(unnamed)";
+		}
+
+		const search = this.marker_filters?.search?.toLowerCase();
 		const drawn_spawners = { npc: [], mob: [], resource: [] };
 		for (const list of [db.spawners_world, db.resources_world]) {
 			for (const spawner of list) {
@@ -244,6 +261,14 @@ class PWMap {
 
 				if (x > pos.offset.x - overlay.width / 3&& x <= pos.offset.x + overlay.width * 2 / 3 &&
 					y > pos.offset.y -  overlay.height / 3 && y <= pos.offset.y + overlay.height * 2 / 3) {
+
+					if (search) {
+						const name = get_name(spawner);
+						if (!name.toLowerCase().includes(search)) {
+							continue;
+						}
+					}
+
 					if (list == db.resources_world) {
 						if (!this.marker_filters|| this.marker_filters.resource(spawner)) {
 							drawn_spawners.resource.push(spawner);
@@ -330,19 +355,7 @@ class PWMap {
 					const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
 					const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
 
-					let marker_name;
-					const type = spawner.groups[0]?.type || 0;
-					if (list == 'mob') {
-						const mob = db.monsters[type];
-						marker_name = mob?.name;
-					} else if (list == 'npc') {
-						const npc = db.npcs[type];
-						marker_name = npc?.name;
-					} else {
-						const res = db.mines[type];
-						marker_name = res?.name;
-					}
-					marker_name = (marker_name ?? "(unnamed)") || "(unnamed)";
+					const marker_name = get_name(spawner);
 					const w = ctx.measureText(marker_name).width;
 
 					ctx.fillStyle = 'black';
@@ -370,22 +383,19 @@ class PWMap {
 		this.drawn_spawners = drawn_spawners;
 
 		const fn = () => {
-			clearTimeout(this.dyn_overlay_timeout);
-			this.dyn_overlay_timeout = null;
+			const prev_ref = this.redrawing_dyn_overlay;
 			this.redrawing_dyn_overlay = 0;
-			if (this.pos.offset.x != pos.offset.x ||
-					this.pos.offset.y != pos.offset.y ||
-					this.pos.scale != pos.scale) {
+			if (prev_ref > 1) {
 				this.redraw_dyn_overlay();
 			}
 		};
 
 		if (rescaled) {
 			/* let the transition animation finish first */
-			this.dyn_overlay_timeout = setTimeout(fn, 300);
+			setTimeout(fn, 300);
 		} else {
 			/* redraw moves immediately */
-			this.dyn_overlay_timeout = setTimeout(fn, 300);
+			setTimeout(fn, 300);
 		}
 	}
 
@@ -423,9 +433,7 @@ class PWMap {
 				      - (this.pos.offset.y + origin.y) / this.pos.scale) * this.pos.scale,
 		};
 		this.move_to(new_pos);
-		if (!this.dyn_overlay_timeout) {
-			this.dyn_overlay_timeout = setTimeout(() => this.redraw_dyn_overlay(), 300);
-		}
+		setTimeout(() => this.redraw_dyn_overlay(), 300);
 	}
 
 	mouse_coords_to_map(mousex, mousey) {
