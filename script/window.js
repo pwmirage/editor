@@ -8,8 +8,9 @@ class Window {
 	static dragged_win;
 	static resized_win;
 
-	constructor(dom) {
+	constructor(dom, args) {
 		this.dom = dom;
+		this.args = args;
 		this.shadow = dom.shadowRoot;
 		this.dom_win = this.shadow.querySelector('.window');
 		this.dom_header = this.shadow.querySelector('.window > .header');
@@ -27,18 +28,20 @@ class Window {
 		Window.bounds = container.getBoundingClientRect();
 	}
 
-	static async open(win_type, win_id) {
+	static async open(win_type, args) {
 		const dom = document.createElement('div');
-		dom.className = 'window ' + win_id;
+		dom.className = 'window';
 		const shadow = dom.attachShadow({mode: 'open'});
-		const tpl = await get(ROOT_URL + 'tpl/window/' + win_id + '.tpl');
+
+		const c = eval(win_type);
+		const tpl = await get(ROOT_URL + 'tpl/window/' + c.TPL_PATH);
+
 		const els = newArrElements(tpl.data);
 		shadow.append(newStyle(ROOT_URL + 'css/window.css'));
 		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 		shadow.append(...els);
 
-		const c = eval(win_type);
-		const win = new c(dom);
+		const win = new c(dom, args);
 		await win.init();
 
 		for (const el of shadow.querySelectorAll('[data-onclick]')) {
@@ -103,6 +106,7 @@ class Window {
 
 			const offset = Window.dragged_win.dragOffset;
 			Window.dragged_win.move(mousex - offset.x, mousey - offset.y);
+			e.preventDefault();
 		} else if (Window.resized_win) {
 			const mousex = e.clientX - Window.bounds.left;
 			const mousey = e.clientY - Window.bounds.top;
@@ -121,6 +125,7 @@ class Window {
 				win.dom_win.style.width = bounds.width + 'px';
 				win.dom_win.style.height = (bounds.height + win.dom_header.offsetHeight) + 'px';
 			}
+			e.preventDefault();
 		}
 	}
 
@@ -192,7 +197,7 @@ class Window {
 		window_move(new_x, new_y);
 	}
 
-	close(win_id) {
+	close() {
 		this.dom.remove();
 	}
 }

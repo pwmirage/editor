@@ -62,7 +62,7 @@
 							prev_files = new_files;
 
 							const prev_win = g_win;
-							g_win = await Window.open('LegendWindow', 'map_legend');
+							g_win = await Window.open('LegendWindow');
 							if (prev_win) {
 								await sleep(150);
 								g_win.dom.style.visibility = 'visible';

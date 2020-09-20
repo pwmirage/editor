@@ -5,6 +5,8 @@
 let g_legend_win = null;
 
 class LegendWindow extends Window {
+	static TPL_PATH = 'map_legend.tpl';
+
 	init() {
 		if (g_legend_win) return false;
 		g_legend_win = this;
@@ -76,6 +78,7 @@ class LegendWindow extends Window {
 		}
 
 		map_filters.show_labels = query_sel('show-name-labels').checked;
+		map_filters.search = query_sel('search').value;
 		g_map.filter_markers(map_filters);
 	}
 }
