@@ -22,6 +22,7 @@ class PWMap {
 				y: 0
 			},
 			is_drag: false,
+			moved: false,
 		};
 
 		this.marker_img = {};
@@ -104,11 +105,17 @@ class PWMap {
 		this.drag.origin.x = e.clientX;
 		this.drag.origin.y = e.clientY;
 		this.drag.is_drag = true;
+		this.drag.moved = false;
 	}
 
 	onmousemove(e) {
-
 		if (this.drag.is_drag) {
+			if (e.clientX == this.drag.origin.x &&
+					e.clientY == this.drag.origin.y) {
+				/* no mouse movement */
+				return;
+			}
+
 			const new_offset = {
 				x: this.pos.offset.x + (this.drag.origin.x - e.clientX),
 				y: this.pos.offset.y + (this.drag.origin.y - e.clientY)
@@ -119,6 +126,7 @@ class PWMap {
 			e.preventDefault();
 			this.drag.origin.x = e.clientX;
 			this.drag.origin.y = e.clientY;
+			this.drag.moved = true;
 		}
 
 		if (this.canvas.querySelector(':hover')) {
@@ -162,10 +170,12 @@ class PWMap {
 			this.redraw_dyn_overlay();
 		}
 		this.drag.is_drag = false;
-		if (this.canvas.querySelector(':hover')) {
+		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
 			const spawner = this.get_hovered_spawner(e);
 			if (spawner) SpawnerWindow.open({ spawner });
 		}
+
+		this.drag.moved = false;
 		Window.onmouseup(e);
 	}
 
