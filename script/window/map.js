@@ -5,18 +5,20 @@
 let g_legend_win = null;
 
 class LegendWindow extends Window {
-	static TPL_PATH = 'map_legend.tpl';
-
-	init() {
+	async init() {
 		if (g_legend_win) return false;
 		g_legend_win = this;
 
 		const shadow = this.dom.shadowRoot;
+		const tpl = await get(ROOT_URL + 'tpl/window/map_legend.tpl');
+		const els = newArrElements(tpl.data);
+		shadow.append(...els);
+
 		shadow.querySelectorAll('input').forEach((e) => {
 			e.addEventListener('input', () => this.filter());
 		});
 
-		return true;
+		return super.init();
 	}
 
 	collapse(el) {

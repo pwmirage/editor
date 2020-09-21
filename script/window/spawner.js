@@ -5,20 +5,23 @@
 const g_open_spawners = {};
 
 class SpawnerWindow extends Window {
-	static TPL_PATH = 'spawner.tpl';
 
-	init() {
+	async init() {
 		this.id = this.args.id;
 		if (g_open_spawners[this.id]) return false;
 		g_open_spawners[this.id] = this;
 
 		const shadow = this.dom.shadowRoot;
+		const tpl = await get(ROOT_URL + 'tpl/window/spawner.tpl');
+		const els = newArrElements(tpl.data);
+		shadow.append(...els);
+
 		shadow.querySelectorAll('input').forEach((e) => {
 			e.addEventListener('input', () => this.filter());
 		});
 
-		this.dom_header.querySelector('span').textContent = 'Spawner #' + this.id;
-		return true;
+		shadow.querySelector('.window > .header > span').textContent = 'Spawner #' + this.id;
+		return await super.init();
 	}
 
 	close() {

@@ -8,65 +8,59 @@ class Window {
 	static dragged_win;
 	static resized_win;
 
-	constructor(dom, args) {
-		this.dom = dom;
+	constructor(args) {
 		this.args = args;
-		this.shadow = dom.shadowRoot;
+
+		this.dom = document.createElement('div');
+		this.dom.className = 'window';
+		this.shadow = this.dom.attachShadow({mode: 'open'});
+
+		this.dragOffset = { x: 0, y: 0 };
+		this.resizeOffset = { x: 0, y: 0 };
+	}
+
+	init() {
+		this.shadow.append(newStyle(ROOT_URL + 'css/window.css'));
+		this.shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+
 		this.dom_win = this.shadow.querySelector('.window');
 		this.dom_header = this.shadow.querySelector('.window > .header');
 		this.dom_content = this.shadow.querySelector('.window > .content');
-		this.dragOffset = { x: 0, y: 0 };
-		this.resizeOffset = { x: 0, y: 0 };
 
-		dom.onmousedown = (e) => this.onmousedown(e);
+		if (!this.dom_win || !this.dom_header || !this.dom_content) {
+			throw new Error('Incomplete initialization of "' + this.constructor.name + '" window.');
+		}
+
+		this.dom.onmousedown = (e) => this.onmousedown(e);
+
+		for (const el of this.shadow.querySelectorAll('[data-onclick]')) {
+			const f_str = el.dataset.onclick;
+			el.dataset.onclick = '';
+			const f = new Function('win', f_str);
+			el.onclick = (el) => f.call(el, this);
+		}
+
+		const menu = this.shadow.querySelector('.header > .menu');
+		const queryEl = (name) => menu.querySelector(name) || {};
+		queryEl('.minimize').onclick = () => this.minimize();
+		queryEl('.maximize').onclick = () => this.maximize();
+		queryEl('.close').onclick = () => this.close();
+
+		this.move(10, 10);
+		Window.container.append(this.dom);
+		this.full_bounds = this.dom_win.getBoundingClientRect();
+		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
 	}
-
-	init() { }
 
 	static set_container(container) {
 		Window.container = container;
 		Window.bounds = container.getBoundingClientRect();
 	}
 
-	static async open(win_type, args) {
-		const dom = document.createElement('div');
-		dom.className = 'window';
-		const shadow = dom.attachShadow({mode: 'open'});
-
-		const c = eval(win_type);
-		const tpl = await get(ROOT_URL + 'tpl/window/' + c.TPL_PATH);
-
-		const els = newArrElements(tpl.data);
-		shadow.append(newStyle(ROOT_URL + 'css/window.css'));
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		shadow.append(...els);
-
-		const win = new c(dom, args);
+	static async open(args) {
+		const win_class = this;
+		const win = new win_class(args);
 		await win.init();
-
-		for (const el of shadow.querySelectorAll('[data-onclick]')) {
-			const f_str = el.dataset.onclick;
-			el.dataset.onclick = '';
-			const f = new Function('win', f_str);
-			el.onclick = (el) => f.call(el, win);
-		}
-
-		const menu = shadow.querySelector('.header > .menu');
-
-		let button;
-		button = menu.querySelector('.minimize');
-		if (button) button.onclick = () => win.minimize();
-		button = menu.querySelector('.maximize');
-		if (button) button.onclick = () => win.maximize();
-		button = menu.querySelector('.close');
-		if (button) button.onclick = () => win.close();
-
-		Window.container.prepend(dom);
-
-		win.full_bounds = win.dom_win.getBoundingClientRect();
-		win.dom_win.style.maxHeight = win.full_bounds.height + 'px';
-		win.move(10, 10);
-
 		return win;
 	}
 
@@ -115,7 +109,6 @@ class Window {
 			const offset = win.resizeOffset;
 			let w = Math.max(250, (mousex - offset.x));
 			let h = Math.max(300, (mousey - offset.y));
-
 
 			win.dom_win.style.width = w + 'px';
 			win.dom_win.style.height = h + 'px';

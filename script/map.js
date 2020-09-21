@@ -81,7 +81,7 @@ class PWMap {
 				window.addEventListener('resize', this.resize_fn);
 
 				//Window.open('welcome');
-				await Window.open('LegendWindow', 'map_legend');
+				await LegendWindow.open();
 				resolve();
 			};
 			this.bg.onerror = reject;
@@ -170,7 +170,7 @@ class PWMap {
 				if (marker._db.type == 'spawners_world') {
 					obj = db.npcs[type] || db.monsters[type];
 				}
-				if (obj) Window.open('SpawnerWindow', { id: obj.id });
+				if (obj) SpawnerWindow.open({ id: obj.id });
 			}
 		}
 		Window.onmouseup(e);
