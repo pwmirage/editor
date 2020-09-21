@@ -7,6 +7,8 @@ class Window {
 	static bounds;
 	static dragged_win;
 	static resized_win;
+	static focus_win_index = 0;
+	static focus_win;
 
 	constructor(args) {
 		this.args = args || {};
@@ -126,6 +128,11 @@ class Window {
 	onmousedown(e) {
 		const bounds = this.dom_win.getBoundingClientRect();
 
+		if (Window.focus_win != this) {
+			this.dom.style.zIndex = Window.focus_win_index++;
+			Window.focus_win = this;
+		}
+
 		if (e.clientY - bounds.top <= this.dom_header.offsetHeight) {
 			if (this.dom_win.classList.contains('maximized')) {
 				return;
@@ -171,13 +178,22 @@ class Window {
 		const maximized = this.dom_win.classList.toggle('maximized');
 		if (maximized) {
 			this.windowed_pos = [ this.dom.style.left, this.dom.style.top ];
+			this.was_minimized = this.dom_win.classList.contains('minimized');
+			if (this.was_minimized) this.minimize();
 			this.dom.style.left = 0;
 			this.dom.style.top = 0;
 			this.dom_win.style.paddingBottom = Window.bounds.top + 'px';
+			this.dom_win.style.maxHeight = '100vh';
+
 		} else {
 			this.dom.style.left = this.windowed_pos[0];
 			this.dom.style.top = this.windowed_pos[1];
 			this.dom_win.style.paddingBottom = 0;
+			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+			if (this.was_minimized) {
+				this.minimize();
+				this.was_minimized = false;
+			}
 		}
 	}
 
