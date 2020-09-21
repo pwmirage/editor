@@ -18,7 +18,10 @@ class LegendWindow extends Window {
 			e.addEventListener('input', () => this.filter());
 		});
 
-		return super.init();
+		super.init();
+		this.args.x = 5;
+		this.args.y = Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42;
+		return true;
 	}
 
 	collapse(el) {

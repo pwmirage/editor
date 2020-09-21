@@ -172,7 +172,8 @@ class PWMap {
 		this.drag.is_drag = false;
 		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
 			const spawner = this.get_hovered_spawner(e);
-			if (spawner) SpawnerWindow.open({ spawner });
+			if (spawner) SpawnerWindow.open({ x: e.clientX - Window.bounds.left,
+					y: e.clientY - Window.bounds.top, spawner });
 		}
 
 		this.drag.moved = false;

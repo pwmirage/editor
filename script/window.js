@@ -9,7 +9,7 @@ class Window {
 	static resized_win;
 
 	constructor(args) {
-		this.args = args;
+		this.args = args || {};
 
 		this.dom = document.createElement('div');
 		this.dom.className = 'window';
@@ -46,7 +46,7 @@ class Window {
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
 
-		this.move(10, 10);
+		this.move(this.args.x ?? 10, this.args.y ?? 10);
 		Window.container.append(this.dom);
 		this.full_bounds = this.dom_win.getBoundingClientRect();
 		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
