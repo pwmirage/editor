@@ -162,14 +162,16 @@ class PWMap {
 			this.redraw_dyn_overlay();
 		}
 		this.drag.is_drag = false;
-		const marker = this.get_hovered_marker(e);
-		if (marker) {
-			const type = marker.groups[0]?.type;
-			let obj;
-			if (marker._db.type == 'spawners_world') {
-				obj = db.npcs[type] || db.monsters[type];
+		if (this.canvas.querySelector(':hover')) {
+			const marker = this.get_hovered_marker(e);
+			if (marker) {
+				const type = marker.groups[0]?.type;
+				let obj;
+				if (marker._db.type == 'spawners_world') {
+					obj = db.npcs[type] || db.monsters[type];
+				}
+				if (obj) Window.open('SpawnerWindow', { id: obj.id });
 			}
-			if (obj) console.log(marker, obj);
 		}
 		Window.onmouseup(e);
 	}

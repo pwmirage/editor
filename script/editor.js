@@ -29,6 +29,7 @@ class Editor {
 
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
 			await load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 			await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION)
 		]);
