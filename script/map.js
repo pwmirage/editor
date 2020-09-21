@@ -125,7 +125,7 @@ class PWMap {
 			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
 			map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
 			map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
-			const spawner = this.get_marker_at(map_coords);
+			const spawner = this.get_spawner_at(map_coords);
 
 			this.hovered_spawner = spawner;
 			this.hover_lbl.style.display = spawner ? 'block' : 'none';
@@ -163,15 +163,8 @@ class PWMap {
 		}
 		this.drag.is_drag = false;
 		if (this.canvas.querySelector(':hover')) {
-			const marker = this.get_hovered_marker(e);
-			if (marker) {
-				const type = marker.groups[0]?.type;
-				let obj;
-				if (marker._db.type == 'spawners_world') {
-					obj = db.npcs[type] || db.monsters[type];
-				}
-				if (obj) SpawnerWindow.open({ id: obj.id });
-			}
+			const spawner = this.get_hovered_spawner(e);
+			if (spawner) SpawnerWindow.open({ spawner });
 		}
 		Window.onmouseup(e);
 	}
@@ -186,15 +179,15 @@ class PWMap {
 		return Math.min(28, 16 * Math.sqrt(this.pos.scale));
 	}
 
-	get_hovered_marker(e) {
+	get_hovered_spawner(e) {
 		const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
 		map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
 		map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
 
-		return this.get_marker_at(map_coords);
+		return this.get_spawner_at(map_coords);
 	}
 
-	get_marker_at(map_coords) {
+	get_spawner_at(map_coords) {
 		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale;
 
 		for (const type in this.drawn_spawners) {
