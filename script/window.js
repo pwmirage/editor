@@ -46,6 +46,7 @@ class Window {
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
 
+		this.set_margin(0, 0);
 		this.move(this.args.x ?? 10, this.args.y ?? 10);
 		Window.container.append(this.dom);
 		this.full_bounds = this.dom_win.getBoundingClientRect();
@@ -163,6 +164,7 @@ class Window {
 				this.dom_win.style.overflow = 'visible';
 			}, 400);
 		}
+		return minimized;
 	}
 
 	maximize() {
@@ -180,14 +182,20 @@ class Window {
 	}
 
 	move(new_x, new_y) {
-		this.dom.style.left = new_x + 'px';
-		this.dom.style.top = new_y + 'px';
+		this.dom.style.left = (new_x - this.margins.x) + 'px';
+		this.dom.style.top = (new_y - this.margins.y) + 'px';
 	}
 
 	absmove(new_x, new_y) {
 		new_x -= Window.container_bounds.left;
 		new_y -= Window.container_bounds.top;
 		window_move(new_x, new_y);
+	}
+
+	set_margin(x, y) {
+		this.dom.style.marginTop = y + 'px';
+		this.dom.style.marginLeft = x + 'px';
+		this.margins = { x, y };
 	}
 
 	close() {

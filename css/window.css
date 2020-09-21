@@ -1,3 +1,7 @@
+:host {
+	transition: margin-top 0.4s ease-in-out;
+}
+
 .window {
 	display: flex;
 	flex-direction: column;

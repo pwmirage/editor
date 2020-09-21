@@ -19,8 +19,7 @@ class LegendWindow extends Window {
 		});
 
 		super.init();
-		this.args.x = 5;
-		this.args.y = Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42;
+		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42);
 		return true;
 	}
 
@@ -85,5 +84,10 @@ class LegendWindow extends Window {
 		map_filters.show_labels = query_sel('show-name-labels').checked;
 		map_filters.search = query_sel('search').value;
 		g_map.filter_markers(map_filters);
+	}
+
+	minimize() {
+		const minimized = super.minimize();
+		this.set_margin(0, minimized ? this.full_bounds.height - this.dom_header.offsetHeight : 0);
 	}
 }
