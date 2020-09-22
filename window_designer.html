@@ -38,9 +38,10 @@
 			window.onload = async () => {
 				await g_loaded;
 				await Editor.load();
+				Template.debug = true;
 				Window.set_container(document.querySelector('#windows'));
 
-				const win_name = 'map_legend';
+				const win_name = 'spawner';
 				const watch_files = [
 					ROOT_URL + 'tpl/window/' + win_name + '.tpl',
 					ROOT_URL + 'css/window.css',
@@ -62,7 +63,7 @@
 							prev_files = new_files;
 
 							const prev_win = g_win;
-							g_win = await LegendWindow.open();
+							g_win = await SpawnerWindow.open( { debug: true, spawner: db.spawners_world[1] });
 							g_win.move(10, 10);
 							if (prev_win) {
 								await sleep(150);

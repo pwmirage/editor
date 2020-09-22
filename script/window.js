@@ -19,6 +19,7 @@ class Window {
 
 		this.dragOffset = { x: 0, y: 0 };
 		this.resizeOffset = { x: 0, y: 0 };
+		this.margins = { x: 0, y: 0 };
 	}
 
 	init() {
@@ -48,7 +49,6 @@ class Window {
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
 
-		this.set_margin(0, 0);
 		this.move(this.args.x ?? 10, this.args.y ?? 10);
 		Window.container.append(this.dom);
 		this.full_bounds = this.dom_win.getBoundingClientRect();
