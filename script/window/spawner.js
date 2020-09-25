@@ -26,8 +26,12 @@ class SpawnerWindow extends Window {
 	}
 
 	add_group() {
-		console.log("add_group");
 		this.spawner.groups.push({ type: 0 });
 		this.tpl.reload('#groups');
+	}
+
+	set_is_npc(is_npc) {
+		this.spawner.is_npc = is_npc;
+		g_map.redraw_dyn_overlay();
 	}
 }

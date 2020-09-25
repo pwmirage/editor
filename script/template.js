@@ -110,7 +110,7 @@ class Template {
 			let cached = Template.compiled_cache.get(this.id);
 			if (cached && !Template.debug) {
 				this.func = cached;
-				this.raw_data = newArrElements(tpl_string);
+				this.raw_data = newArrElements(tpl_string.split('TEMPLATE_END')[0]);
 				this.data = newArrElements(this.func(params));
 				if (this.compile_cb) this.compile_cb(this.data);
 				return this.data;

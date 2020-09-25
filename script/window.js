@@ -49,7 +49,7 @@ class Window {
 	}
 
 	tpl_compile_cb(dom_arr) {
-		const callbacks = [ 'onclick', 'oninput' ];
+		const callbacks = [ 'onclick', 'oninput', 'onload' ];
 
 		for (const dom of dom_arr) {
 			if (!dom.querySelectorAll) {
@@ -60,12 +60,56 @@ class Window {
 			for (const c of callbacks) {
 				for (const el of dom.querySelectorAll('[data-' + c + ']')) {
 					const f_str = el.dataset[c];
-					el.dataset[c] = '';
+					el.removeAttribute('data-' + c);
 					const f = new Function('win', f_str);
-					el[c] = (el) => f.call(el, this);
+					if (c == 'onload') {
+						f.call(el, this);
+					} else {
+						el[c] = (el) => f.call(el, this);
+					}
+				}
+
+				for (const el of dom.querySelectorAll('[data-link]')) {
+					const f_str = el.dataset.link.split('=>');
+					el.removeAttribute('data-link');
+
+					const obj = new Function('win', 'return ' + f_str[0])(this);
+					const path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
+					this.link_el(el, obj, path);
 				}
 			}
 		}
+	}
+
+	link_el(el, obj, path) {
+		if (typeof path === 'string') {
+			path = [ path ];
+		}
+
+		const get_obj = () => {
+			let o = obj;
+			for (let i = 0; i < path.length - 1; i++) {
+				o = o[path[i]];
+			}
+			return o;
+		};
+		const p = path[path.length - 1];
+		const val = get_obj()[p];
+		el.checked = !!val;
+		el.value = val ?? "";
+		el.oninput = () => {
+			const set = (val) => {
+				get_obj()[p] = val;
+			};
+
+			if (el.type == 'checkbox') {
+				set(el.checked ?? 0);
+			} else if (el.type == 'number') {
+				set(parseInt(el.value) || 0);
+			} else {
+				set(el.value || "");
+			}
+		};
 	}
 
 	static set_container(container) {
