@@ -178,7 +178,10 @@ class PWMap {
 					const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
 							y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
 
-					this.focused_spawners.add(spawner);
+					win.onfocus = () => {
+						this.focused_spawners.add(spawner);
+					};
+					win.onfocus();
 					win.onclose = () => {
 						this.focused_spawners.delete(spawner);
 						this.redraw_dyn_overlay();

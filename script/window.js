@@ -131,6 +131,7 @@ class Window {
 		if (Window.focus_win != this) {
 			this.dom.style.zIndex = Window.focus_win_index++;
 			Window.focus_win = this;
+			if (this.onfocus) this.onfocus.call(this);
 		}
 
 		if (e.clientY - bounds.top <= this.dom_header.offsetHeight) {

@@ -34,7 +34,7 @@
 		<script src="script/main.js"></script>
 		<script type="text/javascript">
 			let g_win;
-			
+
 			window.onload = async () => {
 				await g_loaded;
 				await Editor.load();
@@ -63,7 +63,7 @@
 							prev_files = new_files;
 
 							const prev_win = g_win;
-							g_win = await SpawnerWindow.open( { debug: true, spawner: db.spawners_world[61] });
+							g_win = await SpawnerWindow.open( { debug: true, spawner: db.spawners_world[478] });
 							g_win.move(10, 10);
 							if (prev_win) {
 								await sleep(150);

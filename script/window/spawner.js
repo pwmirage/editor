@@ -11,8 +11,8 @@ class SpawnerWindow extends Window {
 		g_open_spawners.add(this.spawner);
 
 		const shadow = this.dom.shadowRoot;
-		const tpl = await Template.compile(ROOT_URL + 'tpl/window/spawner.tpl', 'tpl-spawner');
-		const data = newArrElements(tpl( { this: this, spawner: this.spawner }));
+		this.tpl = new Template(ROOT_URL + 'tpl/window/spawner.tpl', 'tpl-spawner');
+		const data = await this.tpl.compile( { this: this, spawner: this.spawner });
 		shadow.append(...data);
 
 		return await super.init();
@@ -21,5 +21,11 @@ class SpawnerWindow extends Window {
 	close() {
 		g_open_spawners.delete(this.spawner);
 		super.close();
+	}
+
+	add_group() {
+		console.log("add_group");
+		this.spawner.groups.push({ type: 0 });
+		this.tpl.reload('#groups');
 	}
 }
