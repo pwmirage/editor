@@ -15,10 +15,6 @@ class SpawnerWindow extends Window {
 		const data = newArrElements(tpl( { this: this, spawner: this.spawner }));
 		shadow.append(...data);
 
-		shadow.querySelectorAll('input').forEach((e) => {
-			e.addEventListener('input', () => this.filter());
-		});
-
 		return await super.init();
 	}
 

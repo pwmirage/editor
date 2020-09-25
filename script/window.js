@@ -215,6 +215,7 @@ class Window {
 	}
 
 	close() {
+		if (this.onclose) this.onclose.call(this);
 		this.dom.remove();
 	}
 }

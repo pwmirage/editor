@@ -27,6 +27,7 @@ class PWMap {
 
 		this.marker_img = {};
 		this.hovered_spawner = null;
+		this.focused_spawners = new Set();
 		this.hover_lbl = null
 	}
 
@@ -172,8 +173,18 @@ class PWMap {
 		this.drag.is_drag = false;
 		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
 			const spawner = this.get_hovered_spawner(e);
-			if (spawner) SpawnerWindow.open({ x: e.clientX - Window.bounds.left,
-					y: e.clientY - Window.bounds.top, spawner });
+			if (spawner) {
+				(async () => {
+					const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
+							y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
+
+					this.focused_spawners.add(spawner);
+					win.onclose = () => {
+						this.focused_spawners.delete(spawner);
+						this.redraw_dyn_overlay();
+					};
+				})();
+			}
 		}
 
 		this.drag.moved = false;
@@ -372,12 +383,20 @@ class PWMap {
 				});
 			}
 
+			const t0 = performance.now();
 			await foreach_spawner((spawner) => {
 				const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
 				const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
 				const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
+				if (this.focused_spawners.size == 0 || this.focused_spawners.has(spawner)) {
+					ctx.globalAlpha = 1.0;
+				} else {
+					ctx.globalAlpha = 0.3;
+				}
 				drawAt(marker_img, rad, x, y, size, size);
 			});
+			const t1 = performance.now();
+			console.log('rendering took: ' + (t1 - t0) + 'ms');
 		}
 
 		this.move_dyn_overlay();
