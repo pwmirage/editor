@@ -36,13 +36,6 @@ class Window {
 
 		this.dom.onmousedown = (e) => this.onmousedown(e);
 
-		for (const el of this.shadow.querySelectorAll('[data-onclick]')) {
-			const f_str = el.dataset.onclick;
-			el.dataset.onclick = '';
-			const f = new Function('win', f_str);
-			el.onclick = (el) => f.call(el, this);
-		}
-
 		const menu = this.shadow.querySelector('.header > .menu');
 		const queryEl = (name) => menu.querySelector(name) || {};
 		queryEl('.minimize').onclick = () => this.minimize();
@@ -53,6 +46,26 @@ class Window {
 		Window.container.append(this.dom);
 		this.full_bounds = this.dom_win.getBoundingClientRect();
 		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+	}
+
+	tpl_compile_cb(dom_arr) {
+		const callbacks = [ 'onclick', 'oninput' ];
+
+		for (const dom of dom_arr) {
+			if (!dom.querySelectorAll) {
+				/* not an Element */
+				continue;
+			}
+
+			for (const c of callbacks) {
+				for (const el of dom.querySelectorAll('[data-' + c + ']')) {
+					const f_str = el.dataset[c];
+					el.dataset[c] = '';
+					const f = new Function('win', f_str);
+					el[c] = (el) => f.call(el, this);
+				}
+			}
+		}
 	}
 
 	static set_container(container) {

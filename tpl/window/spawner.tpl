@@ -12,7 +12,7 @@
 <div class="content flex-rows">
 	<div class="flex-columns" style="margin-bottom: 8px;">
 		<div class="v-centered">Type:</div>
-		<select id="type" style="width: 100%;">
+		<select id="type" data-oninput="win.tpl.reload('.content');" style="width: 100%;">
 			<option value="npc">NPC</option>
 			<option value="resource">Resource</option>
 			<option value="mob">Mob</option>

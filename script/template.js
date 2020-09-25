@@ -112,6 +112,7 @@ class Template {
 				this.func = cached;
 				this.raw_data = newArrElements(tpl_string);
 				this.data = newArrElements(this.func(params));
+				if (this.compile_cb) this.compile_cb(this.data);
 				return this.data;
 			}
 
@@ -121,6 +122,7 @@ class Template {
 		}
 
 		this.data = newArrElements(this.func(params));
+		if (this.compile_cb) this.compile_cb(this.data);
 		return this.data;
 	}
 
@@ -150,5 +152,6 @@ class Template {
 		const new_fn = Template.build(raw.outerHTML);
 		const new_real = newArrElements(new_fn(this.params));
 		real.replaceWith(...new_real);
+		if (this.compile_cb) this.compile_cb(new_real);
 	}
 }
