@@ -130,9 +130,9 @@ class Window {
 			win.dom_win.style.height = h + 'px';
 
 			const bounds = win.dom_content.getBoundingClientRect();
-			if (w < parseInt(bounds.width) || h - win.dom_header.offsetHeight > parseInt(bounds.height)) {
-				win.dom_win.style.width = bounds.width + 'px';
-				win.dom_win.style.height = (bounds.height + win.dom_header.offsetHeight) + 'px';
+			if (w < bounds.width - 2 || h - win.dom_header.offsetHeight > bounds.height - 2) {
+				win.dom_win.style.width = (bounds.width - 2) + 'px';
+				win.dom_win.style.height = (bounds.height + win.dom_header.offsetHeight - 2) + 'px';
 			}
 			e.preventDefault();
 		}
@@ -165,7 +165,7 @@ class Window {
 
 			e.preventDefault();
 			Window.resized_win = this;
-			const height = this.dom_header.offsetHeight + this.dom_content.offsetHeight;
+			const height = this.dom_header.offsetHeight + this.dom_content.offsetHeight - 2;
 			Window.resized_win.resizeOffset.x = e.clientX - bounds.width - Window.bounds.left;
 			Window.resized_win.resizeOffset.y = e.clientY - height - Window.bounds.top;
 			this.dom_win.style.maxHeight = '';

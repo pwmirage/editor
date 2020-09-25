@@ -19,6 +19,10 @@
 .window > .content {
 	position: relative;
 	padding: 8px 12px;
+	border: 1px var(--header-color) solid;
+	box-sizing: border-box;
+	margin: -1px;
+
 }
 
 .window.resizable:not(.minimized) > .content:after {
