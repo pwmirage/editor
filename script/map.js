@@ -54,7 +54,6 @@ class PWMap {
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
 			this.hover_lbl = this.shadow.querySelector('.label');
-			canvas.style.display = 'block';
 			this.bg.onload = async () => {
 				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
 				this.map_bounds = canvas.getBoundingClientRect();
@@ -64,23 +63,9 @@ class PWMap {
 
 				canvas.onmousedown = (e) => this.onmousedown(e);
 				canvas.onwheel = (e) => this.onwheel(e);
-				this.onmousemove_fn = (e) => this.onmousemove(e);
-				this.onmouseup_fn = (e) => this.onmouseup(e);
 
-				window.addEventListener('mousemove', this.onmousemove_fn, { passive: false });
-				window.addEventListener('mouseup', this.onmouseup_fn, { passive: false });
-
-				document.querySelector('#returnToWebsite').onclick = async () => {
-					const minimized = document.body.classList.toggle('mge-background');
-					document.querySelector('#returnToWebsite > a').dataset.tooltip =
-						minimized ? 'Open the editor' : 'Return to website';
-					//await Window.close_all();
-					//await this.close();
-				};
-
-				this.resize_fn = () => this.redraw_dyn_overlay();
-				await this.resize_fn();
-				window.addEventListener('resize', this.resize_fn);
+				this.onresize = () => this.redraw_dyn_overlay();
+				await this.onresize();
 
 				//Window.open('welcome');
 				await LegendWindow.open();
@@ -93,9 +78,6 @@ class PWMap {
 
 	close() {
 		const pw_map = this.shadow.querySelector('#pw-map-canvas');
-		window.removeEventListener('mousemove', this.onmousemove_fn);
-		window.removeEventListener('mouseup', this.onmouseup_fn);
-		window.removeEventListener('resize', this.resize_fn);
 		pw_map.style.display = 'none';
 		document.body.classList.remove('mge-fullscreen');
 	}
@@ -163,7 +145,7 @@ class PWMap {
 			}
 		}
 
-		Window.onmousemove(e);
+		return e.defaultPrevented;
 	}
 
 	onmouseup(e) {
@@ -191,7 +173,10 @@ class PWMap {
 		}
 
 		this.drag.moved = false;
-		Window.onmouseup(e);
+	}
+
+	onresize(e) {
+		this.redraw_dyn_overlay();
 	}
 
 	onwheel(e) {

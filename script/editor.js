@@ -31,6 +31,7 @@ class Editor {
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/welcome.js?v=' + MG_VERSION),
 			await load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 			await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION)
 		]);
@@ -41,6 +42,20 @@ class Editor {
 		if (org_menu) {
 			Editor.navbar = new Navbar(org_menu);
 		}
+
+		window.addEventListener('mousemove', Editor.onmousemove, { passive: false });
+		window.addEventListener('mouseup', Editor.onmouseup, { passive: false });
+		window.addEventListener('resize', Editor.onresize, { passive: false });
+
+		const ret_btn = document.querySelector('#returnToWebsite')
+		if (ret_btn) ret_btn.onclick = async () => {
+			const minimized = document.body.classList.toggle('mge-background');
+			document.querySelector('#returnToWebsite > a').dataset.tooltip =
+			minimized ? 'Open the editor' : 'Return to website';
+			//await Window.close_all();
+			//await this.close();
+		};
+
 	}
 
 	static async open({id}) {
@@ -57,8 +72,12 @@ class Editor {
 			if (g_map) {
 				g_map.close();
 			}
-			g_map = new PWMap();
-			await g_map.reinit('world');
+
+			const win = await WelcomeWindow.open({ });
+			win.onclose = async () => {
+				g_map = new PWMap();
+				await g_map.reinit('world');
+			}
 		} catch (e) {
 			console.error(e);
 			show_error_tag(e.message);
@@ -67,5 +86,28 @@ class Editor {
 		//await sleep(500);
 		hide_loading_tag(tag);
 		stop_loading();
+	}
+
+	static close() {
+		window.removeEventListener('mousemove', Editor.onmousemove);
+		window.removeEventListener('mouseup', Editor.onmouseup);
+		window.removeEventListener('resize', Editor.onresize);
+	}
+
+	static onmousemove(e) {
+		let handled = false;
+		if (g_map) handled = g_map.onmousemove(e);
+		handled = Window.onmousemove(e);
+	}
+
+	static onmouseup(e) {
+		let handled = false;
+		if (g_map) handled = g_map.onmouseup(e);
+		handled = Window.onmouseup(e);
+	}
+
+	static onresize(e) {
+		let handled = false;
+		if (g_map) handled = g_map.onresize(e);
 	}
 };
