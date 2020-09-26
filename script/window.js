@@ -65,7 +65,11 @@ class Window {
 					if (c == 'onload') {
 						f.call(el, this);
 					} else {
-						el[c] = (el) => f.call(el, this);
+						el[c] = (el) => {
+							if (!el.toElement.classList.contains('disabled')) {
+								f.call(el, this);
+							}
+						};
 					}
 				}
 

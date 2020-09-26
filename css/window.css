@@ -186,7 +186,13 @@ a.button {
 	user-select: none;
 }
 
-a.button:hover {
+a.button.disabled {
+	cursor: default;
+	background-color: rgb(223, 223, 223);
+	color: rgb(165, 165, 165);
+}
+
+a.button:hover:not(.disabled) {
 	background-color: rgba(156, 120, 120, 1);
 	color: rgba(255, 255, 255, 1);
 	text-decoration: none;
