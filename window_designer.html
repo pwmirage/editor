@@ -35,13 +35,19 @@
 		<script type="text/javascript">
 			let g_win;
 
+			let g_params = {};
+			var WCF = { User: { userID: 0, username: "" } };
+
+			location.search.substr(1).split("&").forEach(function(item) {g_params[item.split("=")[0]] = item.split("=")[1]})
+
+
 			window.onload = async () => {
 				await g_loaded;
 				await Editor.load();
 				Template.debug = true;
 				Window.set_container(document.querySelector('#windows'));
 
-				const win_name = 'spawner';
+				const win_name = g_params.tpl;
 				const watch_files = [
 					ROOT_URL + 'tpl/window/' + win_name + '.tpl',
 					ROOT_URL + 'css/window.css',
@@ -63,7 +69,9 @@
 							prev_files = new_files;
 
 							const prev_win = g_win;
-							g_win = await SpawnerWindow.open( { debug: true, spawner: db.spawners_world[478] });
+							const cls_name = g_params.class;
+							const cls = eval(cls_name);
+							g_win = await cls.open( { debug: true, spawner: db.spawners_world[478] });
 							g_win.move(10, 10);
 							if (prev_win) {
 								await sleep(150);
