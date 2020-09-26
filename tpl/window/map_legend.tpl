@@ -1,4 +1,4 @@
-<script id="map-legend" type="text/x-dot-template">
+<script id="tpl-map-legend" type="text/x-dot-template">
 <div class="window resizable" style="width: 305px; height: 448px;">
 <div class="header">
 	<span>Legend</span>
