@@ -4,14 +4,14 @@
 
 class PWMap {
 	static maps = {
-		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 } },
+		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 }, img_scale: 1.0 },
 
-		is05: { name: 'Firecrag Grotto', id: 'is05' },
-		is06: { name: 'Den of Rabid Wolves', id: 'is06' },
-		is07: { name: 'Cave of the Vicious', id: 'is07' },
+		is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 }, img_scale: 4.0 },
+		is06: { name: 'Den of Rabid Wolves', id: 'is06', size: { x: 512, y: 512 }, img_scale: 2.0 },
+		is07: { name: 'Cave of the Vicious', id: 'is07', size: { x: 512, y: 512 }, img_scale: 3.155 },
 
-		is02: { name: 'Secret Passage', id: 'is02' },
-		is08: { name: 'Hall of Deception', id: 'is08' },
+		is02: { name: 'Secret Passage', id: 'is02', size: { x: 512, y: 512 }, img_scale: 3.132 },
+		is08: { name: 'Hall of Deception', id: 'is08', size: { x: 512, y: 512 }, img_scale: 6.578 },
 
 		is09: { name: 'Gate of Delirium', id: 'is09' },
 		is10: { name: 'Secret Frostcover Grounds', id: 'is10' },
@@ -97,7 +97,6 @@ class PWMap {
 		shadow.append(...els);
 		parent.prepend(shadow_el);
 		Window.set_container(shadow.querySelector('#pw-windows'));
-		await db.load_map('world');
 	}
 
 	reinit(mapid) {
@@ -124,6 +123,7 @@ class PWMap {
 				canvas.onmousedown = (e) => this.onmousedown(e);
 				canvas.onwheel = (e) => this.onwheel(e);
 
+				await db.load_map(mapid);
 				this.onresize = () => this.redraw_dyn_overlay();
 				await this.onresize();
 
@@ -132,7 +132,7 @@ class PWMap {
 				resolve();
 			};
 			this.bg.onerror = reject;
-			this.bg.src = ROOT_URL + 'data/images/map/' + mapid + '.jpg';
+			this.bg.src = ROOT_URL + 'data/images/map/' + mapid + '.webp';
 		});
 	}
 
@@ -173,9 +173,9 @@ class PWMap {
 
 		if (this.canvas.querySelector(':hover')) {
 			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
-			map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
-			map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
-			const spawner = this.get_spawner_at(map_coords);
+			const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
+
+			const spawner = this.get_spawner_at(spawner_pos);
 
 			this.hovered_spawner = spawner;
 			this.hover_lbl.style.display = spawner ? 'block' : 'none';
@@ -250,14 +250,13 @@ class PWMap {
 
 	get_hovered_spawner(e) {
 		const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
-		map_coords.x = map_coords.x * 2 - this.bg_img_realsize.w;
-		map_coords.y = - map_coords.y * 2 + this.bg_img_realsize.h;
+		const spawner_coords = this.map_coords_to_spawner(map_coords.x, map_coords.y);
 
-		return this.get_spawner_at(map_coords);
+		return this.get_spawner_at(spawner_coords);
 	}
 
 	get_spawner_at(map_coords) {
-		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale;
+		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale / this.maptype.img_scale;
 
 		for (const type in this.drawn_spawners) {
 			for (const spawner of this.drawn_spawners[type]) {
@@ -318,10 +317,11 @@ class PWMap {
 
 		const search = this.marker_filters?.search?.toLowerCase();
 		const drawn_spawners = { npc: [], mob: [], resource: [] };
-		for (const list of [db.spawners_world, db.resources_world]) {
+		for (const list of [db['spawners_' + this.maptype.id], db['resources_' + this.maptype.id]]) {
 			for (const spawner of list) {
-				const x = (0.5 * this.maptype.size.x + spawner.pos[0] / 2) * pos.scale;
-				const y = (0.5 * this.maptype.size.y - spawner.pos[2] / 2) * pos.scale;
+				let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
+				x *= pos.scale;
+				y *= pos.scale;
 
 				if (x > pos.offset.x - overlay.width / 3&& x <= pos.offset.x + overlay.width * 2 / 3 &&
 					y > pos.offset.y -  overlay.height / 3 && y <= pos.offset.y + overlay.height * 2 / 3) {
@@ -333,7 +333,7 @@ class PWMap {
 						}
 					}
 
-					if (list == db.resources_world) {
+					if (spawner._db.type.startsWith('resources_')) {
 						if (!this.marker_filters|| this.marker_filters.resource(spawner)) {
 							drawn_spawners.resource.push(spawner);
 						}
@@ -416,8 +416,9 @@ class PWMap {
 
 			if (this.marker_filters?.show_labels) {
 				await foreach_spawner((spawner) => {
-					const x = (0.5 * this.maptype.size.x + spawner.pos[0] / 2) * pos.scale;
-					const y = (0.5 * this.maptype.size.y - spawner.pos[2] / 2) * pos.scale;
+					let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
+					x *= pos.scale;
+					y *= pos.scale;
 
 					const marker_name = get_name(spawner);
 					const w = ctx.measureText(marker_name).width;
@@ -432,8 +433,9 @@ class PWMap {
 
 			const t0 = performance.now();
 			await foreach_spawner((spawner) => {
-				const x = (0.5 * this.maptype.size.x + spawner.pos[0] / 2) * pos.scale;
-				const y = (0.5 * this.maptype.size.y - spawner.pos[2] / 2) * pos.scale;
+				let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
+				x *= pos.scale;
+				y *= pos.scale;
 				const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
 				if (this.focused_spawners.size == 0 || this.focused_spawners.has(spawner)) {
 					ctx.globalAlpha = 1.0;
@@ -506,6 +508,20 @@ class PWMap {
 		};
 		this.move_to(new_pos);
 		setTimeout(() => this.redraw_dyn_overlay(), 300);
+	}
+
+	map_coords_to_spawner(x, y) {
+		return {
+			x: 2 * (x - 0) / this.maptype.img_scale - this.maptype.size.x,
+			y: -2 * (y + 0)  / this.maptype.img_scale + this.maptype.size.y,
+		};
+	}
+
+	spawner_coords_to_map(x, y) {
+		return {
+			x: (0.5 * this.maptype.size.x + x / 2) * this.maptype.img_scale + 0,
+			y: (0.5 * this.maptype.size.y - y / 2) * this.maptype.img_scale - 0
+		};
 	}
 
 	mouse_coords_to_map(mousex, mousey) {
