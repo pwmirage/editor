@@ -44,6 +44,8 @@
 			window.onload = async () => {
 				await g_loaded;
 				await Editor.load();
+				await db.load_map('gs01')
+
 				Template.debug = true;
 				Window.set_container(document.querySelector('#windows'));
 

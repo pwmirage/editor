@@ -31,11 +31,12 @@ class Editor {
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/window/welcome.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/map_chooser.js?v=' + MG_VERSION),
 			await load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 			await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION)
 		]);
 
+		await g_pwdb_init_promise;
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
 
 		const org_menu = document.querySelector('.mainMenu .boxMenu');
@@ -73,7 +74,7 @@ class Editor {
 				g_map.close();
 			}
 
-			const win = await WelcomeWindow.open({ });
+			const win = await MapChooserWindow.open({ });
 			win.onclose = async () => {
 				g_map = new PWMap();
 				await g_map.reinit('world');

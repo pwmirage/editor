@@ -1,4 +1,4 @@
-<script id="tpl-welcome" type="text/x-dot-template">
+<script id="tpl-map-chooser" type="text/x-dot-template">
 
 <div class="window" style="width: 405px; height: 448px;">
 <div class="header">
