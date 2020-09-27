@@ -3,7 +3,60 @@
  */
 
 class PWMap {
+	static maps = {
+		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 } },
+
+		is05: { name: 'Firecrag Grotto', id: 'is05' },
+		is06: { name: 'Den of Rabid Wolves', id: 'is06' },
+		is07: { name: 'Cave of the Vicious', id: 'is07' },
+
+		is02: { name: 'Secret Passage', id: 'is02' },
+		is08: { name: 'Hall of Deception', id: 'is08' },
+
+		is09: { name: 'Gate of Delirium', id: 'is09' },
+		is10: { name: 'Secret Frostcover Grounds', id: 'is10' },
+		is11: { name: 'Valley of Disaster', id: 'is11' },
+		is12: { name: 'Forest Ruins', id: 'is12' },
+		is13: { name: 'Cave of Sadistic Glee', id: 'is13' },
+		is14: { name: 'Wraithgate', id: 'is14' },
+		is15: { name: 'Hallucinatory Trench', id: 'is15' },
+		is16: { name: 'Eden', id: 'is16' },
+		is17: { name: 'Brimstone Pit', id: 'is17' },
+		is18: { name: 'Temple of the Dragon', id: 'is18' },
+		is19: { name: 'Nightscream Island', id: 'is19' },
+		is20: { name: 'Snake Isle', id: 'is20' },
+		is21: { name: 'Lothranis', id: 'is21' },
+		is22: { name: 'Momaganon', id: 'is22' },
+		is23: { name: 'Seat of Torment', id: 'is23' },
+		is24: { name: 'Abaddon', id: 'is24' },
+		is25: { name: 'Warsong City', id: 'is25' },
+		is26: { name: 'Palace of Nirvana', id: 'is26' },
+		is27: { name: 'Lunar Glade', id: 'is27' },
+		is28: { name: 'Valley of Reciprocity', id: 'is28' },
+		is29: { name: 'Frostcover City', id: 'is29' },
+		is31: { name: 'Twilight Temple', id: 'is31' },
+		is32: { name: 'Cube of Fate', id: 'is32' },
+		is33: { name: 'Chrono City', id: 'is33' },
+
+		arena01: { name: 'Etherblade Arena', id: 'arena01' },
+		arena02: { name: 'Lost Arena', id: 'arena02' },
+		arena03: { name: 'Plume Arena', id: 'arena03' },
+		arena04: { name: 'Archosaur Arena', id: 'arena04' },
+		bg01: { name: 'Territory War T-3 PvP', id: 'bg01' },
+		bg02: { name: 'Territory War T-3 PvE', id: 'bg02' },
+		bg03: { name: 'Territory War T-2 PvP', id: 'bg03' },
+		bg04: { name: 'Territory War T-2 PvE', id: 'bg04' },
+		bg05: { name: 'Territory War T-1 PvP', id: 'bg05' },
+		bg06: { name: 'Territory War T-1 PvE', id: 'bg06' },
+
+		is01: { name: 'City of Abominations', id: 'is01' },
+
+		is03: { name: 'Test 1', id: 'is03' },
+		is04: { name: 'Test 2', id: 'is04' },
+	};
+
 	constructor() {
+		this.maptype = null;
 		this.shadow = null;
 		this.bg = null;
 		this.pos_label = null;
@@ -47,16 +100,23 @@ class PWMap {
 		await db.load_map('world');
 	}
 
-	reinit(mapname) {
+	reinit(mapid) {
+		this.maptype = PWMap.maps[mapid];
+		if (!this.maptype) {
+			throw new Error('Map ' + mapid + ' doesn\'t exist');
+		}
+
 		return new Promise((resolve, reject) => {
 			this.shadow = document.querySelector('#pw-map').shadowRoot;
 			const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
+			this.pw_map.style.display = 'none';
 			this.hover_lbl = this.shadow.querySelector('.label');
 			this.bg.onload = async () => {
 				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
 				this.map_bounds = canvas.getBoundingClientRect();
+				this.pw_map.style.display = '';
 
 				this.bg_img_realsize.w = this.bg.width;
 				this.bg_img_realsize.h = this.bg.height;
@@ -72,13 +132,12 @@ class PWMap {
 				resolve();
 			};
 			this.bg.onerror = reject;
-			this.bg.src = ROOT_URL + 'data/images/map/' + mapname + '.jpg';
+			this.bg.src = ROOT_URL + 'data/images/map/' + mapid + '.jpg';
 		});
 	}
 
 	close() {
-		const pw_map = this.shadow.querySelector('#pw-map-canvas');
-		pw_map.style.display = 'none';
+		this.pw_map.style.display = 'none';
 		document.body.classList.remove('mge-fullscreen');
 	}
 
@@ -261,8 +320,8 @@ class PWMap {
 		const drawn_spawners = { npc: [], mob: [], resource: [] };
 		for (const list of [db.spawners_world, db.resources_world]) {
 			for (const spawner of list) {
-				const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
-				const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
+				const x = (0.5 * this.maptype.size.x + spawner.pos[0] / 2) * pos.scale;
+				const y = (0.5 * this.maptype.size.y - spawner.pos[2] / 2) * pos.scale;
 
 				if (x > pos.offset.x - overlay.width / 3&& x <= pos.offset.x + overlay.width * 2 / 3 &&
 					y > pos.offset.y -  overlay.height / 3 && y <= pos.offset.y + overlay.height * 2 / 3) {
@@ -357,8 +416,8 @@ class PWMap {
 
 			if (this.marker_filters?.show_labels) {
 				await foreach_spawner((spawner) => {
-					const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
-					const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
+					const x = (0.5 * this.maptype.size.x + spawner.pos[0] / 2) * pos.scale;
+					const y = (0.5 * this.maptype.size.y - spawner.pos[2] / 2) * pos.scale;
 
 					const marker_name = get_name(spawner);
 					const w = ctx.measureText(marker_name).width;
@@ -373,8 +432,8 @@ class PWMap {
 
 			const t0 = performance.now();
 			await foreach_spawner((spawner) => {
-				const x = (0.5 * 4096 + spawner.pos[0] / 2) * pos.scale;
-				const y = (0.5 * 5632 - spawner.pos[2] / 2) * pos.scale;
+				const x = (0.5 * this.maptype.size.x + spawner.pos[0] / 2) * pos.scale;
+				const y = (0.5 * this.maptype.size.y - spawner.pos[2] / 2) * pos.scale;
 				const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
 				if (this.focused_spawners.size == 0 || this.focused_spawners.has(spawner)) {
 					ctx.globalAlpha = 1.0;
