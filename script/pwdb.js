@@ -90,11 +90,13 @@ const g_pwdb_init_promise = Promise.all([
 //pwdb_register_data_type('quests');
 
 db.load_map = async (name) => {
+	if (db['spawners_' + name] && db['resources_' + name]) {
+		return;
+	}
+
 	await Promise.all([
-		pwdb_register_data_type('spawners_world', ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
-		pwdb_register_data_type('resources_world', ROOT_URL + 'data/base/map/' + name + '/resources.json'),
+		pwdb_register_data_type('spawners_' + name, ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
+		pwdb_register_data_type('resources_' + name, ROOT_URL + 'data/base/map/' + name + '/resources.json'),
 		g_pwdb_init_promise
 	]);
-
-	db.register_type('resources', g_db.resources);
 }
