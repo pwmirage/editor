@@ -104,6 +104,8 @@ class PWMap {
 
 		return new Promise((resolve, reject) => {
 			this.shadow = document.querySelector('#pw-map').shadowRoot;
+			const overlay = this.shadow.querySelector('.dyn-canvas.shown');
+			if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
 			const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
