@@ -1,0 +1,2 @@
+[{"id":0,"pos":[72.09647369,274.15652466,347.33325195],"dir":[192.00000000,0.00000000,63.00000000],"spread":[3.83186340,0,5.36557007],"auto_spawn":1,"auto_respawn":1,"max_num":0,"trigger":0,"groups":[{"type":10048,"count":1,"respawn_time_sec":150,"height_offset":0.00000000}]},
+{"id":1,"pos":[271.96166992,259.42568970,-19.77989960],"dir":[192.00000000,0.00000000,63.00000000],"spread":[1.36416626,0,2.15991211],"auto_spawn":1,"auto_respawn":1,"max_num":0,"trigger":0,"groups":[{"type":8597,"count":1,"respawn_time_sec":300,"height_offset":0.00000000}]}]

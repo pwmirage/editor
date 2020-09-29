@@ -4,55 +4,45 @@
 
 class PWMap {
 	static maps = {
-		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 }, img_scale: 1.0 },
+		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 } },
 
-		is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 }, img_scale: 4.0 },
-		is06: { name: 'Den of Rabid Wolves', id: 'is06', size: { x: 512, y: 512 }, img_scale: 2.0 },
-		is07: { name: 'Cave of the Vicious', id: 'is07', size: { x: 512, y: 512 }, img_scale: 3.155 },
+		is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 } },
+		is06: { name: 'Den of Rabid Wolves', id: 'is06', size: { x: 512, y: 512 }, img_off: { x: 318, y: 62 } },
+		is07: { name: 'Cave of the Vicious', id: 'is07', size: { x: 512, y: 512 } },
 
-		is02: { name: 'Secret Passage', id: 'is02', size: { x: 512, y: 512 }, img_scale: 3.132 },
-		is08: { name: 'Hall of Deception', id: 'is08', size: { x: 512, y: 512 }, img_scale: 6.578 },
+		is02: { name: 'Secret Passage', id: 'is02', size: { x: 512, y: 512 } },
+		is08: { name: 'Hall of Deception', id: 'is08', size: { x: 512, y: 512 } },
 
-		is09: { name: 'Gate of Delirium', id: 'is09' },
-		is10: { name: 'Secret Frostcover Grounds', id: 'is10' },
-		is11: { name: 'Valley of Disaster', id: 'is11' },
-		is12: { name: 'Forest Ruins', id: 'is12' },
-		is13: { name: 'Cave of Sadistic Glee', id: 'is13' },
-		is14: { name: 'Wraithgate', id: 'is14' },
-		is15: { name: 'Hallucinatory Trench', id: 'is15' },
-		is16: { name: 'Eden', id: 'is16' },
-		is17: { name: 'Brimstone Pit', id: 'is17' },
-		is18: { name: 'Temple of the Dragon', id: 'is18' },
-		is19: { name: 'Nightscream Island', id: 'is19' },
-		is20: { name: 'Snake Isle', id: 'is20' },
-		is21: { name: 'Lothranis', id: 'is21' },
-		is22: { name: 'Momaganon', id: 'is22' },
-		is23: { name: 'Seat of Torment', id: 'is23' },
-		is24: { name: 'Abaddon', id: 'is24' },
-		is25: { name: 'Warsong City', id: 'is25' },
-		is26: { name: 'Palace of Nirvana', id: 'is26' },
-		is27: { name: 'Lunar Glade', id: 'is27' },
-		is28: { name: 'Valley of Reciprocity', id: 'is28' },
-		is29: { name: 'Frostcover City', id: 'is29' },
-		is31: { name: 'Twilight Temple', id: 'is31' },
-		is32: { name: 'Cube of Fate', id: 'is32' },
-		is33: { name: 'Chrono City', id: 'is33' },
+		is09: { name: 'Gate of Delirium', id: 'is09', size: { x: 512, y: 512 }, img_off: { x: 300, y: 300 } },
+		is10: { name: 'Secret Frostcover Grounds', id: 'is10', size: { x: 512, y: 512 }, img_off: { x: 64, y: 64 } },
+		is11: { name: 'Valley of Disaster', id: 'is11', size: { x: 512, y: 512 }, img_off: { x: 201, y: 198 } },
+		is12: { name: 'Forest Ruins', id: 'is12', size: { x: 512, y: 512 }, img_off: { x: 46, y: 46 } },
+		is13: { name: 'Cave of Sadistic Glee', id: 'is13', size: { x: 512, y: 512 } },
+		is14: { name: 'Wraithgate', id: 'is14', size: { x: 512, y: 512 } },
+		is15: { name: 'Hallucinatory Trench', id: 'is15', size: { x: 512, y: 512 }, img_off: { x: 122, y: 122 } },
+		is16: { name: 'Eden', id: 'is16', size: { x: 512, y: 512 }, img_off: { x: 191, y: 191 } },
+		is17: { name: 'Brimstone Pit', id: 'is17', size: { x: 512, y: 512 }, img_off: { x: 191 , y: 191 } },
+		is18: { name: 'Temple of the Dragon', id: 'is18', size: { x: 512, y: 512 } },
+		is19: { name: 'Nightscream Island', id: 'is19', size: { x: 512, y: 512 }, img_off: { x: 280, y: 280 } },
+		is32: { name: 'Cube of Fate', id: 'is32', size: { x: 1536, y: 1536 } },
 
-		arena01: { name: 'Etherblade Arena', id: 'arena01' },
-		arena02: { name: 'Lost Arena', id: 'arena02' },
-		arena03: { name: 'Plume Arena', id: 'arena03' },
-		arena04: { name: 'Archosaur Arena', id: 'arena04' },
-		bg01: { name: 'Territory War T-3 PvP', id: 'bg01' },
-		bg02: { name: 'Territory War T-3 PvE', id: 'bg02' },
-		bg03: { name: 'Territory War T-2 PvP', id: 'bg03' },
-		bg04: { name: 'Territory War T-2 PvE', id: 'bg04' },
-		bg05: { name: 'Territory War T-1 PvP', id: 'bg05' },
-		bg06: { name: 'Territory War T-1 PvE', id: 'bg06' },
+		is20: { name: 'Snake Isle', id: 'is20', size: { x: 512, y: 512 }, img_off: { x: 202, y: 281 } },
 
-		is01: { name: 'City of Abominations', id: 'is01' },
+		is21: { name: 'Lothranis', id: 'is21', size: { x: 1024, y: 1024 }, img_off: { x: 250, y: 250 } },
+		is22: { name: 'Momaganon', id: 'is22', size: { x: 1024, y: 1024 }, img_off: { x: 250, y: 250 } },
+		is23: { name: 'Seat of Torment', id: 'is23', size: { x: 512, y: 512 }, img_off: { x: 217, y: 217 } },
+		is24: { name: 'Abaddon', id: 'is24', size: { x: 512, y: 512 }, img_off: { x: 233, y: 233 } },
+		a26b: { name: 'Palace of Nirvana', id: 'a26b', size: { x: 512, y: 512 }, img_off: { x: 68, y: 68 } },
+		is27: { name: 'Lunar Glade', id: 'is27', size: { x: 512, y: 512 }, img_off: { x: 233, y: 233 } },
+		is28: { name: 'Valley of Reciprocity', id: 'is28', size: { x: 512, y: 512 }, img_off: { x: 228, y: 228 } },
+		is29: { name: 'Frostcover City', id: 'is29', size: { x: 512, y: 512 }, img_off: { x: 99, y: 99 } },
+		is31: { name: 'Twilight Temple', id: 'is31', size: { x: 512, y: 512 } },
 
-		is03: { name: 'Test 1', id: 'is03' },
-		is04: { name: 'Test 2', id: 'is04' },
+		is33: { name: 'Chrono City', id: 'is33', size: { x: 1024, y: 1024 } },
+
+		is01: { name: 'City of Abominations', id: 'is01', size: { x: 512, y: 512 } },
+		is25: { name: 'City of Naught', id: 'is25', size: { x: 512, y: 512 }, img_off: { x: 128, y: 128 } },
+		is26: { name: 'Hall of Blasphemy', id: 'is26', size: { x: 512, y: 512 }, img_off: { x: 103, y: 103 } },
 	};
 
 	constructor() {
@@ -119,6 +109,10 @@ class PWMap {
 
 				this.bg_img_realsize.w = this.bg.width;
 				this.bg_img_realsize.h = this.bg.height;
+				const img_off = this.maptype.img_off || { x: 0, y: 0 };
+				this.bg_scale = (this.bg.width - 2 * img_off.x) / this.maptype.size.x;
+				this.bg.style.marginLeft = - img_off.x + 'px';
+				this.bg.style.marginTop = - img_off.y + 'px';
 
 				canvas.onmousedown = (e) => this.onmousedown(e);
 				canvas.onwheel = (e) => this.onwheel(e);
@@ -182,7 +176,7 @@ class PWMap {
 			if (spawner) {
 				const type = spawner.groups[0]?.type;
 				let obj;
-				if (spawner._db.type == 'spawners_world') {
+				if (spawner._db.type.startsWith('spawners_')) {
 					obj = db.npcs[type] || db.monsters[type];
 				} else {
 					obj = db.mines[type];
@@ -256,7 +250,7 @@ class PWMap {
 	}
 
 	get_spawner_at(map_coords) {
-		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale / this.maptype.img_scale;
+		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale / this.bg_scale;
 
 		for (const type in this.drawn_spawners) {
 			for (const spawner of this.drawn_spawners[type]) {
@@ -420,6 +414,12 @@ class PWMap {
 					x *= pos.scale;
 					y *= pos.scale;
 
+					if (this.focused_spawners.size == 0 || this.focused_spawners.has(spawner)) {
+						ctx.globalAlpha = 1.0;
+					} else {
+						ctx.globalAlpha = 0.3;
+					}
+
 					const marker_name = get_name(spawner);
 					const w = ctx.measureText(marker_name).width;
 
@@ -512,15 +512,15 @@ class PWMap {
 
 	map_coords_to_spawner(x, y) {
 		return {
-			x: 2 * (x - 0) / this.maptype.img_scale - this.maptype.size.x,
-			y: -2 * (y + 0)  / this.maptype.img_scale + this.maptype.size.y,
+			x: 2 * (x - 0) / this.bg_scale - this.maptype.size.x,
+			y: -2 * (y + 0)  / this.bg_scale + this.maptype.size.y,
 		};
 	}
 
 	spawner_coords_to_map(x, y) {
 		return {
-			x: (0.5 * this.maptype.size.x + x / 2) * this.maptype.img_scale + 0,
-			y: (0.5 * this.maptype.size.y - y / 2) * this.maptype.img_scale - 0
+			x: (0.5 * this.maptype.size.x + x / 2) * this.bg_scale + 0,
+			y: (0.5 * this.maptype.size.y - y / 2) * this.bg_scale - 0
 		};
 	}
 

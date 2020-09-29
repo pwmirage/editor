@@ -24,7 +24,8 @@
 		<input type="text" id="search" style="flex: 1; width: 100%; margin-bottom: 4px;" autocomplete="off"></input>
 	</div>
 	<div class="maps">
-		{foreach $maps as map}
+		{foreach map_id in $maps}
+			{assign map = $maps[map_id]}
 			<div class="map" id="map-{@$map.id}" data-onclick="win.select_map('{@$map.id}')" >{@$map.name}</div>
 		{/foreach}
 	</div>

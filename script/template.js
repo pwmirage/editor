@@ -64,6 +64,7 @@ class Template {
 					.replace(/^assign (.*)$/, "local.$1;")
 					.replace(/^for \s*(.*?)\s*=(.*?);(.*?);(.*?)$/, "{const backup_name=\"$1\"; const backup=local[backup_name]; for (let $1 = $2; $3; $4) { local[backup_name] = $1;")
 					.replace(/^foreach(.*) as (.*)$/, "{const backup_name=\"$2\"; const backup=local[backup_name]; for (const $2 of $1) { local[backup_name] = $2;")
+					.replace(/^foreach(.*) in (.*)$/, "{const backup_name=\"$1\"; const backup=local[backup_name]; for (const $1 in $2) { local[backup_name] = $1;")
 					.replace(/^\/(foreach|for)$/g, "}; local[backup_name] = backup; };")
 					.replace(/^if (.*)$/g, ";if ($1) {")
 					.replace(/^else$/g, "} else {")
