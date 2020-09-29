@@ -14,7 +14,7 @@ class SpawnerWindow extends Window {
 		this.tpl = new Template(ROOT_URL + 'tpl/window/spawner.tpl', 'tpl-spawner');
 		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
 
-		const data = await this.tpl.compile( { this: this, spawner: this.spawner });
+		const data = await this.tpl.compile({ this: this, spawner: this.spawner });
 		shadow.append(...data);
 
 		return await super.init();

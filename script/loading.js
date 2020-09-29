@@ -1,69 +1,92 @@
-const g_loading = {
-	labels: null,
-	page_init: new Promise((resolve) => setTimeout(resolve, 10)),
-};
+class Loading {
+	static labels = null;
+	static init_promise = null;
+	static tpl = null;
+	static shadow = null;
+	static next_cleanup_time = 0;
 
-let mg_loading_initialized = false;
-const mg_loading_init = () => {
-	if (mg_loading_initialized) return;
-	mg_loading_initialized = true;
+	static init() {
+		if (Loading.init_promise) {
+			return Loading.init_promise;
+		}
 
-	g_loading.labels = document.createElement('div');
-	g_loading.labels.id = 'loading-labels';
-	document.body.append(g_loading.labels);
-}
+		Loading.init_promise = (async () => {
+			Loading.tpl = await get(ROOT_URL + 'tpl/loading.tpl', 'tpl-loading');
 
-const show_loading_tag = (name) => {
-	mg_loading_init();
-	const p = newElement('<div><p>' + escape(name) + '</p></div>');
-	g_loading.labels.append(p);
-	setTimeout(() => { g_loading.page_init.then(() => { p.classList.add('appear'); }) }, 100);
-	return p;
-}
+			const el = newElement('<div class="loading"></div>');
+			const shadow = el.attachShadow({mode: 'open'});
+			shadow.append(...newArrElements(Loading.tpl.data));
+			document.querySelector('#mgeArea').append(el);
 
-const hide_loading_tag = async (tag) => {
-	setTimeout(() => {
-		tag.classList.add('removing');
-		setTimeout(() => { tag.remove(); }, 800);
-	}, 100);
-}
+			Loading.shadow = shadow;
 
-const show_error_tag = (name) => {
-	mg_loading_init();
-	const p = show_loading_tag(name);
-	p.classList.add('error-tag');
-	setTimeout(() => {
-		g_loading.page_init.then(setTimeout(() => { hide_loading_tag(p); }, 8000));
-	}, 100);
-	return p;
-}
+		})();
 
-const start_loading = async () => {
-	mg_loading_init();
-	let loading_el = document.querySelector('#mgeArea > .loading');
-
-	if (!loading_el) {
-		loading_el = newElement('<div class="loading"></div>');
-		document.querySelector('#mgeArea').append(loading_el);
-		const shadow = loading_el.attachShadow({mode: 'open'});
-		const loadingTpl = await get(ROOT_URL + 'tpl/loading.tpl');
-		const loading = newArrElements(loadingTpl.data);
-		shadow.append(...loading);
+		return Loading.init_promise;
 	}
 
-	document.body.classList.add('mge-loading-fullscreen');
-	const shadow = loading_el.shadowRoot;
-	const curtains = shadow.querySelector('#curtain');
-	curtains.className = 'showCurtain';
-}
+	static show_curtain() {
+		document.body.classList.add('mge-loading-fullscreen');
+		const curtains = Loading.shadow.querySelector('#curtain');
+		curtains.className = 'showCurtain';
+	}
 
-const stop_loading = async () => {
-	let loading_el = document.querySelector('#mgeArea > .loading');
-	const shadow = loading_el.shadowRoot;
-	const curtains = shadow.querySelector('#curtain');
+	static hide_curtain() {
+		const curtains = Loading.shadow.querySelector('#curtain');
+		curtains.className = 'showCurtain hideCurtain';
+		curtains.className = '';
+		document.body.classList.remove('mge-loading-fullscreen');
+	}
 
-	curtains.className = 'showCurtain hideCurtain';
-	//await sleep(900);
-	curtains.className = '';
-	document.body.classList.remove('mge-loading-fullscreen');
+	static cleanup_scheduled = false;
+	static cleanup_tags() {
+		if (Loading.cleanup_scheduled) {
+			return;
+		}
+
+		const now = Date.now();
+		const labels = Loading.shadow.querySelectorAll('#labels > .done:not(.removing)');
+		if (labels.length == 0) {
+			return;
+		}
+
+		for (const label of labels) {
+			if (label.cleanup_time > now) {
+				continue;
+			}
+
+			label.classList.add('removing');
+			setTimeout(() => label.remove(), 500);
+			break;
+		}
+
+		Loading.cleanup_scheduled = true;
+		setTimeout(() => { Loading.cleanup_scheduled = false; Loading.cleanup_tags(); }, 200);
+	}
+
+	static show_tag(name) {
+		const p = newElement('<div><p>' + escape(name) + '</p></div>');
+		Loading.shadow.querySelector('#labels').append(p);
+		setTimeout(() => { p.classList.add('appear'); }, 1);
+		return p;
+	}
+
+	static show_error_tag() {
+		const p = Loading.show_loading_tag(name);
+		p.classList.add('error');
+		setTimeout(() => {
+			page_init.then(setTimeout(() => { Loading.hide_tag(p); }, 8000));
+		}, 100);
+		return p;
+	}
+
+	static hide_tag(tag) {
+		setTimeout(() => {
+			tag.classList.add('done');
+			tag.cleanup_time = Date.now() + 800;
+			Loading.cleanup_tags();
+		 }, 1);
+	}
 };
+
+Loading.init();

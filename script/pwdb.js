@@ -23,6 +23,7 @@ const pwdb_register_data_type = async (type, url) => {
 		g_db_promise = new Promise((r) => { resolve = r; });
 	}
 
+	const tag = Loading.show_tag('Loading ' + type);
 	let cached = await new Promise((resolve, reject) => {
 		if (g_db_cache) return resolve(true);
 		if (!window.indexedDB) return resolve(false);
@@ -75,6 +76,7 @@ const pwdb_register_data_type = async (type, url) => {
 	db.register_type(type, g_db[type]);
 
 	if (resolve) resolve();
+	Loading.hide_tag(tag);
 }
 
 const g_pwdb_init_promise = Promise.all([

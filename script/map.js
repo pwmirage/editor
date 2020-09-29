@@ -92,6 +92,7 @@ class PWMap {
 	}
 
 	refresh_bg_img() {
+		this.bg.load_tag = Loading.show_tag('Loading ' + this.maptype.name + ' image');
 		this.bg.src = ROOT_URL + 'data/images/map/' + this.maptype.id + (this.show_real_bg ? '_m' : '') + '.webp';
 	}
 
@@ -127,8 +128,9 @@ class PWMap {
 				this.onresize = () => this.redraw_dyn_overlay();
 				await this.onresize();
 
-				//Window.open('welcome');
 				await LegendWindow.open();
+
+				Loading.hide_tag(this.bg.load_tag);
 				resolve();
 			};
 			this.bg.onerror = reject;

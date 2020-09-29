@@ -11,6 +11,7 @@ class Editor {
 	static navbar = null;
 
 	static async load() {
+		await Loading.init();
 		console.log('Editor loading');
 
 //  const timestamp = 0;
@@ -60,8 +61,8 @@ class Editor {
 	}
 
 	static async open({id}) {
-		start_loading();
-		const tag = show_loading_tag('Opening ' + escape(id));
+		Loading.show_curtain();
+		const tag = Loading.show_tag('Opening ' + escape(id));
 
 		try {
 			if (!Editor.loaded) {
@@ -81,12 +82,12 @@ class Editor {
 			}
 		} catch (e) {
 			console.error(e);
-			show_error_tag(e.message);
+			Loading.show_error_tag(e.message);
 		}
 
 		//await sleep(500);
-		hide_loading_tag(tag);
-		stop_loading();
+		Loading.hide_tag(tag);
+		Loading.hide_curtain();
 	}
 
 	static close() {

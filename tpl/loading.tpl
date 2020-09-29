@@ -1,4 +1,5 @@
 <div id="content">
+	<div id="labels"></div>
 	<div id="curtain" class="">
 		<div id="loader">
 			<div class="bar1"></div>
@@ -19,6 +20,65 @@
 <style>
 #content{
 	position: relative;
+}
+
+#labels {
+	position: fixed;
+	z-index: 100;
+	bottom: 40px;
+	left: 40px;
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+#labels > * {
+	color: #FFF;
+	background-color: #0096aa;
+	display: inline-block;
+	margin-top: 5px;
+	overflow-y: hidden;
+	transform: skew(-20deg) translate(100px, 0);
+	max-height: 30px;
+	transition: transform 0.5s, opacity 0.5s, max-height 0.5s, margin-top 0.5s;
+	opacity: 0;
+	width: 400px;
+	text-align: left;
+}
+
+#labels > .appear {
+	opacity: 1;
+	transform: skew(-20deg) translate(0px, 0);
+}
+
+#labels > .done {
+	background-color: green;
+}
+
+#labels > .done:after {
+	position: absolute;
+	font-family: FontAwesome;
+	content: '\00f00c';
+	right: 10px;
+	top: 5px;
+	color: white;
+}
+
+#labels > .removing {
+	max-height: 0px;
+	margin-top: 0;
+	opacity: 0;
+	transform: skew(-20deg) translate(100px, 0);
+}
+
+#labels > * > p {
+	transform: skew(20deg);
+	position: relative;
+	margin: 4px 6%;
+	padding: 0;
+}
+
+#labels > .error {
+	background-color: rgba(169, 68, 66, 1);
 }
 
 #curtain{
