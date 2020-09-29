@@ -17,8 +17,14 @@ class LegendWindow extends Window {
 		shadow.append(...data);
 
 		shadow.querySelectorAll('input').forEach((e) => {
-			e.addEventListener('input', () => this.filter());
+			e.oninput = () => this.filter();
 		});
+
+		let b = shadow.querySelector('#show-real-bg');
+		b.onclick = () => {
+			g_map.show_real_bg = b.checked;
+			g_map.refresh_bg_img();
+		};
 
 		super.init();
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42);

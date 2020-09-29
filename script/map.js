@@ -71,7 +71,9 @@ class PWMap {
 		this.marker_img = {};
 		this.hovered_spawner = null;
 		this.focused_spawners = new Set();
-		this.hover_lbl = null
+		this.hover_lbl = null;
+		/* either an eye-candy artwork or real ingame terrain */
+		this.show_real_bg = false;
 	}
 
 	static async add_elements(parent) {
@@ -87,6 +89,10 @@ class PWMap {
 		shadow.append(...els);
 		parent.prepend(shadow_el);
 		Window.set_container(shadow.querySelector('#pw-windows'));
+	}
+
+	refresh_bg_img() {
+		this.bg.src = ROOT_URL + 'data/images/map/' + this.maptype.id + (this.show_real_bg ? '_m' : '') + '.webp';
 	}
 
 	reinit(mapid) {
@@ -126,7 +132,7 @@ class PWMap {
 				resolve();
 			};
 			this.bg.onerror = reject;
-			this.bg.src = ROOT_URL + 'data/images/map/' + mapid + '.webp';
+			this.refresh_bg_img();
 		});
 	}
 
