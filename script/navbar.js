@@ -11,8 +11,16 @@ class Navbar {
 
 		this.org_menu_dom.parentNode.insertBefore(this.dom, this.org_menu_dom);
 
-		this.add_button(null, 'Test');
-		const p = this.add_button(null, 'Parent');
+		const b = this.buttons = {};
+		b['editor'] = this.add_button(null, 'Editor');
+
+		let p;
+		p = this.add_button(b['editor'], 'Change Map');
+		p.onclick = async () => {
+			const win = await MapChooserWindow.open({ });
+		};
+
+		p = this.add_button(null, 'Parent');
 		this.add_button(p, 'Child 1');
 		this.add_button(p, 'Child 2');
 		const p2 = this.add_button(p, 'Parent 2');

@@ -80,10 +80,6 @@ class Editor {
 			}
 
 			const win = await MapChooserWindow.open({ });
-			win.onclose = async () => {
-				g_map = new PWMap();
-				await g_map.reinit('world');
-			}
 		} catch (e) {
 			console.error(e);
 			Loading.show_error_tag(e.message);

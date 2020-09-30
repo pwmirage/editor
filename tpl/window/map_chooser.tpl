@@ -3,12 +3,9 @@
 <div class="window" style="width: 405px; height: 448px;">
 <div class="header">
 	<span>
-		{if WCF.User.userID}
-			Welcome, {@WCF.User.username}
-		{else}
-			Welcome
-		{/if}
+		Map Chooser
 	</span>
+
 	<div class="menu">
 		{if g_map}
 			<i class="minimize fa" aria-hidden="true"></i>
@@ -17,6 +14,7 @@
 		{/if}
 	</div>
 </div>
+
 <div class="content flex-rows">
 	<span style="margin-bottom: 8px;">Choose a map to edit</span>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">

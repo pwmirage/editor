@@ -40,13 +40,12 @@ class MapChooserWindow extends Window {
 	}
 
 	async open_map() {
-		console.log('map open: ' + this.selected_map.name);
+		this.close();
 		if (g_map) {
 			await g_map.close();
 		} else {
 			g_map = new PWMap();
 		}
 		await g_map.reinit(this.selected_map.id);
-
 	}
 }
