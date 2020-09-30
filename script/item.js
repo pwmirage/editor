@@ -32,11 +32,12 @@ const gen_all_icons = async () => {
 
 	/* generate them in async chunks not to block the main thread */
 	while (index < icon_count) {
-		await (async () => {
+		await new Promise((resolve) => setTimeout(() => {
 			for (let i = 0; i < 32; i++) {
 				Item.get_icon(index++);
 			}
-		})();
+			resolve();
+		}, 10));
 	}
 
 	if (g_iconset_cache) {

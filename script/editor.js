@@ -33,9 +33,14 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/map_chooser.js?v=' + MG_VERSION),
-			await load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
-			await Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION)
+			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
+
+		const tag = Loading.show_tag('Processing item icons');
+		Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION).then(() => {
+			Loading.hide_tag(tag);
+		});
+		/* don't await icon load */
 
 		await g_pwdb_init_promise;
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
@@ -62,7 +67,6 @@ class Editor {
 
 	static async open({id}) {
 		Loading.show_curtain();
-		const tag = Loading.show_tag('Opening ' + escape(id));
 
 		try {
 			if (!Editor.loaded) {
@@ -86,7 +90,6 @@ class Editor {
 		}
 
 		//await sleep(500);
-		Loading.hide_tag(tag);
 		Loading.hide_curtain();
 	}
 
