@@ -25,6 +25,15 @@
 	text-align: left;
 }
 
+#pw-map-canvas > * {
+	transition: opacity 0.2s ease-in-out;
+	opacity: 0;
+}
+
+#pw-map-canvas.shown > * {
+	opacity: 1;
+}
+
 #pw-map {
 	position: absolute;
 	transform-origin: 0 0;

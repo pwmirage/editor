@@ -112,14 +112,13 @@ class PWMap {
 			const overlay = this.shadow.querySelector('.dyn-canvas.shown');
 			if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
 			const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
+			this.canvas.classList.remove('shown');
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
-			this.pw_map.style.display = 'none';
 			this.hover_lbl = this.shadow.querySelector('.label');
 			this.bg.onload = async () => {
 				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
 				this.map_bounds = canvas.getBoundingClientRect();
-				this.pw_map.style.display = '';
 
 				this.bg_img_realsize.w = this.bg.width;
 				this.bg_img_realsize.h = this.bg.height;
@@ -135,6 +134,8 @@ class PWMap {
 				this.onresize = () => this.redraw_dyn_overlay();
 				await this.onresize();
 
+				this.canvas.classList.add('shown');
+
 				await LegendWindow.open();
 
 				Loading.hide_tag(this.bg.load_tag);
@@ -146,7 +147,7 @@ class PWMap {
 	}
 
 	close() {
-		this.pw_map.style.display = 'none';
+		this.canvas.classList.remove('shown');
 	}
 
 	onmousedown(e) {
