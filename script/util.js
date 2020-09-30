@@ -67,9 +67,15 @@ const escape = (html_str) => {
 }
 
 const newStyle = (url) => {
-	const linkElem = document.createElement('link');
-	linkElem.setAttribute('rel', 'stylesheet');
-	linkElem.setAttribute('type', 'text/css');
-	if (url) linkElem.setAttribute('href', url);
-	return linkElem;
+	const style = document.createElement('style');
+	const req = get(url);
+	req.then((r) => {
+		style.textContent = r.data;
+		if (style.onload) {
+			style.onload();
+			style.onload = null;
+		}
+	});
+
+	return style;
 }

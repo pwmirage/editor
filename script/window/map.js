@@ -26,7 +26,7 @@ class LegendWindow extends Window {
 			g_map.refresh_bg_img();
 		};
 
-		super.init();
+		await super.init();
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42);
 
 		g_map.shadow.querySelector('#open-legend').style.display = 'none';

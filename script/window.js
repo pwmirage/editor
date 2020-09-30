@@ -22,9 +22,7 @@ class Window {
 		this.margins = { x: 0, y: 0 };
 	}
 
-	init() {
-		this.shadow.append(newStyle(ROOT_URL + 'css/window.css'));
-		this.shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+	async init() {
 
 		this.dom_win = this.shadow.querySelector('.window');
 		this.dom_header = this.shadow.querySelector('.window > .header');
@@ -42,9 +40,19 @@ class Window {
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
 
+		const styles = [];
+		styles.push(newStyle(ROOT_URL + 'css/window.css'));
+		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+
+		const style_promises = styles.map((s) => new Promise((resolve) => { s.onload = resolve; }));
+		await Promise.all(style_promises);
+
+		this.shadow.append(...styles);
 		this.focus();
 		this.move(this.args.x ?? 10, this.args.y ?? 10);
+
 		Window.container.append(this.dom);
+
 		this.full_bounds = this.dom_win.getBoundingClientRect();
 		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
 	}

@@ -20,7 +20,7 @@ class MapChooserWindow extends Window {
 			}
 		};
 
-		super.init();
+		await super.init();
 		this.move((Window.bounds.right - Window.bounds.left - this.dom_win.offsetWidth) / 2,
 				(Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight) / 2);
 		return true;
