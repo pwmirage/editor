@@ -42,6 +42,7 @@ class Window {
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
 
+		this.focus();
 		this.move(this.args.x ?? 10, this.args.y ?? 10);
 		Window.container.append(this.dom);
 		this.full_bounds = this.dom_win.getBoundingClientRect();
@@ -190,9 +191,7 @@ class Window {
 		const bounds = this.dom_win.getBoundingClientRect();
 
 		if (Window.focus_win != this) {
-			this.dom.style.zIndex = Window.focus_win_index++;
-			Window.focus_win = this;
-			if (this.onfocus) this.onfocus.call(this);
+			this.focus();
 		}
 
 		if (e.clientY - bounds.top <= this.dom_header.offsetHeight) {
@@ -257,6 +256,12 @@ class Window {
 				this.was_minimized = false;
 			}
 		}
+	}
+
+	focus() {
+		this.dom.style.zIndex = Window.focus_win_index++;
+		Window.focus_win = this;
+		if (this.onfocus) this.onfocus.call(this);
 	}
 
 	move(new_x, new_y) {
