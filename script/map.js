@@ -89,6 +89,11 @@ class PWMap {
 		shadow.append(...els);
 		parent.prepend(shadow_el);
 		Window.set_container(shadow.querySelector('#pw-windows'));
+
+		shadow.querySelector('#open-legend').onclick = async () => {
+			const win = await LegendWindow.open({ });
+		};
+
 	}
 
 	refresh_bg_img() {
@@ -142,7 +147,6 @@ class PWMap {
 
 	close() {
 		this.pw_map.style.display = 'none';
-		document.body.classList.remove('mge-fullscreen');
 	}
 
 	onmousedown(e) {

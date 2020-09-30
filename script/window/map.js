@@ -28,6 +28,8 @@ class LegendWindow extends Window {
 
 		super.init();
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42);
+
+		g_map.shadow.querySelector('#open-legend').style.display = 'none';
 		return true;
 	}
 
@@ -97,5 +99,11 @@ class LegendWindow extends Window {
 	minimize() {
 		const minimized = super.minimize();
 		this.set_margin(0, minimized ? this.full_bounds.height - this.dom_header.offsetHeight : 0);
+	}
+
+	close() {
+		g_map.shadow.querySelector('#open-legend').style.display = 'block';
+		g_legend_win = null;
+		super.close();
 	}
 }
