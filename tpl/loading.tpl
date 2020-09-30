@@ -25,7 +25,7 @@
 #labels {
 	position: fixed;
 	z-index: 100;
-	bottom: 40px;
+	bottom: 60px;
 	left: 40px;
 	display: flex;
 	flex-direction: column-reverse;

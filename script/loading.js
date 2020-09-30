@@ -34,8 +34,10 @@ class Loading {
 	static hide_curtain() {
 		const curtains = Loading.shadow.querySelector('#curtain');
 		curtains.className = 'showCurtain hideCurtain';
-		curtains.className = '';
-		document.body.classList.remove('mge-loading-fullscreen');
+		setTimeout(() => {
+			curtains.className = '';
+			document.body.classList.remove('mge-loading-fullscreen');
+		}, 500);
 	}
 
 	static cleanup_scheduled = false;
