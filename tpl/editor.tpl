@@ -28,9 +28,11 @@
 #pw-map-canvas > * {
 	transition: opacity 0.2s ease-in-out;
 	opacity: 0;
+	display: none;
 }
 
 #pw-map-canvas.shown > * {
+	display: block;
 	opacity: 1;
 }
 

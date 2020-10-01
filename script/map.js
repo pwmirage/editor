@@ -107,12 +107,13 @@ class PWMap {
 			throw new Error('Map ' + mapid + ' doesn\'t exist');
 		}
 
+		this.shadow = document.querySelector('#pw-map').shadowRoot;
+		const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
+		this.canvas.classList.remove('shown');
+
 		return new Promise((resolve, reject) => {
-			this.shadow = document.querySelector('#pw-map').shadowRoot;
 			const overlay = this.shadow.querySelector('.dyn-canvas.shown');
 			if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
-			const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
-			this.canvas.classList.remove('shown');
 			this.bg = canvas.querySelector('.bg');
 			this.pw_map = canvas.querySelector('#pw-map');
 			this.hover_lbl = this.shadow.querySelector('.label');
@@ -509,7 +510,7 @@ class PWMap {
 		this.pos.offset = new_offset;
 		this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
 
-		this.move_dyn_overlay();
+		return this.move_dyn_overlay();
 	}
 
 	zoom(delta, origin) {
