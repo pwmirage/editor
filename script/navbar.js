@@ -20,12 +20,23 @@ class Navbar {
 			const win = await MapChooserWindow.open({ });
 		};
 
-		p = this.add_button(null, 'Parent');
-		this.add_button(p, 'Child 1');
-		this.add_button(p, 'Child 2');
-		const p2 = this.add_button(p, 'Parent 2');
-		this.add_button(p2, 'Child 2.1');
-		this.add_button(null, 'Test 2');
+		p = this.add_button(b['editor'], 'Browse');
+		p = this.add_button(p, 'Items');
+		p = this.add_button(p, 'NPC Recipes');
+		p = this.add_button(p, 'NPC Goods');
+		p = this.add_button(p, 'NPCs');
+		p = this.add_button(p, 'Monsters');
+		p = this.add_button(p, 'Resources');
+		p = this.add_button(p, 'Triggers');
+		p = this.add_button(p, 'Quests');
+
+		p = this.add_button(null, 'Project');
+		b['proj_edit'] = this.add_button(p, 'Edit');
+		b['proj_save'] = this.add_button(p, 'Save');
+
+		this.search = newElement('<div style="display: flex; align-items: center; padding-left: 15px;"><i class="fa fa-search" style="color: #fff;"></i><input type="text" style="margin-left: 5px;" placeholder="Quick search"></div>');
+		this.dom.append(this.search);
+
 		g_navbar = this;
 	}
 
