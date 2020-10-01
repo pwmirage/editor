@@ -1,10 +1,10 @@
 <div>
 	<div id="pw-map-canvas">
-		<div id="pw-map">
+		<div id="pw-map" class="gpu">
 			<img class="bg"></img>
 		</div>
-		<canvas class="dyn-canvas shown"></canvas>
-		<canvas class="dyn-canvas"></canvas>
+		<canvas class="dyn-canvas shown gpu"></canvas>
+		<canvas class="dyn-canvas gpu"></canvas>
 		<div class="label"></div>
 	</div>
 	<div id="pw-windows">
@@ -176,5 +176,9 @@
 
 #curtain > div {
 	z-index: 100;
+}
+
+.gpu {
+	will-change: transform;
 }
 </style>
