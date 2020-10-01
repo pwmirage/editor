@@ -66,6 +66,7 @@ class Editor {
 	}
 
 	static async open({id}) {
+		await Loading.init_promise;
 		Loading.show_curtain();
 
 		try {
