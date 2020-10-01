@@ -6,7 +6,7 @@ class PWMap {
 	static maps = {
 		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 } },
 
-		is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 } },
+		is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 }, img_scale: 2 },
 		is06: { name: 'Den of Rabid Wolves', id: 'is06', size: { x: 512, y: 512 }, img_off: { x: 318, y: 62 } },
 		is07: { name: 'Cave of the Vicious', id: 'is07', size: { x: 512, y: 512 } },
 
@@ -95,7 +95,7 @@ class PWMap {
 		this.bg.src = ROOT_URL + 'data/images/map/' + this.maptype.id + (this.show_real_bg ? '_m' : '') + '.webp';
 	}
 
-	reinit(mapid) {
+	reinit(mapid, keep_offset = false) {
 		this.maptype = PWMap.maps[mapid];
 		if (!this.maptype) {
 			throw new Error('Map ' + mapid + ' doesn\'t exist');
@@ -128,7 +128,33 @@ class PWMap {
 
 				await db.load_map(mapid);
 				this.onresize = () => this.redraw_dyn_overlay();
-				await this.onresize();
+
+				if (!keep_offset) {
+					this.pos.scale = Math.min(
+						this.map_bounds.width * 0.75 / (this.bg.width - img_off.x * 2),
+						this.map_bounds.height * 0.75 / (this.bg.height - img_off.y * 2)
+					);
+					this.pos.scale *= this.maptype.img_scale || 1;
+					this.zoom(0, { x: 0, y: 0});
+					this.move_to({
+						x: -(canvas.offsetWidth - (this.bg.width - 2 * img_off.x) * this.pos.scale) / 2,
+						y: -(canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2});
+					await new Promise((resolve) => {
+						let repeat;
+						repeat = () => {
+							setTimeout(() => {
+								if (this.redrawing_dyn_overlay == 0) {
+									resolve();
+								} else {
+									repeat();
+								}
+							}, 50);
+						};
+						repeat();
+					});
+				} else {
+					await this.onresize();
+				}
 
 				this.canvas.classList.add('shown');
 
