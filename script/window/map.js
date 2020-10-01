@@ -65,8 +65,8 @@ class LegendWindow extends Window {
 				return fn(mob);
 			}
 		}
-		if (!query_sel('mob-show-ground').checked) filters.mob.push(by_mob((m) => m.fly_speed || m.swim_speed));
-		if (!query_sel('mob-show-flying').checked) filters.mob.push(by_mob((m) => !m.fly_speed));
+		if (!query_sel('mob-show-ground').checked) filters.mob.push(by_mob((m) => m.stand_mode == 2 || m.swim_speed));
+		if (!query_sel('mob-show-flying').checked) filters.mob.push(by_mob((m) => m.stand_mode != 2 || m.swim_speed));
 		if (!query_sel('mob-show-water').checked) filters.mob.push(by_mob((m) => !m.swim_speed));
 
 		if (!query_sel('mob-show-boss').checked) filters.mob.push(by_mob((m) => !m.show_level));
