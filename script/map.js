@@ -73,6 +73,7 @@ class PWMap {
 		this.canvas_msg_id = 1;
 
 		this.mouse_pos = { x: -1, y: -1 };
+		this.mouse_spawner_pos = { x: -1, y: -1 };
 	}
 
 	static async add_elements(parent) {
@@ -163,6 +164,18 @@ class PWMap {
 			}
 		});
 
+		const last_pos = { x: -1, y: -1 };
+		setInterval(() => {
+			const pos = this.mouse_spawner_pos;
+			if (last_pos.x == pos.x && last_pos.y == pos.y) {
+				return;
+			}
+
+			this.canvas_worker.postMessage({ type: 'mouse', x: pos.x, y: pos.y });
+			last_pos.x = pos.x;
+			last_pos.y = pos.y;
+		}, 25);
+
 		this.initialized = true;
 	}
 
@@ -198,9 +211,6 @@ class PWMap {
 		this.bg.load_tag = Loading.show_tag('Loading ' + this.maptype.name + ' image');
 
 		return new Promise((resolve, reject) => {
-			const overlay = this.shadow.querySelector('.dyn-canvas.shown');
-//			if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
-
 			this.bg.onload = async () => {
 				this.bg.onload = null;
 				this.bg.onerror = null;
@@ -314,10 +324,9 @@ class PWMap {
 
 		if (this.canvas.querySelector(':hover')) {
 			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
-			const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
+			const spawner_pos = this.mouse_spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
 			this.mouse_pos.x = e.clientX;
 			this.mouse_pos.y = e.clientY;
-			this.canvas_worker.postMessage({ type: 'mouse', x: spawner_pos.x, y: spawner_pos.y });
 
 			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
 		} else {
