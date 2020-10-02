@@ -69,6 +69,10 @@ class PWMap {
 		this.hover_lbl = null;
 		/* either an eye-candy artwork or real ingame terrain */
 		this.show_real_bg = false;
+		this.canvas_worker = null;
+		this.canvas_msg_id = 1;
+
+		this.mouse_pos = { x: -1, y: -1 };
 	}
 
 	static async add_elements(parent) {
@@ -95,39 +99,157 @@ class PWMap {
 		this.bg.src = ROOT_URL + 'data/images/map/' + this.maptype.id + (this.show_real_bg ? '_m' : '') + '.webp';
 	}
 
+	init() {
+		if (this.initialized) {
+			return;
+		}
+
+		this.shadow = document.querySelector('#pw-map').shadowRoot;
+		this.canvas = this.shadow.querySelector('#pw-map-canvas');
+		this.bg = this.canvas.querySelector('.bg');
+		this.pw_map = this.canvas.querySelector('#pw-map');
+		this.hover_lbl = this.shadow.querySelector('.label');
+		this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
+
+		this.canvas_worker = new Worker(ROOT_URL + 'script/map_worker.js');
+		const overlays = this.shadow.querySelectorAll('.dyn-canvas');
+		for (let i = 0; i < overlays.length; i++) {
+			const overlay = overlays[i];
+			const offscreen = overlay.transferControlToOffscreen();
+			this.canvas_worker.postMessage({ type: 'set_canvas', id: i, canvas: offscreen }, [offscreen]);
+		}
+
+		this.canvas_worker.postMessage({ type: 'set_options', opts: {} });
+
+		this.canvas_worker.addEventListener('message', (e) => {
+			if (e.data.type == 'redraw') {
+				//this.drawn_spawners = e.data.drawn_spawners;
+
+				const prev_overlay = this.shadow.querySelector('.dyn-canvas.shown');
+				const overlay = this.shadow.querySelector('.dyn-canvas:not(.shown)');
+				prev_overlay.classList.remove('shown');
+				overlay.classList.add('shown');
+
+				if (overlay.styledWidth != 3 * this.canvas.offsetWidth ||
+						overlay.styledHeight != 3 * this.canvas.offsetHeight) {
+					overlay.style.left = -this.canvas.offsetWidth + 'px';
+					overlay.style.top = -this.canvas.offsetHeight + 'px';
+					overlay.styledWidth = 3 * this.canvas.offsetWidth;
+					overlay.styledHeight = 3 * this.canvas.offsetHeight;
+					overlay.style.width = overlay.styledWidth + 'px';
+					overlay.style.height = overlay.styledHeight + 'px';
+				}
+			} else if (e.data.type == 'mouse') {
+				const spawner = e.data.hovered_spawner
+
+				this.hovered_spawner = spawner;
+				this.hover_lbl.style.display = spawner ? 'block' : 'none';
+				if (spawner) {
+					const type = spawner.groups[0]?.type;
+					let obj;
+					if (spawner._db.type.startsWith('spawners_')) {
+						obj = db.npcs[type] || db.monsters[type];
+					} else {
+						obj = db.mines[type];
+					}
+					const name = obj?.name;
+
+					this.hover_lbl.style.left = (this.mouse_pos.x - this.map_bounds.left + 20) + 'px';
+					this.hover_lbl.style.top = (this.mouse_pos.y - this.map_bounds.top - 10) + 'px';
+					this.hover_lbl.textContent = name;
+				}
+
+				document.body.style.cursor = spawner ? 'pointer' : '';
+			}
+		});
+
+		this.initialized = true;
+	}
+
+	post_canvas_msg(msg, transferable = []) {
+		msg.msg_id = this.canvas_msg_id++;
+		this.canvas_worker.postMessage(msg, transferable);
+		return msg.msg_id;
+	}
+
+	wait_for_canvas_msg(msg_id) {
+		return new Promise((resolve) => {
+			const fn = (e) => {
+				if (e.data.msg_id == msg_id) {
+					this.canvas_worker.removeEventListener('message', fn);
+					return resolve()
+				}
+			};
+			
+			this.canvas_worker.addEventListener('message', fn);
+		});
+	}
+
 	reinit(mapid, keep_offset = false) {
+		this.init();
+
 		this.maptype = PWMap.maps[mapid];
 		if (!this.maptype) {
 			throw new Error('Map ' + mapid + ' doesn\'t exist');
 		}
 
-		this.shadow = document.querySelector('#pw-map').shadowRoot;
-		const canvas = this.canvas = this.shadow.querySelector('#pw-map-canvas');
 		this.canvas.classList.remove('shown');
 
-		this.bg = canvas.querySelector('.bg');
 		this.bg.load_tag = Loading.show_tag('Loading ' + this.maptype.name + ' image');
 
 		return new Promise((resolve, reject) => {
 			const overlay = this.shadow.querySelector('.dyn-canvas.shown');
-			if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
-			this.pw_map = canvas.querySelector('#pw-map');
-			this.hover_lbl = this.shadow.querySelector('.label');
+//			if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+
 			this.bg.onload = async () => {
 				this.bg.onload = null;
-				this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
-				this.map_bounds = canvas.getBoundingClientRect();
+				this.bg.onerror = null;
+
+				this.map_bounds = this.canvas.getBoundingClientRect();
 
 				const img_off = this.maptype.img_off || { x: 0, y: 0 };
 				this.bg_scale = (this.bg.width - 2 * img_off.x) / this.maptype.size.x;
 				this.bg.style.marginLeft = - img_off.x + 'px';
 				this.bg.style.marginTop = - img_off.y + 'px';
 
-				canvas.onmousedown = (e) => this.onmousedown(e);
-				canvas.onwheel = (e) => this.onwheel(e);
+				this.canvas.onmousedown = (e) => this.onmousedown(e);
+				this.canvas.onwheel = (e) => this.onwheel(e);
 
 				await db.load_map(mapid);
-				this.onresize = () => this.redraw_dyn_overlay();
+
+				const get_name = (spawner) => {
+					let name;
+					const type = spawner.groups[0]?.type || 0;
+
+					if (spawner._db.type.startsWith('resources_')) {
+						const res = db.mines[type];
+						name = res?.name;
+					} else if (spawner.is_npc) {
+						const npc = db.npcs[type];
+						name = npc?.name;
+					} else {
+						const mob = db.monsters[type];
+						name = mob?.name;
+					}
+
+					return (name ?? "(unknown)") || "(unnamed)";
+				}
+
+				for (const list of [db['spawners_' + this.maptype.id], db['resources_' + this.maptype.id]]) {
+					for (const spawner of list) {
+						if (!spawner._db.shown_name) {
+							spawner._db.shown_name = get_name(spawner);
+						}
+					}
+				}
+
+				const msg = this.post_canvas_msg({
+					type: 'set_map',
+					map: { size: this.maptype.size, bg_scale: this.bg_scale },
+					spawners: [...db['spawners_' + this.maptype.id]],
+					resources: [...db['resources_' + this.maptype.id]],
+				});
+				this.wait_for_canvas_msg(msg);
 
 				if (!keep_offset) {
 					this.pos.scale = Math.min(
@@ -135,23 +257,11 @@ class PWMap {
 						this.map_bounds.height * 0.75 / (this.bg.height - img_off.y * 2)
 					);
 					this.pos.scale *= this.maptype.img_scale || 1;
+					await this.onresize();
 					this.zoom(0, { x: 0, y: 0});
 					this.move_to({
-						x: -(canvas.offsetWidth - (this.bg.width - 2 * img_off.x) * this.pos.scale) / 2,
-						y: -(canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2});
-					await new Promise((resolve) => {
-						let repeat;
-						repeat = () => {
-							setTimeout(() => {
-								if (this.redrawing_dyn_overlay == 0) {
-									resolve();
-								} else {
-									repeat();
-								}
-							}, 50);
-						};
-						repeat();
-					});
+						x: -(this.canvas.offsetWidth - (this.bg.width - 2 * img_off.x) * this.pos.scale) / 2,
+						y: -(this.canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2});
 				} else {
 					await this.onresize();
 				}
@@ -205,27 +315,10 @@ class PWMap {
 		if (this.canvas.querySelector(':hover')) {
 			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
 			const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
+			this.mouse_pos.x = e.clientX;
+			this.mouse_pos.y = e.clientY;
+			this.canvas_worker.postMessage({ type: 'mouse', x: spawner_pos.x, y: spawner_pos.y });
 
-			const spawner = this.get_spawner_at(spawner_pos);
-
-			this.hovered_spawner = spawner;
-			this.hover_lbl.style.display = spawner ? 'block' : 'none';
-			if (spawner) {
-				const type = spawner.groups[0]?.type;
-				let obj;
-				if (spawner._db.type.startsWith('spawners_')) {
-					obj = db.npcs[type] || db.monsters[type];
-				} else {
-					obj = db.mines[type];
-				}
-				const name = obj?.name;
-
-				this.hover_lbl.style.left = (e.clientX - this.map_bounds.left + 20) + 'px';
-				this.hover_lbl.style.top = (e.clientY - this.map_bounds.top - 10) + 'px';
-				this.hover_lbl.textContent = name;
-			}
-
-			document.body.style.cursor = spawner ? 'pointer' : '';
 			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
 		} else {
 			if (this.hovered_spawner) {
@@ -266,7 +359,10 @@ class PWMap {
 	}
 
 	onresize(e) {
+		this.post_canvas_msg({ type: 'resize', width: this.canvas.offsetWidth,
+				height: this.canvas.offsetHeight });
 		this.redraw_dyn_overlay();
+
 	}
 
 	onwheel(e) {
@@ -311,188 +407,19 @@ class PWMap {
 			return;
 		}
 		this.redrawing_dyn_overlay = 1;
-		const t0 = performance.now();
 
 		const overlay = this.shadow.querySelector('.dyn-canvas:not(.shown)');
-		if (overlay.width != 3 * this.canvas.offsetWidth ||
-			overlay.height != 3 * this.canvas.offsetHeight) {
-			overlay.width = this.canvas.offsetWidth * 3;
-			overlay.height = this.canvas.offsetHeight * 3;
-			overlay.style.left = -this.canvas.offsetWidth + 'px';
-			overlay.style.top = -this.canvas.offsetHeight + 'px';
-			overlay.style.width = overlay.width + 'px';
-			overlay.style.height = overlay.height + 'px';
-		}
 
-		const pos = overlay.last_rendered_pos = { offset: {
+		overlay.last_rendered_pos = { offset: {
 			x: this.pos.offset.x,
 			y: this.pos.offset.y
 		}, scale: this.pos.scale };
-
-		const get_name = (spawner) => {
-			let name;
-			const type = spawner.groups[0]?.type || 0;
-
-			if (spawner._db.type.startsWith('resources_')) {
-				const res = db.mines[type];
-				name = res?.name;
-			} else if (spawner.is_npc) {
-				const npc = db.npcs[type];
-				name = npc?.name;
-			} else {
-				const mob = db.monsters[type];
-				name = mob?.name;
-			}
-
-			return (name ?? "(unknown)") || "(unnamed)";
-		}
-
-		const search = this.marker_filters?.search?.toLowerCase();
-		const drawn_spawners = { npc: [], mob: [], resource: [] };
-		for (const list of [db['spawners_' + this.maptype.id], db['resources_' + this.maptype.id]]) {
-			for (const spawner of list) {
-				let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
-				x *= pos.scale;
-				y *= pos.scale;
-
-				if (x > pos.offset.x - overlay.width / 3&& x <= pos.offset.x + overlay.width * 2 / 3 &&
-					y > pos.offset.y -  overlay.height / 3 && y <= pos.offset.y + overlay.height * 2 / 3) {
-
-					if (search) {
-						const name = get_name(spawner);
-						if (!name.toLowerCase().includes(search)) {
-							continue;
-						}
-					}
-
-					if (spawner._db.type.startsWith('resources_')) {
-						if (!this.marker_filters|| this.marker_filters.resource(spawner)) {
-							drawn_spawners.resource.push(spawner);
-						}
-					} else if (spawner.is_npc) {
-						if (!this.marker_filters || this.marker_filters.npc(spawner)) {
-							drawn_spawners.npc.push(spawner);
-						}
-					} else {
-						if (!this.marker_filters || this.marker_filters.mob(spawner)) {
-							drawn_spawners.mob.push(spawner);
-						}
-					}
-				}
-			}
-		}
-
-		const ctx = overlay.getContext("2d");
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
-		ctx.clearRect(0, 0, overlay.width, overlay.height);
-
-		overlay.style.transformOrigin = (-pos.offset.x + overlay.width/3) + 'px ' + (-pos.offset.y + overlay.height/3) + 'px';
+		overlay.style.transformOrigin = (-this.pos.offset.x + overlay.width/3) + 'px ' + (-this.pos.offset.y + overlay.height/3) + 'px';
 		this.move_dyn_overlay();
 
-		ctx.translate(-pos.offset.x + overlay.width/3, -pos.offset.y + overlay.height/3);
-		const size = this.getmarkersize();
+		const msg = this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
+		await this.wait_for_canvas_msg(msg);
 
-		const get_spawner_icon = (type) => {
-			if (this.marker_img[type]) return this.marker_img[type];
-
-			const img = new Image();
-			return new Promise((resolve, reject) => {
-				const img = new Image();
-				img.onload = () => {
-					this.marker_img[type] = img; resolve(img);
-				};
-				img.onerror = reject;
-				if (type.startsWith('data:')) {
-					img.src = type;
-				} else {
-					img.src = ROOT_URL + 'img/marker-' + type + '.png';
-				}
-			});
-		};
-
-		const drawAt = (img, rad, x, y, width, height) => {
-			ctx.translate(x, y);
-			ctx.rotate(rad);
-			ctx.drawImage(img, -width / 2, -height / 2, width, height);
-			ctx.rotate(-rad);
-			ctx.translate(-x, -y);
-		}
-
-		let i;
-		for (const list in drawn_spawners) {
-			let marker_img;
-			if (list == 'mob') {
-				marker_img = await get_spawner_icon('red');
-			} else if (list == 'npc') {
-				marker_img = await get_spawner_icon('yellow');
-			} else if (list == 'resource') {
-				marker_img = await get_spawner_icon('green');
-			}
-
-			const spawner_list = drawn_spawners[list];
-			const foreach_spawner = async (fn) => {
-				for (i = 0; i < spawner_list.length; i += 500) {
-					await new Promise((resolve) => setTimeout(async () => {
-						let j;
-						for (j = 0; j < 500; j++) {
-							if (i + j >= spawner_list.length) break;
-							const spawner = spawner_list[i + j];
-							if (!spawner) continue;
-
-							fn(spawner);
-						}
-						resolve();
-					}, 1));
-				}
-			}
-
-			if (this.marker_filters?.show_labels) {
-				await foreach_spawner((spawner) => {
-					let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
-					x *= pos.scale;
-					y *= pos.scale;
-
-					if (this.focused_spawners.size == 0 || this.focused_spawners.has(spawner)) {
-						ctx.globalAlpha = 1.0;
-					} else {
-						ctx.globalAlpha = 0.3;
-					}
-
-					const marker_name = get_name(spawner);
-					const w = ctx.measureText(marker_name).width;
-
-					ctx.fillStyle = 'black';
-					ctx.fillRect(x + size / 2 + 8, y - 11, w + 14, 22);
-					ctx.font = '12px Arial';
-					ctx.fillStyle = 'white';
-					ctx.fillText(marker_name, x + size / 2 + 14, y + 5);
-				});
-			}
-
-			await foreach_spawner((spawner) => {
-				let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
-				x *= pos.scale;
-				y *= pos.scale;
-				const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
-				if (this.focused_spawners.size == 0 || this.focused_spawners.has(spawner)) {
-					ctx.globalAlpha = 1.0;
-				} else {
-					ctx.globalAlpha = 0.3;
-				}
-				drawAt(marker_img, rad, x, y, size, size);
-			});
-		}
-
-		this.move_dyn_overlay();
-
-		let rescaled = pos.scale != overlay.last_rendered_pos.scale;
-		const prev_overlay = this.shadow.querySelector('.dyn-canvas.shown');
-		prev_overlay.classList.remove('shown');
-		overlay.classList.add('shown');
-		this.drawn_spawners = drawn_spawners;
-
-		const t1 = performance.now();
-		console.log('rendering took: ' + (t1 - t0) + 'ms');
 		const fn = () => {
 			const prev_ref = this.redrawing_dyn_overlay;
 			this.redrawing_dyn_overlay = 0;
@@ -501,13 +428,8 @@ class PWMap {
 			}
 		};
 
-		if (rescaled) {
-			/* let the transition animation finish first */
-			setTimeout(fn, 300);
-		} else {
-			/* redraw moves immediately */
-			setTimeout(fn, 300);
-		}
+		/* let the transition animation finish first */
+		setTimeout(fn, 300);
 	}
 
 	filter_markers(filters) {
