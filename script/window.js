@@ -75,7 +75,7 @@ class Window {
 						f.call(el, this);
 					} else {
 						el[c] = (el) => {
-							if (!el.toElement.classList.contains('disabled')) {
+							if (!el.currentTarget.classList.contains('disabled')) {
 								f.call(el, this);
 							}
 						};

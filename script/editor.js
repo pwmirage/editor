@@ -33,6 +33,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/map_chooser.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/unsupported.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
 
@@ -80,7 +81,11 @@ class Editor {
 				g_map.close();
 			}
 
-			const win = await MapChooserWindow.open({ });
+			if (navigator.userAgent.indexOf("Chrome") == -1){
+				const win = await UnsupportedBrowserWindow.open({ });
+			} else {
+				const win = await MapChooserWindow.open({ });
+			}
 		} catch (e) {
 			console.error(e);
 			Loading.show_error_tag(e.message);
@@ -91,9 +96,7 @@ class Editor {
 	}
 
 	static close() {
-		window.removeEventListener('mousemove', Editor.onmousemove);
-		window.removeEventListener('mouseup', Editor.onmouseup);
-		window.removeEventListener('resize', Editor.onresize);
+		document.body.classList.remove('mge-fullscreen');
 	}
 
 	static onmousemove(e) {
