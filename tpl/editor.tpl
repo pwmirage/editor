@@ -50,12 +50,12 @@
 	height: 300%;
 	opacity: 0;
 	transition: opacity 0.2s ease-in-out;
-	transition-delay: 0.10s;
+	transition-delay: 0.05s;
 }
 
 #pw-map-canvas > .dyn-canvas.shown {
 	opacity: 1.0;
-	transition: opacity 0.30s ease-in-out;
+	transition: opacity 0.25s ease-in-out;
 	transition-delay: 0s;
 }
 

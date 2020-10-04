@@ -129,12 +129,12 @@ class PWMap {
 				const prev_overlay = overlays[1 - e.data.id];
 
 				for (const o of overlays) {
-					if (o.styledWidth != 3 * this.canvas.offsetWidth ||
-							o.styledHeight != 3 * this.canvas.offsetHeight) {
-						o.style.left = -this.canvas.offsetWidth + 'px';
-						o.style.top = -this.canvas.offsetHeight + 'px';
-						o.styledWidth = 3 * this.canvas.offsetWidth;
-						o.styledHeight = 3 * this.canvas.offsetHeight;
+					if (o.styledWidth != 8/6 * this.canvas.offsetWidth ||
+							o.styledHeight != 8/6 * this.canvas.offsetHeight) {
+						o.style.left = -1/6 * this.canvas.offsetWidth + 'px';
+						o.style.top = -1/6 * this.canvas.offsetHeight + 'px';
+						o.styledWidth = 8/6 * this.canvas.offsetWidth;
+						o.styledHeight = 8/6 * this.canvas.offsetHeight;
 						o.style.width = o.styledWidth + 'px';
 						o.style.height = o.styledHeight + 'px';
 					}
@@ -194,7 +194,7 @@ class PWMap {
 			const fn = (e) => {
 				if (e.data.msg_id == msg_id) {
 					this.canvas_worker.removeEventListener('message', fn);
-					return resolve()
+					return resolve();
 				}
 			};
 			
@@ -314,7 +314,7 @@ class PWMap {
 				y: this.pos.offset.y + (this.drag.origin.y - e.clientY)
 			};
 			this.move_to(new_offset);
-			setTimeout(() => this.redraw_dyn_overlay(), 300);
+			this.redraw_dyn_overlay();
 
 			e.preventDefault();
 			this.drag.origin.x = e.clientX;
@@ -397,7 +397,7 @@ class PWMap {
 			y: this.pos.offset.y
 		}, scale: this.pos.scale };
 
-		overlay.style.transformOrigin = (-this.pos.offset.x + this.canvas.offsetWidth) + 'px ' + (-this.pos.offset.y + this.canvas.offsetHeight) + 'px';
+		overlay.style.transformOrigin = (-this.pos.offset.x + this.canvas.offsetWidth / 6) + 'px ' + (-this.pos.offset.y + this.canvas.offsetHeight / 6) + 'px';
 		this.move_dyn_overlay();
 
 		const msg = this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
@@ -412,7 +412,7 @@ class PWMap {
 		};
 
 		/* let the transition animation finish first */
-		setTimeout(fn, 300);
+		setTimeout(fn, 251);
 	}
 
 	filter_markers(filters) {
@@ -438,8 +438,11 @@ class PWMap {
 		return new Promise((resolve) => {
 			window.requestAnimationFrame(async (t0) => {
 				this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
-				await this.move_dyn_overlay();
-				resolve();
+				this.move_dyn_overlay();
+				setTimeout(async () => {
+					await this.redraw_dyn_overlay();
+					resolve();
+				}, 1);
 			});
 		});
 
@@ -456,7 +459,6 @@ class PWMap {
 				      - (this.pos.offset.y + origin.y) / this.pos.scale) * this.pos.scale,
 		};
 		this.move_to(new_pos);
-		setTimeout(() => this.redraw_dyn_overlay(), 300);
 	}
 
 	map_coords_to_spawner(x, y) {

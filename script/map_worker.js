@@ -23,6 +23,10 @@ self.onmessage = async (e) => {
 			const id = e.data.id;
 			const canvas = e.data.canvas;
 			g_canvases[id] = canvas;
+
+			await get_icon('red');
+			await get_icon('yellow');
+			await get_icon('green');
 			break;
 		}
 		case 'mouse': {
@@ -50,8 +54,8 @@ self.onmessage = async (e) => {
 			const vw = e.data.width;
 			const vh = e.data.height;
 			for (const canvas of g_canvases) {
-				canvas.width = vw * 3;
-				canvas.height = vh * 3;
+				canvas.width = vw * 8/6;
+				canvas.height = vh * 8/6;
 			}
 			break;
 		}
@@ -62,7 +66,12 @@ self.onmessage = async (e) => {
 			g_window_size.height = e.data.height;
 			g_pos = pos;
 			g_marker_size = marker_size;
-			await redraw();
+			await new Promise((resolve) => {
+				requestAnimationFrame((t0) => {
+					redraw();
+					resolve();
+				});
+			});
 			resp.id = g_canvas_id;
 			break;
 		}
@@ -101,6 +110,7 @@ const get_icon = (type) => {
 	return (async () => {
 		const imgblob = await fetch('/editor/img/marker-' + type + '.png').then(r => r.blob());
 		const img = await createImageBitmap(imgblob);
+		g_icons[type] = img;
 		return img;
 	})();
 };
@@ -113,8 +123,8 @@ const filter_spawners = (canvas) => {
 			x *= g_pos.scale;
 			y *= g_pos.scale;
 
-			if (x <= g_pos.offset.x - canvas.width / 3 || x > g_pos.offset.x + canvas.width * 2 / 3 ||
-					y <= g_pos.offset.y - canvas.height / 3 || y > g_pos.offset.y + canvas.height * 2 / 3) {
+			if (x <= g_pos.offset.x - canvas.width / 8 || x > g_pos.offset.x + canvas.width * 7 / 8 ||
+					y <= g_pos.offset.y - canvas.height / 8 || y > g_pos.offset.y + canvas.height * 7 / 8) {
 				continue;
 			}
 
@@ -143,7 +153,7 @@ const spawner_coords_to_map = (x, y) => {
 	};
 }
 
-const redraw = async () => {
+const redraw = () => {
 	const t0 = performance.now();
 
 	const pos = g_pos;
@@ -155,12 +165,9 @@ const redraw = async () => {
 
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.translate(-pos.offset.x + canvas.width/3, -pos.offset.y + canvas.height/3);
+	ctx.translate(-pos.offset.x + canvas.width/8, -pos.offset.y + canvas.height/8);
 
 	const drawAt = (img, rad, x, y, width, height) => {
-		x = Math.floor(x);
-		y = Math.floor(y);
-
 		ctx.translate(x, y);
 		ctx.rotate(rad);
 		ctx.drawImage(img, -width / 2, -height / 2, width, height);
@@ -172,11 +179,11 @@ const redraw = async () => {
 	for (const list in g_drawn_spawners) {
 		let marker_img;
 		if (list == 'mob') {
-			marker_img = await get_icon('red');
+			marker_img = get_icon('red');
 		} else if (list == 'npc') {
-			marker_img = await get_icon('yellow');
+			marker_img = get_icon('yellow');
 		} else if (list == 'resource') {
-			marker_img = await get_icon('green');
+			marker_img = get_icon('green');
 		}
 
 		const spawner_list = g_drawn_spawners[list];
