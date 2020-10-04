@@ -28,6 +28,7 @@ self.onmessage = async (e) => {
 		case 'mouse': {
 			const x = e.data.x;
 			const y = e.data.y;
+
 			resp.hovered_spawner = get_spawner_at(x, y);
 			break;
 		}
@@ -62,6 +63,7 @@ self.onmessage = async (e) => {
 			g_pos = pos;
 			g_marker_size = marker_size;
 			await redraw();
+			resp.id = g_canvas_id;
 			break;
 		}
 	}
@@ -74,15 +76,17 @@ const get_spawner_at = (mx, my) => {
 		return null;
 	}
 
+	const marker_size = g_marker_size * 1.4 / g_pos.scale / g_map.bg_scale;
+
 	for (const type in g_drawn_spawners) {
 		for (const spawner of g_drawn_spawners[type]) {
 			const x = spawner.pos[0];
 			const y = spawner.pos[2];
 
-			if (mx >= x - g_marker_size / 2 &&
-			    my < y + g_marker_size / 2 &&
-			    mx < x + g_marker_size / 2 &&
-			    my >= y - g_marker_size / 2) {
+			if (mx >= x - marker_size / 2 &&
+			    my < y + marker_size / 2 &&
+			    mx < x + marker_size / 2 &&
+			    my >= y - marker_size / 2) {
 				return spawner;
 			}
 		}
@@ -143,8 +147,8 @@ const redraw = async () => {
 	const t0 = performance.now();
 
 	const pos = g_pos;
-	const canvas_idx = (++g_canvas_id) % g_canvases.length;
-	const canvas = g_canvases[canvas_idx];
+	g_canvas_id = (++g_canvas_id) % g_canvases.length;
+	const canvas = g_active_canvas = g_canvases[g_canvas_id];
 	const ctx = canvas.getContext('2d');
 
 	filter_spawners(canvas);
@@ -154,6 +158,9 @@ const redraw = async () => {
 	ctx.translate(-pos.offset.x + canvas.width/3, -pos.offset.y + canvas.height/3);
 
 	const drawAt = (img, rad, x, y, width, height) => {
+		x = Math.floor(x);
+		y = Math.floor(y);
+
 		ctx.translate(x, y);
 		ctx.rotate(rad);
 		ctx.drawImage(img, -width / 2, -height / 2, width, height);

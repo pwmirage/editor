@@ -124,24 +124,28 @@ class PWMap {
 
 		this.canvas_worker.addEventListener('message', (e) => {
 			if (e.data.type == 'redraw') {
-				//this.drawn_spawners = e.data.drawn_spawners;
+				const overlays = this.shadow.querySelectorAll('.dyn-canvas');
+				const overlay = overlays[e.data.id];
+				const prev_overlay = overlays[1 - e.data.id];
 
-				const prev_overlay = this.shadow.querySelector('.dyn-canvas.shown');
-				const overlay = this.shadow.querySelector('.dyn-canvas:not(.shown)');
+				for (const o of overlays) {
+					if (o.styledWidth != 3 * this.canvas.offsetWidth ||
+							o.styledHeight != 3 * this.canvas.offsetHeight) {
+						o.style.left = -this.canvas.offsetWidth + 'px';
+						o.style.top = -this.canvas.offsetHeight + 'px';
+						o.styledWidth = 3 * this.canvas.offsetWidth;
+						o.styledHeight = 3 * this.canvas.offsetHeight;
+						o.style.width = o.styledWidth + 'px';
+						o.style.height = o.styledHeight + 'px';
+					}
+				}
+
+
 				prev_overlay.classList.remove('shown');
 				overlay.classList.add('shown');
 
-				if (overlay.styledWidth != 3 * this.canvas.offsetWidth ||
-						overlay.styledHeight != 3 * this.canvas.offsetHeight) {
-					overlay.style.left = -this.canvas.offsetWidth + 'px';
-					overlay.style.top = -this.canvas.offsetHeight + 'px';
-					overlay.styledWidth = 3 * this.canvas.offsetWidth;
-					overlay.styledHeight = 3 * this.canvas.offsetHeight;
-					overlay.style.width = overlay.styledWidth + 'px';
-					overlay.style.height = overlay.styledHeight + 'px';
-				}
 			} else if (e.data.type == 'mouse') {
-				const spawner = e.data.hovered_spawner
+				const spawner = e.data.hovered_spawner;
 
 				this.hovered_spawner = spawner;
 				this.hover_lbl.style.display = spawner ? 'block' : 'none';
@@ -261,21 +265,17 @@ class PWMap {
 				});
 				this.wait_for_canvas_msg(msg);
 
-				if (!keep_offset) {
 					this.pos.scale = Math.min(
 						this.map_bounds.width * 0.75 / (this.bg.width - img_off.x * 2),
 						this.map_bounds.height * 0.75 / (this.bg.height - img_off.y * 2)
 					);
 					this.pos.scale *= this.maptype.img_scale || 1;
-					await this.onresize();
-					this.zoom(0, { x: 0, y: 0});
-					this.move_to({
+					this.pos.offset = {
 						x: -(this.canvas.offsetWidth - (this.bg.width - 2 * img_off.x) * this.pos.scale) / 2,
-						y: -(this.canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2});
-				} else {
-					await this.onresize();
-				}
+						y: -(this.canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2};
 
+				await this.move_to(this.pos.offset);
+				await this.onresize();
 				this.canvas.classList.add('shown');
 
 				await LegendWindow.open();
@@ -346,7 +346,7 @@ class PWMap {
 		}
 		this.drag.is_drag = false;
 		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
-			const spawner = this.get_hovered_spawner(e);
+			const spawner = this.hovered_spawner;
 			if (spawner) {
 				(async () => {
 					const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
@@ -370,7 +370,7 @@ class PWMap {
 	onresize(e) {
 		this.post_canvas_msg({ type: 'resize', width: this.canvas.offsetWidth,
 				height: this.canvas.offsetHeight });
-		this.redraw_dyn_overlay();
+		return this.redraw_dyn_overlay();
 
 	}
 
@@ -382,33 +382,6 @@ class PWMap {
 
 	getmarkersize() {
 		return Math.min(28, 16 * Math.sqrt(this.pos.scale));
-	}
-
-	get_hovered_spawner(e) {
-		const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
-		const spawner_coords = this.map_coords_to_spawner(map_coords.x, map_coords.y);
-
-		return this.get_spawner_at(spawner_coords);
-	}
-
-	get_spawner_at(map_coords) {
-		const marker_size = this.getmarkersize() * 1.4 / this.pos.scale / this.bg_scale;
-
-		for (const type in this.drawn_spawners) {
-			for (const spawner of this.drawn_spawners[type]) {
-				const x = spawner.pos[0];
-				const y = spawner.pos[2];
-
-				if (map_coords.x >= x - marker_size / 2 &&
-				    map_coords.y < y + marker_size / 2 &&
-				    map_coords.x < x + marker_size / 2 &&
-				    map_coords.y >= y - marker_size / 2) {
-					return spawner;
-				}
-			}
-		}
-
-		return null;
 	}
 
 	async redraw_dyn_overlay() {
@@ -423,7 +396,8 @@ class PWMap {
 			x: this.pos.offset.x,
 			y: this.pos.offset.y
 		}, scale: this.pos.scale };
-		overlay.style.transformOrigin = (-this.pos.offset.x + overlay.width/3) + 'px ' + (-this.pos.offset.y + overlay.height/3) + 'px';
+
+		overlay.style.transformOrigin = (-this.pos.offset.x + this.canvas.offsetWidth) + 'px ' + (-this.pos.offset.y + this.canvas.offsetHeight) + 'px';
 		this.move_dyn_overlay();
 
 		const msg = this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
@@ -460,10 +434,15 @@ class PWMap {
 
 	move_to(new_offset) {
 		this.pos.offset = new_offset;
-		window.requestAnimationFrame((t0) => {
-			this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
-			this.move_dyn_overlay();
+	
+		return new Promise((resolve) => {
+			window.requestAnimationFrame(async (t0) => {
+				this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
+				await this.move_dyn_overlay();
+				resolve();
+			});
 		});
+
 
 	}
 
