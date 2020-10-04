@@ -131,10 +131,10 @@ class PWMap {
 				for (const o of overlays) {
 					if (o.styledWidth != 8/6 * this.canvas.offsetWidth ||
 							o.styledHeight != 8/6 * this.canvas.offsetHeight) {
-						o.style.left = -1/6 * this.canvas.offsetWidth + 'px';
-						o.style.top = -1/6 * this.canvas.offsetHeight + 'px';
-						o.styledWidth = 8/6 * this.canvas.offsetWidth;
-						o.styledHeight = 8/6 * this.canvas.offsetHeight;
+						o.style.left = Math.floor(-1/6 * this.canvas.offsetWidth) + 'px';
+						o.style.top = Math.floor(-1/6 * this.canvas.offsetHeight) + 'px';
+						o.styledWidth = Math.floor(8/6 * this.canvas.offsetWidth);
+						o.styledHeight = Math.floor(8/6 * this.canvas.offsetHeight);
 						o.style.width = o.styledWidth + 'px';
 						o.style.height = o.styledHeight + 'px';
 					}
@@ -262,6 +262,7 @@ class PWMap {
 					map: { size: this.maptype.size, bg_scale: this.bg_scale },
 					spawners: [...db['spawners_' + this.maptype.id]],
 					resources: [...db['resources_' + this.maptype.id]],
+					mobs: [...db['monsters']],
 				});
 				this.wait_for_canvas_msg(msg);
 
@@ -415,9 +416,10 @@ class PWMap {
 		setTimeout(fn, 251);
 	}
 
-	filter_markers(filters) {
-		this.marker_filters = filters;
-		this.redraw_dyn_overlay();
+	async filter_spawners(opts) {
+		const msg = this.post_canvas_msg({ type: 'set_options', opts: opts });
+		await this.wait_for_canvas_msg(msg);
+		return this.redraw_dyn_overlay();
 	}
 
 	move_dyn_overlay() {

@@ -30,6 +30,7 @@ class LegendWindow extends Window {
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42);
 
 		g_map.shadow.querySelector('#open-legend').style.display = 'none';
+		this.filter();
 		return true;
 	}
 
@@ -44,56 +45,20 @@ class LegendWindow extends Window {
 	}
 
 	filter() {
-		const filters = { npc: [], resource: [], mob: [] };
-		const query_sel = (q) => this.shadow.querySelector('#' + q);
+		const opts = {};
 
-		if (!query_sel('npc-show').checked) filters.npc.push((s) => false);
-		if (!query_sel('npc-show-auto').checked) filters.npc.push((s) => s.trigger);
-		if (!query_sel('npc-show-on-trigger').checked) filters.npc.push((s) => !s.trigger);
-		if (!query_sel('resource-show').checked) filters.resource.push((s) => false);
-		if (!query_sel('resource-show-auto').checked) filters.resource.push((s) => s.trigger);
-		if (!query_sel('resource-show-on-trigger').checked) filters.resource.push((s) => !s.trigger);
-		if (!query_sel('mob-show').checked) filters.mob.push((s) => false);
-		if (!query_sel('mob-show-auto').checked) filters.mob.push((s) => s.trigger);
-		if (!query_sel('mob-show-on-trigger').checked) filters.mob.push((s) => !s.trigger);
-
-		const by_mob = (fn) => {
-			return (s) => {
-				const type = s.groups[0]?.type || 0;
-				const mob = db.monsters[type];
-				if (!mob) return true;
-				return fn(mob);
-			}
-		}
-		if (!query_sel('mob-show-ground').checked) filters.mob.push(by_mob((m) => m.stand_mode == 2 || m.swim_speed));
-		if (!query_sel('mob-show-flying').checked) filters.mob.push(by_mob((m) => m.stand_mode != 2 || m.swim_speed));
-		if (!query_sel('mob-show-water').checked) filters.mob.push(by_mob((m) => !m.swim_speed));
-
-		if (!query_sel('mob-show-boss').checked) filters.mob.push(by_mob((m) => !m.show_level));
-		if (!query_sel('mob-show-nonboss').checked) filters.mob.push(by_mob((m) => m.show_level));
-		if (!query_sel('mob-show-aggressive').checked) filters.mob.push(by_mob((m) => !m.is_aggressive));
-		if (!query_sel('mob-show-nonaggressive').checked) filters.mob.push(by_mob((m) => m.is_aggressive));
-
-		const minlevel = parseInt(query_sel('mob-show-lvl-min').value);
-		const maxlevel = parseInt(query_sel('mob-show-lvl-max').value);
-		filters.mob.push(by_mob((m) => m.level >= minlevel && m.level <= maxlevel));
-
-		const map_filters = {};
-
-		for (const type in filters) {
-			map_filters[type] = (s) => {
-				for (const f of filters[type]) {
-					if (!f(s)) {
-						return false;
-					}
-				}
-				return true;
+		const inputs = this.shadow.querySelectorAll('input');
+		for (const input of inputs) {
+			if (input.type == 'checkbox') {
+				opts[input.id] = input.checked;
+			} else if (input.type == 'number') {
+				opts[input.id] = parseInt(input.value);
+			} else {
+				opts[input.id] = input.value;
 			}
 		}
 
-		map_filters.show_labels = query_sel('show-name-labels').checked;
-		map_filters.search = query_sel('search').value;
-		g_map.filter_markers(map_filters);
+		g_map.filter_spawners(opts);
 	}
 
 	minimize() {

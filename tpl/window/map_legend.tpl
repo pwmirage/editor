@@ -72,9 +72,9 @@
 				<tr class="child-padding-3">
 					<td><span style="vertical-align: text-bottom;">Level: </span></td>
 					<td colspan="2">
-						<label><input type="text" class="supershort" id="mob-show-lvl-min" value="0"></label>
+						<label><input type="number" class="supershort" id="mob-show-lvl-min" value="0"></label>
 						<span> - </span>
-						<label><input type="text" class="supershort" id="mob-show-lvl-max" value="150"></label>
+						<label><input type="number" class="supershort" id="mob-show-lvl-max" value="150"></label>
 					</td>
 				</tr>
 			</table>

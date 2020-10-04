@@ -24,9 +24,9 @@ self.onmessage = async (e) => {
 			const canvas = e.data.canvas;
 			g_canvases[id] = canvas;
 
-			await get_icon('red');
-			await get_icon('yellow');
-			await get_icon('green');
+			get_icon('red');
+			get_icon('yellow');
+			get_icon('green');
 			break;
 		}
 		case 'mouse': {
@@ -40,9 +40,11 @@ self.onmessage = async (e) => {
 			const map = e.data.map;
 			const spawners = e.data.spawners;
 			const resources = e.data.resources;
+			const mobs = e.data.mobs;
 			g_map = map;
 			g_spawners = spawners;
 			g_resources = resources;
+			g_mobs = mobs;
 			break;
 		}
 		case 'set_options': {
@@ -116,6 +118,56 @@ const get_icon = (type) => {
 };
 
 const filter_spawners = (canvas) => {
+	const opt = (q) => g_opts[q];
+
+	const filters = { npc: [], resource: [], mob: [] };
+
+	if (!opt('npc-show')) filters.npc.push((s) => false);
+	if (!opt('npc-show-auto')) filters.npc.push((s) => s.trigger);
+	if (!opt('npc-show-on-trigger')) filters.npc.push((s) => !s.trigger);
+	if (!opt('resource-show')) filters.resource.push((s) => false);
+	if (!opt('resource-show-auto')) filters.resource.push((s) => s.trigger);
+	if (!opt('resource-show-on-trigger')) filters.resource.push((s) => !s.trigger);
+	if (!opt('mob-show')) filters.mob.push((s) => false);
+	if (!opt('mob-show-auto')) filters.mob.push((s) => s.trigger);
+	if (!opt('mob-show-on-trigger')) filters.mob.push((s) => !s.trigger);
+
+	const by_mob = (fn) => {
+		return (s) => {
+			const type = s.groups[0]?.type || 0;
+			const mob = g_mobs[type];
+			if (!mob) return true;
+			return fn(mob);
+		}
+	}
+	if (!opt('mob-show-ground')) filters.mob.push(by_mob((m) => m.stand_mode == 2 || m.swim_speed));
+	if (!opt('mob-show-flying')) filters.mob.push(by_mob((m) => m.stand_mode != 2 || m.swim_speed));
+	if (!opt('mob-show-water')) filters.mob.push(by_mob((m) => !m.swim_speed));
+
+	if (!opt('mob-show-boss')) filters.mob.push(by_mob((m) => !m.show_level));
+	if (!opt('mob-show-nonboss')) filters.mob.push(by_mob((m) => m.show_level));
+	if (!opt('mob-show-aggressive')) filters.mob.push(by_mob((m) => !m.is_aggressive));
+	if (!opt('mob-show-nonaggressive')) filters.mob.push(by_mob((m) => m.is_aggressive));
+
+	const minlevel = opt('mob-show-lvl-min');
+	const maxlevel = opt('mob-show-lvl-max');
+	filters.mob.push(by_mob((m) => m.level >= minlevel && m.level <= maxlevel));
+
+	const map_filters = {};
+
+	for (const type in filters) {
+		map_filters[type] = (s) => {
+			for (const f of filters[type]) {
+				if (!f(s)) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
+	g_opts.search = opt('search');
+
 	const drawn_spawners = { npc: [], mob: [], resource: [] };
 	for (const list of [g_spawners, g_resources]) {
 		for (const spawner of list) {
@@ -128,18 +180,25 @@ const filter_spawners = (canvas) => {
 				continue;
 			}
 
-			if (g_opts.name_filter &&
-					!spawner._db.shown_name.toLowerCase().includes(g_opts.name_filter)) {
+			if (g_opts.search &&
+					!spawner._db.shown_name.toLowerCase().includes(g_opts.search)) {
 				continue;
 			}
 
+			let type = '';
 			if (spawner._db.type.startsWith('resources_')) {
-				drawn_spawners.resource.push(spawner);
+				type = 'resource';
 			} else if (spawner.is_npc) {
-				drawn_spawners.npc.push(spawner);
+				type = 'npc';
 			} else {
-				drawn_spawners.mob.push(spawner);
+				type = 'mob';
 			}
+
+			if (!map_filters[type](spawner)) {
+				continue;
+			}
+
+			drawn_spawners[type].push(spawner);
 		}
 	}
 
@@ -188,7 +247,7 @@ const redraw = () => {
 
 		const spawner_list = g_drawn_spawners[list];
 
-		if (g_opts.show_labels) {
+		if (g_opts['show-name-labels']) {
 			for (const spawner of spawner_list) {
 				let { x, y } = spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
 				x *= pos.scale;
@@ -200,7 +259,7 @@ const redraw = () => {
 					ctx.globalAlpha = 0.3;
 				}
 
-				const w = ctx.measureText(marker_name).width;
+				const w = ctx.measureText(spawner._db.shown_name).width;
 
 				ctx.fillStyle = 'black';
 				ctx.fillRect(x + g_marker_size / 2 + 8, y - 11, w + 14, 22);
