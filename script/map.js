@@ -184,12 +184,8 @@ class PWMap {
 	}
 
 	post_canvas_msg(msg, transferable = []) {
-		msg.msg_id = this.canvas_msg_id++;
+		const msg_id = msg.msg_id = this.canvas_msg_id++;
 		this.canvas_worker.postMessage(msg, transferable);
-		return msg.msg_id;
-	}
-
-	wait_for_canvas_msg(msg_id) {
 		return new Promise((resolve) => {
 			const fn = (e) => {
 				if (e.data.msg_id == msg_id) {
@@ -257,23 +253,22 @@ class PWMap {
 					}
 				}
 
-				const msg = this.post_canvas_msg({
+				await this.post_canvas_msg({
 					type: 'set_map',
 					map: { size: this.maptype.size, bg_scale: this.bg_scale },
 					spawners: [...db['spawners_' + this.maptype.id]],
 					resources: [...db['resources_' + this.maptype.id]],
 					mobs: [...db['monsters']],
 				});
-				this.wait_for_canvas_msg(msg);
 
-					this.pos.scale = Math.min(
-						this.map_bounds.width * 0.75 / (this.bg.width - img_off.x * 2),
-						this.map_bounds.height * 0.75 / (this.bg.height - img_off.y * 2)
-					);
-					this.pos.scale *= this.maptype.img_scale || 1;
-					this.pos.offset = {
-						x: -(this.canvas.offsetWidth - (this.bg.width - 2 * img_off.x) * this.pos.scale) / 2,
-						y: -(this.canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2};
+				this.pos.scale = Math.min(
+					this.map_bounds.width * 0.75 / (this.bg.width - img_off.x * 2),
+					this.map_bounds.height * 0.75 / (this.bg.height - img_off.y * 2)
+				);
+				this.pos.scale *= this.maptype.img_scale || 1;
+				this.pos.offset = {
+					x: -(this.canvas.offsetWidth - (this.bg.width - 2 * img_off.x) * this.pos.scale) / 2,
+					y: -(this.canvas.offsetHeight -  (this.bg.height - 2 * img_off.y) * this.pos.scale) / 2};
 
 				await this.move_to(this.pos.offset);
 				await this.onresize();
@@ -368,8 +363,8 @@ class PWMap {
 		this.drag.moved = false;
 	}
 
-	onresize(e) {
-		this.post_canvas_msg({ type: 'resize', width: this.canvas.offsetWidth,
+	async onresize(e) {
+		await this.post_canvas_msg({ type: 'resize', width: this.canvas.offsetWidth,
 				height: this.canvas.offsetHeight });
 		return this.redraw_dyn_overlay();
 
@@ -401,8 +396,7 @@ class PWMap {
 		overlay.style.transformOrigin = (-this.pos.offset.x + this.canvas.offsetWidth / 6) + 'px ' + (-this.pos.offset.y + this.canvas.offsetHeight / 6) + 'px';
 		this.move_dyn_overlay();
 
-		const msg = this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
-		await this.wait_for_canvas_msg(msg);
+		await this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
 
 		const fn = () => {
 			const prev_ref = this.redrawing_dyn_overlay;
@@ -417,8 +411,7 @@ class PWMap {
 	}
 
 	async filter_spawners(opts) {
-		const msg = this.post_canvas_msg({ type: 'set_options', opts: opts });
-		await this.wait_for_canvas_msg(msg);
+		await this.post_canvas_msg({ type: 'set_options', opts: opts });
 		return this.redraw_dyn_overlay();
 	}
 
