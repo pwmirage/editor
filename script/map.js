@@ -342,8 +342,9 @@ class PWMap {
 		}
 		this.drag.is_drag = false;
 		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
-			const spawner = this.hovered_spawner;
+			let spawner = this.hovered_spawner;
 			if (spawner) {
+				spawner = db[spawner._db.type][spawner.id];
 				(async () => {
 					const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
 							y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
