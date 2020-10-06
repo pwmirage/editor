@@ -318,3 +318,28 @@ class PopupWindow extends Window {
 		return super.init();
 	}
 }
+
+class MessageWindow extends Window {
+	async init() {
+		const html = `
+<div class="window">
+<div class="header">
+	<span id="title">Error!</span>
+	<div class="menu">
+		<i class="minimize fa"></i>
+		<i class="close fa fa-close"></i>
+	</div>
+</div>
+<div class="content"><pre id="message"></pre></div>
+</div>
+</div>
+		`;
+		this.shadow.append(newElement(html));
+		this.shadow.querySelector('#message').textContent = this.args.msg;
+		this.shadow.querySelector('#title').textContent = this.args.title || "Message";
+
+		this.args.x = this.args.x ?? (Window.bounds.width - 340) / 2;
+		this.args.y = this.args.y ?? (Window.bounds.height - 150) / 2;
+		return super.init();
+	}
+}

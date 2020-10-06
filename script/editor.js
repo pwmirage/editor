@@ -54,6 +54,7 @@ class Editor {
 		window.addEventListener('mousemove', Editor.onmousemove, { passive: false });
 		window.addEventListener('mouseup', Editor.onmouseup, { passive: false });
 		window.addEventListener('resize', Editor.onresize, { passive: false });
+		window.addEventListener('error', Editor.onerror, { passive: false });
 
 		const ret_btn = document.querySelector('#returnToWebsite')
 		if (ret_btn) ret_btn.onclick = async () => {
@@ -115,5 +116,25 @@ class Editor {
 		let handled = false;
 		if (g_map) handled = g_map.onresize(e);
 		handled = handled || Window.onresize(e);
+	}
+
+	static onerror(err) {
+		if (err.error) {
+			MessageWindow.open({
+				title: "Error!",
+				msg: err.error.stack.replaceAll(window.location.origin, "")
+			});
+			return;
+		}
+
+		const source = err.filename.replaceAll(window.location.origin, "");
+		const lineno = err.lineno;
+		const colno = err.colno;
+		const error = err.error;
+
+		MessageWindow.open({
+			title: "Error!",
+			msg: error + '\nat ' + source + ':' + lineno + ':' + colno
+		});
 	}
 };
