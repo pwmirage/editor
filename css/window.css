@@ -76,6 +76,28 @@
 	color: rgb(80, 44, 44);
 }
 
+.window.popup {
+	border-radius: 6px;
+}
+
+.window.popup.square-left {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.window.popup > .content,
+.window.popup > .header {
+	border-radius: 4px;
+	flex: 1;
+}
+
+.window.popup.square-left > .content,
+.window.popup.square-left > .header {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+
 .flex-columns {
 	display: flex;
 	flex-direction: row;
@@ -177,7 +199,6 @@ a.button {
 	border-width: 0;
 	color: rgba(33, 33, 33, 1);
 	cursor: pointer;
-	display: inline-block;
 	font-weight: 400;
 	margin: 0;
 	padding: 5px 10px;

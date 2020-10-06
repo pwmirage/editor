@@ -28,14 +28,14 @@ class Window {
 		this.dom_header = this.shadow.querySelector('.window > .header');
 		this.dom_content = this.shadow.querySelector('.window > .content');
 
-		if (!this.dom_win || !this.dom_header || !this.dom_content) {
+		if (!this.dom_win || (!this.dom_content && !this.dom_header)) {
 			throw new Error('Incomplete initialization of "' + this.constructor.name + '" window.');
 		}
 
 		this.dom.onmousedown = (e) => this.onmousedown(e);
 
 		const menu = this.shadow.querySelector('.header > .menu');
-		const queryEl = (name) => menu.querySelector(name) || {};
+		const queryEl = (name) => menu?.querySelector(name) || {};
 		queryEl('.minimize').onclick = () => this.minimize();
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
@@ -90,6 +90,20 @@ class Window {
 					const path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
 					this.link_el(el, obj, path);
 				}
+
+				for (const el of dom.querySelectorAll('[data-onhover]')) {
+					const f_str = el.dataset['onhover'];
+					el.removeAttribute('data-onhover');
+					const f = new Function('win', 'is_hover', f_str);
+
+					el.onmouseenter = (e) => {
+						f.call(el, this, true);
+					};
+
+					el.onmouseleave = (e) => {
+						f.call(el, this, false);
+					};
+				}
 			}
 		}
 	}
@@ -127,7 +141,7 @@ class Window {
 
 	static set_container(container) {
 		Window.container = container;
-		Window.bounds = container.getBoundingClientRect();
+		Window.onresize();
 	}
 
 	static async open(args) {
@@ -144,19 +158,19 @@ class Window {
 	}
 
 	static coords_to_window(x, y) {
-		x -= Window.container_bounds.x;
-		y -= Window.container_bounds.y;
+		x -= Window.bounds.x;
+		y -= Window.bounds.y;
 		return [ x, y ];
 	}
 
 	static get_el_coords(el) {
 		var bounds = el.getBoundingClientRect();
-		bounds.x -= Window.container_bounds.x;
-		bounds.y -= Window.container_bounds.y;
-		bounds.left -= Window.container_bounds.left;
-		bounds.right -= Window.container_bounds.right;
-		bounds.top -= Window.container_bounds.top;
-		bounds.bottom -= Window.container_bounds.bottom;
+		bounds.x -= Window.bounds.x;
+		bounds.y -= Window.bounds.y;
+		bounds.left -= Window.bounds.left;
+		bounds.right -= Window.bounds.right;
+		bounds.top -= Window.bounds.top;
+		bounds.bottom -= Window.bounds.bottom;
 		return bounds;
 	}
 
@@ -187,9 +201,9 @@ class Window {
 			win.dom_win.style.height = h + 'px';
 
 			const bounds = win.dom_content.getBoundingClientRect();
-			if (w < bounds.width - 2 || h - win.dom_header.offsetHeight > bounds.height - 2) {
+			if (w < bounds.width - 2 || h - (win.dom_header?.offsetHeight || 0) > bounds.height - 2) {
 				win.dom_win.style.width = (bounds.width - 2) + 'px';
-				win.dom_win.style.height = (bounds.height + win.dom_header.offsetHeight - 2) + 'px';
+				win.dom_win.style.height = (bounds.height + (win.dom_header.offsetHeight || 0) - 2) + 'px';
 			}
 			e.preventDefault();
 		}
@@ -202,7 +216,7 @@ class Window {
 			this.focus();
 		}
 
-		if (e.clientY - bounds.top <= this.dom_header.offsetHeight) {
+		if (e.clientY - bounds.top <= this.dom_header?.offsetHeight || 0) {
 			if (this.dom_win.classList.contains('maximized')) {
 				return;
 			}
@@ -220,11 +234,15 @@ class Window {
 
 			e.preventDefault();
 			Window.resized_win = this;
-			const height = this.dom_header.offsetHeight + this.dom_content.offsetHeight - 2;
+			const height = (this.dom_header?.offsetHeight || 0) + this.dom_content.offsetHeight - 2;
 			Window.resized_win.resizeOffset.x = e.clientX - bounds.width - Window.bounds.left;
 			Window.resized_win.resizeOffset.y = e.clientY - height - Window.bounds.top;
 			this.dom_win.style.maxHeight = '';
 		}
+	}
+
+	static onresize(e) {
+		Window.bounds = Window.container.getBoundingClientRect();
 	}
 
 	minimize() {
@@ -278,9 +296,9 @@ class Window {
 	}
 
 	absmove(new_x, new_y) {
-		new_x -= Window.container_bounds.left;
-		new_y -= Window.container_bounds.top;
-		window_move(new_x, new_y);
+		new_x -= Window.bounds.left;
+		new_y -= Window.bounds.top;
+		this.move(new_x, new_y);
 	}
 
 	set_margin(x, y) {
@@ -292,5 +310,11 @@ class Window {
 	close() {
 		if (this.onclose) this.onclose.call(this);
 		this.dom.remove();
+	}
+}
+
+class PopupWindow extends Window {
+	async init() {
+		return super.init();
 	}
 }

@@ -31,8 +31,12 @@ class Navbar {
 		p = this.add_button(p, 'Quests');
 
 		p = this.add_button(null, 'Project');
+		this.add_button(p, 'Show summary');
 		b['proj_edit'] = this.add_button(p, 'Edit');
 		b['proj_save'] = this.add_button(p, 'Save');
+		b['proj_publish'] = this.add_button(p, 'Publish');
+		this.add_button(p, 'Rebase');
+		this.add_button(p, 'Share');
 
 		this.search = newElement('<div style="display: flex; align-items: center; padding-left: 15px;"><i class="fa fa-search" style="color: #fff;"></i><input type="text" style="margin-left: 5px;" placeholder="Quick search"></div>');
 		this.dom.append(this.search);

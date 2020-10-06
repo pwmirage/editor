@@ -102,17 +102,18 @@ class Editor {
 	static onmousemove(e) {
 		let handled = false;
 		if (g_map) handled = g_map.onmousemove(e);
-		handled = Window.onmousemove(e);
+		handled = handled || Window.onmousemove(e);
 	}
 
 	static onmouseup(e) {
 		let handled = false;
 		if (g_map) handled = g_map.onmouseup(e);
-		handled = Window.onmouseup(e);
+		handled = handled || Window.onmouseup(e);
 	}
 
 	static onresize(e) {
 		let handled = false;
 		if (g_map) handled = g_map.onresize(e);
+		handled = handled || Window.onresize(e);
 	}
 };

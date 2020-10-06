@@ -79,3 +79,18 @@ const newStyle = (url) => {
 
 	return style;
 }
+
+const g_util_task_queues = new Set();
+const queueTask = (id, fn) => {
+	let p = g_util_task_queues[id];
+	if (!p) {
+		p = g_util_task_queues[id] = Promise.resolve();
+	}
+
+	const new_p = async () => {
+		await p;
+		await fn();
+	};
+
+	g_util_task_queues[id] = new_p();
+}

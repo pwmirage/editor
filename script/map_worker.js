@@ -166,7 +166,7 @@ const filter_spawners = (canvas) => {
 		}
 	}
 
-	g_opts.search = opt('search');
+	const search = opt('search')?.toLowerCase();
 
 	const drawn_spawners = { npc: [], mob: [], resource: [] };
 	for (const list of [g_spawners, g_resources]) {
@@ -180,8 +180,8 @@ const filter_spawners = (canvas) => {
 				continue;
 			}
 
-			if (g_opts.search &&
-					!spawner._db.shown_name.toLowerCase().includes(g_opts.search)) {
+			if (search &&
+					!spawner._db.shown_name.toLowerCase().includes(search)) {
 				continue;
 			}
 
