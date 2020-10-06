@@ -35,7 +35,7 @@ class SpawnerWindow extends Window {
 		const data = await this.tpl.compile({ this: this, spawner: this.spawner });
 		shadow.append(...data);
 
-		this.group_win = null;
+		this.open_groups = [];
 
 		return await super.init();
 	}
@@ -48,18 +48,41 @@ class SpawnerWindow extends Window {
 	add_group() {
 		this.spawner.groups.push({ type: 0 });
 		this.tpl.reload('#groups');
+		this.open_groups = [];
 	}
 
-	async info_group(idx, el, show) {
+	async info_group(idx, el) {
 		const group = this.spawner.groups[idx];
 
-		if (show && !this.group_win) {
-			const win = this.group_win = await SpawnerGroupWindow.open({ spawner: this.spawner, group });
+		if (!this.open_groups[idx]) {
+			const win = this.open_groups[idx] = await SpawnerGroupWindow.open({ parent: this, spawner: this.spawner, group });
+			win.move(0, 0);
+			win.dom.remove();
+			el.lastChild.style.marginRight = 0;
+			el.append(win.dom);
 			const bounds = el.getBoundingClientRect();
-			win.absmove(bounds.right + 12, bounds.top);
-		} else if (!show && this.group_win) {
-			this.group_win.close();
-			this.group_win = null;
+			win.dom.style.left = '';
+			win.dom.style.top = '';
+			//win.dom_win.style.left = bounds.width - 2 + 'px';
+		}
+	}
+
+	select_group(sel_idx) {
+		const els = this.shadow.querySelectorAll('.group-row');
+		let idx = 0;
+		for (const el of els) {
+			if (idx != sel_idx) {
+				el.classList.remove('selected');
+			} else {
+				const was_selected = !el.classList.toggle('selected');
+				if (was_selected) {
+					this.shadow.querySelector('#groups').classList.remove('has-selected');
+				} else {
+					this.shadow.querySelector('#groups').classList.add('has-selected');
+				}
+
+			}
+			idx++;
 		}
 	}
 

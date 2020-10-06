@@ -88,7 +88,7 @@ class Template {
 		);
 
 		if (split.length > 1) {
-			str += "';\nout += '" + unescape(split[1]);
+			str += "';\nout += '" + unescape(split[1]).replace(/'/g, '\\\'');
 		}
 
 		str += "';return out;";

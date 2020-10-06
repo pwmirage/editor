@@ -4,6 +4,7 @@
 }
 
 .window {
+	position: absolute;
 	display: flex;
 	flex-direction: column;
 	transition: max-height 0.4s ease-in-out;
@@ -80,23 +81,25 @@
 	border-radius: 6px;
 }
 
-.window.popup.square-left {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-}
-
 .window.popup > .content,
 .window.popup > .header {
 	border-radius: 4px;
 	flex: 1;
 }
 
+.window.popup.square-left,
 .window.popup.square-left > .content,
 .window.popup.square-left > .header {
+	border-left: 1px transparent solid;
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 }
 
+.window.popup.pinned,
+.window.popup.pinned > .content,
+.window.popup.pinned > .header {
+	border-left: 1px transparent solid;
+}
 
 .flex-columns {
 	display: flex;

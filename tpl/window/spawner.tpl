@@ -1,7 +1,7 @@
 <script id="tpl-spawner-group-info" type="text/x-dot-template">
 
-<div class="window popup square-left" style="width: 300px; height: 150px;">
-<div class="content flex-rows">
+<div class="window popup square-left" style="width: 340px; height: 150px;">
+<div class="content flex-rows" style="padding: 25px;">
 	<span>
 		{if $spawner._db.type.startsWith("resources_")}
 			{assign obj = db.mines[$group.type]}
@@ -62,6 +62,18 @@
 </div>
 </div>
 
+TEMPLATE_END
+<style>
+.window:after {
+	content: ' ';
+	position: absolute;
+	left: -1px;
+	top: -2px;
+	width: 12px;
+	height: calc(100% + 64px);
+	background-color: #fafafa;
+}
+</style>
 </script>
 
 <script id="tpl-spawner" type="text/x-dot-template">
@@ -107,10 +119,10 @@
 	{if $spawner._db.type.startsWith('spawners_')}
 		<label><input type="checkbox" data-oninput="win.set_is_npc(this.checked);" class="checkbox" {if $spawner.is_npc}checked{/if}><span>Is NPC</span></label>
 	{/if}
-	<div id="groups" class="flex-rows" style="margin-bottom: 8px;">
+	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}
 		{foreach $spawner.groups as group}
-			<div class="group-row flex-columns" data-onhover="queueTask('spawner_group_hover', () => win.info_group({@$idx}, this, is_hover));">
+			<div class="group-row flex-columns" data-onhover="queueTask('spawner_group_hover', () => win.info_group({@$idx}, this, is_hover));" data-onclick="win.select_group({@$idx});">
 				{if $spawner._db.type.startsWith("resources_")}
 					{assign obj = db.mines[$group.type]}
 				{else}
@@ -123,7 +135,7 @@
 			{$idx++}
 		{/foreach}
 	</div>
-	<div class="flex-columns" style="margin-top: -7px; margin-bottom: 8px; align-items: center;">
+	<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
 		<div style="flex: 1;"></div>
 		<a class="button no-break" data-onclick="win.add_group()">(add) &nbsp;<i class="fa fa-plus" aria-hidden="true"></i></a>
 	</div>
@@ -151,7 +163,46 @@ TEMPLATE_END
 	background-color: #ececec;
 	border: 1px solid #e0b0b0;
 	align-items: center;
-	margin-bottom: 2px;
+	margin-bottom: -1px;
+	position: relative;
+	box-sizing: border-box;
+}
+
+.group-row > .window {
+	display: none;
+	position: relative;
+	border-left: none;
+	align-self: start;
+	top: -32px;
+	right: -7px;
+	width: 0;
+}
+
+.group-row.selected:after,
+.group-row:hover:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	opacity: 0.1;
+	pointer-events: none;
+}
+
+.group-row.selected > .window,
+#groups:not(.has-selected) > .group-row:hover > .window {
+	display: block;
+}
+
+.on-group-hover {
+	display: none;
+}
+
+.group-row.selected .on-group-hover,
+#groups:not(.has-selected) > .group-row:hover .on-group-hover {
+	display: inline;
 }
 
 </style>

@@ -58,7 +58,7 @@ class Window {
 	}
 
 	tpl_compile_cb(dom_arr) {
-		const callbacks = [ 'onclick', 'oninput', 'onload' ];
+		const callbacks = [ 'onclick', 'oninput', 'onload', 'onmouseenter', 'onmouseleave' ];
 
 		for (const dom of dom_arr) {
 			if (!dom.querySelectorAll) {
