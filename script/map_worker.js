@@ -126,10 +126,9 @@ const get_spawner_at = (mx, my) => {
 	return null;
 }
 
-const get_name = (spawner) => {
+const get_name = (spawner, group_idx = 0) => {
 	let obj = null;
-	if (spawner.name) return spawner.name;
-	const type = spawner.groups[0]?.type;
+	const type = spawner.groups[group_idx]?.type;
 	if (spawner._db.type.startsWith('resources_')) {
 		obj = g_objs.mines?.get(type);
 	} else {
@@ -213,9 +212,23 @@ const filter_spawners = (canvas) => {
 				continue;
 			}
 
-			if (search &&
-					!get_name(spawner).toLowerCase().includes(search)) {
-				continue;
+			if (search) {
+				let match = false;
+
+				if (spawner.name?.toLowerCase()?.includes(search)) {
+					match = true;
+				}
+
+				for (let i = 0; i < spawner.groups.length; i++) {
+					if (get_name(spawner, i)?.toLowerCase()?.includes(search)) {
+						match = true;
+						break;
+					}
+				}
+
+				if (!match) {
+					continue;
+				}
 			}
 
 			let type = '';
