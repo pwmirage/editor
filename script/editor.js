@@ -113,9 +113,8 @@ class Editor {
 	}
 
 	static onresize(e) {
-		let handled = false;
-		if (g_map) handled = g_map.onresize(e);
-		handled = handled || Window.onresize(e);
+		if (g_map) g_map.onresize(e);
+		Window.onresize(e);
 	}
 
 	static onerror(err) {

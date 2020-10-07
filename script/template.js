@@ -57,8 +57,9 @@ class Template {
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""))
 			.replace(/'|\\/g, "\\$&")
 			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
-			.replace(/([\\]?)\{([\s\S]+?[^\\])\}/g, (m, lbrace_prefix, code) => {
-				if (lbrace_prefix === '\\') return m;
+			.replace(/\{([\s\S]+?[^\\])(\})?\}/g, (m, code, end) => {
+				if (code && code.charAt(0) == '{') return code + end;
+				if (end && end.charAt(0) == '}') return code + end;
 				code = unescape(code)
 					.replace(/\\\}/g, '}')
 					.replace(/^assign (.*)$/, "local.$1;")
