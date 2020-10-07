@@ -87,7 +87,9 @@ class SpawnerWindow extends Window {
 	}
 
 	set_is_npc(is_npc) {
+		db.open(this.spawner);
 		this.spawner.is_npc = is_npc;
+		db.commit(this.spawner);
 		g_map.redraw_dyn_overlay();
 	}
 }

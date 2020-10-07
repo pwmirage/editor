@@ -145,7 +145,8 @@ class PWMap {
 				overlay.classList.add('shown');
 
 			} else if (e.data.type == 'mouse') {
-				const spawner = e.data.hovered_spawner;
+				const hovered = e.data.hovered_spawner;
+				const spawner = hovered ? db[hovered._db.type][hovered.id] : null;
 
 				this.hovered_spawner = spawner;
 				this.hover_lbl.style.display = spawner ? 'block' : 'none';
@@ -157,7 +158,7 @@ class PWMap {
 					} else {
 						obj = db.mines[type];
 					}
-					const name = obj?.name;
+					const name = spawner.name || obj?.name;
 
 					this.hover_lbl.style.left = (this.mouse_pos.x - this.map_bounds.left + 20) + 'px';
 					this.hover_lbl.style.top = (this.mouse_pos.y - this.map_bounds.top - 10) + 'px';
@@ -180,6 +181,31 @@ class PWMap {
 			last_pos.y = pos.y;
 		}, 25);
 
+		this.post_canvas_msg({
+			type: 'set_objs', obj_type: 'monsters',
+			objs: [...db.monsters],
+		});
+		this.post_canvas_msg({
+			type: 'set_objs', obj_type: 'npcs',
+			objs: [...db.npcs],
+		});
+		this.post_canvas_msg({
+			type: 'set_objs', obj_type: 'mines',
+			objs: [...db.mines],
+		});
+
+		db.register_commit_cb((obj, diff, prev_vals) => {
+			if (!obj._db.type.startsWith('spawners_') && !obj._db.type.startsWith('resources_')) {
+				return;
+			}
+
+			(async () => {
+				this.post_canvas_msg({ type: 'update_obj', obj: obj });
+			})();
+
+
+		});
+
 		this.initialized = true;
 	}
 
@@ -193,7 +219,7 @@ class PWMap {
 					return resolve();
 				}
 			};
-			
+
 			this.canvas_worker.addEventListener('message', fn);
 		});
 	}
@@ -231,18 +257,14 @@ class PWMap {
 					let name;
 					const type = spawner.groups[0]?.type || 0;
 
+					let obj = null;
 					if (spawner._db.type.startsWith('resources_')) {
-						const res = db.mines[type];
-						name = res?.name;
-					} else if (spawner.is_npc) {
-						const npc = db.npcs[type];
-						name = npc?.name;
+						obj = db.mines[type];
 					} else {
-						const mob = db.monsters[type];
-						name = mob?.name;
+						obj = db.npcs[type] || db.monsters[type];
 					}
 
-					return (name ?? "(unknown)") || "(unnamed)";
+					return (obj?.name ?? "(unknown)") || "(unnamed)";
 				}
 
 				for (const list of [db['spawners_' + this.maptype.id], db['resources_' + this.maptype.id]]) {
@@ -256,9 +278,15 @@ class PWMap {
 				await this.post_canvas_msg({
 					type: 'set_map',
 					map: { size: this.maptype.size, bg_scale: this.bg_scale },
-					spawners: [...db['spawners_' + this.maptype.id]],
-					resources: [...db['resources_' + this.maptype.id]],
-					mobs: [...db['monsters']],
+				});
+
+				this.post_canvas_msg({
+					type: 'set_objs', obj_type: 'spawners',
+					objs: [...db['spawners_' + this.maptype.id]],
+				});
+				this.post_canvas_msg({
+					type: 'set_objs', obj_type: 'resources',
+					objs: [...db['resources_' + this.maptype.id]],
 				});
 
 				this.pos.scale = Math.min(

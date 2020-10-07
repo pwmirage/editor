@@ -129,7 +129,7 @@ class Editor {
 		const source = err.filename.replaceAll(window.location.origin, "");
 		const lineno = err.lineno;
 		const colno = err.colno;
-		const error = err.error;
+		const error = err.message;
 
 		MessageWindow.open({
 			title: "Error!",

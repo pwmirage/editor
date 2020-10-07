@@ -14,7 +14,7 @@
 		<span>Count:</span>
 		<input type="number" data-link="win.group => 'count'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
 		<div style="flex: 1"></div>
-		<label><input type="checkbox" data-oninput="win.set_is_npc(this.checked);" class="checkbox" {if $spawner.is_npc}checked{/if}><span>Is Aggressive</span></label>
+		<label><input type="checkbox" data-link="win.group => 'aggro'" class="checkbox"><span>Is Aggressive</span></label>
 	</div>
 
 	<div class="flex-columns" style="align-items: center; margin-bottom: 4px;">
@@ -112,12 +112,11 @@ TEMPLATE_END
 	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
 		<a class="button" data-onclick="MessageWindow.open({{ msg: 'Not implemented yet' }})">Spread:</a>
 		<span>{@Math.floor($spawner.spread[0] * 100) / 100}</span>
-		<span>{assign ypos = Math.floor($spawner.spread[1] * 100) / 100}{@$ypos}
-			 {if $ypos == 0}&nbsp; (auto){/if}</span>
+		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
 	{if $spawner._db.type.startsWith('spawners_')}
-		<label><input type="checkbox" data-oninput="win.set_is_npc(this.checked);" class="checkbox" {if $spawner.is_npc}checked{/if}><span>Is NPC</span></label>
+		<label><input type="checkbox" data-oninput="win.set_is_npc(this.currentTarget.checked);" class="checkbox" {if $spawner.is_npc}checked{/if}><span>Is NPC</span></label>
 	{/if}
 	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}

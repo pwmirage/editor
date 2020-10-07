@@ -129,6 +129,7 @@ class Window {
 				get_obj()[p] = val;
 			};
 
+			db.open(obj);
 			if (el.type == 'checkbox') {
 				set(el.checked ?? 0);
 			} else if (el.type == 'number') {
@@ -136,6 +137,7 @@ class Window {
 			} else {
 				set(el.value || "");
 			}
+			db.commit(obj);
 		};
 	}
 

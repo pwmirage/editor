@@ -3,8 +3,7 @@ let g_canvas_id = 0;
 
 let g_map = null;
 let g_opts = null;
-let g_spawners = null;
-let g_resources = null;
+let g_objs = {};
 let g_pos = null;
 let g_marker_size = 0;
 let g_window_size = { width: 1, height: 1 };
@@ -38,13 +37,27 @@ self.onmessage = async (e) => {
 		}
 		case 'set_map': {
 			const map = e.data.map;
-			const spawners = e.data.spawners;
-			const resources = e.data.resources;
-			const mobs = e.data.mobs;
 			g_map = map;
-			g_spawners = spawners;
-			g_resources = resources;
-			g_mobs = mobs;
+			break;
+		}
+		case 'set_objs': {
+			const obj_type = e.data.obj_type;
+			const objs = e.data.objs;
+			init_objs(obj_type, objs);
+			break;
+		}
+		case 'update_obj': {
+			const obj = e.data.obj;
+			let arr = null;
+			if (obj._db.type.startsWith('resources_')) {
+				arr = g_objs.resources;
+			} else if (obj._db.type.startsWith('spawners_')) {
+				arr = g_objs.spawners;
+			} else if (obj._db.type == 'monsters') {
+				arr = g_objs.monsters;
+			}
+
+			arr.set(obj.id, obj);
 			break;
 		}
 		case 'set_options': {
@@ -82,6 +95,13 @@ self.onmessage = async (e) => {
 	self.postMessage(resp);
 };
 
+const init_objs = (type, arr) => {
+	const map = g_objs[type] = new Map();
+	for (const obj of arr) {
+		map.set(obj.id, obj);
+	}
+}
+
 const get_spawner_at = (mx, my) => {
 	if (!g_drawn_spawners) {
 		return null;
@@ -105,6 +125,18 @@ const get_spawner_at = (mx, my) => {
 
 	return null;
 }
+
+const get_name = (spawner) => {
+	let obj = null;
+	if (spawner.name) return spawner.name;
+	const type = spawner.groups[0]?.type;
+	if (spawner._db.type.startsWith('resources_')) {
+		obj = g_objs.mines?.get(type);
+	} else {
+		obj = g_objs.npcs?.get(type) || g_objs.monsters?.get(type);
+	}
+	return obj?.name;
+};
 
 const get_icon = (type) => {
 	if (g_icons[type]) return g_icons[type];
@@ -135,7 +167,7 @@ const filter_spawners = (canvas) => {
 	const by_mob = (fn) => {
 		return (s) => {
 			const type = s.groups[0]?.type || 0;
-			const mob = g_mobs[type];
+			const mob = g_objs.monsters[type];
 			if (!mob) return true;
 			return fn(mob);
 		}
@@ -169,8 +201,9 @@ const filter_spawners = (canvas) => {
 	const search = opt('search')?.toLowerCase();
 
 	const drawn_spawners = { npc: [], mob: [], resource: [] };
-	for (const list of [g_spawners, g_resources]) {
-		for (const spawner of list) {
+	for (const list of [g_objs.resources, g_objs.spawners]) {
+		if (!list) continue;
+		for (const spawner of list.values()) {
 			let { x, y } = spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
 			x *= g_pos.scale;
 			y *= g_pos.scale;
@@ -181,7 +214,7 @@ const filter_spawners = (canvas) => {
 			}
 
 			if (search &&
-					!spawner._db.shown_name.toLowerCase().includes(search)) {
+					!get_name(spawner).toLowerCase().includes(search)) {
 				continue;
 			}
 
@@ -259,13 +292,14 @@ const redraw = () => {
 					ctx.globalAlpha = 0.3;
 				}
 
-				const w = ctx.measureText(spawner._db.shown_name).width;
+				const name = get_name(spawner);
+				const w = ctx.measureText(name).width;
 
 				ctx.fillStyle = 'black';
 				ctx.fillRect(x + g_marker_size / 2 + 8, y - 11, w + 14, 22);
 				ctx.font = '12px Arial';
 				ctx.fillStyle = 'white';
-				ctx.fillText(spawner._db.shown_name, x + g_marker_size / 2 + 14, y + 5);
+				ctx.fillText(name, x + g_marker_size / 2 + 14, y + 5);
 			}
 		}
 
