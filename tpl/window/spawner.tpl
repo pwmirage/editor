@@ -1,6 +1,6 @@
 <script id="tpl-spawner-group-info" type="text/x-dot-template">
 
-<div class="window popup square-left" style="width: 340px; height: 150px;">
+<div class="window popup square-left" style="position: absolute; width: 340px; height: 150px;">
 <div class="content flex-rows" style="padding: 25px;">
 	<span>
 		{if $spawner._db.type.startsWith("resources_")}

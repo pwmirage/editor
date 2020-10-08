@@ -13,7 +13,7 @@
 
 .window.maximized {
 	width: 100vw !important;
-	height: 100vh !important;
+	height: calc(100vh - 50px) !important;
 	box-sizing: border-box;
 }
 

@@ -271,13 +271,11 @@ class Window {
 			if (this.was_minimized) this.minimize();
 			this.dom.style.left = 0;
 			this.dom.style.top = 0;
-			this.dom_win.style.paddingBottom = Window.bounds.top + 'px';
-			this.dom_win.style.maxHeight = '100vh';
+			this.dom_win.style.maxHeight = 'calc(100vh - ' + Window.bounds.top + 'px)';
 
 		} else {
 			this.dom.style.left = this.windowed_pos[0];
 			this.dom.style.top = this.windowed_pos[1];
-			this.dom_win.style.paddingBottom = 0;
 			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
 			if (this.was_minimized) {
 				this.minimize();
