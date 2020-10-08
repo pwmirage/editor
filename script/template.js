@@ -167,7 +167,7 @@ class Template {
 				.replace(/\{if="" /g, '{if ')
 				.replace(/\{="" if}=""/g, '{/if}')
 		const new_fn = Template.build(raw_str);
-		const new_real = newArrElements(new_fn(this.params));
+		const new_real = newArrElements(new_fn(this, this.params));
 		real.replaceWith(...new_real);
 		if (this.compile_cb) this.compile_cb(new_real);
 	}

@@ -55,11 +55,14 @@ class Window {
 
 		this.full_bounds = this.dom_win.getBoundingClientRect();
 		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+
+		/* remove all text selection */
+		window.getSelection().removeAllRanges();
 	}
 
 	tpl_compile_cb(dom_arr) {
 		const callbacks = [ 'onclick', 'oninput', 'onload', 'onmouseenter', 'onmouseleave',
-			'onmouseup', 'onkeyup', 'onpaste' ];
+			'onmouseup', 'onkeyup', 'onpaste', 'ondblclick' ];
 
 		for (const dom of dom_arr) {
 			if (!dom.querySelectorAll) {
@@ -311,6 +314,9 @@ class Window {
 	close() {
 		if (this.onclose) this.onclose.call(this);
 		this.dom.remove();
+
+		/* remove all text selection */
+		window.getSelection().removeAllRanges();
 	}
 }
 

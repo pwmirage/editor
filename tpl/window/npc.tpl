@@ -9,12 +9,43 @@
 	</div>
 </div>
 <div class="content flex-rows">
-	<div>Please choose a model:</div>
+	<div style="margin-bottom: 15px;">Double click to choose a new model:<br>(This page is still WIP, if you'd like to contribute, please send NPC names and their portrait pictures at <a href="mailto:admin@pwmirage.com">admin@pwmirage.com</a>)</div>
+	<div class="flex-columns" style="flex-wrap: wrap; margin-top: -10px">
+		{foreach mtype in NPCModelWindow.models}
+			{assign model = NPCModelWindow.models[mtype]}
+			{assign selected = $npc.file_model == $model.file}
+			<div class="model {if $selected}selected{/if}" style="background-image: url('/editor/img/npc/{@mtype}.webp')" data-type="{@mtype}" data-onclick="win.select('{@mtype}');" data-ondblclick="win.choose('{@mtype}');"></div>
+		{/foreach}
+	</div>
 </div>
 </div>
 
 TEMPLATE_END
 <style>
+.model {
+	width: 150px;
+	height: 150px;
+	background-color: #4b2721;
+	margin-top: 10px;
+	border: 1px solid #000;
+	position: relative;
+}
+
+.model.selected {
+	box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
+	border: 1px solid #444;
+}
+
+.model.selected:after {
+	content: ' ';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+	opacity: 0.2;
+}
 </style>
 </script>
 
@@ -44,9 +75,16 @@ TEMPLATE_END
 				<option value="guard">Guard</option>
 			</select>
 		</div>
-		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
+		<div id="model" class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Model:</span>
-			<a class="button" data-onclick="NPCModelWindow.open({{ parent: win }});">(default)&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			{assign name = "(default)"}
+			{foreach mtype in NPCModelWindow.models}
+				{if NPCModelWindow.models[mtype].file == $npc.file_model}
+					{assign name = NPCModelWindow.models[mtype].name}
+				{/if}
+			{/foreach}
+
+			<a class="button" data-onclick="win.choose_model();">{@$name}&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 		</div>
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">

@@ -6,6 +6,11 @@ const g_open_npcs = new Set();
 let g_open_npc_model = null;
 
 class NPCModelWindow extends Window {
+	static models = {
+		apothecary01: { name: 'Apothecary 01', file: 'Models\\NPCs\\npc\\男npc7\\男npc7.ecm' },
+		headhunter: { name: 'Head Hunter', file: 'Models\\NPCs\\npc\\男npc21\\男npc21.ecm' }
+	};
+
 	async init() {
 		this.npc_win = this.args.parent;
 		this.npc = this.npc_win.npc;
@@ -24,9 +29,32 @@ class NPCModelWindow extends Window {
 	}
 
 	close() {
+		if (this.onchoose) {
+			this.onchoose(null);
+		}
 		g_open_npc_model = null;
 		super.close();
 	}
+
+	select(mtype) {
+		const prev = this.shadow.querySelector('.selected');
+		if (prev) {
+			prev.classList.remove('selected');
+		}
+
+		const n = this.shadow.querySelector('.model[data-type="' + mtype + '"]');
+		n.classList.add('selected');
+		this.selected = NPCModelWindow.models[mtype];
+	}
+
+	choose(mtype) {
+		if (this.onchoose) {
+			this.onchoose(mtype);
+		}
+		this.close();
+	}
+
+
 }
 
 class NPCWindow extends Window {
@@ -139,5 +167,19 @@ class NPCWindow extends Window {
 
 		this.format_greeting();
 		this.in_greeting_modify = false;
+	}
+
+	async choose_model() {
+		const win = await NPCModelWindow.open({ parent: this });
+		win.onchoose = (mtype) => {
+			if (!mtype) {
+				return;
+			}
+
+			db.open(this.npc);
+			this.npc.file_model = NPCModelWindow.models[mtype].file;
+			db.commit(this.npc);
+			this.tpl.reload('#model');
+		};
 	}
 }
