@@ -58,7 +58,8 @@ class Window {
 	}
 
 	tpl_compile_cb(dom_arr) {
-		const callbacks = [ 'onclick', 'oninput', 'onload', 'onmouseenter', 'onmouseleave' ];
+		const callbacks = [ 'onclick', 'oninput', 'onload', 'onmouseenter', 'onmouseleave',
+			'onmouseup', 'onkeyup', 'onpaste' ];
 
 		for (const dom of dom_arr) {
 			if (!dom.querySelectorAll) {
@@ -72,7 +73,7 @@ class Window {
 					el.removeAttribute('data-' + c);
 					const f = new Function('tpl', 'win', f_str);
 					if (c == 'onload') {
-						f.call(el, this);
+						f.call(el, this.tpl, this);
 					} else {
 						el[c] = (el) => {
 							if (!el.currentTarget.classList.contains('disabled')) {
@@ -81,29 +82,29 @@ class Window {
 						};
 					}
 				}
+			}
 
-				for (const el of dom.querySelectorAll('[data-link]')) {
-					const f_str = el.dataset.link.split('=>');
-					el.removeAttribute('data-link');
+			for (const el of dom.querySelectorAll('[data-link]')) {
+				const f_str = el.dataset.link.split('=>');
+				el.removeAttribute('data-link');
 
-					const obj = new Function('win', 'return ' + f_str[0])(this);
-					const path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
-					this.link_el(el, obj, path);
-				}
+				const obj = new Function('tpl', 'win', 'return ' + f_str[0])(this.tpl, this);
+				const path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
+				this.link_el(el, obj, path);
+			}
 
-				for (const el of dom.querySelectorAll('[data-onhover]')) {
-					const f_str = el.dataset['onhover'];
-					el.removeAttribute('data-onhover');
-					const f = new Function('win', 'is_hover', f_str);
+			for (const el of dom.querySelectorAll('[data-onhover]')) {
+				const f_str = el.dataset['onhover'];
+				el.removeAttribute('data-onhover');
+				const f = new Function('tpl', 'win', 'is_hover', f_str);
 
-					el.onmouseenter = (e) => {
-						f.call(el, this, true);
-					};
+				el.onmouseenter = (e) => {
+					f.call(el, this.tpl, this, true);
+				};
 
-					el.onmouseleave = (e) => {
-						f.call(el, this, false);
-					};
-				}
+				el.onmouseleave = (e) => {
+					f.call(el, this.tpl, this, false);
+				};
 			}
 		}
 	}

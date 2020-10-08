@@ -62,14 +62,62 @@ TEMPLATE_END
 		</div>
 	</div>
 	<div>Greeting:</div>
-	<div style="flex: 1; padding-bottom: 18px; padding-right: 7px;">
-		<textarea>{@$npc.greeting || ""}</textarea>
+	<div style="position:relative; flex: 1; margin-bottom: 18px">
+		<code contenteditable="true" data-onkeyup="win.update_caret();" data-onmouseup="win.update_caret();" data-onpaste="setTimeout(() => win.save_greeting(), 1);" data-oninput="win.format_greeting();">
+			{@$npc.greeting?.replace('\n', '<br>') || ""}
+		</code>
+		<div class="color" data-onclick="win.insert_color();">
+			<i class="fa fa-adjust"></i>
+		</div>
 	</div>
 </div>
 </div>
 
 TEMPLATE_END
 <style>
+code {
+	-moz-appearance: textfield;
+	-webkit-appearance: textfield;
+	border: 1px solid #e0b0b0;
+	padding: 2px 3px;
+	outline: none !important;
+	background-color: #3a3a3a;
+	color: #fff;
+	width: calc(100% - 8px);
+	height: 100%;
+	white-space: pre-wrap;
+}
+
+.color {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 13px;
+	height: 19px;
+	color: #ffffff;
+	margin-bottom: -6px;
+	border: 1px solid #fafafa;
+	padding: 3px 5px;
+}
+
+.color:hover {
+	background-color: #6b6b6b;
+}
+
+.hidden {
+	visibility: hidden;
+	position: absolute;
+}
+
+input[type="color"] {
+	width: 20px;
+	background-color: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+	transform: translateY(3px);
+	outline: none;
+}
 </style>
 
 </script>
