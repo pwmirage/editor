@@ -73,7 +73,7 @@
 							const cls_name = g_params.class;
 							const cls = eval(cls_name);
 							const spawner = db.spawners_gs01[478];
-							g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0] });
+							g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109] });
 							g_win.move(10, 10);
 							if (prev_win) {
 								await sleep(150);

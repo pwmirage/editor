@@ -125,11 +125,20 @@ TEMPLATE_END
 				{if $spawner._db.type.startsWith("resources_")}
 					{assign obj = db.mines[$group.type]}
 				{else}
-					{assign obj = ($spawner.is_npc ? db.npcs : db.monsters)[$group.type]}
+					{assign obj = db.npcs[$group.type] || db.monsters[$group.type]}
 				{/if}
 				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} #{@$group.type}</div>
 				<div style="flex: 1;"></div>
-				<a class="button no-break" data-onclick="MessageWindow.open({{ msg: 'Not implemented yet' }})"><i class="fa fa-angle-right"></i></a>
+				{if $spawner._db.type.startsWith("resources_")}
+					<a class="button no-break" data-onclick="MessageWindow.open({{ msg: 'Not implemented yet' }})"><i class="fa fa-angle-right"></i></a>
+				{else}
+					{if $obj._db.type == 'npcs'}
+						<a class="button no-break" data-onclick="NPCWindow.open({{ npc: {@@$obj} }})"><i class="fa fa-angle-right"></i></a>
+					{else}
+						<a class="button no-break" data-onclick="MessageWindow.open({{ msg: 'Not implemented yet' }})"><i class="fa fa-angle-right"></i></a>
+					{/if}
+				{/if}
+
 			</div>
 			{$idx++}
 		{/foreach}
