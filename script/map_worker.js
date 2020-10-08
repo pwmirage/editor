@@ -7,6 +7,7 @@ let g_objs = {};
 let g_pos = null;
 let g_marker_size = 0;
 let g_window_size = { width: 1, height: 1 };
+let g_focused_spawners = new Set();
 
 /* both spawners and resources */
 let g_drawn_spawners = null;
@@ -71,6 +72,15 @@ self.onmessage = async (e) => {
 			for (const canvas of g_canvases) {
 				canvas.width = vw * 8/6;
 				canvas.height = vh * 8/6;
+			}
+			break;
+		}
+		case 'set_focused_spawners': {
+			const spawners = e.data.spawners;
+
+			g_focused_spawners.clear();
+			for (const s of spawners) {
+				g_focused_spawners.add(s.id);
 			}
 			break;
 		}
@@ -299,7 +309,7 @@ const redraw = () => {
 				x *= pos.scale;
 				y *= pos.scale;
 
-				if (!g_opts.focused_spawners?.size || g_opts.focused_spawners?.has(spawner)) {
+				if (!g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 					ctx.globalAlpha = 1.0;
 				} else {
 					ctx.globalAlpha = 0.3;
@@ -321,7 +331,7 @@ const redraw = () => {
 			x *= pos.scale;
 			y *= pos.scale;
 			const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
-			if (!g_opts.focused_spawners?.size || g_opts.focused_spawners?.has(spawner)) {
+			if (!g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 				ctx.globalAlpha = 1.0;
 			} else {
 				ctx.globalAlpha = 0.3;

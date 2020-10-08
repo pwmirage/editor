@@ -96,6 +96,14 @@ class PWMap {
 
 	}
 
+	async refresh_focused_spawners() {
+		await this.post_canvas_msg({
+			type: 'set_focused_spawners',
+			spawners: [...this.focused_spawners],
+		});
+		await this.redraw_dyn_overlay();
+	}
+
 	refresh_bg_img() {
 		this.bg.src = ROOT_URL + 'data/images/map/' + this.maptype.id + (this.show_real_bg ? '_m' : '') + '.webp';
 	}
@@ -369,6 +377,7 @@ class PWMap {
 			this.redraw_dyn_overlay();
 		}
 		this.drag.is_drag = false;
+
 		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
 			let spawner = this.hovered_spawner;
 			if (spawner) {
@@ -379,11 +388,12 @@ class PWMap {
 
 					win.onfocus = () => {
 						this.focused_spawners.add(spawner);
+						this.refresh_focused_spawners();
 					};
 					win.onfocus();
 					win.onclose = () => {
 						this.focused_spawners.delete(spawner);
-						this.redraw_dyn_overlay();
+						this.refresh_focused_spawners();
 					};
 				})();
 			}
