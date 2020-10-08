@@ -21,6 +21,17 @@ class Template {
 	constructor(file, id) {
 		this.filename = file;
 		this.id = id;
+		this.var_map = new Map();
+		this.vars = [];
+	}
+
+	get_var_id(obj) {
+		let id = this.var_map.get(obj);
+		if (id == undefined) {
+			id = this.vars.push(obj) - 1;
+			this.var_map.set(obj, id);
+		}
+		return id;
 	}
 
 	static async load_file(filename) {
@@ -57,9 +68,9 @@ class Template {
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""))
 			.replace(/'|\\/g, "\\$&")
 			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
-			.replace(/\{([\s\S]+?[^\\])(\})?\}/g, (m, code, end) => {
-				if (code && code.charAt(0) == '{') return code + end;
-				if (end && end.charAt(0) == '}') return code + end;
+			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
+			.replace(/{{/g, "&#123;").replace(/}}/g, "&#125;")
+			.replace(/{([\s\S]+?[^\\])(})?\}/g, (m, code, end) => {
 				code = unescape(code)
 					.replace(/\\\}/g, '}')
 					.replace(/^assign (.*)$/, "local.$1;")
@@ -80,7 +91,7 @@ class Template {
 					});
 
 				if (code.startsWith('@@')) {
-					return cse.start + '\'' + code.substring(2).replace(/\'/g, '\\\'') + '\'' + cse.end;
+					return cse.start + '\'tpl.vars[\' + tpl.get_var_id(' + code.substring(2) + ') + \']\'' + cse.end;
 				} else if (code.startsWith('@')) {
 					return cse.start + code.substring(1) + cse.end;
 				}
@@ -96,7 +107,7 @@ class Template {
 		str = str.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
-		return new Function("local", str);
+		return new Function("tpl", "local", str);
 	}
 
 	async compile(params) {
@@ -113,7 +124,7 @@ class Template {
 			if (cached && !Template.debug) {
 				this.func = cached;
 				this.raw_data = newArrElements(tpl_string.split('TEMPLATE_END')[0]);
-				this.data = newArrElements(this.func(params));
+				this.data = newArrElements(this.func(this, params));
 				if (this.compile_cb) this.compile_cb(this.data);
 				return this.data;
 			}
@@ -123,7 +134,7 @@ class Template {
 			Template.compiled_cache.set(this.id, this.func);
 		}
 
-		this.data = newArrElements(this.func(params));
+		this.data = newArrElements(this.func(this, params));
 		if (this.compile_cb) this.compile_cb(this.data);
 		return this.data;
 	}

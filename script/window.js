@@ -70,13 +70,13 @@ class Window {
 				for (const el of dom.querySelectorAll('[data-' + c + ']')) {
 					const f_str = el.dataset[c];
 					el.removeAttribute('data-' + c);
-					const f = new Function('win', f_str);
+					const f = new Function('tpl', 'win', f_str);
 					if (c == 'onload') {
 						f.call(el, this);
 					} else {
 						el[c] = (el) => {
 							if (!el.currentTarget.classList.contains('disabled')) {
-								f.call(el, this);
+								f.call(el, this.tpl, this);
 							}
 						};
 					}
