@@ -112,7 +112,13 @@ class NPCWindow extends Window {
 		for (const input of old_inputs) {
 			const span = input.previousSibling;
 			if (!span) continue;
-			span.innerText = '^' + input.value.substring(1);
+			if (span.nodeType == 3) {
+				/* plain text */
+				span.remove();
+			} else {
+				span.innerText = '^' + input.value.substring(1);
+			}
+
 			if (input.nextSibling?.data?.match(/\^([a-fA-F0-9]{6})/g)) {
 				input.nextSibling.remove();
 			}
