@@ -127,6 +127,16 @@ class NPCWindow extends Window {
 				input.nextSibling.remove();
 			}
 		}
+		const hiddens = greeting.querySelectorAll('span.hidden');
+		for (const hidden of hiddens) {
+			if (!hidden.nextSibling || hidden.nextSibling?.type != 'color') {
+				const text_el = hidden.nextSibling;
+				if (text_el && text_el.style.color) {
+					text_el.replaceWith(document.createTextNode(text_el.textContent));
+				}
+				hidden.remove();
+			}
+		}
 
 		const newlines = greeting.querySelectorAll('br');
 		for (const n of newlines) {
