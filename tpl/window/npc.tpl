@@ -62,7 +62,7 @@ TEMPLATE_END
 		<i class="close fa fa-close" aria-hidden="true"></i>
 	</div>
 </div>
-<div class="content flex-rows">
+<div class="content flex-rows" style="overflow: hidden;">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
 		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="win.npc => 'name'">
@@ -100,7 +100,7 @@ TEMPLATE_END
 		</div>
 	</div>
 	<div>Greeting:</div>
-	<div style="position:relative; flex: 1; margin-bottom: 18px">
+	<div style="position:relative; flex: 1; margin-bottom: 18px; display: flex; min-height: 40px;">
 		<code contenteditable="true" data-onkeyup="win.update_caret();" data-onmouseup="win.update_caret();" data-onpaste="setTimeout(() => win.save_greeting(), 1);" data-oninput="win.format_greeting();">
 			{@$npc.greeting?.replace('\n', '<br>') || ""}
 		</code>
@@ -124,11 +124,13 @@ code {
 	width: calc(100% - 8px);
 	height: 100%;
 	white-space: pre-wrap;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
 
 .color {
 	position: absolute;
-	right: 0;
+	right: 20px;
 	bottom: 0;
 	width: 13px;
 	height: 19px;
