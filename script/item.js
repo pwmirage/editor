@@ -2,116 +2,53 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_init_started = false;
-let g_iconset_img;
-let g_iconset_promise;
-let g_icon_canvas;
-let g_icon_canvas_ctx;
-let g_iconset_cache;
-
-const load_iconset = (url) => {
-	return new Promise((resolve, reject) => {
-		g_icon_canvas = document.createElement('canvas')
-		g_icon_canvas_ctx = g_icon_canvas.getContext("2d");
-		g_icon_canvas.width = 32;
-		g_icon_canvas.height = 32;
-
-		const img = g_iconset_img = new Image();
-		img.crossOrigin = "Anonymous";
-		img.onload = resolve;
-		img.onerror = reject;
-		img.src = url;
-	});
-}
-
-const gen_all_icons = async () => {
-	const width = g_iconset_img.width / 32;
-	const height = g_iconset_img.height / 32;
-	const icon_count = width * height;
-	let index = 0;
-
-	/* generate them in async chunks not to block the main thread */
-	while (index < icon_count) {
-		await new Promise((resolve) => setTimeout(() => {
-			for (let i = 0; i < 32; i++) {
-				Item.get_icon(index++);
-			}
-			resolve();
-		}, 10));
-	}
-
-	if (g_iconset_cache) {
-		const cache = g_iconset_cache.transaction(['icons'], 'readwrite').objectStore('icons');
-		cache.add({ id: 0, arr: Item.icons });
-	}
-}
-
-const get_icon_src = (index) => {
-	const url = Item.icons[index];
-	if (!url) return 'img/itemslot.png';
-
-	return url;
-}
-
-class Item extends HTMLElement {
-	static TYPE = {
-		MATERIAL: 2,
-		CHI_STONE: 12,
-		SHARD: 17,
-		REFINE: 30,
+class Item {
+	static types = {
+		0: { name: 'Weapon' },
+		1: { name: 'Armor' },
+		2: { name: 'Material' },
+		3: { name: 'Jewelery' },
+		4: { name: 'Potion' },
+		5: { name: 'Damage Rune' },
+		6: { name: 'Defense Rune' },
+		7: { name: 'Skillbook' },
+		8: { name: 'Flyer' },
+		9: { name: 'Elf Wings' },
+		10: { name: 'Town Teleport Item' },
+		11: { name: 'Passively Used Item' },
+		12: { name: 'Chi Stone' },
+		13: { name: 'Quest Item' },
+		14: { name: 'Throwable Dart' },
+		15: { name: 'Projectile' },
+		16: { name: 'Quiver' },
+		17: { name: 'Shard' },
+		18: { name: 'Consumable Quest Item' },
+		19: { name: 'Misc Item' },
+		20: { name: 'Fashion' },
+		21: { name: 'Makeover Scroll' },
+		22: { name: 'Face Change Pill' },
+		23: { name: 'GM Mob Generator Item' },
+		24: { name: 'Pet Egg' },
+		25: { name: 'Pet Food' },
+		26: { name: 'Pet Face Change Scroll' },
+		27: { name: 'Fireworks' },
+		28: { name: 'Catapult Pulling Item' },
+		29: { name: 'Buff Consumable' },
+		30: { name: 'Refining Item' },
+		31: { name: 'Tome' },
+		32: { name: 'Smiles!' },
+		33: { name: 'HP Charm' },
+		34: { name: 'MP Charm' },
+		35: { name: 'Double XP Scroll' },
+		36: { name: 'Teleport Stone' },
+		37: { name: 'Dye' }
 	};
 
-	static TYPE_NAME = [
-		"Weapon",
-		"Armor",
-		"Material",
-		"Jewelery",
-		"Potion",
-		"Damage Rune",
-		"Defense Rune",
-		"Skillbook",
-		"Flyer",
-		"Elf Wings",
-		"Town Teleport Item",
-		"Passively Used Item",
-		"Chi Stone",
-		"Quest Item",
-		"Throwable Dart",
-		"Projectile",
-		"Quiver",
-		"Shard",
-		"Consumable Quest Item",
-		"Misc Item",
-		"Fashion",
-		"Makeover Scroll",
-		"Face Change Pill",
-		"GM Mob Generator Item",
-		"Pet Egg",
-		"Pet Food",
-		"Pet Face Change Scroll",
-		"Fireworks",
-		"Catapult Pulling Item",
-		"Buff Consumable",
-		"Refining Item",
-		"Tome",
-		"Smiles!",
-		"HP Charm",
-		"MP Charm",
-		"Double XP Scroll",
-		"Teleport Stone",
-		"Dye"
-	];
-
 	static icons = [];
+	static iconset_cache;
 
-	static async set_iconset(url) {
-		if (g_init_started) {
-			return;
-		}
-		g_init_started = true;
-		customElements.define('pw-item', Item);
-
-		const cached = await new Promise((resolve, reject) => {
+	static async init(iconset_url) {
+		let cached = await new Promise((resolve, reject) => {
 			if (!window.indexedDB) {
 				gen_all_icons();
 				return resolve(false);
@@ -122,7 +59,7 @@ class Item extends HTMLElement {
 			let cached = true;
 
 			request.onsuccess = () => {
-				g_iconset_cache = request.result;
+				Item.iconset_cache = request.result;
 				resolve(cached);
 			};
 
@@ -135,44 +72,39 @@ class Item extends HTMLElement {
 
 		if (cached) {
 			await new Promise((resolve, reject) => {
-				const cache = g_iconset_cache.transaction(['icons'], 'readonly').objectStore('icons');
+				const cache = Item.iconset_cache .transaction(['icons'], 'readonly').objectStore('icons');
 				const request = cache.get(0);
 				request.onerror = reject;
 				request.onsuccess = async () => {
 					const cache = request.result;
-					if (cache) {
+					if (cache && cache.arr?.length > 0) {
 						Item.icons = cache.arr;
 					} else {
-						await load_iconset(url);
-						g_iconset_promise = gen_all_icons();
+						cached = false;
 					}
 					resolve();
 				};
 			});
-
-			return;
-		} else {
-			await load_iconset(url);
-
-			/* ! don't await, just return */
-			g_iconset_promise = gen_all_icons();
-			return g_iconset_promise;
 		}
-	}
 
-	static get observedAttributes() { return ['pw-icon']; }
+		if (!cached) {
+			await Item.load_iconset(iconset_url);
+			/* gen icons in (semi-)background */
+			Item.gen_promise = Item.gen_all_icons();
+		} else {
+			Item.gen_promise = Promise.resolve();
+		}
+
+		customElements.define('pw-item', HTMLPWItem);
+	}
 
 	static get_icon(index) {
 		if (Item.icons[index]) {
 			return Item.icons[index];
 		}
 
-		if (!g_iconset_img) {
-			return Item.icons[0];
-		}
-
-		let width = g_iconset_img.width / 32;
-		let height = g_iconset_img.height / 32;
+		let width = Item.iconset_img?.width / 32;
+		let height = Item.iconset_img?.height / 32;
 		let x = index % width;
 		let y = parseInt(index / width);
 
@@ -180,39 +112,85 @@ class Item extends HTMLElement {
 			return Item.icons[0];
 		}
 
-		g_icon_canvas_ctx.drawImage(g_iconset_img, x * 32, y * 32, 32, 32, 0, 0, 32, 32);
-		Item.icons[index] = g_icon_canvas.toDataURL('image/jpeg', 0.95);
+		Item.icon_canvas_ctx.drawImage(Item.iconset_img, x * 32, y * 32, 32, 32, 0, 0, 32, 32);
+		Item.icons[index] = Item.icon_canvas.toDataURL('image/jpeg', 0.95);
 		return Item.icons[index];
 	}
 
+	static load_iconset(url) {
+		Item.icon_canvas = document.createElement('canvas')
+		Item.icon_canvas_ctx = Item.icon_canvas.getContext("2d");
+		Item.icon_canvas.width = 32;
+		Item.icon_canvas.height = 32;
+
+		const img = Item.iconset_img = new Image();
+		img.crossOrigin = "Anonymous";
+
+		return new Promise((resolve, reject) => {
+			img.onload = resolve;
+			img.onerror = reject;
+			img.src = url;
+		});
+	}
+
+	static async gen_all_icons() {
+		if (Item.gen_promise) {
+			return Item.gen_promise;
+		}
+
+		const width = Item.iconset_img.width / 32;
+		const height = Item.iconset_img.height / 32;
+		const icon_count = width * height;
+		let index = 0;
+
+		/* generate them in async chunks not to block the main thread */
+		while (index < icon_count) {
+			await new Promise((resolve) => setTimeout(() => {
+				for (let i = 0; i < 32; i++) {
+					Item.get_icon(index++);
+				}
+				resolve();
+			}, 10));
+		}
+
+		if (Item.iconset_cache) {
+			const cache = Item.iconset_cache.transaction(['icons'], 'readwrite').objectStore('icons');
+			cache.add({ id: 0, arr: Item.icons });
+		}
+	}
+}
+
+class HTMLPWItem extends HTMLElement {
 	constructor() {
 		super();
 	}
 
+	static get observedAttributes() { return ['pw-icon']; }
+
 	attributeChangedCallback(name, old_val, val) {
 		switch (name) {
-		case 'pw-icon': {
-			if (val == -1) {
-				this.style.backgroundImage = '';
-				const prev = this.querySelector('img');
-				if (prev) prev.remove();
-				return;
-			}
+			case 'pw-icon': {
+				if (val == -1) {
+					this.style.backgroundImage = '';
+					const prev = this.querySelector('img');
+					if (prev) prev.remove();
+					return;
+				}
 
-			g_iconset_promise.then(() => {
 				const prev = this.querySelector('img');
 				const img = document.createElement('img');
+				this.appendChild(img);
 				img.onload = () => {
 					img.style.opacity = 1;
 					if (prev) prev.remove();
 				};
-				img.src = get_icon_src(val);
-				this.appendChild(img);
-			});
-		}
+
+				img.src = Item.get_icon(val);
+			}
 		}
 	}
 	connectedCallback() {
-		this.classList.add('item');
+		this.classList.add('pwitem');
 	}
 }
+

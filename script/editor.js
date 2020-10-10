@@ -38,11 +38,15 @@ class Editor {
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
 
-		const tag = Loading.show_tag('Processing item icons');
-		Item.set_iconset(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION).then(() => {
-			Loading.hide_tag(tag);
+		const tag = Loading.show_tag('Loading item icons');
+		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
+		Loading.hide_tag(tag);
+
+		const tag_p = Loading.show_tag('Processing item icons');
+		/* don't await icon processing */
+		Item.gen_all_icons().then(() => {
+			Loading.hide_tag(tag_p);
 		});
-		/* don't await icon load */
 
 		await g_pwdb_init_promise;
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
