@@ -2,7 +2,41 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_open_npcs = new Set();
+let g_open_npc_goods = new Set();
+
+class NPCGoodsWindow extends Window {
+	async init() {
+		this.goods = this.args.goods;
+		if (!this.args.debug && g_open_npc_goods.has(this.goods)) return false;
+		g_open_npc_goods.add(this.goods);
+
+		const shadow = this.dom.shadowRoot;
+		this.tpl = new Template(ROOT_URL + 'tpl/window/npc.tpl', 'tpl-npc-goods');
+		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+
+		const data = await this.tpl.compile({ this: this, win: this, goods: this.goods });
+		shadow.append(...data);
+
+		await super.init();
+		this.select(0);
+	}
+
+	close() {
+		g_open_npc_goods.delete(this.goods);
+		super.close();
+	}
+
+	select(idx) {
+		this.selected_tab = idx;
+		for (const tname of this.shadow.querySelectorAll('.tabname')) {
+			tname.classList.remove('selected');
+		}
+
+		this.shadow.querySelectorAll('.tabname')[idx].classList.add('selected');
+		this.tpl.reload('#items');
+	}
+}
+
 let g_open_npc_model = null;
 
 class NPCModelWindow extends Window {
@@ -53,10 +87,9 @@ class NPCModelWindow extends Window {
 		}
 		this.close();
 	}
-
-
 }
 
+const g_open_npcs = new Set();
 class NPCWindow extends Window {
 	async init() {
 		this.npc = this.args.npc;

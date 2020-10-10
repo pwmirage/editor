@@ -165,7 +165,9 @@ class Template {
 		const raw_str = unescape(raw.outerHTML)
 				.replace(/&amp;/g, '&')
 				.replace(/\{if="" /g, '{if ')
-				.replace(/\{="" if}=""/g, '{/if}')
+				.replace(/&lt;/g, '<')
+				.replace(/&gt;/g, '>')
+		;
 		const new_fn = Template.build(raw_str);
 		const new_real = newArrElements(new_fn(this, this.params));
 		real.replaceWith(...new_real);

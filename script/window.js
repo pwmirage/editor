@@ -62,7 +62,7 @@ class Window {
 
 	tpl_compile_cb(dom_arr) {
 		const callbacks = [ 'onclick', 'oninput', 'onload', 'onmouseenter', 'onmouseleave',
-			'onmouseup', 'onkeyup', 'onpaste', 'ondblclick' ];
+			'onmouseup', 'onkeyup', 'onpaste', 'ondblclick', 'onfocus' ];
 
 		for (const dom of dom_arr) {
 			if (!dom.querySelectorAll) {

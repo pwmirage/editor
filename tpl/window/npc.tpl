@@ -1,3 +1,75 @@
+<script id="tpl-npc-goods" type="text/x-dot-template">
+<div class="window" style="width: 308px; height: 400px;">
+<div class="header">
+	<span>
+		NPC Goods: {@$goods._name || "(unnamed)"} #{@$goods.id}
+	</span>
+	<div class="menu">
+		<i class="minimize fa" aria-hidden="true"></i>
+		<i class="maximize fa" aria-hidden="true"></i>
+		<i class="close fa fa-close" aria-hidden="true"></i>
+	</div>
+</div>
+<div class="content flex-rows">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<span style="width: 45px;">Name:</span>
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="win.goods => '_name'">
+	</div>
+	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<span style="">NPC button text:</span>
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="win.goods => 'name'">
+	</div>
+	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
+	<div id="tabs" class="flex-columns flex-gap" style="flex-wrap: wrap; margin-bottom: 16px;">
+	{for i = 0; i < 8; i++}
+		{assign tab = $goods.pages[i]}
+		<input type="text" placeholder="(None)" class="tabname" data-onfocus="win.select({@$i});" data-link="win.goods => 'pages', {@$i}, 'page_title'">
+	{/for}
+	</div>
+	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap">
+	{assign tab = $goods.pages[$win.selected_tab || 0]}
+	{for i = 0; i < 32; i++}
+		{assign item = db.items[$tab.item_id[i] || 0]}
+		{debugger}
+		<pw-item pw-icon="{@$item?.icon || 0}"></pw-item>
+	{/for}
+	</div>
+</div>
+</div>
+
+TEMPLATE_END
+<style>
+#tabs {
+	margin-right: -8px;
+	margin-top: 0px;
+}
+
+input[type="text"].tabname {
+	width: 55px;
+	padding: 2px 4px;
+	margin-right: 8px;
+	margin-top: 4px;
+	position:relative;
+	margin-bottom: 4px;
+}
+
+input[type="text"].tabname.selected {
+	border-bottom: 5px solid #e0b0b0;
+	margin-bottom: 0px;
+}
+
+#items {
+	margin-right: -4px;
+}
+
+#items > * {
+	margin-right: 4px;
+	margin-top: 4px;
+}
+</style>
+</script>
+
+
 <script id="tpl-npc-model" type="text/x-dot-template">
 <div class="window" style="border: 30px solid rgba(1.0, 1.0, 1.0, 0.7);">
 <div class="header">
@@ -51,7 +123,7 @@ TEMPLATE_END
 
 <script id="tpl-npc" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 305px; height: 448px;">
+<div class="window resizable" style="width: 350px; height: 400px;">
 <div class="header">
 	<span>
 		{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} #{@$npc.id}
@@ -104,7 +176,7 @@ TEMPLATE_END
 		<code contenteditable="true" data-onkeyup="win.update_caret();" data-onmouseup="win.update_caret();" data-onpaste="setTimeout(() => win.save_greeting(), 1);" data-oninput="win.format_greeting();">
 			{@$npc.greeting?.replace('\n', '<br>') || ""}
 		</code>
-		<div class="color" data-onclick="win.insert_color();">
+		<div class="color" data-onclick="win.insert_color();" title="Add color">
 			<i class="fa fa-adjust"></i>
 		</div>
 	</div>
