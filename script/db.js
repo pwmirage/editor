@@ -159,7 +159,7 @@ class DB {
 						return ret;
 					}
 				}
-				if (k === 'length') return map.size;
+				if (k === 'size') return map.size;
 				if (k === Symbol.iterator) {
 					return function *() {
 						for (const obj of map.values()) yield obj;
