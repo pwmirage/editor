@@ -69,58 +69,6 @@ input[type="text"].tabname.selected {
 </style>
 </script>
 
-
-<script id="tpl-npc-model" type="text/x-dot-template">
-<div class="window" style="border: 30px solid rgba(1.0, 1.0, 1.0, 0.7);">
-<div class="header">
-	<span>
-		Model: {@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} #{@$npc.id}
-	</span>
-	<div class="menu">
-		<i class="close fa fa-close" aria-hidden="true"></i>
-	</div>
-</div>
-<div class="content flex-rows">
-	<div style="margin-bottom: 15px;">Double click to choose a new model:<br>(This page is still WIP, if you'd like to contribute, please send NPC names and their portrait pictures at <a href="mailto:admin@pwmirage.com">admin@pwmirage.com</a>)</div>
-	<div class="flex-columns" style="flex-wrap: wrap; margin-top: -10px">
-		{foreach mtype in NPCModelWindow.models}
-			{assign model = NPCModelWindow.models[mtype]}
-			{assign selected = $npc.file_model == $model.file}
-			<div class="model {if $selected}selected{/if}" style="background-image: url('/editor/img/npc/{@mtype}.webp')" data-type="{@mtype}" data-onclick="win.select('{@mtype}');" data-ondblclick="win.choose('{@mtype}');"></div>
-		{/foreach}
-	</div>
-</div>
-</div>
-
-TEMPLATE_END
-<style>
-.model {
-	width: 150px;
-	height: 150px;
-	background-color: #4b2721;
-	margin-top: 10px;
-	border: 1px solid #000;
-	position: relative;
-}
-
-.model.selected {
-	box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
-	border: 1px solid #444;
-}
-
-.model.selected:after {
-	content: ' ';
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background-color: #fff;
-	opacity: 0.2;
-}
-</style>
-</script>
-
 <script id="tpl-npc" type="text/x-dot-template">
 
 <div class="window resizable" style="width: 350px; height: 400px;">
@@ -150,9 +98,9 @@ TEMPLATE_END
 		<div id="model" class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Model:</span>
 			{assign name = "(default)"}
-			{foreach mtype in NPCModelWindow.models}
-				{if NPCModelWindow.models[mtype].file == $npc.file_model}
-					{assign name = NPCModelWindow.models[mtype].name}
+			{foreach mtype in NPCModelChooserWindow.models}
+				{if NPCModelChooserWindow.models[mtype].file == $npc.file_model}
+					{assign name = NPCModelChooserWindow.models[mtype].name}
 				{/if}
 			{/foreach}
 

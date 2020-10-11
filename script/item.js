@@ -106,9 +106,9 @@ class Item {
 		let width = Item.iconset_img?.width / 32;
 		let height = Item.iconset_img?.height / 32;
 		let x = index % width;
-		let y = parseInt(index / width);
+		let y = Math.floor(index / width) || 0;
 
-		if (index >= width * height) {
+		if (index >= (parseInt(width * height) || 0)) {
 			return Item.icons[0];
 		}
 

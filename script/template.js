@@ -142,6 +142,7 @@ class Template {
 	reload(selector) {
 		const raw = (() => {
 			for (const el of this.raw_data) {
+				if (!el.querySelector) continue;
 				const raw = el.querySelector(selector);
 				if (raw) return raw;
 			}

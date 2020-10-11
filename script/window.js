@@ -14,6 +14,7 @@ class Window {
 		this.args = args || {};
 
 		this.dom = document.createElement('div');
+		this.dom._win = this;
 		this.dom.className = 'window';
 		this.shadow = this.dom.attachShadow({mode: 'open'});
 
@@ -249,6 +250,11 @@ class Window {
 
 	static onresize(e) {
 		Window.bounds = Window.container.getBoundingClientRect();
+		for (const win_dom of Window.container.children) {
+			if (win_dom._win?.onresize) {
+				win_dom._win.onresize();
+			}
+		}
 	}
 
 	minimize() {

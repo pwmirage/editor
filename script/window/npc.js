@@ -39,7 +39,7 @@ class NPCGoodsWindow extends Window {
 
 let g_open_npc_model = null;
 
-class NPCModelWindow extends Window {
+class NPCModelChooserWindow extends ChooserWindow {
 	static models = {
 		apothecary01: { name: 'Apothecary 01', file: 'Models\\NPCs\\npc\\男npc7\\男npc7.ecm' },
 		headhunter: { name: 'Head Hunter', file: 'Models\\NPCs\\npc\\男npc21\\男npc21.ecm' }
@@ -51,41 +51,8 @@ class NPCModelWindow extends Window {
 		if (g_open_npc_model) return false;
 		g_open_npc_model = this;
 
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/npc.tpl', 'tpl-npc-model');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
-
-		const data = await this.tpl.compile({ this: this, npc: this.npc });
-		shadow.append(...data);
-
+		this.args.tpl = 'tpl-npc-model';
 		await super.init();
-		this.maximize();
-	}
-
-	close() {
-		if (this.onchoose) {
-			this.onchoose(null);
-		}
-		g_open_npc_model = null;
-		super.close();
-	}
-
-	select(mtype) {
-		const prev = this.shadow.querySelector('.selected');
-		if (prev) {
-			prev.classList.remove('selected');
-		}
-
-		const n = this.shadow.querySelector('.model[data-type="' + mtype + '"]');
-		n.classList.add('selected');
-		this.selected = NPCModelWindow.models[mtype];
-	}
-
-	choose(mtype) {
-		if (this.onchoose) {
-			this.onchoose(mtype);
-		}
-		this.close();
 	}
 }
 
@@ -219,14 +186,14 @@ class NPCWindow extends Window {
 	}
 
 	async choose_model() {
-		const win = await NPCModelWindow.open({ parent: this });
+		const win = await NPCModelChooserWindow.open({ parent: this });
 		win.onchoose = (mtype) => {
 			if (!mtype) {
 				return;
 			}
 
 			db.open(this.npc);
-			this.npc.file_model = NPCModelWindow.models[mtype].file;
+			this.npc.file_model = NPCModelChooserWindow.models[mtype].file;
 			db.commit(this.npc);
 			this.tpl.reload('#model');
 		};

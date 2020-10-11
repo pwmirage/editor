@@ -15,7 +15,6 @@
 			font-size:14px;
 			color: #fff;
 			font-weight:400;
-			height:20px;
 			line-height:20.72px;
 			overflow-wrap:break-word;
 			text-size-adjust:100%;
@@ -28,6 +27,7 @@
 		#pw-map {
 			display: none;
 		}
+
 		</style>
 
 		<script src="script/main.js"></script>
@@ -75,7 +75,6 @@
 							const spawner = db.spawners_gs01[478];
 							g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109],
 									goods: db.npc_sells[2241] });
-							g_win.move(10, 10);
 							if (prev_win) {
 								await sleep(150);
 								g_win.dom.style.visibility = 'visible';
