@@ -33,4 +33,11 @@ class ItemChooserWindow extends ChooserWindow {
 			}
 		})();
 	}
+
+	filter(str) {
+		const lstr = str?.toLowerCase() || '';
+		this.items = db.items.filter((i) => i && i.name.toLowerCase().includes(lstr));
+		this.pager_offset = 0;
+		this.move_pager(0);
+	}
 }

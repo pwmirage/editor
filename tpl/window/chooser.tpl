@@ -60,6 +60,10 @@ TEMPLATE_END
 	</div>
 </div>
 <div class="content flex-rows">
+	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+		<span>Search:</span>
+		<input type="text" style="flex: 1; max-width: 100px;" data-oninput="win.filter(this.currentTarget.value);">
+	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.items_per_page; i++}
 			<img src="data:," alt="" data-type="{@$i}" data-onclick="win.select('{@$i}');" data-ondblclick="win.choose('{@$i}');">
