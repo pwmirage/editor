@@ -22,7 +22,7 @@ class ChooserWindow extends Window {
 	recalculate_pager() {
 		const container = this.shadow.querySelector('#items').getBoundingClientRect();
 		const pager = this.shadow.querySelector('#pager').getBoundingClientRect();
-		const bounds = { width: container.width, height: pager.top - container.top - 38 };
+		const bounds = { width: container.width, height: pager.top - container.top - 16 };
 
 		this.items_per_page = Math.floor(bounds.width /  36) * Math.floor(bounds.height / 36);
 		this.tpl.reload('#pager');

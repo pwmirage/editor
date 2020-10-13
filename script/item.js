@@ -3,46 +3,52 @@
  */
 
 class Item {
-	static types = {
-		0: { name: 'Weapon' },
-		1: { name: 'Armor' },
-		2: { name: 'Material' },
-		3: { name: 'Jewelery' },
-		4: { name: 'Potion' },
-		5: { name: 'Damage Rune' },
-		6: { name: 'Defense Rune' },
-		7: { name: 'Skillbook' },
-		8: { name: 'Flyer' },
-		9: { name: 'Elf Wings' },
-		10: { name: 'Town Teleport Item' },
-		11: { name: 'Passively Used Item' },
-		12: { name: 'Chi Stone' },
-		13: { name: 'Quest Item' },
-		14: { name: 'Throwable Dart' },
-		15: { name: 'Projectile' },
-		16: { name: 'Quiver' },
-		17: { name: 'Shard' },
-		18: { name: 'Consumable Quest Item' },
-		19: { name: 'Misc Item' },
-		20: { name: 'Fashion' },
-		21: { name: 'Makeover Scroll' },
-		22: { name: 'Face Change Pill' },
-		23: { name: 'GM Mob Generator Item' },
-		24: { name: 'Pet Egg' },
-		25: { name: 'Pet Food' },
-		26: { name: 'Pet Face Change Scroll' },
-		27: { name: 'Fireworks' },
-		28: { name: 'Catapult Pulling Item' },
-		29: { name: 'Buff Consumable' },
-		30: { name: 'Refining Item' },
-		31: { name: 'Tome' },
-		32: { name: 'Smiles!' },
-		33: { name: 'HP Charm' },
-		34: { name: 'MP Charm' },
-		35: { name: 'Double XP Scroll' },
-		36: { name: 'Teleport Stone' },
-		37: { name: 'Dye' }
-	};
+	static types = [
+		{ id: 0, name: 'Invalid' },
+		{ id: 1, name: 'Weapon' },
+		{ id: 2, name: 'Armor' },
+		{ id: 3, name: 'Material' },
+		{ id: 4, name: 'Jewelery' },
+		{ id: 5, name: 'Potion' },
+		{ id: 6, name: 'Damage Rune' },
+		{ id: 7, name: 'Defense Rune' },
+		{ id: 8, name: 'Skillbook' },
+		{ id: 9, name: 'Flyer' },
+		{ id: 10, name: 'Elf Wings' },
+		{ id: 11, name: 'Town Teleport Item' },
+		{ id: 12, name: 'Passively Used Item' },
+		{ id: 13, name: 'Chi Stone' },
+		{ id: 14, name: 'Quest Item' },
+		{ id: 15, name: 'Throwable Dart' },
+		{ id: 16, name: 'Projectile' },
+		{ id: 17, name: 'Quiver' },
+		{ id: 18, name: 'Shard' },
+		{ id: 19, name: 'Consumable Quest Item' },
+		{ id: 20, name: 'Misc Item' },
+		{ id: 21, name: 'Fashion' },
+		{ id: 22, name: 'Makeover Scroll' },
+		{ id: 23, name: 'Face Change Pill' },
+		{ id: 24, name: 'GM Mob Generator Item' },
+		{ id: 25, name: 'Pet Egg' },
+		{ id: 26, name: 'Pet Food' },
+		{ id: 27, name: 'Pet Face Change Scroll' },
+		{ id: 28, name: 'Fireworks' },
+		{ id: 29, name: 'Catapult Pulling Item' },
+		{ id: 30, name: 'Buff Consumable' },
+		{ id: 31, name: 'Refining Item' },
+		{ id: 32, name: 'Tome' },
+		{ id: 33, name: 'Smiles!' },
+		{ id: 34, name: 'HP Charm' },
+		{ id: 35, name: 'MP Charm' },
+		{ id: 36, name: 'Double XP Scroll' },
+		{ id: 37, name: 'Teleport Stone' },
+		{ id: 38, name: 'Dye' }
+	];
+
+	static typeid(name) {
+		name = name.toLowerCase();
+		return Item.types.find((t) => t.name.toLowerCase().includes(name))?.id || -1;
+	}
 
 	static icons = [];
 	static iconset_cache;
