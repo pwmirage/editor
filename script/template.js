@@ -129,7 +129,8 @@ class Template {
 				return this.data;
 			}
 
-			this.raw_data = newArrElements(tpl_string);
+			this.raw_data = document.createElement('div');
+			this.raw_data.append(...newArrElements(tpl_string));
 			this.func = Template.build(tpl_string);
 			Template.compiled_cache.set(this.id, this.func);
 		}
@@ -140,19 +141,12 @@ class Template {
 	}
 
 	reload(selector) {
-		const raw = (() => {
-			for (const el of this.raw_data) {
-				if (!el.querySelector) continue;
-				const raw = el.querySelector(selector);
-				if (raw) return raw;
-			}
-
-			return null;
-		})();
+		const raw = this.raw_data.querySelector(selector);
 
 		const real = (() => {
 			for (const el of this.data) {
-				const data = el.querySelector(selector);
+				if (!el.querySelector) continue;
+				const data = (el.parentElement || el).querySelector(selector);
 				if (data) return data;
 			}
 
