@@ -34,7 +34,7 @@ class ChooserWindow extends Window {
 
 		setTimeout(() => {
 			this.resizing = false;
-			move_pager(0);
+			this.move_pager(0);
 		}, 500);
 	}
 

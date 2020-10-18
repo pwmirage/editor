@@ -10,6 +10,9 @@ class ItemChooserWindow extends ChooserWindow {
 		this.items = [];
 		this.tabs = [];
 		
+		this.item_tpl = new Template(ROOT_URL + 'tpl/window/item.tpl', 'tpl-item-info');
+		this.item_el = await this.item_tpl.compile({ item: db.items.entries().next().value[1] });
+
 		const add_type_tab = (name, type) => {
 			this.tabs.push({ name: name, filter: (i) => i && i.type == type })
 		};
@@ -20,6 +23,7 @@ class ItemChooserWindow extends ChooserWindow {
 
 		await super.init();
 		this.select_tab(0);
+		this.shadow.querySelector('#item_info').replaceWith(...this.item_el);
 	}
 
 	reload_items() {
@@ -33,7 +37,6 @@ class ItemChooserWindow extends ChooserWindow {
 			for (const el of els) {
 				const item = this.items[this.pager_offset + i++];
 
-				debugger;
 				el.src = item ? Item.get_icon(item.icon || 0) : 'data:,';
 				if (item) {
 					el.title = item.name + ' #' + item.id;
@@ -76,5 +79,24 @@ class ItemChooserWindow extends ChooserWindow {
 		this.selected_tab = idx;
 		this.tpl.reload('#search');
 		return this._filter(tab.filter);
+	}
+
+	item_hover(idx, is_hover) {
+		if (!is_hover) {
+			const info = this.shadow.querySelector('#item_info');
+			info.style.display = is_hover ? 'block' : 'none';
+			return;
+		}
+
+		const item = this.items[this.pager_offset + idx];
+		this.item_tpl.reload('#item_info', { item });
+		const info = this.shadow.querySelector('#item_info');
+
+		const item_el = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
+		const content = this.shadow.querySelector('.content').getBoundingClientRect();
+		info.style.left = item_el.right - content.left + 3 + 'px';
+		info.style.top = item_el.top - content.top + 'px';
+		
+		console.log(idx + ': ' + is_hover);
 	}
 }

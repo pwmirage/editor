@@ -70,9 +70,10 @@ TEMPLATE_END
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.items_per_page; i++}
-			<img src="data:," alt="" data-type="{@$i}" data-onclick="win.select('{@$i}');" data-ondblclick="win.choose('{@$i}');">
+			<img src="data:," alt="" data-type="{@$i}" data-onclick="win.select('{@$i}');" data-ondblclick="win.choose('{@$i}');" data-onhover="win.item_hover({@$i}, is_hover);">
 		{/for}
 	</div>
+	<div id="item_info"></div>
 	<div style="flex: 1;"></div>
 	<div id="pager" style="float: right; width: auto;">
 		<span style="margin-right: 10px;">{@1 + Math.ceil($win.pager_offset / $win.items_per_page)} / {@Math.ceil($win.items.length / $win.items_per_page)}</span>
@@ -127,6 +128,12 @@ TEMPLATE_END
 	height: 100%;
 	background-color: var(--header-color);
 	opacity: 0.4;
+}
+
+#item_info {
+	position: absolute;
+	background-color: rgba(0, 0, 0, 0.9);
+	color: #fff;
 }
 
 #pager {

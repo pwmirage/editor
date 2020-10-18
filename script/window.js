@@ -171,7 +171,7 @@ class Window {
 	}
 
 	static get_el_coords(el) {
-		var bounds = el.getBoundingClientRect();
+		const bounds = Object.assign({}, el.getBoundingClientRect());
 		bounds.x -= Window.bounds.x;
 		bounds.y -= Window.bounds.y;
 		bounds.left -= Window.bounds.left;
