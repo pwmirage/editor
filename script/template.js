@@ -1,28 +1,23 @@
-// doT.js
-// 2011-2014, Laura Doktorova, https://github.com/olado/doT
-// 2020 Darek Stojaczyk
-// Licensed under the MIT license.
-// Heavily modified for pwmirage.com
+/* SPDX-License-Identifier: MIT
+ * Copyright(c) 2019-2020 Darek Stojaczyk
+ */
 
-const encodeHTML = () => {
-	const encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" };
-	const matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
-	return (code) => {
-		return code ? code.toString().replace(matchHTML, (m) => {return encodeHTMLRules[m] || m;}) : "";
-	};
-};
+'use strict';
 
 class Template {
-	static debug = false;
-	static loaded_files = new Set();
-	static last_el = document.body.lastElementChild;
-	static compiled_cache = new Map();
+	static tpl_map = new WeakMap();
+	static tpl_map_idx = 0;
+	static tpl_id_map = {};
 
-	constructor(file, id) {
-		this.filename = file;
-		this.id = id;
+	constructor(name) {
+		this.name = name;
 		this.var_map = new Map();
 		this.vars = [];
+		this.id = Template.tpl_map_idx++;
+
+		/* weak map keys can't be primitives, so use a dummy object */
+		const id_obj = Template.tpl_id_map[this.id] = {};
+		Template.tpl_map.set(id_obj, this);
 	}
 
 	get_var_id(obj) {
@@ -34,113 +29,92 @@ class Template {
 		return id;
 	}
 
-	static async load_file(filename) {
-		if (Template.loaded_files.has(filename) && !Template.debug) return;
-
-		const file = await get(filename);
-		if (!file.ok) {
-			throw new Error('Failed to load template: ' + file.url);
-		}
-
-		Template.last_el.insertAdjacentHTML('afterend', file.data);
-
-		for (const script of document.querySelectorAll('script.reload')) {
-			const new_script = document.createElement('script');
-			new_script.text = script.text;
-			script.remove();
-			document.head.append(new_script);
-		}
-		Template.loaded_files.add(filename);
-	};
-
-	static build(str) {
-		const cse = { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" };
-
-		const unescape = (code) => {
-			return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
-		};
-
-
-		const split = str.split('TEMPLATE_END');
-
-		str = split[0];
-		str = ("var out=''; out+='" + (str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
-					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""))
-			.replace(/'|\\/g, "\\$&")
-			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
-			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
-			.replace(/{{/g, "&#123;").replace(/}}/g, "&#125;")
-			.replace(/{([\s\S]+?[^\\])(})?\}/g, (m, code, end) => {
-				code = unescape(code)
-					.replace(/\\\}/g, '}')
-					.replace(/^assign (.*)$/, "local.$1;")
-					.replace(/^for \s*(.*?)\s*=(.*?);(.*?);(.*?)$/, "{const backup_name=\"$1\"; const backup=local[backup_name]; for (let $1 = $2; $3; $4) { local[backup_name] = $1;")
-					.replace(/^foreach(.*) as (.*)$/, "{const backup_name=\"$2\"; const backup=local[backup_name]; for (const $2 of $1) { local[backup_name] = $2;")
-					.replace(/^foreach(.*) in (.*)$/, "{const backup_name=\"$1\"; const backup=local[backup_name]; for (const $1 in $2) { local[backup_name] = $1;")
-					.replace(/^\/(foreach|for)$/g, "}; local[backup_name] = backup; };")
-					.replace(/^if (.*)$/g, ";if ($1) {")
-					.replace(/^else$/g, "} else {")
-					.replace(/^else if(.*)$/g, "} else if ($1) {")
-					.replace(/^\/if$/g, ";}")
-					.replace(/^try$/g, ";const backup = out; try {")
-					.replace(/^catch$/g, "} catch (e) { out = backup;")
-					.replace(/^\/try$/g, ";}")
-					.replace(/\$/g, "local.")
-					.replace(/^include id=['"]?([\s\S]+?)['"]?$/g, (m, id) => {
-						return ';out+=(' + compile_tpl(id).toString().replace(/\n/g, "") + ')(local);\n';
-					});
-
-				if (code.startsWith('@@')) {
-					return cse.start + '\'tpl.vars[\' + tpl.get_var_id(' + code.substring(2) + ') + \']\'' + cse.end;
-				} else if (code.startsWith('@')) {
-					return cse.start + code.substring(1) + cse.end;
-				}
-				return "';" + code + ";\nout+='";
-			})
-		);
-
-		if (split.length > 1) {
-			str += "';\nout += '" + unescape(split[1]).replace(/'/g, '\\\'');
-		}
-
-		str += "';return out;";
-		str = str.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
-			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
-
-		return new Function("tpl", "local", str);
+	static get_by_id(id) {
+		const id_obj = Template.tpl_id_map[id];
+		return Template.tpl_map.get(id_obj);
 	}
 
-	async compile(params) {
-		if (this.data) {
-			throw new Error('Template already compiled');
+	static build(str) {
+		const append_s = '\nout += ';
+		const content = str
+			.replace(/(^\s+|\s+$)/gm, '' /* trim each line (tabs & spaces) */)
+			.replace(/\n/g, '' /* don't break `out` with multi-line strings */)
+			.replace(/"/g, '\\"' /* escape double quotes */)
+			.replace(/{@@(.*?)@@}/g, (match, content) => { /* raw text block */
+				return content
+					.replace(/{/g, "&#123;").replace(/}/g, "&#125;" /* mangle braces so they're not processed below */)
+			})
+			.replace(/{(.*?[^\\])}/g, (match, content) => { /* for each code block */
+				return '";\n' + content
+					.replace(/\\"/g, '"' /* don't escape double quotes -> they're real strings now */)
+					.replace(/\$/g, "local." /* $ variable access */)
+					.replace(/^assign (.*)$/, "local.$1;" /* setup new $ variable */)
+					.replace(/^(?:foreach|for) \s*(.*?)\s*=(.*?);(.*?);(.*?)$/, "{const _bckup_name=\"$1\"; const _bckup=local[_bckup_name]; for (let $1 =$2;$3;$4) { local[_bckup_name] = $1;" /* make the local variable available with $variable syntax, so also backup the previous value of local[var_name] */)
+					.replace(/^(?:foreach|for) (.*) (of|in) (.*)$/, "{const _bckup_name=\"$1\"; const _bckup=local[_bckup_name]; for (const $1 $2 $3) { local[_bckup_name] = $1;")
+					.replace(/^\/(foreach|for)$/g, "}; local[_bckup_name] = _bckup; };" /* restore local[var_name] from before the loop */)
+					.replace(/^if (.*)$/g, ";if ($1) {")
+					.replace(/^else$/g, "} else {")
+					.replace(/^else if (.*)$/g, "} else if ($1) {")
+					.replace(/^\/if$/g, "}")
+					.replace(/^serialize (.*)$/g, (match, content) => {
+						return append_s + '"Template.get_by_id(" + tpl.id + ").vars[" + tpl.get_var_id(' + content + ') + "]"';
+					})
+					.replace(/^hascontent$/g, "{const _bckup = out; let _has_cntnt = false; {")
+					.replace(/^content$/g, "{ const _bckup = out; {")
+					.replace(/^\/content$/g, "} _has_cntnt = _bckup != out; }")
+					.replace(/^\/hascontent$/g, "} if (!_has_cntnt) out = _bckup; }")
+					.replace(/^@(.*)/g, (match, content) => { /* text block */
+						return append_s + '(' + content + ');';
+					})
+				+ append_s + '"';
+			})
+			.replace(/&#123;/g, '{').replace(/&#125;/g, '}' /* un-mangle braces */)
+			.replace(/\\}/g, '}' /* get rid of escaped braces */);
+		;
+		return '\'use strict\';\nlet out = "' + content + '";\nreturn out;';
+	}
+
+	compile() {
+		const tpl_script = document.getElementById(this.name);
+		if (!tpl_script) {
+			throw new Error('Template script  ' + this.name + ' doesn\'t exist');
 		}
 
-		await Template.load_file(this.filename);
-		this.params = params;
+		const script_text = tpl_script.text;
+
+		this.raw_data = document.createElement('div');
+		const el = document.createElement('template');
+		el.innerHTML = script_text;
+		this.raw_data.append(...el.content.childNodes);
+
+		const f_text = Template.build(script_text);
+		this.func = new Function('tpl', 'local', f_text);
+	}
+
+	run(args = {}) {
 		if (!this.func) {
-			const tpl_string = document.getElementById(this.id).text;
-
-			let cached = Template.compiled_cache.get(this.id);
-			if (cached && !Template.debug) {
-				this.func = cached;
-				this.raw_data = newArrElements(tpl_string.split('TEMPLATE_END')[0]);
-				this.data = newArrElements(this.func(this, params));
-				if (this.compile_cb) this.compile_cb(this.data);
-				return this.data;
-			}
-
-			this.raw_data = document.createElement('div');
-			this.raw_data.append(...newArrElements(tpl_string));
-			this.func = Template.build(tpl_string);
-			Template.compiled_cache.set(this.id, this.func);
+			this.compile();
 		}
 
-		this.data = newArrElements(this.func(this, params));
-		if (this.compile_cb) this.compile_cb(this.data);
+		this.args = args;
+		const html_str = this.func(this, args);
+
+		const el = document.createElement('template');
+		el.innerHTML = html_str;
+		this.data = [...el.content.childNodes];
+		if (this.compile_cb) {
+			for (const dom of this.data) {
+				if (!dom.querySelectorAll) {
+					/* not an Element */
+					continue;
+				}
+				this.compile_cb(dom);
+			}
+		}
 		return this.data;
 	}
 
-	reload(selector) {
+	reload(selector, args = this.args) {
 		const raw = this.raw_data.querySelector(selector);
 
 		const real = (() => {
@@ -157,15 +131,29 @@ class Template {
 			return false;
 		}
 
-		const raw_str = unescape(raw.outerHTML)
+		/* fix outerHTML mangling some (technically invalid) syntax */
+		const raw_str = raw.outerHTML
 				.replace(/&amp;/g, '&')
 				.replace(/\{if="" /g, '{if ')
 				.replace(/&lt;/g, '<')
 				.replace(/&gt;/g, '>')
 		;
-		const new_fn = Template.build(raw_str);
-		const new_real = newArrElements(new_fn(this, this.params));
-		real.replaceWith(...new_real);
-		if (this.compile_cb) this.compile_cb(new_real);
+		const new_fn_text = Template.build(raw_str);
+		const new_fn = new Function('tpl', 'local', new_fn_text);
+
+		const new_real = document.createElement('template');
+		new_real.innerHTML = new_fn(this, args);
+		const new_els = [...new_real.content.childNodes];
+		real.replaceWith(...new_els);
+
+		if (this.compile_cb) {
+			for (const dom of new_els) {
+				if (!dom.querySelectorAll) {
+					/* not an Element */
+					continue;
+				}
+				this.compile_cb(dom);
+			}
+		}
 	}
 }

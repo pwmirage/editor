@@ -2,14 +2,17 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
+const g_chooser_tpl = load_tpl(ROOT_URL + 'tpl/window/chooser.tpl');
 class ChooserWindow extends Window {
 	async init() {
+		await g_chooser_tpl;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/chooser.tpl', this.args.tpl);
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template(this.args.tpl);
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const args = Object.assign({ this: this, win: this, npc: this.npc }, this.args);
-		const data = await this.tpl.compile(args);
+		this.args.win = this;
+		this.args.npc = this.npc;
+		const data = this.tpl.run(this.args);
 
 		shadow.append(...data);
 		await super.init();

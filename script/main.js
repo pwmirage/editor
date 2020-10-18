@@ -9,6 +9,8 @@ const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
 let MG_VERSION = '0';
 
+let g_last_body_el = null;
+
 let g_main_initialized = false;
 const mg_init = async () => {
 	if (g_main_initialized) return;
@@ -30,16 +32,29 @@ const mg_init = async () => {
 	]);
 };
 
-const load_script = (src, on_success = () => {}, on_fail = () => {}) => {
+const load_script = (src) => {
 	return new Promise((resolve, reject) => {
 		var script = document.createElement('script');
 		script.type = "text/javascript";
-		script.onload = () => { on_success(); resolve(); };
-		script.onerror = () => { on_fail(); reject(); };
+		script.onload = resolve;
+		script.onerror = reject;
 		script.charset = "utf-8";
 		script.src = src;
 		document.head.appendChild(script);
 	});
 }
+
+const load_tpl = async (src) => {
+	const file = await get(src);
+	if (!file.ok) {
+		throw new Error('Failed to load template: ' + src);
+	}
+
+	if (!g_last_body_el) {
+		g_last_body_el = document.body.lastElementChild;
+	}
+	g_last_body_el.insertAdjacentHTML('afterend', file.data);
+}
+
 
 const g_loaded = mg_init();

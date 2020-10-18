@@ -3,12 +3,14 @@
  */
 
 class MapChooserWindow extends Window {
+	static loaded = load_tpl(ROOT_URL + 'tpl/window/map_chooser.tpl');
 	async init() {
+		await MapChooserWindow.loaded;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/map_chooser.tpl', 'tpl-map-chooser');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-map-chooser');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.compile( { this: this, maps: PWMap.maps });
+		const data = await this.tpl.run( { win: this, maps: PWMap.maps });
 		shadow.append(...data);
 
 		const search_el = shadow.querySelector('#search');

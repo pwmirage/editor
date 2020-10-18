@@ -5,15 +5,18 @@
 let g_legend_win = null;
 
 class LegendWindow extends Window {
+	static loaded = load_tpl(ROOT_URL + 'tpl/window/map_legend.tpl');
+
 	async init() {
 		if (g_legend_win) return false;
 		g_legend_win = this;
 
+		await LegendWindow.loaded;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/map_legend.tpl', 'tpl-map-legend');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-map-legend');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.compile( { this: this });
+		const data = await this.tpl.run( { win: this });
 		shadow.append(...data);
 
 		shadow.querySelectorAll('input').forEach((e) => {

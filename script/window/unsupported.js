@@ -3,12 +3,14 @@
  */
 
 class UnsupportedBrowserWindow extends Window {
+	static loaded = load_tpl(ROOT_URL + 'tpl/window/unsupported.tpl');
 	async init() {
+		await UnsupportedBrowserWindow.loaded;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/unsupported.tpl', 'tpl-unsupported');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-unsupported');
+		this.tpl.compile_cb = (el) => this.tpl_compile_cb(el);
 
-		const data = await this.tpl.compile( { });
+		const data = await this.tpl.run( { win: this });
 		shadow.append(...data);
 
 		const b = shadow.querySelector('#close_btn');

@@ -3,23 +3,23 @@
  */
 
 const g_open_spawners = new Set();
+const g_spawner_tpl = load_tpl(ROOT_URL + 'tpl/window/spawner.tpl');
 
 class SpawnerGroupWindow extends PopupWindow {
 	async init() {
 		this.spawner = this.args.spawner;
 		this.group = this.args.group;
 
+		await g_spawner_tpl;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/spawner.tpl', 'tpl-spawner-group-info');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-spawner-group-info');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.compile({ this: this, group: this.group, spawner: this.spawner });
+		const data = await this.tpl.run({ win: this, group: this.group, spawner: this.spawner });
 		shadow.append(...data);
 
 		return super.init();
 	}
-
-
 }
 
 class SpawnerWindow extends Window {
@@ -28,11 +28,12 @@ class SpawnerWindow extends Window {
 		if (!this.args.debug && g_open_spawners.has(this.spawner)) return false;
 		g_open_spawners.add(this.spawner);
 
+		await g_spawner_tpl;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/spawner.tpl', 'tpl-spawner');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-spawner');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.compile({ this: this, spawner: this.spawner });
+		const data = await this.tpl.run({ win: this, spawner: this.spawner });
 		shadow.append(...data);
 
 		this.open_groups = [];

@@ -2,6 +2,7 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
+const g_item_tpl = load_tpl(ROOT_URL + 'tpl/window/item.tpl');
 class ItemChooserWindow extends ChooserWindow {
 	async init() {
 		this.args.tpl = 'tpl-item-chooser';
@@ -10,8 +11,10 @@ class ItemChooserWindow extends ChooserWindow {
 		this.items = [];
 		this.tabs = [];
 		
-		this.item_tpl = new Template(ROOT_URL + 'tpl/window/item.tpl', 'tpl-item-info');
-		this.item_el = await this.item_tpl.compile({ item: db.items.entries().next().value[1] });
+		await g_item_tpl;
+		this.item_tpl = new Template('tpl-item-info');
+		this.item_tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+		this.item_el = await this.item_tpl.run({ win: this, item: db.items.entries().next().value[1] });
 
 		const add_type_tab = (name, type) => {
 			this.tabs.push({ name: name, filter: (i) => i && i.type == type })

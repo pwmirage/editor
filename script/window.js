@@ -61,55 +61,35 @@ class Window {
 		window.getSelection().removeAllRanges();
 	}
 
-	tpl_compile_cb(dom_arr) {
-		const callbacks = [ 'onclick', 'oninput', 'onload', 'onmouseenter', 'onmouseleave',
-			'onmouseup', 'onkeyup', 'onpaste', 'ondblclick', 'onfocus' ];
+	tpl_compile_cb(dom) {
+		for (const el of dom.querySelectorAll('[data-onload]')) {
+			const f_str = el.dataset[c];
+			el.removeAttribute('data-onload');
+			const f = new Function(f_str);
+			f.call(el);
+		}
 
-		for (const dom of dom_arr) {
-			if (!dom.querySelectorAll) {
-				/* not an Element */
-				continue;
-			}
+		for (const el of dom.querySelectorAll('[data-link]')) {
+			const f_str = el.dataset.link.split('=>');
+			el.removeAttribute('data-link');
 
-			for (const c of callbacks) {
-				for (const el of dom.querySelectorAll('[data-' + c + ']')) {
-					const f_str = el.dataset[c];
-					el.removeAttribute('data-' + c);
-					const f = new Function('tpl', 'win', f_str);
-					if (c == 'onload') {
-						f.call(el, this.tpl, this);
-					} else {
-						el[c] = (el) => {
-							if (!el.currentTarget.classList.contains('disabled')) {
-								f.call(el, this.tpl, this);
-							}
-						};
-					}
-				}
-			}
+			const obj = new Function('return ' + f_str[0])(this.tpl, this);
+			const path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
+			this.link_el(el, obj, path);
+		}
 
-			for (const el of dom.querySelectorAll('[data-link]')) {
-				const f_str = el.dataset.link.split('=>');
-				el.removeAttribute('data-link');
+		for (const el of dom.querySelectorAll('[data-onhover]')) {
+			const f_str = el.dataset['onhover'];
+			el.removeAttribute('data-onhover');
+			const f = new Function('is_hover', f_str);
 
-				const obj = new Function('tpl', 'win', 'return ' + f_str[0])(this.tpl, this);
-				const path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
-				this.link_el(el, obj, path);
-			}
+			el.onmouseenter = (e) => {
+				f.call(el, true);
+			};
 
-			for (const el of dom.querySelectorAll('[data-onhover]')) {
-				const f_str = el.dataset['onhover'];
-				el.removeAttribute('data-onhover');
-				const f = new Function('tpl', 'win', 'is_hover', f_str);
-
-				el.onmouseenter = (e) => {
-					f.call(el, this.tpl, this, true);
-				};
-
-				el.onmouseleave = (e) => {
-					f.call(el, this.tpl, this, false);
-				};
-			}
+			el.onmouseleave = (e) => {
+				f.call(el, false);
+			};
 		}
 	}
 

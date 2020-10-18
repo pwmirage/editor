@@ -13,24 +13,23 @@
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="win.goods => '_name'">
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.goods => '_name'">
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="">NPC button text:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="win.goods => 'name'">
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.goods => 'name'">
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns flex-gap" style="flex-wrap: wrap; margin-bottom: 16px;">
 	{for i = 0; i < 8; i++}
 		{assign tab = $goods.pages[i]}
-		<input type="text" placeholder="(None)" class="tabname" data-onfocus="win.select({@$i});" data-link="win.goods => 'pages', {@$i}, 'page_title'">
+		<input type="text" placeholder="(None)" class="tabname" onfocus="{serialize $win}.select({@$i});" data-link="{serialize $win}.goods => 'pages', {@$i}, 'page_title'">
 	{/for}
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap">
 	{assign tab = $goods.pages[$win.selected_tab || 0]}
 	{for i = 0; i < 32; i++}
 		{assign item = db.items[$tab.item_id[i] || 0]}
-		{debugger}
 		<pw-item pw-icon="{@$item?.icon || 0}"></pw-item>
 	{/for}
 	</div>
@@ -85,7 +84,7 @@ input[type="text"].tabname.selected {
 <div class="content flex-rows" style="overflow: hidden;">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="win.npc => 'name'">
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.npc => 'name'">
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
 		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
@@ -104,27 +103,27 @@ input[type="text"].tabname.selected {
 				{/if}
 			{/foreach}
 
-			<a class="button" data-onclick="win.choose_model();">{@$name}&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			<a class="button" onclick="{serialize $win}.choose_model();">{@$name}&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 		</div>
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">
 		<div>
 			<span style="margin-right: 8px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button" data-onclick=";">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			<a class="button" onclick=";">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 		</div>
 		<div>
 			<span style="margin-right: 8px;">Craft:</span>
 			{assign craft = db.npc_crafts[$npc.id_make_service];}
-			<a class="button" data-onclick=";">{@ $craft?._name ?? ($craft ? ($craft.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			<a class="button" onclick=";">{@ $craft?._name ?? ($craft ? ($craft.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 		</div>
 	</div>
 	<div>Greeting:</div>
 	<div style="position:relative; flex: 1; margin-bottom: 18px; display: flex; min-height: 40px;">
-		<code contenteditable="true" data-onkeyup="win.update_caret();" data-onmouseup="win.update_caret();" data-onpaste="setTimeout(() => win.save_greeting(), 1);" data-oninput="win.format_greeting();">
+		<code contenteditable="true" onkeyup="{serialize $win}.update_caret();" onmouseup="{serialize $win}.update_caret();" onpaste="setTimeout(() => {serialize $win}.save_greeting(), 1);" oninput="{serialize $win}.format_greeting();">
 			{@$npc.greeting?.replace('\n', '<br>') || ""}
 		</code>
-		<div class="color" data-onclick="win.insert_color();" title="Add color">
+		<div class="color" onclick="{serialize $win}.insert_color();" title="Add color">
 			<i class="fa fa-adjust"></i>
 		</div>
 	</div>

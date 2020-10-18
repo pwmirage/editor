@@ -78,7 +78,7 @@ class Editor {
 		await Loading.init_promise;
 		Loading.show_curtain();
 
-		try {
+		{
 			if (!Editor.loaded) {
 				await Editor.load();
 				Editor.loaded = true;
@@ -94,9 +94,6 @@ class Editor {
 			} else {
 				const win = await MapChooserWindow.open({ });
 			}
-		} catch (e) {
-			console.error(e);
-			Loading.show_error_tag(e.message);
 		}
 
 		//await sleep(500);

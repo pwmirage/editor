@@ -3,18 +3,20 @@
  */
 
 let g_open_npc_goods = new Set();
+let g_npc_tpl = load_tpl(ROOT_URL + 'tpl/window/npc.tpl')
 
 class NPCGoodsWindow extends Window {
 	async init() {
+		await g_npc_tpl;
 		this.goods = this.args.goods;
 		if (!this.args.debug && g_open_npc_goods.has(this.goods)) return false;
 		g_open_npc_goods.add(this.goods);
 
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/npc.tpl', 'tpl-npc-goods');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-npc-goods');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.compile({ this: this, win: this, goods: this.goods });
+		const data = await this.tpl.run({ win: this, goods: this.goods });
 		shadow.append(...data);
 
 		await super.init();
@@ -51,6 +53,7 @@ class NPCModelChooserWindow extends ChooserWindow {
 		if (g_open_npc_model) return false;
 		g_open_npc_model = this;
 
+		await g_npc_tpl;
 		this.args.tpl = 'tpl-npc-model';
 		await super.init();
 	}
@@ -63,11 +66,12 @@ class NPCWindow extends Window {
 		if (!this.args.debug && g_open_npcs.has(this.npc)) return false;
 		g_open_npcs.add(this.npc);
 
+		await g_npc_tpl;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(ROOT_URL + 'tpl/window/npc.tpl', 'tpl-npc');
-		this.tpl.compile_cb = (dom_arr) => this.tpl_compile_cb(dom_arr);
+		this.tpl = new Template('tpl-npc');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.compile({ this: this, npc: this.npc });
+		const data = await this.tpl.run({ win: this, npc: this.npc });
 		shadow.append(...data);
 
 		this.save_greeting();

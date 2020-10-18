@@ -11,7 +11,7 @@
 		<span style="">Magic Attack {@$item.magic_damage_low}-{@$item.magic_damage_high}</span>
 		<span style="">Durability(drop) {@$item.durability_drop_min}-{@$item.durability_drop_max}</span>
 		<span style="">Durability(craft) {@$item.durability_min}-{@$item.durability_max}</span>
-		<span style="">Require Lv. {@$item.require_level}</span>
+		<span style="">Require v. {@$item.require_level}</span>
 		<span style="">Require Strength {@$item.require_strength}</span>
 		<span style="">Require Dexterity {@$item.require_dexterity}</span>
 		<span style="">Require Magic {@$item.require_magic}</span>
@@ -23,7 +23,7 @@
 	</div>
 </div>
 
-TEMPLATE_END
+{@@
 <style>
 #item_info {
 	background-color: rgba(0, 0, 0, 0.9);
@@ -35,5 +35,6 @@ TEMPLATE_END
 	display: block;
 }
 </style>
+@@}
 
 </script>

@@ -14,13 +14,13 @@
 		{foreach mtype in NPCModelChooserWindow.models}
 			{assign model = NPCModelChooserWindow.models[mtype]}
 			{assign selected = $npc.file_model == $model.file}
-			<div class="model {if $selected}selected{/if}" style="background-image: url('/editor/img/npc/{@mtype}.webp')" data-type="{@mtype}" data-onclick="win.select('{@mtype}');" data-ondblclick="win.choose('{@mtype}');"></div>
+			<div class="model {if $selected}selected{/if}" style="background-image: url('/editor/img/npc/{@mtype}.webp')" data-type="{@mtype}" onclick="{serialize $win}.select('{@mtype}');" ondblclick="{serialize $win}.choose('{@mtype}');"></div>
 		{/foreach}
 	</div>
 </div>
 </div>
 
-TEMPLATE_END
+{@@
 <style>
 .model {
 	width: 150px;
@@ -47,6 +47,7 @@ TEMPLATE_END
 	opacity: 0.2;
 }
 </style>
+@@}
 </script>
 
 <script id="tpl-item-chooser" type="text/x-dot-template">
@@ -62,29 +63,29 @@ TEMPLATE_END
 <div class="content flex-rows">
 	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
 		<span>Search:</span>
-		<input type="text" style="flex: 1; max-width: 368px;" data-oninput="win.filter(this.currentTarget.value);">
+		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.currentTarget.value);">
 		{for i = 0; i < $win.tabs.length; i++}
 			{assign tab = $win.tabs[i]}
-			<a class="button tab {if $win.selected_tab == $i}selected{/if}" data-onclick="win.select_tab({@$i});">{@$tab.name}</a>
+			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
 		{/for}
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.items_per_page; i++}
-			<img src="data:," alt="" data-type="{@$i}" data-onclick="win.select('{@$i}');" data-ondblclick="win.choose('{@$i}');" data-onhover="win.item_hover({@$i}, is_hover);">
+			<img src="data:," alt="" data-type="{@$i}" onclick="{serialize $win}.select('{@$i}');" ondblclick="{serialize $win}.choose('{@$i}');" data-onhover="{serialize $win}.item_hover({@$i}, is_hover);">
 		{/for}
 	</div>
 	<div id="item_info"></div>
 	<div style="flex: 1;"></div>
 	<div id="pager" style="float: right; width: auto;">
 		<span style="margin-right: 10px;">{@1 + Math.ceil($win.pager_offset / $win.items_per_page)} / {@Math.ceil($win.items.length / $win.items_per_page)}</span>
-		<a class="button {@$win.pager_offset == 0 ? 'disabled' : ''}" data-onclick="win.move_pager({@-$win.items_per_page});"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
-		<a class="button {@$win.pager_offset + $win.items_per_page >= $win.items.length ? 'disabled' : ''}" data-onclick="win.move_pager({@$win.items_per_page});"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+		<a class="button {@$win.pager_offset == 0 ? 'disabled' : ''}" onclick="{serialize $win}.move_pager({@-$win.items_per_page});"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+		<a class="button {@$win.pager_offset + $win.items_per_page >= $win.items.length ? 'disabled' : ''}" onclick="{serialize $win}.move_pager({@$win.items_per_page});"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
 	</div>
 	</div>
 </div>
 </div>
 
-TEMPLATE_END
+{@@
 <style>
 .tab.selected {
 	background-color: rgba(146, 110, 110, 1);
@@ -147,4 +148,5 @@ TEMPLATE_END
 	margin-left: 5px;
 }
 </style>
+@@}
 </script>

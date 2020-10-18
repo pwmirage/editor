@@ -24,17 +24,17 @@
 	<div class="maps">
 		{foreach map_id in $maps}
 			{assign map = $maps[map_id]}
-			<div class="map" id="map-{@$map.id}" data-onclick="win.select_map('{@$map.id}')" >{@$map.name}</div>
+			<div class="map" id="map-{@$map.id}" onclick="{serialize $win}.select_map('{@$map.id}')" >{@$map.name}</div>
 		{/foreach}
 	</div>
 	<div style="flex: 1;"></div>
 	<div style="margin-top: 8px;">
-		<a class="button disabled" id="open" style="float: right;" data-onclick="win.open_map()">Open</a>
+		<a class="button disabled" id="open" style="float: right;" onclick="{serialize $win}.open_map()">Open</a>
 	</div>
 </div>
 </div>
 
-TEMPLATE_END
+{@@
 <style>
 .window > .content {
 	overflow: hidden;
@@ -67,6 +67,7 @@ TEMPLATE_END
 	border: 1px dashed #000;
 }
 </style>
+@@}
 
 </script>
 
