@@ -132,7 +132,7 @@
 }
 
 #item_info {
-	position: absolute;
+	position: fixed;
 	background-color: rgba(0, 0, 0, 0.9);
 	color: #fff;
 }

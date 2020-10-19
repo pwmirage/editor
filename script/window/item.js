@@ -96,9 +96,8 @@ class ItemChooserWindow extends ChooserWindow {
 		const info = this.shadow.querySelector('#item_info');
 
 		const item_el = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
-		const content = this.shadow.querySelector('.content').getBoundingClientRect();
-		info.style.left = item_el.right - content.left + 3 + 'px';
-		info.style.top = item_el.top - content.top + 'px';
+		info.style.left = item_el.right + 3 + 'px';
+		info.style.top = item_el.top + 'px';
 		
 		console.log(idx + ': ' + is_hover);
 	}
