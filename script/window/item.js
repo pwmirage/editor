@@ -27,6 +27,7 @@ class ItemChooserWindow extends ChooserWindow {
 		await super.init();
 		this.select_tab(0);
 		this.shadow.querySelector('#item_info').replaceWith(...this.item_el);
+		this.shadow.querySelector('#item_info').style.display = 'none';
 	}
 
 	reload_items() {
@@ -41,11 +42,6 @@ class ItemChooserWindow extends ChooserWindow {
 				const item = this.items[this.pager_offset + i++];
 
 				el.src = item ? Item.get_icon(item.icon || 0) : 'data:,';
-				if (item) {
-					el.title = item.name + ' #' + item.id;
-				} else {
-					el.title = '';
-				}
 
 				if (i % 64 == 0) {
 					await new Promise((resolve) => setTimeout(resolve, 1));
