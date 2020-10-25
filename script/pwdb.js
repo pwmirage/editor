@@ -14,7 +14,7 @@ const g_db_meta = {
 	project: {},
 };
 
-const pwdb_register_data_type = async (type, url) => {
+const pwdb_register_data_type = async (type, show_tag = true, url) => {
 	let resolve = null;
 
 	if (g_db_promise) {
@@ -23,7 +23,7 @@ const pwdb_register_data_type = async (type, url) => {
 		g_db_promise = new Promise((r) => { resolve = r; });
 	}
 
-	const tag = Loading.show_tag('Loading ' + type);
+	const tag = show_tag ? Loading.show_tag('Loading ' + type) : null;
 	let cached = await new Promise((resolve, reject) => {
 		if (g_db_cache) return resolve(true);
 		if (!window.indexedDB) return resolve(false);
@@ -76,7 +76,9 @@ const pwdb_register_data_type = async (type, url) => {
 	db.register_type(type, g_db[type]);
 
 	if (resolve) resolve();
-	Loading.hide_tag(tag);
+	if (show_tag) {
+		Loading.hide_tag(tag);
+	}
 }
 
 const g_pwdb_init_promise = Promise.all([
@@ -88,6 +90,20 @@ const g_pwdb_init_promise = Promise.all([
 	pwdb_register_data_type('npcs'),
 	pwdb_register_data_type('monsters'),
 	pwdb_register_data_type('items'),
+	pwdb_register_data_type('weapon_major_types'),
+	pwdb_register_data_type('weapon_minor_types', false),
+	pwdb_register_data_type('armor_major_types', false),
+	pwdb_register_data_type('armor_minor_types', false),
+	pwdb_register_data_type('decoration_major_types', false),
+	pwdb_register_data_type('decoration_minor_types', false),
+	pwdb_register_data_type('medicine_major_types', false),
+	pwdb_register_data_type('medicine_minor_types', false),
+	pwdb_register_data_type('material_major_types', false),
+	pwdb_register_data_type('material_minor_types', false),
+	pwdb_register_data_type('projectile_types', false),
+	pwdb_register_data_type('quiver_types', false),
+	pwdb_register_data_type('armor_sets', false),
+	pwdb_register_data_type('equipment_addons'),
 ]);
 //pwdb_register_data_type('quests');
 
@@ -97,8 +113,8 @@ db.load_map = async (name) => {
 	}
 
 	await Promise.all([
-		pwdb_register_data_type('spawners_' + name, ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
-		pwdb_register_data_type('resources_' + name, ROOT_URL + 'data/base/map/' + name + '/resources.json'),
+		pwdb_register_data_type('spawners_' + name, true, ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
+		pwdb_register_data_type('resources_' + name, true, ROOT_URL + 'data/base/map/' + name + '/resources.json'),
 		g_pwdb_init_promise
 	]);
 }
