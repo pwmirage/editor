@@ -40,6 +40,7 @@ class Template {
 			.replace(/(^\s+|\s+$)/gm, '' /* trim each line (tabs & spaces) */)
 			.replace(/\n/g, '' /* don't break `out` with multi-line strings */)
 			.replace(/"/g, '\\"' /* escape double quotes */)
+			.replace(/{\*.*?\*}/g, '' /* remove comments */)
 			.replace(/{@@(.*?)@@}/g, (match, content) => { /* raw text block */
 				return content
 					.replace(/{/g, "&#123;").replace(/}/g, "&#125;" /* mangle braces so they're not processed below */)
@@ -47,7 +48,7 @@ class Template {
 			.replace(/{(.*?[^\\])}/g, (match, content) => { /* for each code block */
 				return '";\n' + content
 					.replace(/\\"/g, '"' /* don't escape double quotes -> they're real strings now */)
-					.replace(/\$/g, "local." /* $ variable access */)
+					.replace(/(^|[^\\])\$/g, "$1local." /* $ variable access */)
 					.replace(/^assign (.*)$/, "local.$1;" /* setup new $ variable */)
 					.replace(/^(?:foreach|for) \s*(.*?)\s*=(.*?);(.*?);(.*?)$/, "{const _bckup_name=\"$1\"; const _bckup=local[_bckup_name]; for (let $1 =$2;$3;$4) { local[_bckup_name] = $1;" /* make the local variable available with $variable syntax, so also backup the previous value of local[var_name] */)
 					.replace(/^(?:foreach|for) (.*) (of|in) (.*)$/, "{const _bckup_name=\"$1\"; const _bckup=local[_bckup_name]; for (const $1 $2 $3) { local[_bckup_name] = $1;")
@@ -69,7 +70,8 @@ class Template {
 				+ append_s + '"';
 			})
 			.replace(/&#123;/g, '{').replace(/&#125;/g, '}' /* un-mangle braces */)
-			.replace(/\\}/g, '}' /* get rid of escaped braces */);
+			.replace(/\\}/g, '}' /* get rid of escaped braces */)
+			.replace(/\\\$/g, '$' /* get rid of escaped $ */);
 		;
 		return '\'use strict\';\nlet out = "' + content + '";\nreturn out;';
 	}
@@ -96,8 +98,8 @@ class Template {
 			this.compile();
 		}
 
-		this.args = args;
-		const html_str = this.func(this, args);
+		this.args = args || {};
+		const html_str = this.func(this, this.args);
 
 		const el = document.createElement('template');
 		el.innerHTML = html_str;
@@ -114,7 +116,7 @@ class Template {
 		return this.data;
 	}
 
-	reload(selector, args = this.args) {
+	reload(selector, args) {
 		const raw = this.raw_data.querySelector(selector);
 
 		const real = (() => {
@@ -142,7 +144,10 @@ class Template {
 		const new_fn = new Function('tpl', 'local', new_fn_text);
 
 		const new_real = document.createElement('template');
-		new_real.innerHTML = new_fn(this, args);
+		if (args) {
+			Object.assign(this.args, args);
+		}
+		new_real.innerHTML = new_fn(this, this.args);
 		const new_els = [...new_real.content.childNodes];
 		real.replaceWith(...new_els);
 
