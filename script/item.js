@@ -7,9 +7,9 @@ class Item {
 		{ id: 0, name: 'Invalid' },
 		{ id: 1, name: 'Weapon' },
 		{ id: 2, name: 'Armor' },
-		{ id: 3, name: 'Material' },
-		{ id: 4, name: 'Jewelery' },
-		{ id: 5, name: 'Potion' },
+		{ id: 3, name: 'Jewelery' },
+		{ id: 4, name: 'Potion' },
+		{ id: 5, name: 'Material' },
 		{ id: 6, name: 'Damage Rune' },
 		{ id: 7, name: 'Defense Rune' },
 		{ id: 8, name: 'Skillbook' },
@@ -44,6 +44,8 @@ class Item {
 		{ id: 37, name: 'Teleport Stone' },
 		{ id: 38, name: 'Dye' }
 	];
+
+
 
 	static typeid(name) {
 		name = name.toLowerCase();
@@ -162,6 +164,16 @@ class Item {
 		if (Item.iconset_cache) {
 			const cache = Item.iconset_cache.transaction(['icons'], 'readwrite').objectStore('icons');
 			cache.add({ id: 0, arr: Item.icons });
+		}
+	}
+
+	static get_color_by_name(name) {
+		if (name.startsWith('★')) {
+			return 'gold';
+		} else if (name.startsWith('☆☆☆')) {
+			return 'purple';
+		} else if (name.startsWith('☆')) {
+			return 'blue';
 		}
 	}
 }
