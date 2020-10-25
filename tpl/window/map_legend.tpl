@@ -15,7 +15,7 @@
 	</div>
 
 	<div>
-		<div class="collapsible" onclick="{serialize $win}.collapse(this.currentTarget);">
+		<div class="collapsible" onclick="{serialize $win}.collapse(this);">
 			<label><input type="checkbox" class="checkbox" id="npc-show" checked><span>Show NPCs  </span></label>
 			<img src="/editor/img/spawner-npc.png" style="vertical-align: sub; width: 22px; margin-left: 42px;">
 		</div>
@@ -29,7 +29,7 @@
 	</div>
 
 	<div>
-		<div class="collapsible" onclick="{serialize $win}.collapse(this.currentTarget);">
+		<div class="collapsible" onclick="{serialize $win}.collapse(this);">
 			<label><input type="checkbox" class="checkbox" id="resource-show" checked><span>Show Resources  </span></label>
 			<img src="/editor/img/spawner-resource.png" style="vertical-align: sub; width: 22px; margin-left: 9px;">
 		</div>
@@ -43,7 +43,7 @@
 	</div>
 
 	<div>
-		<div class="collapsible" onclick="{serialize $win}.collapse(this.currentTarget);">
+		<div class="collapsible" onclick="{serialize $win}.collapse(this);">
 			<label><input type="checkbox" class="checkbox" id="mob-show" checked><span>Show mobs </span></label>
 			<img src="/editor/img/spawner-mob.png" style="vertical-align: sub; width: 22px; margin-left: 39px;">
 		</div>

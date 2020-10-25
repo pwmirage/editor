@@ -117,7 +117,7 @@
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
 	{if $spawner._db.type.startsWith('spawners_')}
-		<label><input type="checkbox" oninput="{serialize $win}.set_is_npc(this.currentTarget.checked);" class="checkbox" {if $spawner.is_npc}checked{/if}><span>Is NPC</span></label>
+		<label><input type="checkbox" oninput="{serialize $win}.set_is_npc(this.checked);" class="checkbox" {if $spawner.is_npc}checked{/if}><span>Is NPC</span></label>
 	{/if}
 	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}

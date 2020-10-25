@@ -63,7 +63,7 @@
 <div class="content flex-rows">
 	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
 		<span>Search:</span>
-		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.currentTarget.value);">
+		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);">
 		{for i = 0; i < $win.tabs.length; i++}
 			{assign tab = $win.tabs[i]}
 			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
