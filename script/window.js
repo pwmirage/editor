@@ -63,7 +63,7 @@ class Window {
 
 	tpl_compile_cb(dom) {
 		for (const el of dom.querySelectorAll('[data-onload]')) {
-			const f_str = el.dataset[c];
+			const f_str = el.dataset.onload;
 			el.removeAttribute('data-onload');
 			const f = new Function(f_str);
 			f.call(el);
@@ -107,8 +107,38 @@ class Window {
 		};
 		const p = path[path.length - 1];
 		const val = get_obj()[p];
+
+		const is_float = el.classList.contains('is_float');
 		el.checked = !!val;
-		el.value = val ?? "";
+		if (el.type == 'number' || (el.nodeName != 'INPUT' && el.classList.contains('number'))) {
+			if (is_float) {
+				el.value = (Math.round((val || 0) * 1000) / 1000);
+			} else {
+				el.value = val || "0";
+			}
+		} else {
+			el.value = val ?? "";
+		}
+
+		if (el.nodeName != 'INPUT') {
+			el.textContent = el.value;
+		}
+
+		const create_range = (root, index) => {
+			const tree_walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, (elem) => {
+				if(index > elem.textContent.length){
+					index -= elem.textContent.length;
+					return NodeFilter.FILTER_REJECT
+				}
+				return NodeFilter.FILTER_ACCEPT;
+			});
+
+			const c = tree_walker.nextNode();
+			const r = new Range();
+			r.setStart(c || root, index);
+			return r;
+		};
+
 		el.oninput = () => {
 			const set = (val) => {
 				get_obj()[p] = val;
@@ -119,8 +149,34 @@ class Window {
 				set(el.checked ?? 0);
 			} else if (el.type == 'number') {
 				set(parseInt(el.value) || 0);
-			} else {
+			} else if (el.type == 'text') {
 				set(el.value || "");
+			} else if (el.nodeName != 'INPUT' && el.classList.contains('text')) {
+				set(el.textContent || "");
+			} else if (el.nodeName != 'INPUT' && el.classList.contains('number')) {
+				const numberText = el.textContent.replace(/[^0-9\-\.\,]+/g, '');
+				if (numberText !== el.textContent) {
+					el.focus();
+					/* for debug purposes check window selection as well */
+					const selection = [this.shadow.getSelection(), window.getSelection()].find(s => s.rangeCount > 0);
+					const r1 = selection.getRangeAt(0);
+					r1.setStart(el, 0);
+					const off = Math.max(r1.toString().length - 1, 0);
+
+					el.textContent = numberText;
+
+					selection.removeAllRanges();
+					const r2 = create_range(el, off);
+					selection.addRange(r2);
+				}
+
+				let num;
+				if (is_float) {
+					num = parseFloat(el.textContent.replace(/\,/g, '.'));
+				} else {
+					num = parseInt(el.textContent);
+				}
+				set(num);
 			}
 			db.commit(obj);
 		};

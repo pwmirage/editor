@@ -131,11 +131,16 @@
 	margin-top: 10px;
 }
 
+.flex-justify > * {
+	justify-content: center;
+}
+
 .v-centered {
 	display: flex;
 	align-items: center;
 }
 
+.input.text,
 input[type=text] {
 	width: 100%;
 	padding: 4px 6px;
@@ -252,8 +257,11 @@ select:hover {
 	color: rgba(94, 52, 52, 1);
 }
 
+.input.text,
+.input.number,
 input[type="text"],
 input[type="number"] {
+	display: inline-block;
 	background-color: rgba(251, 241, 241, 1);
 	border: 1px solid rgba(224, 176, 176, 1);
 	border-radius: 0;
@@ -264,10 +272,23 @@ input[type="number"] {
 	line-height: 1.48;
 }
 
+.input.text,
+.input.number {
+	display: inline-block;
+	height: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 100px;
+}
+
 input[type="number"] {
 	width: 100%;
 }
 
+.input.text:hover,
+.input.text:active,
+.input.number:hover,
+.input.number:active,
 input[type="text"]:hover,
 input[type="text"]:active,,
 input[type="number"]:hover,
