@@ -11,7 +11,7 @@ class UnsupportedBrowserWindow extends Window {
 		this.tpl.compile_cb = (el) => this.tpl_compile_cb(el);
 
 		const data = await this.tpl.run( { win: this });
-		shadow.append(...data);
+		shadow.append(data);
 
 		const b = shadow.querySelector('#close_btn');
 		b.onclick = () => this.close();

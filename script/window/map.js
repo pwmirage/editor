@@ -17,7 +17,7 @@ class LegendWindow extends Window {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run( { win: this });
-		shadow.append(...data);
+		shadow.append(data);
 
 		shadow.querySelectorAll('input').forEach((e) => {
 			e.oninput = () => this.filter();

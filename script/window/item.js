@@ -26,7 +26,7 @@ class ItemChooserWindow extends ChooserWindow {
 
 		await super.init();
 		this.select_tab(0);
-		this.shadow.querySelector('#item_info').replaceWith(...this.item_el);
+		this.shadow.querySelector('#item_info').replaceWith(this.item_el);
 		this.shadow.querySelector('#item_info').style.display = 'none';
 	}
 

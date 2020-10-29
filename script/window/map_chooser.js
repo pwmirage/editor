@@ -11,7 +11,7 @@ class MapChooserWindow extends Window {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run( { win: this, maps: PWMap.maps });
-		shadow.append(...data);
+		shadow.append(data);
 
 		const search_el = shadow.querySelector('#search');
 		search_el.oninput = (e) => {

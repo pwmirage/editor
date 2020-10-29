@@ -16,7 +16,7 @@ class SpawnerGroupWindow extends PopupWindow {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run({ win: this, group: this.group, spawner: this.spawner });
-		shadow.append(...data);
+		shadow.append(data);
 
 		return super.init();
 	}
@@ -34,7 +34,7 @@ class SpawnerWindow extends Window {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run({ win: this, spawner: this.spawner });
-		shadow.append(...data);
+		shadow.append(data);
 
 		this.open_groups = [];
 

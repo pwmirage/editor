@@ -14,7 +14,7 @@ class ChooserWindow extends Window {
 		this.args.npc = this.npc;
 		const data = this.tpl.run(this.args);
 
-		shadow.append(...data);
+		shadow.append(data);
 		await super.init();
 		this.maximize();
 		this.recalculate_pager();

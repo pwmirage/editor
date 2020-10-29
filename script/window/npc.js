@@ -17,7 +17,7 @@ class NPCGoodsWindow extends Window {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run({ win: this, goods: this.goods });
-		shadow.append(...data);
+		shadow.append(data);
 
 		await super.init();
 		this.select(0);
@@ -72,7 +72,7 @@ class NPCWindow extends Window {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run({ win: this, npc: this.npc });
-		shadow.append(...data);
+		shadow.append(data);
 
 		this.save_greeting();
 		super.init();

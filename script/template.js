@@ -41,6 +41,7 @@ class Template {
 			.replace(/\n/g, '' /* don't break `out` with multi-line strings */)
 			.replace(/"/g, '\\"' /* escape double quotes */)
 			.replace(/{\*.*?\*}/g, '' /* remove comments */)
+			.replace(/\\{/g, "&#123;").replace(/\\}/g, "&#125;" /* mangle escaped braces so they're not processed below */)
 			.replace(/{@@(.*?)@@}/g, (match, content) => { /* raw text block */
 				return content
 					.replace(/{/g, "&#123;").replace(/}/g, "&#125;" /* mangle braces so they're not processed below */)
@@ -85,9 +86,7 @@ class Template {
 		const script_text = tpl_script.text;
 
 		this.raw_data = document.createElement('div');
-		const el = document.createElement('template');
-		el.innerHTML = script_text;
-		this.raw_data.append(...el.content.childNodes);
+		this.raw_data.innerHTML = script_text;
 
 		const f_text = Template.build(script_text);
 		this.func = new Function('tpl', 'local', f_text);
@@ -101,33 +100,18 @@ class Template {
 		this.args = args || {};
 		const html_str = this.func(this, this.args);
 
-		const el = document.createElement('template');
+		const el = document.createElement('div');
 		el.innerHTML = html_str;
-		this.data = [...el.content.childNodes];
+		this.data = el;
 		if (this.compile_cb) {
-			for (const dom of this.data) {
-				if (!dom.querySelectorAll) {
-					/* not an Element */
-					continue;
-				}
-				this.compile_cb(dom);
-			}
+			this.compile_cb(this.data);
 		}
 		return this.data;
 	}
 
 	reload(selector, args) {
 		const raw = this.raw_data.querySelector(selector);
-
-		const real = (() => {
-			for (const el of this.data) {
-				if (!el.querySelector) continue;
-				const data = (el.parentElement || el).querySelector(selector);
-				if (data) return data;
-			}
-
-			return null;
-		})();
+		const real = this.data.querySelector(selector);
 
 		if (!raw || !real) {
 			return false;
