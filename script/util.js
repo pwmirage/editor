@@ -117,3 +117,41 @@ const calculate_middle_color = (color1 = 'FF0000', color2 = '00FF00', ratio = 0)
 
 	return hex(r) + hex(g) + hex(b);
 };
+
+const align_dom = (elements, interval) => {
+	let min_left = 99999;
+	const sets = [];
+
+	for (const el of elements) {
+		const bounds = el.getBoundingClientRect();
+		el._mg_left = bounds.left;
+	}
+
+	const sorted = [...elements].sort((a, b) => {
+		if (a._mg_left == b._mg_left) return 0;
+		return a._mg_left < b._mg_left ? 1 : -1;
+	});
+
+	let align_to = null;
+
+	for (const el of sorted) {
+		if (el.classList.contains('noalign')) {
+			continue;
+		}
+
+		if (!align_to) {
+			align_to = el;
+			continue;
+		}
+
+		const diff = align_to._mg_left - el._mg_left;
+		if (diff <= interval) {
+			el.style.marginLeft = diff + (parseInt(el.style.marginLeft) || 0) + 'px';
+		} else {
+			align_to = el;
+			const corr = interval - diff % interval;
+			el._mg_left += corr;
+			el.style.marginLeft = corr + (parseInt(el.style.marginLeft) || 0) + 'px';
+		}
+	}
+}
