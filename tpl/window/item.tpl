@@ -286,9 +286,8 @@
 			{if $edit}
 				<div class="flex-columns" style="align-items: center; margin-top: 3px;">
 					<span style="white-space: nowrap;">Decompose to </span>
-					debugger;
 					{assign decomp = db.items[$item.element_id || 0]}
-					<img class="item" src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}" ondblclick="ItemChooserWindow.open();" tabindex="0">
+					<span class="item" ondblclick="ItemChooserWindow.open();" tabindex="0"><img{ } src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}"></span>
 					<span style="">{@$item.element_id ? $decomp?.name || '(unknown)' : 'none'} #{@$item.element_id} x{@$item.element_num}</span>
 				</div>
 				<div class="flex-columns">
@@ -544,6 +543,10 @@
 	height: 100%;
 	background-color: var(--header-color);
 	opacity: 0.4;
+}
+
+.item > img {
+	user-select: none;
 }
 
 #desc > span {

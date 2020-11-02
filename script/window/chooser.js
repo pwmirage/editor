@@ -94,17 +94,6 @@ class ChooserWindow extends Window {
 		super.close();
 	}
 
-	select(type) {
-		const prev = this.shadow.querySelector('.selected');
-		if (prev) {
-			prev.classList.remove('selected');
-		}
-
-		const n = this.shadow.querySelector('*[data-type="' + type + '"]');
-		n.classList.add('selected');
-		this.selected = type;
-	}
-
 	choose(idx) {
 		if (this.onchoose) {
 			idx = parseInt(idx) + this.pager_offset;

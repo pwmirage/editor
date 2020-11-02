@@ -71,7 +71,7 @@
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.max_items_per_page; i++}
-			<img src="data:," alt="" data-type="{@$i}" onclick="{serialize $win}.select('{@$i}');" ondblclick="{serialize $win}.choose('{@$i}');">
+			<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="0"><img src="data:," alt=""></span>
 		{/for}
 	</div>
 	<div id="item_info"></div>
@@ -135,7 +135,16 @@
 	visibility: hidden;
 }
 
-#items > .selected {
+#items > .item,
+#items > .item > img {
+	outline: none;
+}
+
+#items > .item > img {
+	user-select: none;
+}
+
+#items > .item:focus {
 	box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
 	border: 1px solid var(--header-color);
 	margin-left: -1px;
@@ -144,7 +153,7 @@
 	margin-right: 3px;
 }
 
-#items > .selected:after {
+#items > .item:focus:after {
 	content: ' ';
 	position: absolute;
 	left: 0;

@@ -12,11 +12,6 @@ class ItemChooserWindow extends ChooserWindow {
 		this.items_gen = 0;
 		this.items = [];
 		this.tabs = [];
-		
-		await g_item_tpl;
-		this.item_tpl = new Template('tpl-item-info');
-		this.item_tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-		this.item_el = await this.item_tpl.run({ win: this, item: db.items.entries().next().value[1] });
 
 		const add_type_tab = (name, type) => {
 			this.tabs.push({ name: name, filter: (i) => i && i.type == type })
@@ -28,6 +23,11 @@ class ItemChooserWindow extends ChooserWindow {
 
 		await super.init();
 		this.select_tab(0);
+
+		await g_item_tpl;
+		this.item_tpl = new Template('tpl-item-info');
+		this.item_tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+		this.item_el = await this.item_tpl.run({ win: this, item: db.items.entries().next().value[1] });
 		this.shadow.querySelector('#item_info').replaceWith(this.item_el.querySelector('#item_info'));
 		this.shadow.querySelector('#item_info').style.display = 'none';
 	}
@@ -43,7 +43,7 @@ class ItemChooserWindow extends ChooserWindow {
 			for (const el of els) {
 				const item = this.items[this.pager_offset + i++];
 
-				el.src = item ? Item.get_icon(item.icon || 0) : 'data:,';
+				el.firstElementChild.src = item ? Item.get_icon(item.icon || 0) : 'data:,';
 
 				if (i % 64 == 0) {
 					await new Promise((resolve) => setTimeout(resolve, 1));
