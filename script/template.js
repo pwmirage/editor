@@ -39,6 +39,7 @@ class Template {
 		const content = str
 			.replace(/(^\s+|\s+$)/gm, '' /* trim each line (tabs & spaces) */)
 			.replace(/\n/g, '' /* don't break `out` with multi-line strings */)
+			.replace(/\\"/g, '&quot;' /* escape double quotes */)
 			.replace(/"/g, '\\"' /* escape double quotes */)
 			.replace(/{\*.*?\*}/g, '' /* remove comments */)
 			.replace(/\\{/g, "&#123;").replace(/\\}/g, "&#125;" /* mangle escaped braces so they're not processed below */)
@@ -120,7 +121,7 @@ class Template {
 		/* fix outerHTML mangling some (technically invalid) syntax */
 		const raw_str = raw.outerHTML
 				.replace(/&amp;/g, '&')
-				.replace(/\{if="" /g, '{if ')
+				.replace(/(?<!\s)="" /g, ' ')
 				.replace(/&lt;/g, '<')
 				.replace(/&gt;/g, '>')
 		;

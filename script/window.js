@@ -69,6 +69,141 @@ class Window {
 			f.call(el);
 		}
 
+		for (const el of dom.querySelectorAll('[data-select]')) {
+			const f_str = el.dataset.select;
+			el.removeAttribute('data-select');
+			const link_str = el.dataset.link;
+			el.removeAttribute('data-link');
+			const title_str = el.dataset.title;
+
+			el.classList.add('input');
+			el.classList.add('input-select');
+
+			const select_arr = new Function('return ' + f_str)(this.tpl, this);
+			el._mg_select = select_arr;
+
+			const edit_el = newElement('<span class="edit"></span>');
+			edit_el.classList.add('input-text');
+			edit_el.contentEditable = "true";
+			el.append(edit_el);
+
+			const link_wrapper_el = newElement('<div></div>');
+			const link_el = newElement('<span class="input-number"></span>');
+			link_el.dataset.link = link_str;
+			link_el.style.display = 'none';
+			link_wrapper_el.append(link_el);
+			el.append(link_wrapper_el);
+			this.tpl_compile_cb(link_wrapper_el);
+
+			const close_el = newElement('<div class="close"></div>');
+			el.append(close_el);
+			
+			close_el.onclick = () => {
+				el.classList.remove('selected');
+				edit_el.focus();
+				edit_el.textContent = '';
+				edit_el.oninput();
+			}
+
+			const hints_el = newElement('<div class="hints"></div>');
+			el.append(hints_el);
+
+			edit_el.onclick = () => {
+				el.classList.remove('selected');
+				edit_el.oninput();
+			}
+
+			edit_el.onblur = () => {
+				if (el.querySelector(':hover') != hints_el) {
+					hints_el.style.display = 'none';
+					if (hints_el.children.length == 1 && edit_el.dataset.text == hints_el.children[0].textContent) {
+						el.classList.add('selected');
+					}
+				}
+			}
+
+			edit_el.oninput = () => {
+				const search = edit_el.textContent.toLowerCase();
+				console.log(search);
+				let n = 0;
+				const hints = [];
+				for (const o of select_arr) {
+					if (o.name?.toLowerCase()?.includes(search)) {
+						hints[n++] = o;
+						if (n > 9) {
+							break;
+						}
+					}
+				}
+
+				n = 0;
+				const hint_els = [];
+				for (const t of hints) {
+					if (n > 8) {
+						const div = document.createElement('span');
+						div.className = 'text';
+						div.textContent = '...';
+						hint_els.push(div);
+
+						div.onclick = async () => {
+							const win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
+							win.onchoose = (type) => {
+								if (type) {
+									edit_el.dataset.text = edit_el.title = edit_el.textContent = type.name;
+									link_el.textContent = type.id;
+									link_el.oninput();
+									el.classList.add('selected');
+								} else {
+									edit_el.focus();
+								}
+							};
+						};
+
+						break;
+					}
+					const div = document.createElement('span');
+					n++;
+					const id = t.id;
+					const pos = t.name.toLowerCase().indexOf(search);
+					div.innerHTML = t.name.substring(0, pos) + '<b>' + t.name.substring(pos, pos + search.length) + '</b>' + t.name.substring(pos + search.length);
+					div.onclick = () => {
+						edit_el.dataset.text = edit_el.title = edit_el.textContent = div.textContent;
+						link_el.textContent = id;
+						link_el.oninput();
+						el.classList.add('selected');
+					};
+					hint_els.push(div);
+				}
+
+				let c = null;
+				while ((c = hints_el.firstChild)) {
+					c.remove();
+				}
+				hints_el.append(...hint_els);
+				hints_el.style.display = '';
+			};
+
+			if (link_el.textContent && link_el.textContent != '0') {
+				const type = select_arr[link_el.textContent] || select_arr[0];
+				edit_el.dataset.text = edit_el.title = edit_el.textContent = type?.name || '(unknown)';
+				link_el.textContent = type?.id ?? 0;
+				link_el.oninput();
+				el.classList.add('selected');
+			}
+		}
+
+		for (const el of dom.querySelectorAll('[data-input]')) {
+			el.removeAttribute('data-input');
+
+			el.contentEditable = true;
+			el.classList.add('input');
+			if (el.classList.contains('input-number')) {
+				el.classList.add('input-number');
+			} else {
+				el.classList.add('input-text');
+			}
+		}
+
 		for (const el of dom.querySelectorAll('[data-link]')) {
 			const f_str = el.dataset.link.split('=>');
 			el.removeAttribute('data-link');
@@ -110,7 +245,7 @@ class Window {
 
 		const is_float = el.classList.contains('is_float');
 		el.checked = !!val;
-		if (el.type == 'number' || (el.nodeName != 'INPUT' && el.classList.contains('number'))) {
+		if (el.type == 'number' || (el.nodeName != 'INPUT' && el.classList.contains('input-number'))) {
 			if (is_float) {
 				el.value = (Math.round((val || 0) * 1000) / 1000);
 			} else {
@@ -122,6 +257,7 @@ class Window {
 
 		if (el.nodeName != 'INPUT') {
 			el.textContent = el.value;
+			el.value = null;
 		}
 
 		const create_range = (root, index) => {
@@ -139,7 +275,17 @@ class Window {
 			return r;
 		};
 
-		el.oninput = () => {
+		const prev_oninput = el.oninput;
+		/* the original oninput wasn't called when we set intiial val, so call it manually now */
+		if (prev_oninput) {
+			prev_oninput.call(el, {});
+		}
+
+		el.oninput = (e) => {
+			if (prev_oninput) {
+				prev_oninput.call(el, e);
+			}
+
 			const set = (val) => {
 				get_obj()[p] = val;
 			};
@@ -151,9 +297,9 @@ class Window {
 				set(parseInt(el.value) || 0);
 			} else if (el.type == 'text') {
 				set(el.value || "");
-			} else if (el.nodeName != 'INPUT' && el.classList.contains('text')) {
+			} else if (el.nodeName != 'INPUT' && el.classList.contains('input-text')) {
 				set(el.textContent || "");
-			} else if (el.nodeName != 'INPUT' && el.classList.contains('number')) {
+			} else if (el.nodeName != 'INPUT' && el.classList.contains('input-number')) {
 				const numberText = el.textContent.replace(/[^0-9\-\.\,]+/g, '');
 				if (numberText !== el.textContent) {
 					el.focus();

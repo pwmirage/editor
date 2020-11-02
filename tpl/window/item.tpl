@@ -1,188 +1,324 @@
 <script id="tpl-item-info" type="text/x-dot-template">
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
-{assign edit = true}
-<div id="item_info" class="item_info flex-rows {if $edit}edit{/if}" data-onload="const inputs = this.querySelectorAll('.input'); if ({@$edit}) \{ for (const input of inputs) \{ input.setAttribute('contenteditable', 'true'); input.textContent = input.value; }; setTimeout(() => align_dom(inputs, 25), 1); } else \{ for (const input of inputs) input.classList.remove('input'); }">
+<div class="window">
+<div class="content">
+{* dummy *}
+</div>
+</div>
+
+<div id="item_info" class="item_info {if $edit}edit{/if}" data-onload="">
 
 	{if $item.type == Item.typeid('Weapon')}
 		{* ======== WEAPONS ========= *}
-		<span class="flex-columns" style=""><span class="input text noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
-		<span style="">Weapon - {@db.weapon_major_types[$item.major_type]?.name || "(unknown)"} - {@db.weapon_minor_types[$item.minor_type]?.name || "(unknown)"}</span>
-		{if $edit || $item.character_combo_id}
-			<span style="">Requisite Class <span class="input number" data-link="{serialize $item} => 'character_combo_id'"></span></span>
-		{/if}
-		<span style="">Lv. <span class="input number width-5c" data-link="{serialize $item} => 'level'"></span></span>
-		<span style="">Attack Rate(atks/sec) {@(db.weapon_minor_types[$item.minor_type]?.attack_speed)?.toFixed(2) || "(unknown)"}</span>
-		<span style="">Range <span class="input number width-5c" data-link="{serialize $item} => 'attack_range'"></span></span>
-		{if $edit || $item.damage_high}
-			<span style="">Physical Attack&nbsp;
-				<span class="input number width-5c" data-link="{serialize $item} => 'damage_low'"></span>
-				&nbsp;-&nbsp;
-				<span class="input number width-5c noalign" data-link="{serialize $item} => 'damage_low'"></span>
-			</span>
-		{/if}
-
-		{if $edit || $item.magic_damage_high}
-			<span style="">Magic Attack&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<span class="input number width-5c" data-link="{serialize $item} => 'magic_damage_low'"></span>
-				&nbsp;-&nbsp;
-				<span class="input number width-5c noalign" data-link="{serialize $item} => 'magic_damage_low'"></span>
-			</span>
-		{/if}
-
-		<span style="">Durability(drop)&nbsp;
-			<span class="input number width-5c" data-link="{serialize $item} => 'durability_drop_min'"></span>
+		<span class="flex-columns" style=""><span data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
+			<span data-select="Item.types" class="noalign" style="width: 175px;" data-link="{serialize $item} => 'type'" data-title="Change item type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+		<span style="">
+			<span data-select="db.weapon_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change weapon type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 			&nbsp;-&nbsp;
-			<span class="input number width-5c noalign" data-link="{serialize $item} => 'durability_drop_max'"></span>
+			<span data-select="db.weapon_minor_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change weapon subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 		</span>
-		{if $edit}
-			<span style="">Durability(craft)&nbsp;
-				<span class="input number width-5c" data-link="{serialize $item} => 'durability_min'"></span>
+		{if $edit || $item.character_combo_id}
+			<span style="">Requisite Class <span data-input class="input-number" data-link="{serialize $item} => 'character_combo_id'"></span></span>
+		{/if}
+
+		<div class="section flex-rows">
+			<span class="section-header">Base stats</span>
+			<span style="">Lv. <span data-input class="input-number width-5c" data-link="{serialize $item} => 'level'"></span></span>
+			<span style="">Attack Rate(atks/sec) {@(db.weapon_minor_types[$item.minor_type]?.attack_speed)?.toFixed(2) || "(unknown)"}</span>
+			<span style="">Range <span data-input class="input-number width-5c" data-link="{serialize $item} => 'attack_range'"></span></span>
+			{if $edit || $item.damage_high}
+				<span style="">Physical Attack&nbsp;
+					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'damage_low'"></span>
+					&nbsp;-&nbsp;
+					<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'damage_low'"></span>
+				</span>
+			{/if}
+
+			{if $edit || $item.magic_damage_high}
+				<span style="">Magic Attack&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'magic_damage_low'"></span>
+					&nbsp;-&nbsp;
+					<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'magic_damage_low'"></span>
+				</span>
+			{/if}
+
+			<span style="">Durability(drop)&nbsp;
+				<span data-input class="input-number width-5c" data-link="{serialize $item} => 'durability_drop_min'"></span>
 				&nbsp;-&nbsp;
-				<span class="input number width-5c noalign" data-link="{serialize $item} => 'durability_max'"></span>
+				<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'durability_drop_max'"></span>
 			</span>
-		{/if}
-		{if $edit || $item.require_level}<span style="">Requisite Lv. <span class="input number width-5c" data-link="{serialize $item} => 'require_level'"></span></span>{/if}
-		{if $edit || $item.require_strength}<span style="">Requisite Strength <span class="input number width-5c" data-link="{serialize $item} => 'require_strength'"></span></span>{/if}
-		{if $edit || $item.require_dexterity}<span style="">Requisite Dexterity <span class="input number width-5c" data-link="{serialize $item} => 'require_dexterity'"></span></span>{/if}
-		{if $edit || $item.require_magic}<span style="">Requisite Magic <span class="input number width-5c" style="margin-left: 15px;" data-link="{serialize $item} => 'require_magic'"></span></span>{/if}
-		{if $edit || $item.require_vitality}<span style="">Requisite Vitality <span class="input number width-5c" style="margin-left: 15px;" data-link="{serialize $item} => 'require_vitality'"></span></span>{/if}
+			{if $edit}
+				<span style="">Durability(craft)&nbsp;
+					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'durability_min'"></span>
+					&nbsp;-&nbsp;
+					<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'durability_max'"></span>
+				</span>
+			{/if}
+		</div>
+
+		<div id="prereqs" class="section flex-columns flex-all" style="flex-wrap: wrap;">
+			<span class="section-header" style="width: 140px;">Prerequisites</span>
+			{if $edit || $item.require_level}<span style="">&nbsp;Lv. {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_level'"></span></span>{/if}
+			{if $edit || $item.require_vitality}<span style="">Vitality {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_vitality'"></span></span>{/if}
+			{if $edit || $item.require_magic}<span style="">Magic {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_magic'"></span></span>{/if}
+			{if $edit || $item.require_strength}<span style="">Strength {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_strength'"></span></span>{/if}
+			{if $edit || $item.require_dexterity}<span style="margin-right: 10px;">Dexterity {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_dexterity'"></span></span>{/if}
+		</div>
+
+		<div class="section flex-rows">
+			<span class="section-header">Addons</span>
+			{if $edit}
+				<div class="flex-columns" style="margin-top: 5px;">
+					<span>%</span>
+					<span style="flex: 1; margin-right: 0;"></span>
+					{for i = 0; i < 4; i++}
+						<span style="width: 42px;">{@$i}:</span>
+					{/for}
+				</div>
+			{/if}
+
+			<div id="sockets-drop" class="flex-columns">
+				<span style="line-height: 14px; margin-top: 3px; align-self: flex-start;">Sockets (drop):</span>
+				{if $edit}
+					<span style="flex: 1; margin-right: 0;"></span>
+					<div class="probs" style="">
+						{for i = 0; i < 3; i++}
+							<span data-input class="input-number is_float width-4c noalign" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'drop_socket_prob', {@$i}"></span>
+						{/for}
+						<span style="align-self: end; visibility: hidden;" class="input input-number is_float width-4c noalign"></span>
+					</div>
+				{else}
+					{assign min = $item.drop_socket_prob?.findIndex((p) => p > 0)}
+					{assign max = null}
+					{for i = $item.drop_socket_prob?.length - 1; i >= 0; i--}
+						{if $item.drop_socket_prob[i] > 0}
+							{assign max = $i}
+							{break}
+						{/if}
+					{/for}
+
+					{assign min = $min >= 0 ? $min : 0}
+					{assign max = $max >= 0 ? $max : 0}
+
+					<span style="margin-left: -4px;">{@$min}{if $max != $min} - {@$max}{/if}</span>
+				{/if}
+			</div>
+
+			<div id="sockets-craft" class="flex-columns">
+				<span style="line-height: 14px; margin-top: 3px; align-self: flex-start;">Sockets (craft):</span>
+				{if $edit}
+					<span style="flex: 1; margin-right: 0;"></span>
+					<div class="probs" style="">
+						{for i = 0; i < 3; i++}
+							<span data-input class="input-number is_float width-4c noalign" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'make_socket_prob', {@$i}"></span>
+						{/for}
+						<span style="align-self: end; visibility: hidden;" class="input input-number is_float width-4c noalign"></span>
+					</div>
+				{else}
+					{assign min = $item.make_socket_prob?.findIndex((p) => p > 0)}
+					{assign max = null}
+					{for i = $item.make_socket_prob?.length - 1; i >= 0; i--}
+						{if $item.make_socket_prob[i] > 0}
+							{assign max = $i}
+							{break}
+						{/if}
+					{/for}
+
+					{assign min = $min >= 0 ? $min : 0}
+					{assign max = $max >= 0 ? $max : 0}
+
+					<span style="margin-left: -4px;">{@$min}{if $max != $min} - {@$max}{/if}</span>
+				{/if}
+			</div>
+
+			<div id="addon-num" class="flex-columns">
+				<span style="line-height: 14px; margin-top: 3px; align-self: flex-start;">Addon num:</span>
+				{if $edit}
+					<span style="flex: 1; margin-right: 0;"></span>
+					<div class="probs" style="">
+						{for i = 0; i < 4; i++}
+							<span data-input class="input-number is_float width-4c noalign" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'addon_num_prob', {@$i}"></span>
+						{/for}
+					</div>
+				{else}
+					{assign min = $item.addon_num_prob?.findIndex((p) => p > 0)}
+					{assign max = null}
+					{for i = $item.addon_num_prob?.length - 1; i >= 0; i--}
+						{if $item.addon_num_prob[i] > 0}
+							{assign max = $i}
+							{break}
+						{/if}
+					{/for}
+
+					{assign min = $min >= 0 ? $min : 0}
+					{assign max = $max >= 0 ? $max : 0}
+
+					<span style="margin-left: -4px;">{@$min}{if $max != $min} - {@$max}{/if}</span>
+				{/if}
+			</div>
+		</div>
+
+		<div class="section flex-rows">
+			<span class="flex-columns section-header" style="width: 100%;">
+				<span style="flex: 1;">Addons{if $edit} (drop){/if}</span>
+				{if $edit}
+					<span style="width: 36px;">%</span>
+				{/if}
+			</span>
+
+			<div id="addons" class="flex-rows" style="margin-top: 3px;">
+				{if $edit}
+					{assign idx = 0}
+					{for idx = 0; idx < $item.addons.length; idx++}
+						<div class="flex-columns">
+							<span data-select="db.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'addons', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+							<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold; margin-left: 4px;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'addons', {@$idx}, 'prob'"></span>
+						</div>
+					{/for}
+
+					<div class="flex-columns" style="margin-top: 3px;">
+						<span style="flex: 1;"></span>
+						<a class="button no-break" onclick="{serialize $win}.recycle_addons('drop');">(recycle) <i class="fa fa-recycle"></i></a>
+						<a class="button no-break" onclick="{serialize $win}.add_addon('drop');">(add) <i class="fa fa-plus"></i></a>
+					</div>
+				{else if $item.addon_num_prob?.length}
+
+					{for addon of (($item.addons?.length ? $item.addons : $item.rands) || [])}
+						<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+					{/for}
+				{/if}
+			</div>
+		</div>
 
 		{if $edit}
-			<div class="flex-columns" style="margin-top: 5px;">
-				<span>Probabilities</span>
-				<span style="flex: 1; margin-right: 0;"></span>
-				{for i = 0; i < 4; i++}
-					<span style="width: 42px;">{@$i}:</span>
-				{/for}
+			<div class="section flex-rows">
+				<span class="flex-columns section-header" style="width: 100%;">
+					<span style="flex: 1;">Addons (craft)</span>
+					<span style="width: 36px;">%</span>
+				</span>
+
+				<div id="rands" class="flex-rows" style="margin-top: 3px;">
+						{assign idx = 0}
+						{for idx = 0; idx < $item.rands.length; idx++}
+							<div class="flex-columns">
+								<span data-select="db.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'rands', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+								<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold; margin-left: 4px;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'rands', {@$idx}, 'prob'"></span>
+							</div>
+						{/for}
+
+						<div class="flex-columns" style="margin-top: 3px;">
+							<span style="flex: 1;"></span>
+							<a class="button no-break" onclick="{serialize $win}.recycle_addons('craft');">(recycle) <i class="fa fa-recycle"></i></a>
+							<a class="button no-break" onclick="{serialize $win}.add_addon('drop');">(add) <i class="fa fa-plus"></i></a>
+						</div>
+				</div>
 			</div>
 		{/if}
 
-		<div id="sockets-drop" class="flex-columns">
-			<span>Sockets(drop):</span>
-			{if $edit}
-				<span style="flex: 1; margin-right: 0;"></span>
-				<div class="probs" style="">
-					{for i = 0; i < 3; i++}
-						<span class="input number is_float width-4c noalign" data-link="{serialize $item} => 'drop_socket_prob', {@$i}"></span>
-					{/for}
-					<span style="visibility: hidden;" class="input number is_float width-4c noalign" data-link="{serialize $item} => 'drop_socket_prob', 0"></span>
-				</div>
-			{else}
-				{assign min = $item.drop_socket_prob?.findIndex((p) => p > 0)}
-				{assign max = null}
-				{for i = $item.drop_socket_prob?.length - 1; i >= 0; i--}
-					{if $item.drop_socket_prob[i] > 0}
-						{assign max = $i}
-						{break}
+
+		<div class="section flex-rows">
+			<span class="flex-columns section-header" style="width: 100%;">
+				<span style="flex: 1;">Unique addon</span>
+				{if $edit}
+					<span style="width: 36px;">%</span>
+				{/if}
+			</span>
+			<div id="unique-addons" class="flex-rows" style="margin-top: 3px;">
+				{if $edit || $item.probability_unique}
+					<span>
+						Probability to have a unique addon&nbsp;
+						<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'probability_unique'"></span>
+					</span>
+					{if $edit}
+						<div id="uniques" class="flex-rows" style="margin-top: 3px;">
+								{assign idx = 0}
+								{for idx = 0; idx < $item.uniques.length; idx++}
+									<div class="flex-columns">
+										<span data-select="db.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'uniques', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+										<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold; margin-left: 4px;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'uniques', {@$idx}, 'prob'"></span>
+									</div>
+								{/for}
+
+								<div class="flex-columns" style="margin-top: 3px;">
+									<span style="flex: 1;"></span>
+									<a class="button no-break" onclick="{serialize $win}.recycle_addons('uniques');">(recycle) <i class="fa fa-recycle"></i></a>
+									<a class="button no-break" onclick="{serialize $win}.add_addon('uniques');">(add) <i class="fa fa-plus"></i></a>
+								</div>
+						</div>
+					{else}
+						{for addon of $item.uniques}
+							{if !$addon.prob || !$addon.id}{continue}{/if}
+							<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+
+						{/for}
 					{/if}
-				{/for}
-
-				{assign min = $min >= 0 ? $min : 0}
-				{assign max = $max >= 0 ? $max : 0}
-
-				<span style="margin-left: -4px;">{@$min}{if $max != $min} - {@$max}{/if}</span>
-			{/if}
-		</div>
-
-		<div id="sockets-craft" class="flex-columns">
-			<span>Sockets(craft):</span>
-			{if $edit}
-				<span style="flex: 1; margin-right: 0;"></span>
-				<div class="probs" style="">
-					{for i = 0; i < 3; i++}
-						<span class="input number is_float width-4c noalign" data-link="{serialize $item} => 'make_socket_prob', {@$i}"></span>
-					{/for}
-					<span style="visibility: hidden;" class="input number is_float width-4c noalign" data-link="{serialize $item} => 'make_socket_prob', 0"></span>
-				</div>
-			{else}
-				{assign min = $item.make_socket_prob?.findIndex((p) => p > 0)}
-				{assign max = null}
-				{for i = $item.make_socket_prob?.length - 1; i >= 0; i--}
-					{if $item.make_socket_prob[i] > 0}
-						{assign max = $i}
-						{break}
-					{/if}
-				{/for}
-
-				{assign min = $min >= 0 ? $min : 0}
-				{assign max = $max >= 0 ? $max : 0}
-
-				<span style="margin-left: -4px;">{@$min}{if $max != $min} - {@$max}{/if}</span>
-			{/if}
-		</div>
-
-		<div id="addon-num" class="flex-columns">
-			<span>Addon num:</span>
-			{if $edit}
-				<span style="flex: 1; margin-right: 0;"></span>
-				<div class="probs" style="">
-					{for i = 0; i < 4; i++}
-						<span class="input number is_float width-4c noalign" data-link="{serialize $item} => 'addon_num_prob', {@$i}"></span>
-					{/for}
-				</div>
-			{else}
-				{assign min = $item.addon_num_prob?.findIndex((p) => p > 0)}
-				{assign max = null}
-				{for i = $item.addon_num_prob?.length - 1; i >= 0; i--}
-					{if $item.addon_num_prob[i] > 0}
-						{assign max = $i}
-						{break}
-					{/if}
-				{/for}
-
-				{assign min = $min >= 0 ? $min : 0}
-				{assign max = $max >= 0 ? $max : 0}
-
-				<span style="margin-left: -4px;">{@$min}{if $max != $min} - {@$max}{/if}</span>
-			{/if}
-		</div>
-
-		<hr style="width: 100%;">
-
-		<div id="addons" class="flex-rows" style="margin-top: 3px;">
-			{if $item.addon_num_prob?.length}
-				<span>Addons:</span>
-
-				{for addon of (($item.addons?.length ? $item.addons : $item.rands) || [])}
-					<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
-				{/for}
-			{/if}
-		</div>
-
-		<hr style="width: 100%;">
-
-		<div id="unique-addons" class="flex-rows" style="margin-top: 3px;">
-			{if $edit || $item.probability_unique}
-				<span>Probability to have an unique addon <span class="input number is_float width-4c" data-link="{serialize $item} => 'probability_unique'"></span></span>
-				{for addon of $item.uniques}
-					{if !$addon.prob || !$addon.id}{continue}{/if}
-					<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
-
-				{/for}
-			{/if}
-		</div>
-
-		<span style="margin-top: 3px;">Price {@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-		<span style="">Buy Price {@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-
-		<span style="margin-top: 5px;">Repair Fee {@('' + $item.repairfee).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-		<span style="">Mirages per refine {@$item.mirages_to_refine || '(none)'}</span>
-
-		{if $item.element_id && $item.element_num}
-			<div class="flex-columns">
-				<span style="">Decompose to </span>
-				<span style="flex: 1;"></span>
-				<span style="">{@db.items[$item.element_id || 0]?.name || '(unknown)'} #{@$item.element_id} x{@$item.element_num}</span>
+				{/if}
 			</div>
-			<div class="flex-columns">
-				<span style="">Decompose time {@$item.decompose_time || 0}s</span>
-				<span style="flex: 1;"></span>
-				<span style="">Price {@('' + ($item.decompose_price || 0)).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-			</div>
-		{/if}
+		</div>
 
-		<div id="desc" style="">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+		<div class="section flex-rows">
+			<span class="flex-columns section-header"></span>
+
+			<span style="margin-top: 3px;">Price&nbsp;
+				{if $edit}
+					<span data-input class="input-number width-5c" style="margin-left: 30px;" data-link="{serialize $item} => 'price'"></span>
+				{else}
+					<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+				{/if}
+			</span>
+			<span style="">Buy Price&nbsp;
+				{if $edit}
+					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
+				{else}
+					<span>{@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+				{/if}
+			</span>
+
+			<span style="{if !$edit}margin-top: 5px;{/if}">Repair Fee&nbsp;
+				{if $edit}
+					<span data-input class="input-number width-5c" style="" data-link="{serialize $item} => 'repairfee'"></span>
+				{else}
+					<span>{@('' + $item.repairfee).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+				{/if}
+			</span>
+
+			{if $edit}
+				<div class="flex-columns" style="align-items: center; margin-top: 3px;">
+					<span style="white-space: nowrap;">Decompose to </span>
+					debugger;
+					{assign decomp = db.items[$item.element_id || 0]}
+					<img class="item" src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}" ondblclick="ItemChooserWindow.open();" tabindex="0">
+					<span style="">{@$item.element_id ? $decomp?.name || '(unknown)' : 'none'} #{@$item.element_id} x{@$item.element_num}</span>
+				</div>
+				<div class="flex-columns">
+					<span style="">Decomp. time&nbsp;
+						<span data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'decompose_time'"></span>
+						&nbsp;s
+					</span>
+					<span style="flex: 1;"></span>
+					<span style="">Price&nbsp;
+						<span data-input class="input-number width-5c" style="" data-link="{serialize $item} => 'decompose_price'"></span>
+					</span>
+				</div>
+			{else if $item.element_id && $item.element_num}
+				<div class="flex-columns">
+					<span style="">Decompose to </span>
+					<span style="flex: 1;"></span>
+					<span style="">{@db.items[$item.element_id || 0]?.name || '(unknown)'} #{@$item.element_id} x{@$item.element_num}</span>
+				</div>
+				<div class="flex-columns">
+					<span style="">Decompose time {@$item.decompose_time || 0}s</span>
+					<span style="flex: 1;"></span>
+					<span style="">Price {@('' + ($item.decompose_price || 0)).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+				</div>
+			{/if}
+		</div>
+
+		<div class="section flex-rows">
+			<span class="section-header">Description</span>
+			<div id="desc">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+		</div>
 
 
 
@@ -313,10 +449,14 @@
 	background-color: rgba(0, 0, 0, 0.9);
 	border-radius: 3px;
 	padding: 5px;
-	max-width: 310px;
 	max-height: 700px;
-	overflow: hidden;
+	//overflow: hidden;
 	position: relative;
+	writing-mode: vertical-lr;
+	display: flex;
+	align-content: flex-start;
+	flex-wrap: wrap;
+	margin-right: -4px;
 }
 
 #item_info:after {
@@ -327,6 +467,36 @@
 	width: 100%;
 	height: 8px;
 	background-image: linear-gradient(to bottom, rgba(255,0,0,0), rgba(0,0,0,1));
+}
+
+#item_info > * {
+	writing-mode: horizontal-tb;
+	margin-right: 4px;
+}
+
+.section {
+	width: 282px;
+	background-color: rgba(255, 255, 255, 0.1);
+	padding: 6px;
+	padding-left: 14px;
+	padding-right: 14px;
+	margin-top: 4px;
+}
+
+.section-header {
+	margin-left: -6px;
+	font-weight: bold;
+	align-self: end;
+}
+
+#prereqs > *:not(.section-header) {
+	text-align: right;
+	justify-content: flex-end;
+}
+
+.fill {
+	display: inline-block;
+	margin: auto;
 }
 
 .probs {
@@ -350,6 +520,36 @@
 	font-weight: bold;
 }
 
+.item {
+	position: relative;
+	width: 32px;
+	height: 32px;
+	padding-right: 1px;
+}
+
+.item:focus {
+	box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
+	border: 1px solid var(--header-color);
+	margin: -1px;
+	outline: none;
+	padding-right: 0;
+}
+
+.item:focus:after {
+	content: ' ';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: var(--header-color);
+	opacity: 0.4;
+}
+
+#desc > span {
+	display: inline-block;
+}
+
 .width-5c,
 .input.width-5c {
 	width: 38px;
@@ -358,6 +558,11 @@
 .width-4c,
 .input.width-4c {
 	width: 30px;
+}
+
+.width-3c,
+.input.width-3c {
+	width: 22px;
 }
 
 .item_info:not(.edit) .input {

@@ -6,6 +6,8 @@ const g_item_tpl = load_tpl(ROOT_URL + 'tpl/window/item.tpl');
 class ItemChooserWindow extends ChooserWindow {
 	async init() {
 		this.args.tpl = 'tpl-item-chooser';
+		this.args.width = 36;
+		this.args.height = 36;
 		this.pager_offset = 0;
 		this.items_gen = 0;
 		this.items = [];
@@ -26,7 +28,7 @@ class ItemChooserWindow extends ChooserWindow {
 
 		await super.init();
 		this.select_tab(0);
-		this.shadow.querySelector('#item_info').replaceWith(this.item_el);
+		this.shadow.querySelector('#item_info').replaceWith(this.item_el.querySelector('#item_info'));
 		this.shadow.querySelector('#item_info').style.display = 'none';
 	}
 
@@ -52,6 +54,8 @@ class ItemChooserWindow extends ChooserWindow {
 				}
 			}
 		})();
+		
+		super.reload_items();
 	}
 
 	_filter(f) {
@@ -96,5 +100,49 @@ class ItemChooserWindow extends ChooserWindow {
 		info.style.top = item_el.top + 'px';
 		
 		console.log(idx + ': ' + is_hover);
+	}
+}
+
+class ItemTooltipWindow extends Window {
+	async init() {
+		this.item = this.args.item;
+		this.edit = this.args.edit ?? true;
+		
+		await g_item_tpl;
+		this.tpl = new Template('tpl-item-info');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+		const data = await this.tpl.run({ win: this, item: this.item, edit: this.edit });
+
+		this.shadow.append(data);
+		await super.init();
+
+		align_dom(this.shadow.querySelectorAll('.input'), 25);
+		const info = this.shadow.querySelector('#item_info');
+		const last_c = info.lastElementChild;
+	}
+
+	add_addon(type) {
+		if (type == 'drop') {
+			type = 'addons';
+		} else if (type == 'uniques') {
+			type = 'uniques';
+		} else {
+			type = 'rands';
+		}
+		this.item[type].push({ id: 0, prob: 0});
+		this.tpl.reload('#' + type);
+	}
+
+	recycle_addons(type) {
+		if (type == 'drop') {
+			type = 'addons';
+		} else if (type == 'uniques') {
+			type = 'uniques';
+		} else {
+			type = 'rands';
+		}
+
+		this.item[type] = this.item[type]?.filter(a => a?.prob > 0 || a?.id > 0);
+		this.tpl.reload('#' + type);
 	}
 }

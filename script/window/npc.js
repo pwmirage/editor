@@ -55,6 +55,8 @@ class NPCModelChooserWindow extends ChooserWindow {
 
 		await g_npc_tpl;
 		this.args.tpl = 'tpl-npc-model';
+		this.args.width = 100;
+		this.args.height = 34;
 		await super.init();
 	}
 }

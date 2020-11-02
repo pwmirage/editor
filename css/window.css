@@ -119,6 +119,10 @@
 	flex: 1;
 }
 
+.flex-basis-all > * {
+	flex-basis: 100%;
+}
+
 .flex-wide {
 	flex: 1;
 }
@@ -140,7 +144,7 @@
 	align-items: center;
 }
 
-.input.text,
+.input-text,
 input[type=text] {
 	width: 100%;
 	padding: 4px 6px;
@@ -149,6 +153,8 @@ input[type=text] {
 	outline: none;
 }
 
+.input-text,
+.input-number,
 input[type=text]:focus {
 	background-color: #fff2f3;
 }
@@ -171,6 +177,89 @@ input[type="checkbox"]:not(.radio):disabled+span { color: #999; }
 input[type="checkbox"]:not(.radio):not(:disabled)+span:hover:before { text-shadow: 0 1px 2px #77F; }
 input[type="checkbox"].radio+span:before { content: '\00f10c '; }
 input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
+
+.input-select {
+	position: relative;
+	width: 118px;
+}
+
+.input-select > .hints {
+	position: absolute;
+	z-index: 2;
+	margin-top: -1px;
+	background-color: rgb(255 230 230);
+	color: rgba(80, 44, 44, 1);
+}
+
+.input-select > .hints > span {
+	border: solid 1px rgba(224, 176, 176, 1);
+	padding: 2px 5px;
+	white-space: pre !important;
+}
+
+.input-select > .hints > *:hover {
+	background-color: rgba(251, 241, 241, 1);
+	border: solid 1px rgba(224, 176, 176, 1);
+}
+
+.input-select.selected > .close {
+	position: absolute;
+	top: 7px;
+	right: 7px;
+	background-color: #dcb7b7;
+	border-radius: 4px;
+	width: 18px;
+	height: 16px;
+	color: rgba(80, 44, 44, 1);
+	font-size: 12px;
+	padding: 0px 4px;
+	box-sizing: border-box;
+}
+
+.input-select.selected > .close:after {
+	content: '\00f00d';
+	font-family: FontAwesome;
+	position: absolute;
+	font-size: 12px;
+	margin-right: -1px;
+	margin-top: -2px;
+}
+
+.input-select.selected > .close:hover {
+	background-color: #c3a0a0;
+	color: #6b4133;
+}
+
+.input-select.selected > .hints {
+	display: none;
+}
+
+.input-select.selected {
+	position: relative;
+	cursor: pointer;
+}
+
+.input-select > .edit {
+	display: block !important;
+	position: relative;
+	width: auto;
+}
+
+.input-select.selected > .edit:after {
+	content: attr(data-text);
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: calc(100% - 6px);
+	height: calc(100% - 6px);
+	overflow: hidden;
+	background-color: #f5dbdb;
+	border: solid 1px #e0b0b0;
+	color: rgba(80, 44, 44, 1);
+	font-size: 13px;
+	padding: 1px 5px;
+	box-sizing: border-box;
+}
 
 .collapsible {
 	background-color: #d2d2d2;
@@ -257,8 +346,8 @@ select:hover {
 	color: rgba(94, 52, 52, 1);
 }
 
-.input.text,
-.input.number,
+.input-text,
+.input-number,
 input[type="text"],
 input[type="number"] {
 	display: inline-block;
@@ -272,8 +361,8 @@ input[type="number"] {
 	line-height: 1.48;
 }
 
-.input.text,
-.input.number {
+.input-text,
+.input-number {
 	display: inline-block;
 	height: 20px;
 	white-space: nowrap;
@@ -285,10 +374,10 @@ input[type="number"] {
 	width: 100%;
 }
 
-.input.text:hover,
-.input.text:active,
-.input.number:hover,
-.input.number:active,
+.input-text:hover,
+.input-text:active,
+.input-number:hover,
+.input-number:active,
 input[type="text"]:hover,
 input[type="text"]:active,,
 input[type="number"]:hover,
