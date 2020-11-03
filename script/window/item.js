@@ -23,6 +23,10 @@ class ItemChooserWindow extends ChooserWindow {
 
 		await super.init();
 		this.select_tab(0);
+		if (this.args.itemname) {
+			this.shadow.querySelector('#search > input').value = this.args.itemname;
+			this.filter(this.args.itemname);
+		}
 
 		await g_item_tpl;
 		this.item_tpl = new Template('tpl-item-info');
@@ -43,7 +47,12 @@ class ItemChooserWindow extends ChooserWindow {
 			for (const el of els) {
 				const item = this.items[this.pager_offset + i++];
 
-				el.firstElementChild.src = item ? Item.get_icon(item.icon || 0) : 'data:,';
+				if (item) {
+					el.firstElementChild.src = Item.get_icon(item.icon || 0);
+					el.style.display = '';
+				} else {
+					el.style.display = 'none';
+				}
 
 				if (i % 64 == 0) {
 					await new Promise((resolve) => setTimeout(resolve, 1));
@@ -145,4 +154,16 @@ class ItemTooltipWindow extends Window {
 		this.item[type] = this.item[type]?.filter(a => a?.prob > 0 || a?.id > 0);
 		this.tpl.reload('#' + type);
 	}
+
+	async select_decomp() {
+		const prev_item = db.items[this.item.element_id || 0];
+		const win = await ItemChooserWindow.open({ itemname: prev_item?.name });
+		win.onchoose = (new_item) => {
+			db.open(this.item);
+			this.item.element_id = new_item?.id || 0;
+			db.commit(this.item);
+			this.tpl.reload('#decompose');
+		}
+	}
+
 }

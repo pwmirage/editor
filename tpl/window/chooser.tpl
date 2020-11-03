@@ -127,12 +127,11 @@
 	height: 32px;
 	margin-top: 4px;
 	margin-right: 4px;
-	background-color: #000;
 	position: relative;
 }
 
-#items > *[src='data:,'] {
-	visibility: hidden;
+#items > .item > img {
+	background-color: #000;
 }
 
 #items > .item,

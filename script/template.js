@@ -124,6 +124,8 @@ class Template {
 				.replace(/(?<!\s)="" /g, ' ')
 				.replace(/&lt;/g, '<')
 				.replace(/&gt;/g, '>')
+				.replace(/<img{ }/g, '<img')
+				.replace(/<\/img{>/g, '</img>')
 		;
 		const new_fn_text = Template.build(raw_str);
 		const new_fn = new Function('tpl', 'local', new_fn_text);
