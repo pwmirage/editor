@@ -28,6 +28,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/navbar.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/editable-color-text.js?v=' + MG_VERSION),
 		]);
 
 		await Promise.all([

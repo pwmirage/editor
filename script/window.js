@@ -192,6 +192,15 @@ class Window {
 			}
 		}
 
+		for (const el of dom.querySelectorAll('[data-editable-color-text]')) {
+			el.removeAttribute('data-editable-color-text');
+			const link_str = el.dataset.link;
+			el.removeAttribute('data-link');
+
+			const text_el = new EditableColorText(el, link_str, this);
+			text_el.open();
+		}
+
 		for (const el of dom.querySelectorAll('[data-input]')) {
 			el.removeAttribute('data-input');
 

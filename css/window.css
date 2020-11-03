@@ -408,3 +408,64 @@ textarea {
 	width: 32px;
 	height: 32px;
 }
+
+.pw-editable-color-text {
+	position: relative;
+	flex: 1;
+	margin-bottom: 18px;
+	display: flex;
+	min-height: 40px;
+}
+
+.pw-editable-color-text > code {
+	-moz-appearance: textfield;
+	-webkit-appearance: textfield;
+	border: 1px solid #e0b0b0;
+	padding: 2px 3px;
+	outline: none !important;
+	background-color: #3a3a3a;
+	color: #fff;
+	width: calc(100% - 8px);
+	height: 100%;
+	white-space: pre-wrap;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	display:inline-block;
+}
+
+.pw-editable-color-text > code > span {
+	display: inline !important;
+	white-space: pre-wrap !important;
+}
+
+.pw-editable-color-text > .color {
+	position: absolute;
+	right: 20px;
+	bottom: 0;
+	width: 13px;
+	height: 19px;
+	color: #ffffff;
+	margin-bottom: -6px;
+	border: 1px solid #fafafa;
+	padding: 3px 5px;
+}
+
+.pw-editable-color-text > .color:hover {
+	background-color: #6b6b6b;
+}
+
+.pw-editable-color-text input[type="color"] {
+	width: 20px;
+	background-color: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+	transform: translateY(3px);
+	outline: none;
+	display: inline;
+}
+
+.pw-editable-color-text .hidden {
+	visibility: hidden;
+	position: absolute;
+}

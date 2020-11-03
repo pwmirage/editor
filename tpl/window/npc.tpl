@@ -5,19 +5,15 @@
 		NPC Goods: {@$goods._name || "(unnamed)"} #{@$goods.id}
 	</span>
 	<div class="menu">
-		<i class="minimize fa" aria-hidden="true"></i>
-		<i class="maximize fa" aria-hidden="true"></i>
-		<i class="close fa fa-close" aria-hidden="true"></i>
+		<i class="minimize fa"></i>
+		<i class="maximize fa"></i>
+		<i class="close fa fa-close"></i>
 	</div>
 </div>
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
 		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.goods => '_name'">
-	</div>
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
-		<span style="">NPC button text:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.goods => 'name'">
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns flex-gap" style="flex-wrap: wrap; margin-bottom: 16px;">
@@ -76,9 +72,9 @@ input[type="text"].tabname.selected {
 		{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} #{@$npc.id}
 	</span>
 	<div class="menu">
-		<i class="minimize fa" aria-hidden="true"></i>
-		<i class="maximize fa" aria-hidden="true"></i>
-		<i class="close fa fa-close" aria-hidden="true"></i>
+		<i class="minimize fa"></i>
+		<i class="maximize fa"></i>
+		<i class="close fa fa-close"></i>
 	</div>
 </div>
 <div class="content flex-rows" style="overflow: hidden;">
@@ -103,23 +99,23 @@ input[type="text"].tabname.selected {
 				{/if}
 			{/foreach}
 
-			<a class="button" onclick="{serialize $win}.choose_model();">{@$name}&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			<a class="button" onclick="{serialize $win}.choose_model();">{@$name}&nbsp;<i class="fa fa-angle-right"></i></a>
 		</div>
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">
 		<div>
 			<span style="margin-right: 8px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button" onclick=";">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			<a class="button" onclick=";">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right"></i></a>
 		</div>
 		<div>
 			<span style="margin-right: 8px;">Craft:</span>
 			{assign craft = db.npc_crafts[$npc.id_make_service];}
-			<a class="button" onclick=";">{@ $craft?._name ?? ($craft ? ($craft.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+			<a class="button" onclick=";">{@ $craft?._name ?? ($craft ? ($craft.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right"></i></a>
 		</div>
 	</div>
 	<div>Greeting:</div>
-	<div style="position:relative; flex: 1; margin-bottom: 18px; display: flex; min-height: 40px;">
+	<div class="pw-editable-color-text">
 		<code contenteditable="true" onkeyup="{serialize $win}.update_caret();" onmouseup="{serialize $win}.update_caret();" onpaste="setTimeout(() => {serialize $win}.save_greeting(), 1);" oninput="{serialize $win}.format_greeting();">
 			{@$npc.greeting?.replace('\n', '<br>') || ""}
 		</code>
@@ -130,54 +126,14 @@ input[type="text"].tabname.selected {
 </div>
 </div>
 
-TEMPLATE_END
+{@@
 <style>
-code {
-	-moz-appearance: textfield;
-	-webkit-appearance: textfield;
-	border: 1px solid #e0b0b0;
-	padding: 2px 3px;
-	outline: none !important;
-	background-color: #3a3a3a;
-	color: #fff;
-	width: calc(100% - 8px);
-	height: 100%;
-	white-space: pre-wrap;
-	overflow-y: scroll;
-	overflow-x: hidden;
-}
-
-.color {
-	position: absolute;
-	right: 20px;
-	bottom: 0;
-	width: 13px;
-	height: 19px;
-	color: #ffffff;
-	margin-bottom: -6px;
-	border: 1px solid #fafafa;
-	padding: 3px 5px;
-}
-
-.color:hover {
-	background-color: #6b6b6b;
-}
-
 .hidden {
 	visibility: hidden;
 	position: absolute;
 }
 
-input[type="color"] {
-	width: 20px;
-	background-color: transparent;
-	border: none;
-	padding: 0;
-	margin: 0;
-	transform: translateY(3px);
-	outline: none;
-}
 </style>
-
+@@}
 </script>
 

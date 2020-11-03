@@ -277,7 +277,7 @@
 
 			<span style="{if !$edit}margin-top: 5px;{/if}">Repair Fee&nbsp;
 				{if $edit}
-					<span data-input class="input-number width-5c" style="" data-link="{serialize $item} => 'repairfee'"></span>
+					<span data-input class="input-number width-5c" style="margin-left: -5px;" data-link="{serialize $item} => 'repairfee'"></span>
 				{else}
 					<span>{@('' + $item.repairfee).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
 				{/if}
@@ -288,9 +288,10 @@
 					<span style="white-space: nowrap;">Decompose to </span>
 					{assign decomp = db.items[$item.element_id || 0]}
 					<span class="item" ondblclick="{serialize $win}.select_decomp();" tabindex="0"><img{ } src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}"></span>
-					<span style="">{@$item.element_id ? $decomp?.name || '(unknown)' : 'none'} #{@$item.element_id} x{@$item.element_num}</span>
+
+					x&nbsp;<span data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'element_num'"></span>
 				</div>
-				<div class="flex-columns">
+				<div class="flex-columns" style="margin-top: 3px;">
 					<span style="">Decomp. time&nbsp;
 						<span data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'decompose_time'"></span>
 						&nbsp;s
@@ -316,7 +317,11 @@
 
 		<div class="section flex-rows">
 			<span class="section-header">Description</span>
-			<div id="desc">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+			{if $edit}
+				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
+			{else}
+				<div id="desc">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+			{/if}
 		</div>
 
 
