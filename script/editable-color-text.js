@@ -157,7 +157,8 @@ class EditableColorText {
 		/* normalize any html inputs into clear text */
 		const txt = this.code_el.textContent;
 		this.code_el.textContent = '';
-		this.code_el.textContent = txt;
+		/* also collapse sibling color choosers and leave only the last one */
+		this.code_el.textContent = txt.replace(/(?:\^[a-fA-F0-9]{6})+(\^[a-fA-F0-9]{6})/g, '$1');
 
 		/* the raw text is ready so save it */
 		this.link_el.textContent = this.code_el.textContent;
