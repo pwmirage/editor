@@ -7,7 +7,7 @@
 </div>
 </div>
 
-<div id="item_info" class="item_info {if $edit}edit{/if}" data-onload="">
+<div id="item_info" class="item_info {if $edit}edit{/if}" style="{if $edit}max-height: 700px;{/if}" data-onload="">
 	{if !$edit}
 		{assign data_preview = 'data-preview'}
 	{else}
@@ -463,8 +463,6 @@
 	background-color: rgba(0, 0, 0, 0.9);
 	border-radius: 3px;
 	padding: 5px;
-	max-height: 700px;
-	//overflow: hidden;
 	position: relative;
 	writing-mode: vertical-lr;
 	display: flex;

@@ -1,4 +1,4 @@
-/*
+/* SPDX-License-Identifier: MIT
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
