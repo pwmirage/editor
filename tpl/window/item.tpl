@@ -323,14 +323,16 @@
 			{/if}
 		</div>
 
-		<div class="section flex-rows">
-			{if $edit}
-				<span class="section-header">Description</span>
-				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
-			{else}
-				<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
-			{/if}
-		</div>
+		{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
+			<div class="section flex-rows">
+				{if $edit}
+					<span class="section-header">Description</span>
+					<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
+				{else}
+					<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+				{/if}
+			</div>
+		{/if}
 
 
 
@@ -573,6 +575,10 @@
 
 .item > img {
 	user-select: none;
+}
+
+#desc {
+	margin-top: 16px;
 }
 
 #desc > span {
