@@ -488,6 +488,10 @@
 	margin-right: 4px;
 }
 
+.item_info .section {
+	width: 282px;
+}
+
 .item_info.edit .section {
 	width: 282px;
 	background-color: rgba(255, 255, 255, 0.1);
