@@ -98,10 +98,26 @@ class Window {
 			const close_el = newElement('<div class="close"></div>');
 			el.append(close_el);
 			
-			close_el.onclick = () => {
-				el.classList.remove('selected');
+			const select = (id, text) => {
+				if (!id) {
+					el.classList.remove('selected');
+					edit_el.title = '';
+					link_el.textContent = '';
+					link_el.oninput();
+					return;
+				}
+
 				edit_el.focus();
+				edit_el.dataset.text = edit_el.title = edit_el.textContent = text;
+				el.classList.add('selected');
+				link_el.textContent = id;
+				link_el.oninput();
+			}
+
+			close_el.onclick = () => {
+				select(0, "");
 				edit_el.textContent = '';
+				edit_el.focus();
 				edit_el.oninput();
 			}
 
@@ -109,7 +125,8 @@ class Window {
 			el.append(hints_el);
 
 			edit_el.onclick = () => {
-				el.classList.remove('selected');
+				select(0, "");
+				edit_el.focus();
 				edit_el.oninput();
 			}
 
@@ -117,14 +134,13 @@ class Window {
 				if (el.querySelector(':hover') != hints_el) {
 					hints_el.style.display = 'none';
 					if (hints_el.children.length == 1 && edit_el.dataset.text == hints_el.children[0].textContent) {
-						el.classList.add('selected');
+						select(hints_el.children[0]._mg_id, hints_el.children[0].textContent);
 					}
 				}
 			}
 
 			edit_el.oninput = () => {
 				const search = edit_el.textContent.toLowerCase();
-				console.log(search);
 				let n = 0;
 				const hints = [];
 				for (const o of select_arr) {
@@ -149,12 +165,10 @@ class Window {
 							const win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
 							win.onchoose = (type) => {
 								if (type) {
-									edit_el.dataset.text = edit_el.title = edit_el.textContent = type.name;
-									link_el.textContent = type.id;
-									link_el.oninput();
-									el.classList.add('selected');
+									select(type.id, type.name);
 								} else {
 									edit_el.focus();
+									edit_el.oninput();
 								}
 							};
 						};
@@ -164,13 +178,12 @@ class Window {
 					const div = document.createElement('span');
 					n++;
 					const id = t.id;
+					div._mg_id = id;
 					const pos = t.name.toLowerCase().indexOf(search);
 					div.innerHTML = t.name.substring(0, pos) + '<b>' + t.name.substring(pos, pos + search.length) + '</b>' + t.name.substring(pos + search.length);
 					div.onclick = () => {
-						edit_el.dataset.text = edit_el.title = edit_el.textContent = div.textContent;
-						link_el.textContent = id;
-						link_el.oninput();
-						el.classList.add('selected');
+
+						select(id, div.textContent);
 					};
 					hint_els.push(div);
 				}
@@ -184,11 +197,11 @@ class Window {
 			};
 
 			if (link_el.textContent && link_el.textContent != '0') {
-				const type = select_arr[link_el.textContent] || select_arr[0];
-				edit_el.dataset.text = edit_el.title = edit_el.textContent = type?.name || '(unknown)';
-				link_el.textContent = type?.id ?? 0;
-				link_el.oninput();
-				el.classList.add('selected');
+				const type = select_arr[link_el.textContent];
+				if (type?.name) {
+					edit_el.dataset.text = edit_el.title = edit_el.textContent = type.name;
+					el.classList.add('selected');
+				}
 			}
 		}
 
@@ -290,24 +303,25 @@ class Window {
 			prev_oninput.call(el, {});
 		}
 
+		el._mg_set_val = (val) => {
+			db.open(obj);
+			get_obj()[p] = val;
+			db.commit(obj);
+		}
+
 		el.oninput = (e) => {
 			if (prev_oninput) {
 				prev_oninput.call(el, e);
 			}
 
-			const set = (val) => {
-				get_obj()[p] = val;
-			};
-
-			db.open(obj);
 			if (el.type == 'checkbox') {
-				set(el.checked ?? 0);
+				el._mg_set_val(el.checked ?? 0);
 			} else if (el.type == 'number') {
-				set(parseInt(el.value) || 0);
+				el._mg_set_val(parseInt(el.value) || 0);
 			} else if (el.type == 'text') {
-				set(el.value || "");
+				el._mg_set_val(el.value || "");
 			} else if (el.nodeName != 'INPUT' && el.classList.contains('input-text')) {
-				set(el.textContent || "");
+				el._mg_set_val(el.textContent || "");
 			} else if (el.nodeName != 'INPUT' && el.classList.contains('input-number')) {
 				const numberText = el.textContent.replace(/[^0-9\-\.\,]+/g, '');
 				if (numberText !== el.textContent) {
@@ -327,13 +341,12 @@ class Window {
 
 				let num;
 				if (is_float) {
-					num = parseFloat(el.textContent.replace(/\,/g, '.'));
+					num = parseFloat(el.textContent.replace(/\,/g, '.')) || 0;
 				} else {
-					num = parseInt(el.textContent);
+					num = parseInt(el.textContent) || 0;
 				}
-				set(num);
+				el._mg_set_val(num);
 			}
-			db.commit(obj);
 		};
 	}
 
