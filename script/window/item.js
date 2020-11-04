@@ -159,8 +159,12 @@ class ItemTooltipWindow extends Window {
 		const prev_item = db.items[this.item.element_id || 0];
 		const win = await ItemChooserWindow.open({ itemname: prev_item?.name });
 		win.onchoose = (new_item) => {
+			if (!new_item) {
+				return;
+			}
+
 			db.open(this.item);
-			this.item.element_id = new_item?.id || 0;
+			this.item.element_id = new_item.id;
 			db.commit(this.item);
 			this.tpl.reload('#decompose');
 		}
