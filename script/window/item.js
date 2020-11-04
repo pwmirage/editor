@@ -29,11 +29,11 @@ class ItemChooserWindow extends ChooserWindow {
 		}
 
 		await g_item_tpl;
-		this.item_tpl = new Template('tpl-item-info');
-		this.item_tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-		this.item_el = await this.item_tpl.run({ win: this, item: db.items.entries().next().value[1] });
-		this.shadow.querySelector('#item_info').replaceWith(this.item_el.querySelector('#item_info'));
-		this.shadow.querySelector('#item_info').style.display = 'none';
+		this.item_win = await ItemTooltipWindow.open({ item: db.items.entries().next().value[1], edit: false });
+		this.shadow.querySelector('#item_info').replaceWith(this.item_win.dom);
+		this.item_win.dom.style.display = 'none';
+		this.item_win.dom.style.position = 'fixed';
+		this.item_win.dom.style.color = '#fff';
 	}
 
 	reload_items() {
@@ -67,6 +67,29 @@ class ItemChooserWindow extends ChooserWindow {
 		super.reload_items();
 	}
 
+	hover_item(el) {
+		const info = this.item_win?.dom;
+		if (!info) {
+			/* still loading */
+			return;
+		}
+
+		if (!el) {
+			info.style.display = 'none';
+			return;
+		}
+
+		const idx = parseInt(el.dataset.type);
+		const item = this.items[this.pager_offset + idx];
+
+		this.item_win.tpl.reload('#item_info', { item });
+		info.style.display = 'block';
+
+		const item_el = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
+		info.style.left = item_el.right + 3 + 'px';
+		info.style.top = item_el.top + 'px';
+	}
+
 	_filter(f) {
 		this.items = db.items.filter(f).sort((a, b) => {
 			if (!a.name) {
@@ -92,30 +115,12 @@ class ItemChooserWindow extends ChooserWindow {
 		this.tpl.reload('#search');
 		return this._filter(tab.filter);
 	}
-
-	item_hover(idx, is_hover) {
-		if (!is_hover) {
-			const info = this.shadow.querySelector('#item_info');
-			info.style.display = is_hover ? 'block' : 'none';
-			return;
-		}
-
-		const item = this.items[this.pager_offset + idx];
-		this.item_tpl.reload('#item_info', { item });
-		const info = this.shadow.querySelector('#item_info');
-
-		const item_el = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
-		info.style.left = item_el.right + 3 + 'px';
-		info.style.top = item_el.top + 'px';
-		
-		console.log(idx + ': ' + is_hover);
-	}
 }
 
 class ItemTooltipWindow extends Window {
 	async init() {
 		this.item = this.args.item;
-		this.edit = this.args.edit ?? true;
+		this.edit = this.args.edit || false;
 		
 		await g_item_tpl;
 		this.tpl = new Template('tpl-item-info');

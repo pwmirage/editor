@@ -230,16 +230,23 @@
 
 		{if $edit || $item.probability_unique}
 			<div class="section flex-rows">
-				<span class="flex-columns section-header" style="width: 100%;">
-					<span style="flex: 1;">Unique addon</span>
-					{if $edit}
-						<span style="width: 36px;">%</span>
-					{/if}
-				</span>
+				{if $edit}
+					<span class="flex-columns section-header" style="width: 100%;">
+						<span style="flex: 1;">Unique addon</span>
+						{if $edit}
+							<span style="width: 36px;">%</span>
+						{/if}
+					</span>
+				{/if}
 				<div id="unique-addons" class="flex-rows" style="{if $edit}margin-top: 3px;{/if}">
 					<span>
 						Probability to have a unique addon&nbsp;
-						<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'probability_unique'"></span>
+						{if $edit}
+							<span {@$data_preview} data-input class="input-number is_float width-4c noalign" style="font-weight: bold;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'probability_unique'"></span>
+						{else}
+							{assign prob = $item.probability_unique}
+							{@ $prob < 0.05 ? $sanitize_f($prob * 100) : Math.round($prob * 1000) / 10}%
+						{/if}
 					</span>
 					{if $edit}
 						<div id="uniques" class="flex-rows" style="margin-top: 3px;">

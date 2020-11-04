@@ -34,7 +34,7 @@ class ChooserWindow extends Window {
 		const items_el = this.shadow.querySelector('#items');
 		const container = items_el.getBoundingClientRect();
 		const pager = this.shadow.querySelector('#pager').getBoundingClientRect();
-		const bounds = { width: container.width, height: pager.top - container.top - 16 };
+		const bounds = { width: container.width - 24, height: pager.top - container.top - 16 };
 		items_el.style.maxHeight = bounds.height + 'px';
 		this.max_height = bounds.height;
 
@@ -71,6 +71,19 @@ class ChooserWindow extends Window {
 		}
 
 		this.items_per_page = this.max_items_per_page - overflown_items;
+	}
+
+	onmousemove(e) {
+		const item = e.path?.find(el => el?.classList?.contains('item'));
+
+		if (item != this.hovered_item) {
+			this.hover_item(item);
+			this.hovered_item = item;
+		}
+	}
+
+	hover_item(el) {
+		/* virtual */
 	}
 
 	filter() {
