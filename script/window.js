@@ -76,9 +76,6 @@ class Window {
 			el.removeAttribute('data-link');
 			const title_str = el.dataset.title;
 
-			el.classList.add('input');
-			el.classList.add('input-select');
-
 			const select_arr = new Function('return ' + f_str)(this.tpl, this);
 			el._mg_select = select_arr;
 
@@ -94,6 +91,19 @@ class Window {
 			link_wrapper_el.append(link_el);
 			el.append(link_wrapper_el);
 			this.tpl_compile_cb(link_wrapper_el);
+
+			if (el.hasAttribute('data-preview')) {
+				const obj = select_arr[link_el.textContent];
+				if (obj) {
+					el.textContent = obj.name || ('(unnamed #' + link_el.textContent + ')');
+				} else {
+					el.textContent = '(none)';
+				}
+				continue;
+			}
+
+			el.classList.add('input');
+			el.classList.add('input-select');
 
 			const close_el = newElement('<div class="close"></div>');
 			el.append(close_el);
@@ -216,6 +226,11 @@ class Window {
 
 		for (const el of dom.querySelectorAll('[data-input]')) {
 			el.removeAttribute('data-input');
+
+			if (el.hasAttribute('data-preview')) {
+				el.classList.remove('input-number');
+				continue;
+			}
 
 			el.contentEditable = true;
 			el.classList.add('input');

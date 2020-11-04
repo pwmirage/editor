@@ -8,62 +8,67 @@
 </div>
 
 <div id="item_info" class="item_info {if $edit}edit{/if}" data-onload="">
+	{if !$edit}
+		{assign data_preview = 'data-preview'}
+	{else}
+		{assign data_preview = ''}
+	{/if}
 
 	{if $item.type == Item.typeid('Weapon')}
 		{* ======== WEAPONS ========= *}
-		<span class="flex-columns" style=""><span data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
-			<span data-select="Item.types" class="noalign" style="width: 175px;" data-link="{serialize $item} => 'type'" data-title="Change item type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+		<span class="flex-columns" style=""><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
+			<span {@$data_preview} data-select="Item.types" class="noalign" style="width: 175px;" data-link="{serialize $item} => 'type'" data-title="Change item type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 		<span style="">
-			<span data-select="db.weapon_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change weapon type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+			<span {@$data_preview} data-select="db.weapon_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change weapon type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 			&nbsp;-&nbsp;
-			<span data-select="db.weapon_minor_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change weapon subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+			<span {@$data_preview} data-select="db.weapon_minor_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change weapon subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 		</span>
 		{if $edit || $item.character_combo_id}
-			<span style="">Requisite Class <span data-input class="input-number" data-link="{serialize $item} => 'character_combo_id'"></span></span>
+			<span style="">Requisite Class <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'character_combo_id'"></span></span>
 		{/if}
 
 		<div class="section flex-rows">
-			<span class="section-header">Base stats</span>
-			<span style="">Lv. <span data-input class="input-number width-5c" data-link="{serialize $item} => 'level'"></span></span>
+			{if $edit}<span class="section-header">Base stats</span>{/if}
+			<span style="">Lv. <span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'level'"></span></span>
 			<span style="">Attack Rate(atks/sec) {@(db.weapon_minor_types[$item.minor_type]?.attack_speed)?.toFixed(2) || "(unknown)"}</span>
-			<span style="">Range <span data-input class="input-number width-5c" data-link="{serialize $item} => 'attack_range'"></span></span>
+			<span style="">Range <span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'attack_range'"></span></span>
 			{if $edit || $item.damage_high}
 				<span style="">Physical Attack&nbsp;
-					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'damage_low'"></span>
+					<span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'damage_low'"></span>
 					&nbsp;-&nbsp;
-					<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'damage_low'"></span>
+					<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'damage_low'"></span>
 				</span>
 			{/if}
 
 			{if $edit || $item.magic_damage_high}
 				<span style="">Magic Attack&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'magic_damage_low'"></span>
+					<span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'magic_damage_low'"></span>
 					&nbsp;-&nbsp;
-					<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'magic_damage_low'"></span>
+					<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'magic_damage_low'"></span>
 				</span>
 			{/if}
 
-			<span style="">Durability(drop)&nbsp;
-				<span data-input class="input-number width-5c" data-link="{serialize $item} => 'durability_drop_min'"></span>
+			<span style="">Durability{if $edit}(drop){/if}&nbsp;
+				<span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'durability_drop_min'"></span>
 				&nbsp;-&nbsp;
-				<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'durability_drop_max'"></span>
+				<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'durability_drop_max'"></span>
 			</span>
 			{if $edit}
 				<span style="">Durability(craft)&nbsp;
-					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'durability_min'"></span>
+					<span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'durability_min'"></span>
 					&nbsp;-&nbsp;
-					<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'durability_max'"></span>
+					<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'durability_max'"></span>
 				</span>
 			{/if}
 		</div>
 
-		<div id="prereqs" class="section flex-columns flex-all" style="flex-wrap: wrap;">
-			<span class="section-header" style="width: 140px;">Prerequisites</span>
-			{if $edit || $item.require_level}<span style="">&nbsp;Lv. {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_level'"></span></span>{/if}
-			{if $edit || $item.require_vitality}<span style="">Vitality {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_vitality'"></span></span>{/if}
-			{if $edit || $item.require_magic}<span style="">Magic {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_magic'"></span></span>{/if}
-			{if $edit || $item.require_strength}<span style="">Strength {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_strength'"></span></span>{/if}
-			{if $edit || $item.require_dexterity}<span style="margin-right: 10px;">Dexterity {if $edit}<span class="fill"></span>{/if}<span data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_dexterity'"></span></span>{/if}
+		<div id="prereqs" class="section flex-all" style="flex-wrap: wrap;">
+			{if $edit}<span class="section-header" style="width: 140px;">Prerequisites</span>{/if}
+			{if $edit || $item.require_level}<span style="">{if $edit}&nbsp;{else}Requisite {/if}Lv. {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_level'"></span></span>{/if}
+			{if $edit || $item.require_vitality}<span style="">{if !$edit}Requisite {/if}Vitality {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_vitality'"></span></span>{/if}
+			{if $edit || $item.require_magic}<span style="">{if !$edit}Requisite {/if}Magic {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_magic'"></span></span>{/if}
+			{if $edit || $item.require_strength}<span style="">{if !$edit}Requisite {/if}Strength {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_strength'"></span></span>{/if}
+			{if $edit || $item.require_dexterity}<span style="margin-right: 10px;">{if !$edit}Requisite {/if}Dexterity {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_dexterity'"></span></span>{/if}
 		</div>
 
 		<div class="section flex-rows">
@@ -161,13 +166,13 @@
 
 		<div class="section flex-rows">
 			<span class="flex-columns section-header" style="width: 100%;">
-				<span style="flex: 1;">Addons{if $edit} (drop){/if}</span>
 				{if $edit}
+					<span style="flex: 1;">Addons{if $edit} (drop){/if}</span>
 					<span style="width: 36px;">%</span>
 				{/if}
 			</span>
 
-			<div id="addons" class="flex-rows" style="margin-top: 3px;">
+			<div id="addons" class="flex-rows" style="{if $edit}margin-top: 3px;{/if}">
 				{if $edit}
 					{assign idx = 0}
 					{for idx = 0; idx < $item.addons.length; idx++}
@@ -183,9 +188,16 @@
 						<a class="button no-break" onclick="{serialize $win}.add_addon('drop');">(add) <i class="fa fa-plus"></i></a>
 					</div>
 				{else if $item.addon_num_prob?.length}
-
-					{for addon of (($item.addons?.length ? $item.addons : $item.rands) || [])}
+					{assign arr = ($item.addons?.length ? $item.addons : $item.rands) || []}
+					{assign idx = 0}
+					{for addon of $arr}
+						{if !$addon.prob || !$addon.id}{continue}{/if}
+						{if $idx >= 6}
+							<span style="font-weight: bold;">... and {@$arr.length - $idx} more</span>
+							{break}
+						{/if}
 						<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+						{$idx++}
 					{/for}
 				{/if}
 			</div>
@@ -216,16 +228,15 @@
 			</div>
 		{/if}
 
-
-		<div class="section flex-rows">
-			<span class="flex-columns section-header" style="width: 100%;">
-				<span style="flex: 1;">Unique addon</span>
-				{if $edit}
-					<span style="width: 36px;">%</span>
-				{/if}
-			</span>
-			<div id="unique-addons" class="flex-rows" style="margin-top: 3px;">
-				{if $edit || $item.probability_unique}
+		{if $edit || $item.probability_unique}
+			<div class="section flex-rows">
+				<span class="flex-columns section-header" style="width: 100%;">
+					<span style="flex: 1;">Unique addon</span>
+					{if $edit}
+						<span style="width: 36px;">%</span>
+					{/if}
+				</span>
+				<div id="unique-addons" class="flex-rows" style="{if $edit}margin-top: 3px;{/if}">
 					<span>
 						Probability to have a unique addon&nbsp;
 						<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'probability_unique'"></span>
@@ -247,15 +258,21 @@
 								</div>
 						</div>
 					{else}
+						{assign idx = 0}
 						{for addon of $item.uniques}
 							{if !$addon.prob || !$addon.id}{continue}{/if}
+							{if $idx >= 6}
+								<span style="font-weight: bold;">... and {@$item.uniques.length - $idx} more</span>
+								{break}
+							{/if}
 							<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+							{$idx++}
 
 						{/for}
 					{/if}
-				{/if}
+				</div>
 			</div>
-		</div>
+		{/if}
 
 		<div class="section flex-rows">
 			<span class="flex-columns section-header"></span>
@@ -267,21 +284,16 @@
 					<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
 				{/if}
 			</span>
-			<span style="">Buy Price&nbsp;
-				{if $edit}
-					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
-				{else}
-					<span>{@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-				{/if}
-			</span>
 
-			<span style="{if !$edit}margin-top: 5px;{/if}">Repair Fee&nbsp;
-				{if $edit}
+			{if $edit}
+				<span style="">Buy Price&nbsp;
+					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
+				</span>
+
+				<span style="margin-top: 5px;">Repair Fee&nbsp;
 					<span data-input class="input-number width-5c" style="margin-left: -5px;" data-link="{serialize $item} => 'repairfee'"></span>
-				{else}
-					<span>{@('' + $item.repairfee).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-				{/if}
-			</span>
+				</span>
+			{/if}
 
 			{if $edit}
 				<div id="decompose" class="flex-columns" style="align-items: center; margin-top: 3px;">
@@ -289,7 +301,7 @@
 					{assign decomp = db.items[$item.element_id || 0]}
 					<span class="item" ondblclick="{serialize $win}.select_decomp();" tabindex="0"><img{ } src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}"></span>
 
-					x&nbsp;<span data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'element_num'"></span>
+					x&nbsp;<span {@$data_preview} data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'element_num'"></span>
 				</div>
 				<div class="flex-columns" style="margin-top: 3px;">
 					<span style="">Decomp. time&nbsp;
@@ -301,26 +313,15 @@
 						<span data-input class="input-number width-5c" style="" data-link="{serialize $item} => 'decompose_price'"></span>
 					</span>
 				</div>
-			{else if $item.element_id && $item.element_num}
-				<div class="flex-columns">
-					<span style="">Decompose to </span>
-					<span style="flex: 1;"></span>
-					<span style="">{@db.items[$item.element_id || 0]?.name || '(unknown)'} #{@$item.element_id} x{@$item.element_num}</span>
-				</div>
-				<div class="flex-columns">
-					<span style="">Decompose time {@$item.decompose_time || 0}s</span>
-					<span style="flex: 1;"></span>
-					<span style="">Price {@('' + ($item.decompose_price || 0)).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-				</div>
 			{/if}
 		</div>
 
 		<div class="section flex-rows">
-			<span class="section-header">Description</span>
 			{if $edit}
+				<span class="section-header">Description</span>
 				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
 			{else}
-				<div id="desc">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+				<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
 			{/if}
 		</div>
 
@@ -478,7 +479,7 @@
 	margin-right: 4px;
 }
 
-.section {
+.item_info.edit .section {
 	width: 282px;
 	background-color: rgba(255, 255, 255, 0.1);
 	padding: 6px;
@@ -487,13 +488,26 @@
 	margin-top: 4px;
 }
 
-.section-header {
+.item_info.edit .section-header {
 	margin-left: -6px;
 	font-weight: bold;
 	align-self: end;
 }
 
-#prereqs > *:not(.section-header) {
+.item_info #prereqs {
+	display: flex;
+	flex-direction: column;
+}
+
+.item_info.edit #prereqs {
+	flex-direction: row;
+}
+
+.item_info #prereqs > * {
+	margin-right: 10px;
+}
+
+.item_info.edit #prereqs > *:not(.section-header) {
 	text-align: right;
 	justify-content: flex-end;
 }
@@ -571,9 +585,6 @@
 .width-3c,
 .input.width-3c {
 	width: 22px;
-}
-
-.item_info:not(.edit) .input {
 }
 
 .item_info.edit .input {
