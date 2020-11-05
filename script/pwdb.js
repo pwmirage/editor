@@ -81,6 +81,7 @@ const pwdb_register_data_type = async (type, show_tag = true, url) => {
 	}
 }
 
+db.new_id_start = 0x80000001;
 const g_pwdb_init_promise = Promise.all([
 	db.register_type('metadata', [g_db_meta]),
 	pwdb_register_data_type('mines'),

@@ -180,9 +180,10 @@ class PWMap {
 		const last_pos = { x: -1, y: -1 };
 		setInterval(() => {
 			const pos = this.mouse_spawner_pos;
-			if (last_pos.x == pos.x && last_pos.y == pos.y) {
+			if (!this.force_mouse_update && (last_pos.x == pos.x && last_pos.y == pos.y)) {
 				return;
 			}
+			this.force_mouse_update = false;
 
 			this.canvas_worker.postMessage({ type: 'mouse', x: pos.x, y: pos.y });
 			last_pos.x = pos.x;
@@ -208,7 +209,9 @@ class PWMap {
 			}
 
 			(async () => {
-				this.post_canvas_msg({ type: 'update_obj', obj: obj });
+				await this.post_canvas_msg({ type: 'update_obj', obj: obj });
+				this.force_mouse_update = true;
+				await this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
 			})();
 
 
@@ -257,6 +260,7 @@ class PWMap {
 				this.bg.style.marginTop = - img_off.y + 'px';
 
 				this.canvas.onmousedown = (e) => this.onmousedown(e);
+				this.canvas.oncontextmenu = (e) => false;
 				this.canvas.onwheel = (e) => this.onwheel(e);
 
 				await db.load_map(mapid);
@@ -326,11 +330,14 @@ class PWMap {
 
 	onmousedown(e) {
 		e.preventDefault();
+		this.drag.clicked_el = e.path[0];
 
-		this.drag.origin.x = e.clientX;
-		this.drag.origin.y = e.clientY;
-		this.drag.is_drag = true;
-		this.drag.moved = false;
+		if (e.which == 2) {
+			this.drag.origin.x = e.clientX;
+			this.drag.origin.y = e.clientY;
+			this.drag.is_drag = true;
+			this.drag.moved = false;
+		}
 	}
 
 	onmousemove(e) {
@@ -373,10 +380,56 @@ class PWMap {
 	}
 
 	onmouseup(e) {
+		const mouse_pos = { x: e.clientX, y: e.clientY };
+		if (e.which == 3 && e.path[0] == this.drag.clicked_el) {
+			(async () => {
+				const x = mouse_pos.x - Window.bounds.left;
+				const y = mouse_pos.y - Window.bounds.top;
+				const map_coords = this.mouse_coords_to_map(mouse_pos.x, mouse_pos.y);
+				const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
+
+				const win = await RMenuWindow.open({
+				x: x, y: y,
+				entries: [
+					{ name: 'Spawn', children: [
+						{ id: 0, name: 'NPC' },
+						{ id: 1, name: 'Monster' },
+						{ id: 2, name: 'Resource' },
+					]},
+					{ id: 10, name: 'Undo' },
+				]});
+				const sel = await win.wait();
+				switch(sel) {
+					case 0: {
+						const spawner = db.new('spawners_' + this.maptype.id);
+						db.open(spawner);
+						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
+						spawner.is_npc = true;
+						db.commit(spawner);
+						console.log('new npc');
+						break;
+					}
+					case 1: {
+						console.log('new monster');
+						break;
+					}
+					case 2: {
+						console.log('new resource');
+						break;
+					}
+					case 10: {
+						console.log('undo');
+						break;
+					}
+				}
+			})();
+			return false;
+		}
+
 		if (this.drag.is_drag) {
 			this.redraw_dyn_overlay();
+			this.drag.is_drag = false;
 		}
-		this.drag.is_drag = false;
 
 		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
 			let spawner = this.hovered_spawner;
@@ -399,6 +452,7 @@ class PWMap {
 			}
 		}
 
+		this.drag.clicked_el = null;
 		this.drag.moved = false;
 	}
 
