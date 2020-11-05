@@ -84,7 +84,7 @@
 	<span>
 		{if $spawner._db.type.startsWith("resources_")}Resource{/if}
 		{if $spawner._db.type.startsWith("spawners")}{if $spawner.is_npc}NPC{else}Monster{/if}{/if}
-		&nbsp;Spawner #{@$spawner.id}
+		&nbsp;Spawner {@serialize_db_id($spawner.id)}
 	</span>
 	<div class="menu">
 		<i class="minimize fa" aria-hidden="true"></i>
@@ -133,10 +133,12 @@
 				{if $spawner._db.type.startsWith("resources_")}
 					<a class="button no-break" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})"><i class="fa fa-angle-right"></i></a>
 				{else}
-					{if $obj._db.type == 'npcs'}
-						<a class="button no-break" onclick="NPCWindow.open({@@{ npc: {@@$obj} }@@})"><i class="fa fa-angle-right"></i></a>
-					{else}
-						<a class="button no-break" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})"><i class="fa fa-angle-right"></i></a>
+					{if $obj}
+						{if $obj._db.type == 'npcs'}
+							<a class="button no-break" onclick="NPCWindow.open({@@{ npc: {@@$obj} }@@})"><i class="fa fa-angle-right"></i></a>
+						{else}
+							<a class="button no-break" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})"><i class="fa fa-angle-right"></i></a>
+						{/if}
 					{/if}
 				{/if}
 
