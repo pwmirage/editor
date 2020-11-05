@@ -27,8 +27,12 @@ class Editor {
 			load_script(ROOT_URL + 'script/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/navbar.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
+		]);
+
+		await Promise.all([
+			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/rmenu.js?v=' + MG_VERSION),
 		]);
 
 		await Promise.all([
