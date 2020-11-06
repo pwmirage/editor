@@ -40,8 +40,8 @@ class EditableColorText {
 		this.link_el = newElement('<span class="input-text">');
 		this.link_el.dataset.link = this.link_str;
 		this.link_el.style.display = 'none';
-		this.el.append(link_el);
-		HTMLSugar.link_el(link_el);
+		this.el.append(this.link_el);
+		HTMLSugar.link_el(this.link_el);
 
 		this.code_el.textContent = this.link_el.textContent;
 		this.format();
