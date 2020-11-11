@@ -52,27 +52,100 @@ class SpawnerWindow extends Window {
 		this.open_groups = [];
 	}
 
-	async info_group(idx, el) {
-		const group = this.spawner.groups[idx];
-
-		if (!this.open_groups[idx]) {
-			const win = this.open_groups[idx] = await SpawnerGroupWindow.open({ parent: this, spawner: this.spawner, group });
-			win.move(0, 0);
-			win.dom.remove();
-			el.lastChild.style.marginRight = 0;
-			el.append(win.dom);
-			const bounds = el.getBoundingClientRect();
-			win.dom.style.left = '';
-			win.dom.style.top = '';
-			//win.dom_win.style.left = bounds.width - 2 + 'px';
+	info_group(el, idx) {
+		if (!el._mg_group) {
+			const group = this.spawner.groups[idx];
+			el._mg_group = SpawnerGroupWindow.open({ parent: this, spawner: this.spawner, group });
+			(async () => {
+				const win = await el._mg_group;
+				win.move(0, 0);
+				win.dom.remove();
+				win.dom.style.left = '';
+				win.dom.style.top = '';
+				el.append(win.dom);
+			})();
 		}
 	}
 
-	select_group(sel_idx) {
+	async open_group(el, idx, e) {
+		const group = this.spawner.groups[idx];
+		if (e.which == 1) {
+			if (this.spawner._db.type.startsWith("resources_")) {
+				MessageWindow.open({ msg: 'Not implemented yet' });
+			} else {
+				if (this.spawner.is_npc) {
+					const npc = db.npcs[group.type];
+					if (!npc) {
+						/* TODO create new npc */
+					}
+
+					NPCWindow.open({ npc: npc });
+				} else {
+					MessageWindow.open({ msg: 'Not implemented yet' });
+				}
+			}
+		} else if (e.which == 3) {
+			const base = this.spawner._db._base;
+			let spawner_name = '';
+			if (this.spawner._db.type.startsWith("resources_")) {
+				spawner_name = 'Resource';
+			} else if (this.spawner.is_npc) {
+				spawner_name = 'NPC';
+			} else {
+				spawner_name = 'Mob';
+			}
+
+			const coords = Window.get_el_coords(el);
+			const x = coords.left;
+			const y = coords.bottom;
+			const win = await RMenuWindow.open({
+			x: x, y: y, bg: false,
+			entries: [
+				{ id: 1, name: 'Edit' },
+				{ name: 'Base' + (base ? '' : ' (none)'), disabled: !base, children: [
+					{ name: base ? (base?.name + ' ' + serialize_db_id(base.id)) : '(none)' },
+					{ id: 10, name: 'Open' },
+					{ id: 11, name: 'Show usages' },
+				]},
+				{ name: spawner_name, children: [
+					{ id: 20, name: 'Open' },
+					{ id: 21, name: 'Show usages' },
+					{ id: 22, name: 'Detach from base' },
+					{ id: 23, name: 'Apply to base' },
+					{ id: 24, name: 'Rebase' },
+				]},
+			]});
+			const sel = await win.wait();
+			switch(sel) {
+				case 0: {
+					const spawner = db.new('spawners_' + this.maptype.id);
+					db.open(spawner);
+					spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
+					spawner.is_npc = true;
+					db.commit(spawner);
+					console.log('new npc');
+					break;
+				}
+				case 1: {
+					console.log('new monster');
+					break;
+				}
+				case 2: {
+					console.log('new resource');
+					break;
+				}
+				case 10: {
+					console.log('undo');
+					break;
+				}
+			}
+		}
+	}
+
+	select_group(group) {
 		const els = this.shadow.querySelectorAll('.group-row');
-		let idx = 0;
 		for (const el of els) {
-			if (idx != sel_idx) {
+			if (el != group) {
 				el.classList.remove('selected');
 			} else {
 				const was_selected = !el.classList.toggle('selected');
@@ -83,7 +156,6 @@ class SpawnerWindow extends Window {
 				}
 
 			}
-			idx++;
 		}
 	}
 
