@@ -299,6 +299,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 }
 
 a.button {
+	position: relative;
 	background-color: #dccfcf;
 	border-radius: 2px;
 	border-width: 0;
@@ -324,6 +325,22 @@ a.button:hover:not(.disabled) {
 	background-color: rgba(156, 120, 120, 1);
 	color: rgba(255, 255, 255, 1);
 	text-decoration: none;
+}
+
+a.button.menu-triangle:after {
+	content: '';
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 0 10px 10px;
+	border-color: transparent transparent #666 transparent;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+}
+
+a.button.menu-triangle:hover:after {
+	border-color: transparent transparent #fff transparent;
 }
 
 select {
