@@ -392,15 +392,15 @@ class PWMap {
 				x: x, y: y,
 				entries: [
 					{ name: 'Spawn', children: [
-						{ id: 0, name: 'NPC' },
-						{ id: 1, name: 'Monster' },
-						{ id: 2, name: 'Resource' },
+						{ id: 1, name: 'NPC' },
+						{ id: 2, name: 'Monster' },
+						{ id: 3, name: 'Resource' },
 					]},
 					{ id: 10, name: 'Undo' },
 				]});
 				const sel = await win.wait();
 				switch(sel) {
-					case 0: {
+					case 1: {
 						const spawner = db.new('spawners_' + this.maptype.id);
 						db.open(spawner);
 						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
@@ -409,11 +409,11 @@ class PWMap {
 						console.log('new npc');
 						break;
 					}
-					case 1: {
+					case 2: {
 						console.log('new monster');
 						break;
 					}
-					case 2: {
+					case 3: {
 						console.log('new resource');
 						break;
 					}
