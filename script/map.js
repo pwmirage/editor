@@ -367,7 +367,7 @@ class PWMap {
 			this.mouse_pos.x = e.clientX;
 			this.mouse_pos.y = e.clientY;
 
-			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(map_coords.x) + ', Y: ' + parseInt(map_coords.y);
+			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(spawner_pos.x) + ', Y: ' + parseInt(spawner_pos.y);
 		} else {
 			if (this.hovered_spawner) {
 				this.hover_lbl.style.display = 'none';
