@@ -7,17 +7,17 @@
 </div>
 </div>
 
-<div id="background" onclick="{serialize $win}.close();" oncontextmenu="return false;">
-	<div class="menu" style="left: {@$x}px; top: {@$y}px;">
+<div id="background" onclick="{serialize $win}.close();" oncontextmenu="this.onclick(); return false;" class="{if $bg}visible{/if}">
+	<div class="menu" style="left: {@$x}px; top: {@$y}px;" oncontextmenu="event.stopPropagation(); return false;">
 		{for e of $entries}
-			<div class="entry" onclick="event.stopPropagation();{if $e.id}{serialize $win}.select({@$e.id});{/if}">
+			<div class="entry{if $e.disabled} disabled{/if}{if !$e.id} unclickable{/if}{if !$e.id && !$e.children}text{/if}" onclick="event.stopPropagation();{if $e.id && !$e.disabled}{serialize $win}.select({@$e.id});{/if}" onmouseenter="{serialize $win}.hover_entry(this);">
 				<span>{@$e.name}</span>
 				{if $e.children}
 					<div style="flex: 1;"></div>
 					<i class="fa fa-angle-right"></i>
 					<div class="menu">
 							{for c of $e.children}
-								<div class="entry" onclick="{serialize $win}.select({@$c.id});">
+								<div class="entry {if !$c.id}disabled{/if}{if !$c.id} unclickable{/if}{if !$c.id && !$c.children} text{/if}" onclick="{serialize $win}.select({@$c.id});" onmouseenter="{serialize $win}.hover_entry(this);">
 									<span>{@$c.name}</span>
 								</div>
 							{/for}
@@ -32,47 +32,84 @@
 <style>
 #background:before {
 	content: '';
-	background-color: #000;
 	opacity: 0.3;
 	position: fixed;
 	width: 100vw;
 	height: 100vh;
 }
 
+#background.visible:before {
+	background-color: #000;
+}
+
 .menu {
 	position: absolute;
 	width: min-content;
-	background-color: rgb(255 230 230);
-	border: solid 1px rgba(224, 176, 176, 1);
+	background-color: #e6dbdb;
 	display: flex;
 	flex-direction: column;
 	user-select: none;
+	font-size: 12px;
+	border-radius: 2px;
+	border-top-left-radius: 0;
+	z-index: 2;
+}
+
+#background > .menu {
+	color: rgba(80, 44, 44, 1);
+	font-style: normal;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.menu:before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: #e6dbdb;
+	box-shadow: 0px 0px 2px black;
+	z-index: -1;
 }
 
 .entry {
-	padding: 5px;
-	color: rgba(80, 44, 44, 1);
+	padding: 8px;
 	display: flex;
 	align-items: baseline;
+	white-space: pre;
 }
 
-.entry + .entry {
-	border-top: solid 1px rgba(224, 176, 176, 1);
+.entry.text {
+	background-color: #c5c3c3 !important;
+	color: #5a3838 !important;
+	padding: 3px 8px;
+	align-self: flex-end;
 }
 
-.entry:hover {
-	background-color: rgba(251, 241, 241, 1);
+.entry.text > span {
+	margin-left: auto;
+}
+
+.entry.disabled {
+	font-style: italic;
+	color: #9c9494;
+}
+
+.entry.hovered {
+	background-color: #fbe5e5;
 }
 
 .entry > .menu {
 	display: none;
+	z-index: 2;
 }
 
-.entry:hover > .menu {
+.entry.hovered > .menu {
 	display: block;
-	right: 0;
-	top: -1px;
-	transform: translateX(100%);
+	left: 100%;
+	margin-top: -8px;
+	margin-left: 1px;
+	z-index: 1;
 }
 
 .entry > .fa-angle-right {
