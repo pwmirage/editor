@@ -90,13 +90,14 @@ class Window {
 	}
 
 	static get_el_coords(el) {
-		const bounds = Object.assign({}, el.getBoundingClientRect());
-		bounds.x -= Window.bounds.x;
-		bounds.y -= Window.bounds.y;
-		bounds.left -= Window.bounds.left;
-		bounds.right -= Window.bounds.right;
-		bounds.top -= Window.bounds.top;
-		bounds.bottom -= Window.bounds.bottom;
+		const rbounds = el.getBoundingClientRect();
+		const bounds = {};
+		bounds.x = rbounds.x - Window.bounds.x;
+		bounds.y = rbounds.y - Window.bounds.y;
+		bounds.left = rbounds.left - Window.bounds.left;
+		bounds.right = rbounds.right -  Window.bounds.left;
+		bounds.top = rbounds.top - Window.bounds.top;
+		bounds.bottom = rbounds.bottom - Window.bounds.top;
 		return bounds;
 	}
 
@@ -121,7 +122,7 @@ class Window {
 			const win = Window.resized_win;
 			const offset = win.resizeOffset;
 			let w = Math.max(250, (mousex - offset.x));
-			let h = Math.max(300, (mousey - offset.y));
+			let h = Math.max(250, (mousey - offset.y));
 
 			win.dom_win.style.width = w + 'px';
 			win.dom_win.style.height = h + 'px';
