@@ -267,9 +267,6 @@ class DB {
 		if (!diff) {
 			if (obj._db.changesets.length == 1) {
 				/* no changes and no history, just delete the original copy */
-				if (obj._db.commit_cb) {
-					obj._db.commit_cb(obj, {}, obj);
-				}
 				obj._db.latest_state = undefined;
 				obj._db.changesets = undefined;
 				return;
@@ -311,6 +308,7 @@ class DB {
 		}
 		if (obj._db.commit_cb) {
 			obj._db.commit_cb(obj, diff, obj._db.latest_state);
+			obj._db.commit_cb = null;
 		}
 
 		if (!diff) {
