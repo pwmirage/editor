@@ -323,6 +323,7 @@ class DB {
 	clone(obj) {
 		let copy = {};
 		copy_obj_data(copy, obj);
+		copy._db = { type: obj._db.type };
 		return copy;
 	}
 
