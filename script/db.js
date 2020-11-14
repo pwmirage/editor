@@ -413,9 +413,14 @@ class DB {
 	}
 
 	rebase(obj, base) {
-		obj._db.base = base.id;
-		Object.setPrototypeOf(obj, base);
-		inherit_obj(obj, base);
+		obj._db.base = base ? base.id : 0;
+		Object.setPrototypeOf(obj, base || {});
+		if (base) {
+			/* TODO detach previous base */
+			inherit_obj(obj, base);
+		} else {
+			/* TODO pull base into obj */
+		}
 	}
 
 	is_obj_equal(obj, org) {
