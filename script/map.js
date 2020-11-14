@@ -217,6 +217,10 @@ class PWMap {
 
 		});
 
+		for (const m in PWMap.maps) {
+			db.load_map(m);
+		}
+
 		this.initialized = true;
 	}
 

@@ -104,28 +104,33 @@ class SpawnerWindow extends Window {
 					const base = db.npcs[group.type];
 
 					let npcwin = null;
-					/* TODO don't fork when only 1 usage */
-					const npc = db.new('npcs', (npc, diff, prev) => {
-						const s = this.spawner;
-						db.open(s);
+					let npc;
 
-						if (!s.groups) {
-							s.groups = [];
+					if (!base || PWDB.find_usages(base).length > 1) {
+						npc = db.new('npcs', (npc, diff, prev) => {
+							const s = this.spawner;
+							db.open(s);
+
+							if (!s.groups) {
+								s.groups = [];
+							}
+
+							/* there can be only 1 group for NPCs, so always
+							 * use the first one */
+							if (s.groups.length == 0) {
+								s.groups.push({});
+							}
+
+							s.groups[0].type = npc.id;
+							db.commit(s);
+							this.tpl.reload('#groups');
+							npcwin.tpl.reload('.header > span');
+						});
+						if (base) {
+							db.rebase(npc, base);
 						}
-
-						/* there can be only 1 group for NPCs, so always
-						 * use the first one */
-						if (s.groups.length == 0) {
-							s.groups.push({});
-						}
-
-						s.groups[0].type = npc.id;
-						db.commit(s);
-						this.tpl.reload('#groups');
-						npcwin.tpl.reload('.header > span');
-					});
-					if (base) {
-						db.rebase(npc, base);
+					} else {
+						npc = base;
 					}
 
 					npcwin = await NPCWindow.open({ npc: npc });
