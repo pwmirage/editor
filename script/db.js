@@ -4,6 +4,7 @@
 
 function copy_obj_data(obj, org) {
 	for (const f in org) {
+		if (!org.hasOwnProperty(f)) continue;
 		if (f === '_db') continue;
 		if (typeof(org[f]) === 'object') {
 			if (!obj.hasOwnProperty(f)) {
@@ -38,16 +39,11 @@ function init_obj_data(obj, base) {
 	}
 }
 
-function new_obj(obj) {
-	const copy = {};
-	init_obj_data(copy, obj);
-	return copy;
-}
-
 function get_obj_diff(obj, prev) {
 	const diff = {};
 
 	for (const f in obj) {
+		if (!obj.hasOwnProperty(f)) continue;
 		if (f === '_db') continue;
 		if (typeof(prev[f]) === 'object') {
 			const nested_diff = get_obj_diff(obj[f], prev[f]);
@@ -99,6 +95,52 @@ function dump(data, spacing = 1) {
 		}
 		return v;
 	}, spacing);
+}
+
+function proxy_array(src) {
+	const dst = [];
+	return new Proxy(src, {
+		set(src, k, v) {
+			dst[k] = v;
+			return true;
+		},
+		get(src, k) {
+			if (k == "setvalues") {
+				return dst;
+			}
+
+			const int_k = parseInt(k);
+			if (Number.isInteger(int_k) && dst[k] !== undefined) {
+				return dst[k];
+			}
+
+			return src[k];
+		}
+	});
+}
+
+function inherit_obj(obj, base) {
+	for (const f in base) {
+		if (f === '_db') continue;
+		if (typeof(base[f]) !== 'object') continue;
+		if (Array.isArray(base[f])) {
+			const prev = obj[f];
+			obj[f] = proxy_array(base[f]);
+			/* copy previous overriden values, if any */
+			if (prev && prev.setvalues) {
+				const dst = prev.setvalues;
+				for (const f in dst.length) {
+					if (dst[f] != prev[f]) {
+						obj[f] = dst[f];
+					}
+				}
+			}
+		} else {
+			if (!obj[f]) obj[f] = {};
+			obj[f] = Object.setPrototypeOf(obj[f], base[f]);
+		}
+		inherit_obj(obj[f], base[f]);
+	}
 }
 
 class DB {
@@ -338,18 +380,17 @@ class DB {
 		const arr = this[type];
 		if (!arr) throw new Error(`Unknown db type (${type})`);
 
-		let sample_el = null;
-		for (const sample of arr) {
-			sample_el = sample;
-			break;
-		}
-		if (!sample_el) throw new Error(`No existing db objects of type (${type})`);
-
-		const obj = new_obj(sample_el);
+		const obj = { id: 0 }
 		this.init(type, obj);
 		obj._db.is_allocated = true;
 		obj._db.commit_cb = commit_cb;
 		return obj;
+	}
+
+	rebase(obj, base) {
+		obj._db.base = base.id;
+		Object.setPrototypeOf(obj, base);
+		inherit_obj(obj, base);
 	}
 
 	is_obj_equal(obj, org) {
@@ -438,5 +479,5 @@ class DB {
 }
 
 if (typeof window === 'undefined') {
-	eval('export default DB');
+	module.exports = DB;
 }

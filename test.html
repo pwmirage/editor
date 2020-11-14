@@ -2,7 +2,8 @@
 <html>
 	<head>
 		<title>Tests</title>
-		<script type="module" src="test/DB.mjs"></script>
+		<script type="text/javascript" src="script/db.js"></script>
+		<script type="text/javascript" src="dbtest.js"></script>
 		<style>
 			body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; }
 			.result { padding: 4px 6px; }
@@ -14,7 +15,11 @@
 				return passed ? '<span class="result passed">PASSED</span>' : '<span class="result failed">FAILED</span>';
 			}
 			window.onload = () => {
-				document.querySelector('body').innerHTML += ('<p>DB test: ' + marker(window._testDBPass) + '</p');
+				for (const t in window._testDBPass) {
+					const passed = window._testDBPass[t];
+					document.querySelector('body').innerHTML += ('<p>' + t + ' test: ' + marker(passed) + '</p');
+				}
+
 			};
 		</script>
 	</head>
