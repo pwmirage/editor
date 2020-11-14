@@ -28,6 +28,8 @@ class SpawnerWindow extends Window {
 		if (!this.args.debug && g_open_spawners.has(this.spawner)) return false;
 		g_open_spawners.add(this.spawner);
 
+		this.normalize_spawner();
+
 		await g_spawner_tpl;
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-spawner');
@@ -41,7 +43,32 @@ class SpawnerWindow extends Window {
 		return await super.init();
 	}
 
+	normalize_spawner() {
+		const s = this.spawner;
+		let open = null;
+
+		if (!s.groups) {
+			open = db.open(s);
+			s.groups = [];
+		}
+
+		let i = 0;
+		/* remove empty groups */
+		for (const g of s.groups) {
+			if (g.type == 0) {
+				open = db.open(s);
+				s.groups.splice(i, 1);
+			}
+			i++;
+		}
+
+		if (s.groups.length == 0) {
+			s.groups.push({ type: 0 });
+		}
+	}
+
 	close() {
+		this.normalize_spawner();
 		g_open_spawners.delete(this.spawner);
 		super.close();
 	}
@@ -74,12 +101,34 @@ class SpawnerWindow extends Window {
 				MessageWindow.open({ msg: 'Not implemented yet' });
 			} else {
 				if (this.spawner.is_npc) {
-					const npc = db.npcs[group.type];
-					if (!npc) {
-						/* TODO create new npc */
+					const base = db.npcs[group.type];
+
+					let npcwin = null;
+					/* TODO don't fork when only 1 usage */
+					const npc = db.new('npcs', (npc, diff, prev) => {
+						const s = this.spawner;
+						db.open(s);
+
+						if (!s.groups) {
+							s.groups = [];
+						}
+
+						/* there can be only 1 group for NPCs, so always
+						 * use the first one */
+						if (s.groups.length == 0) {
+							s.groups.push({});
+						}
+
+						s.groups[0].type = npc.id;
+						db.commit(s);
+						this.tpl.reload('#groups');
+						npcwin.tpl.reload('.header > span');
+					});
+					if (base) {
+						db.rebase(npc, base);
 					}
 
-					NPCWindow.open({ npc: npc });
+					npcwin = await NPCWindow.open({ npc: npc });
 				} else {
 					MessageWindow.open({ msg: 'Not implemented yet' });
 				}

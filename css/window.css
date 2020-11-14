@@ -49,6 +49,10 @@
 }
 
 .window > .header > .menu {
+	display: inline-block;
+}
+
+.window > .header > .menu:last-child {
 	display: flex;
 	float: right;
 }
@@ -70,6 +74,8 @@
 
 .window > .header > .menu > .maximize:before { content: '\00f2d0'; }
 .window.maximized > .header > .menu > .maximize:before { content: '\00f2d2'; }
+
+.window > .header > .menu > .fork { text-align: center; width: 0px; margin-right: -3px; z-index: 2; }
 
 .window > .content {
 	flex: 1;

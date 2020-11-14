@@ -35,8 +35,7 @@ class Window {
 
 		this.dom.onmousedown = (e) => this.onmousedown(e);
 
-		const menu = this.shadow.querySelector('.header > .menu');
-		const queryEl = (name) => menu?.querySelector(name) || {};
+		const queryEl = (name) => this.dom_header?.querySelector(name) || {};
 		queryEl('.minimize').onclick = () => this.minimize();
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();

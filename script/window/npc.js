@@ -77,6 +77,7 @@ class NPCWindow extends Window {
 		shadow.append(data);
 
 		this.save_greeting();
+		this.npc_initialized = true;
 		super.init();
 	}
 
@@ -149,9 +150,11 @@ class NPCWindow extends Window {
 			n.replaceWith(document.createTextNode('\n'));
 		}
 
-		db.open(this.npc);
-		this.npc.greeting = greeting.textContent;
-		db.commit(this.npc);
+		if (this.npc_initialized) {
+			db.open(this.npc);
+			this.npc.greeting = greeting.textContent;
+			db.commit(this.npc);
+		}
 	}
 
 	save_greeting() {

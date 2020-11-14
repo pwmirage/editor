@@ -13,13 +13,17 @@
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.goods => '_name'">
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $goods} => '_name'">
+	</div>
+	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<span style="width: 45px;">Name:</span>
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $goods} => '_name'">
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns flex-gap" style="flex-wrap: wrap; margin-bottom: 16px;">
 	{for i = 0; i < 8; i++}
 		{assign tab = $goods.pages[i]}
-		<input type="text" placeholder="(None)" class="tabname" onfocus="{serialize $win}.select({@$i});" data-link="{serialize $win}.goods => 'pages', {@$i}, 'page_title'">
+		<input type="text" placeholder="(None)" class="tabname" onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'page_title'">
 	{/for}
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap">
@@ -69,8 +73,18 @@ input[type="text"].tabname.selected {
 <div class="window resizable" style="width: 350px; height: 400px;">
 <div class="header">
 	<span>
-		{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} #{@$npc.id}
+		{if !$npc.id && $npc._db.base}
+			{@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@serialize_db_id($npc._db.base)}
+		{else}
+			{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} {@serialize_db_id($npc.id)}
+			{if $npc._db.base}
+				<br>based on {@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@serialize_db_id($npc._db.base)}
+			{/if}
+		{/if}
 	</span>
+	<div class="menu">
+		<i class="fork fa fa-ellipsis-v"></i>
+	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -80,7 +94,7 @@ input[type="text"].tabname.selected {
 <div class="content flex-rows" style="overflow: hidden;">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $win}.npc => 'name'">
+		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $npc} => 'name'">
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
 		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
@@ -128,10 +142,6 @@ input[type="text"].tabname.selected {
 
 {@@
 <style>
-.hidden {
-	visibility: hidden;
-	position: absolute;
-}
 
 </style>
 @@}
