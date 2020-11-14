@@ -133,7 +133,7 @@
 				{assign obj = db.npcs[$group.type] || db.monsters[$group.type]}
 			{/if}
 			<div class="group-row flex-columns">
-				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} #{@$group.type}</div>
+				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type && !$simplified_ui} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} {@serialize_db_id($group.type)}</div>
 				<div style="flex: 1;"></div>
 				<a class="button no-break menu-triangle" onclick="{serialize $win}.open_group(this, {@$idx}, event);" style="width: 13px; text-align: center;" oncontextmenu="this.onclick(event); return false;"><i class="fa fa-pencil-square-o"></i></a>
 				<a class="group-hover button no-break" onmouseenter="{serialize $win}.info_group(this, {@$idx});" onclick="{serialize $win}.select_group(this.parentNode); event.stopPropagation();" style="margin-right: -10px;"><i class="fa fa-asterisk"></i></a>
