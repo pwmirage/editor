@@ -17,6 +17,31 @@ function copy_obj_data(obj, org) {
 	}
 }
 
+function apply_diff(obj, diff) {
+	const has_numeric_keys = (obj) => {
+		for (const f in obj) {
+			if (isNaN(f)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	for (const f in diff) {
+		if (f === '_db') continue;
+		if (typeof(diff[f]) === 'object') {
+			if (!obj.hasOwnProperty(f)) {
+				/* diff is always an object, so can't use Array.isArray() */
+				obj[f] = has_numeric_keys(diff[f]) ? [] : {};
+			}
+			copy_obj_data(obj[f], diff[f]);
+		} else {
+			obj[f] = diff[f];
+		}
+	}
+}
+
 function clone_obj(obj) {
 	let copy = {};
 	copy_obj_data(copy, obj);
@@ -329,7 +354,7 @@ class DB {
 				last_changelog.add(diff);
 				changeset = diff;
 			} else {
-				Object.assign(changeset, diff);
+				apply_diff(changeset, diff);
 			}
 
 			/* if this a newly allocated object it will be now appended to the array */
@@ -356,7 +381,7 @@ class DB {
 		if (!diff) {
 			obj._db.latest_state = undefined;
 		} else {
-			Object.assign(obj._db.latest_state, diff);
+			apply_diff(obj._db.latest_state, diff);
 		}
 
 		return diff;

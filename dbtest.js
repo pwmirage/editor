@@ -273,6 +273,31 @@ finish_test('basic');
 	assert(obj.array[1] == 141);
 	assert(obj.array[2] == 242);
 
+	called = 0;
+	cb = db.register_commit_cb((obj, diff, prev) => {
+		called++;
+		assert(obj != base);
+		assert(diff.array != undefined);
+		assert(diff.array[0] == 340);
+		assert(prev.array[0] == 40);
+		assert(diff.array[1] == 341);
+		assert(prev.array[1] == 141);
+		assert(diff.array[2] == undefined);
+	});
+	db.open(obj);
+	obj.array = [];
+	obj.array[0] = 340;
+	obj.array[1] = 341;
+	db.commit(obj);
+	db.unregister_commit_cb(cb);
+	assert(called == 1);
+
+	assert(base.array[1] == 241);
+	assert(base.array[2] == 242);
+	assert(obj.array[0] == 340);
+	assert(obj.array[1] == 341);
+	assert(obj.array[2] == undefined);
+
 	finish_test('nested_inheritance');
 }
 
