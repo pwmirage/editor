@@ -165,6 +165,7 @@ finish_test('basic');
 	let obj = db.new('items', (obj, diff, prev) => {
 		assert(diff.field == undefined);
 		assert(diff.field2 == "yet_another");
+		assert(prev.field2 == "another");
 	});
 	const base = db.items[4096];
 	db.rebase(obj, base);
@@ -177,6 +178,7 @@ finish_test('basic');
 		assert(obj != base);
 		assert(diff.field == undefined);
 		assert(diff.field2 == "yet_another");
+		assert(prev.field2 == "another");
 	});
 	db.open(obj);
 	obj.field2 = "yet_another";

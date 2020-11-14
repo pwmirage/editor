@@ -4,10 +4,10 @@
 
 function copy_obj_data(obj, org) {
 	for (const f in org) {
-		if (!org.hasOwnProperty(f)) continue;
+		if (!(f in org)) continue;
 		if (f === '_db') continue;
 		if (typeof(org[f]) === 'object') {
-			if (!obj.hasOwnProperty(f)) {
+			if (!(f in obj)) {
 				obj[f] = Array.isArray(org[f]) ? [] : {};
 			}
 			copy_obj_data(obj[f], org[f]);
