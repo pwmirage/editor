@@ -76,10 +76,8 @@ input[type="text"].tabname.selected {
 		{if !$npc.id && $npc._db.base}
 			{@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@serialize_db_id($npc._db.base)}
 		{else}
+			{if $npc._db.base}<span style="font-weight: bold;">(f) </span>{/if}
 			{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} {@serialize_db_id($npc.id)}
-			{if $npc._db.base}
-				<br>based on {@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@serialize_db_id($npc._db.base)}
-			{/if}
 		{/if}
 	</span>
 	<div class="menu">
