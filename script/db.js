@@ -391,7 +391,7 @@ class DB {
 		let copy = {};
 		copy_obj_data(copy, obj);
 		copy.id = 0;
-		copy._db = { type: obj._db.type, commit_cb: commit_cb };
+		copy._db = { type: obj._db.type, is_allocated: true, commit_cb: commit_cb };
 		return copy;
 	}
 
