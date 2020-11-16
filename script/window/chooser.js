@@ -61,6 +61,13 @@ class ChooserWindow extends Window {
 		const items = items_el.children;
 		for (let i = items.length - 1; i >= 0; i--) {
 			const item = items[i];
+			if (item.style.display == 'none') {
+				/* hidden already, no matching this.items[off + i]. continue
+				 * until we reach an element that we can get bounds for */
+				overflown_items++;
+				continue;
+			}
+
 			const b = item.getBoundingClientRect();
 			if (b.bottom - items_bounds.top > this.max_height) {
 				item.style.display = 'none';
