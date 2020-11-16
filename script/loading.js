@@ -73,12 +73,12 @@ class Loading {
 		return p;
 	}
 
-	static show_error_tag() {
-		const p = Loading.show_loading_tag(name);
+	static show_error_tag(name) {
+		const p = Loading.show_tag(name);
 		p.classList.add('error');
 		setTimeout(() => {
-			page_init.then(setTimeout(() => { Loading.hide_tag(p); }, 8000));
-		}, 100);
+			Loading.hide_tag(p);
+		}, 8000);
 		return p;
 	}
 
