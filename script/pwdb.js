@@ -18,6 +18,10 @@ class PWDB {
 	static async find_usages(obj) {
 		const usages = [];
 
+		if (!obj) {
+			return usages;
+		}
+
 		if (obj._db.type == 'npcs') {
 			for (const mapid in PWMap.maps) {
 				await db.load_map(mapid);

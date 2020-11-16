@@ -17,7 +17,7 @@
 					<i class="fa fa-angle-right"></i>
 					<div class="menu">
 							{for c of $e.children}
-								<div class="entry {if !$c.id}disabled{/if}{if !$c.id} unclickable{/if}{if !$c.id && !$c.children} text{/if}" onclick="{serialize $win}.select({@$c.id});" onmouseenter="{serialize $win}.hover_entry(this);">
+								<div class="entry {if $c.disabled}disabled{/if}{if !$c.id} unclickable{/if}{if !$c.id && !$c.children} text{/if}" onclick="{serialize $win}.select({@$c.id});" onmouseenter="{serialize $win}.hover_entry(this);">
 									<span>{@$c.name}</span>
 								</div>
 							{/for}
@@ -81,7 +81,7 @@
 
 .entry.text {
 	background-color: #c5c3c3 !important;
-	color: #5a3838 !important;
+	color: #5a3838 !importat;
 	padding: 3px 8px;
 	align-self: flex-end;
 }
