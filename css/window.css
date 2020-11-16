@@ -159,10 +159,31 @@ input[type=text] {
 	outline: none;
 }
 
-.input-text,
-.input-number,
+.input-text:focus,
+.input-number:focus,
 input[type=text]:focus {
 	background-color: #fff2f3;
+}
+
+.input-text,
+.input-number {
+	position: relative;
+}
+
+.input-text.forked,
+.input-number.forked {
+	color: #c19f9f;
+}
+
+.input-text.forked:before,
+.input-number.forked:before {
+	content: '';
+	position: absolute;
+	left: 0px;
+	bottom: 0;
+	width: 6px;
+	height: 6px;
+	background-color: #e0b0b0;
 }
 
 input[type="text"].supershort,

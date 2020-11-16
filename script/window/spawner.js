@@ -230,10 +230,11 @@ class SpawnerWindow extends Window {
 							break;
 						}
 
-						npc = db.new('npcs', (npc, diff, prev) => {
-							npcwin.tpl.reload('.header > span');
-						});
+						npc = db.new('npcs');
+
+						db.open(npc);
 						db.rebase(npc, base);
+						db.commit(npc);
 
 						update_spawner(npc);
 						npcwin = await NPCWindow.open({ npc: npc });

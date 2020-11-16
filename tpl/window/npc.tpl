@@ -92,7 +92,7 @@ input[type="text"].tabname.selected {
 <div class="content flex-rows" style="overflow: hidden;">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $npc} => 'name'">
+		<span data-input style="flex: 1;" data-link="{serialize $npc} => 'name'" placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
 		<div class="flex-columns" style="align-items: center; margin-top: 8px;">

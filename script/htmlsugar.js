@@ -306,7 +306,7 @@ class HTMLSugar {
 			path = [ path ];
 		}
 
-		const get_obj = () => {
+		const get_val_obj = () => {
 			let o = obj;
 			for (let i = 0; i < path.length - 1; i++) {
 				o = o[path[i]];
@@ -314,7 +314,12 @@ class HTMLSugar {
 			return o;
 		};
 		const p = path[path.length - 1];
-		const val = get_obj()[p];
+		const val_obj = get_val_obj();
+		const val = val_obj[p];
+
+		if (obj._db.base && !val_obj.hasOwnProperty(p)) {
+			el.classList.add('forked');
+		}
 
 		const is_float = el.classList.contains('is_float');
 		el.checked = !!val;
@@ -356,8 +361,13 @@ class HTMLSugar {
 
 		el._mg_set_val = (val) => {
 			db.open(obj);
-			get_obj()[p] = val;
+			const val_obj = get_val_obj();
+			val_obj[p] = val;
 			db.commit(obj);
+
+			if (obj._db.base && !val_obj.hasOwnProperty(p)) {
+				el.classList.add('forked');
+			}
 		}
 
 		el.oninput = (e) => {
