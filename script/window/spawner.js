@@ -98,16 +98,16 @@ class SpawnerWindow extends Window {
 	async open_group(el, idx, e) {
 		const group = this.spawner.groups[idx];
 		if (e.which == 1) {
-			let spawner_name = '';
+			let group_name = '';
 			let obj;
 			if (this.spawner._db.type.startsWith("resources_")) {
-				spawner_name = 'Resource';
+				group_name = 'Resource';
 				obj = db.mines[group.type];
 			} else if (this.spawner.is_npc) {
-				spawner_name = 'NPC';
+				group_name = 'NPC';
 				obj = db.npcs[group.type];
 			} else {
-				spawner_name = 'Mob';
+				group_name = 'Mob';
 				obj = db.monsters[group.type];
 			}
 
@@ -119,15 +119,17 @@ class SpawnerWindow extends Window {
 			const win = await RMenuWindow.open({
 			x: x, y: y, bg: false,
 			entries: [
-				{ id: 1, name: 'Edit directly' },
-				{ id: 2, name: 'Clone & Edit' },
-				{ id: 3, name: 'Find usages (' + usages.length + ')' },
+				{ id: 1, name: 'Edit directly', disabled: !obj },
+				{ id: 2, name: 'Pick' },
+				{ id: 3, name: 'Clone & Edit', disabled: !obj },
+				{ id: 4, name: 'Find usages (' + usages.length + ')', disabled: !obj },
 				{ name: '...', children: [
 					{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
-					{ id: 21, name: 'Rebase' },
-					{ id: 22, name: 'Fork & Edit' },
+					{ id: 21, name: 'Rebase', disabled: !obj },
+					{ id: 22, name: 'Fork & Edit', disabled: !obj },
 					{ id: 23, name: 'Detach from base', disabled: !base },
 					{ id: 24, name: 'Apply to base', disabled: !base },
+					{ id: 25, name: 'Clear', disabled: !obj},
 				]},
 			]});
 			const sel = await win.wait();
@@ -146,7 +148,7 @@ class SpawnerWindow extends Window {
 					if (s.groups.length == 0) {
 						s.groups.push({});
 					}
-					s.groups[0].type = group.id;
+					s.groups[0].type = group?.id || 0;
 				} else {
 					/* TODO */
 				}
@@ -167,11 +169,37 @@ class SpawnerWindow extends Window {
 					break;
 				}
 				case 2: {
+					const title = 'Pick new ' + group_name + ' for ' + (this.spawner.name || 'Spawner') + ' ' + serialize_db_id(this.spawner.id);
+
+					let items;
+					if (this.spawner._db.type.startsWith("resources_")) {
+						items = db.mines;
+					} else if (this.spawner.is_npc) {
+						items = db.npcs;
+					} else {
+						items = db.monsters;
+					}
+
+					const win = await SimpleChooserWindow.open({ title, items, width: 176, name_fn: (obj) => (obj.name || '(unnamed)') + ' ' + serialize_db_id(obj.id) });
+
+					win.onchoose = (type) => {
+						if (type) {
+							const obj = items[type.id];
+							update_spawner(obj);
+						} else {
+						}
+					};
+					break;
+				}
+				case 3: {
 					if (this.spawner._db.type.startsWith("resources_")) {
 						MessageWindow.open({ msg: 'Not implemented yet' });
 					} else if (this.spawner.is_npc) {
 						const base = db.npcs[group.type];
 						const npc = db.clone(base);
+						db.open(npc);
+						npc.name += ' (clone)';
+						db.commit(npc);
 						update_spawner(npc);
 						NPCWindow.open({ npc: npc });
 					} else {
@@ -179,8 +207,12 @@ class SpawnerWindow extends Window {
 					}
 					break;
 				}
-				case 3: {
-					const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + serialize_db_id(obj.id), items: usages, width: 176, name_fn: (obj) => (obj.name || 'Spawner') + ' ' + serialize_db_id(obj.id) });
+				case 4: {
+					const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + serialize_db_id(obj.id), items: usages, width: 176, name_fn: (obj) => {
+						const mapid = obj._db.type.substring('spawners_'.length);
+						const mapname = PWMap.maps[mapid]?.name || '(unknown?)';
+						return mapname + ': ' + (obj.name ? (obj.name + ' ') : '') + serialize_db_id(obj.id);
+					}});
 
 					break;
 				}
@@ -194,22 +226,24 @@ class SpawnerWindow extends Window {
 						let npc;
 
 						if (!base) {
-							npc = db.new('npcs', (npc, diff, prev) => {
-								update_spawner(npc);
-								npcwin.tpl.reload('.header > span');
-							});
-							if (base) {
-								db.rebase(npc, base);
-							}
-						} else {
 							Loading.show_error_tag('Can\t fork: no base object');
 							break;
 						}
 
+						npc = db.new('npcs', (npc, diff, prev) => {
+							npcwin.tpl.reload('.header > span');
+						});
+						db.rebase(npc, base);
+
+						update_spawner(npc);
 						npcwin = await NPCWindow.open({ npc: npc });
 					} else {
 						MessageWindow.open({ msg: 'Not implemented yet' });
 					}
+					break;
+				}
+				case 25: {
+					update_spawner(null);
 					break;
 				}
 			}
