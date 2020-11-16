@@ -204,7 +204,7 @@
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.max_items_per_page; i++}
-			<a class="button" data-type="{@$i}" onclick="{serialize $win}.select('{@$i}');" ondblclick="{serialize $win}.choose('{@$i}');" data-onhover="{serialize $win}.item_hover({@$i}, is_hover);"></a>
+			<a class="button" data-type="{@$i}" ondblclick="{serialize $win}.choose('{@$i}');" data-onhover="{serialize $win}.item_hover({@$i}, is_hover);"></a>
 		{/for}
 	</div>
 	<div style="flex: 1;"></div>
@@ -217,9 +217,12 @@
 </div>
 </div>
 
-{@@
 <style>
+#items > a \{
+	width: {@$win.args.width}px;
+}
 
+{@@
 .content.loading:after {
 	content: " ";
 	display: block;

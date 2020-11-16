@@ -123,6 +123,7 @@ class SimpleChooserWindow extends ChooserWindow {
 		this.items = this.args.items || [];
 		this.title = this.args.title || 'Chooser';
 		this.tabs = this.args.tabs || [ { name: 'All', filter: (i) => i } ];
+		this.name_fn = this.args.name_fn;
 		this.search = this.args.search || '';
 		
 		this.args.tpl = 'tpl-simple-chooser';
@@ -142,7 +143,7 @@ class SimpleChooserWindow extends ChooserWindow {
 				el.style.display = 'none';
 				continue;
 			}
-			el.textContent = item.name;
+			el.textContent = this.name_fn ? this.name_fn(item) : item.name;
 			el.style.display = '';
 		}
 

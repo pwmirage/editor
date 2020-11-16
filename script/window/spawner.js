@@ -179,6 +179,11 @@ class SpawnerWindow extends Window {
 					}
 					break;
 				}
+				case 3: {
+					const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + serialize_db_id(obj.id), items: usages, width: 176, name_fn: (obj) => (obj.name || 'Spawner') + ' ' + serialize_db_id(obj.id) });
+
+					break;
+				}
 				case 22: {
 					if (this.spawner._db.type.startsWith("resources_")) {
 						MessageWindow.open({ msg: 'Not implemented yet' });
