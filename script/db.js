@@ -387,10 +387,11 @@ class DB {
 		return diff;
 	}
 
-	clone(obj) {
+	clone(obj, commit_cb) {
 		let copy = {};
 		copy_obj_data(copy, obj);
-		copy._db = { type: obj._db.type };
+		copy.id = 0;
+		copy._db = { type: obj._db.type, commit_cb: commit_cb };
 		return copy;
 	}
 
