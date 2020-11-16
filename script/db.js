@@ -69,8 +69,13 @@ function get_obj_diff(obj, prev) {
 
 	for (const f in obj) {
 		if (!obj.hasOwnProperty(f)) continue;
-		if (f === '_db') continue;
-		if (typeof(prev[f]) === 'object') {
+		if (f === '_db') {
+			if (obj._db.base != prev._db?.base) {
+				diff[f] = { base: obj._db.base };
+			} else {
+				diff[f] = undefined;
+			}
+		} else if (typeof(prev[f]) === 'object') {
 			const nested_diff = get_obj_diff(obj[f], prev[f]);
 			/* we want to avoid iterable undefined fields in diff[f],
 			 * set it only if needed */
@@ -347,8 +352,12 @@ class DB {
 			if (changeset._db.generation < this.changelog.length) {
 				/* promote diff object to a changeset */
 				diff.id = obj.id;
+				if (!diff._db) {
+					diff._db = {};
+				}
 				/* generation 0 is the orig. copy, so always start the real generation at 1+ */
-				diff._db = { generation: this.changelog.length, obj: obj };
+				diff._db.generation= this.changelog.length;
+				diff._db.obj = obj;
 
 				obj._db.changesets.push(diff);
 				last_changelog.add(diff);
@@ -415,6 +424,7 @@ class DB {
 
 	rebase(obj, base) {
 		obj._db.base = base ? base.id : 0;
+
 		Object.setPrototypeOf(obj, base || {});
 		if (base) {
 			/* TODO detach previous base */
