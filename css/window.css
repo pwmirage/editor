@@ -228,6 +228,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	border: solid 1px rgba(224, 176, 176, 1);
 	padding: 2px 5px;
 	white-space: pre !important;
+	display: block;
 }
 
 .input-select > .hints > *:hover {

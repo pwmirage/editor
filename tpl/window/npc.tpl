@@ -97,10 +97,7 @@ input[type="text"].tabname.selected {
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
 		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Type:</span>
-			<select id="type" style="">
-				<option value="npc">NPC</option>
-				<option value="guard">Guard</option>
-			</select>
+			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'"></span>
 		</div>
 		<div id="model" class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Model:</span>

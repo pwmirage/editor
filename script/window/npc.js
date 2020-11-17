@@ -63,10 +63,21 @@ class NPCModelChooserWindow extends ChooserWindow {
 
 const g_open_npcs = new Set();
 class NPCWindow extends Window {
+	static types = init_id_array([
+		{ id: 3214, name: 'NPC' },
+		{ id: 3216, name: 'Guard' },
+	]);
+
 	async init() {
 		this.npc = this.args.npc;
 		if (!this.args.debug && g_open_npcs.has(this.npc)) return false;
 		g_open_npcs.add(this.npc);
+
+		if (!this.npc.id_type) {
+			db.open(this.npc);
+			this.npc.id_type = NPCWindow.types[0].id;
+			db.commit(this.npc);
+		}
 
 		await g_npc_tpl;
 		const shadow = this.dom.shadowRoot;

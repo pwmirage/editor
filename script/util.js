@@ -162,3 +162,45 @@ const serialize_db_id = (id) => {
 
 	return '#' + p + ':' + i;
 }
+
+const init_id_array = (arr) => {
+	const obj_map = new Map();
+	const ret = new Proxy(obj_map, {
+		set(map, k, v) {
+			if (v === undefined) {
+				map.delete(k);
+			} else {
+				map.set(k, v);
+			}
+			return true;
+		},
+		get(map, k) {
+			if (k === 'filter') {
+				return function(fn) {
+					let ret = [];
+					for (const obj of map.values()) {
+						if (fn(obj)) ret.push(obj);
+					}
+					return ret;
+				}
+			}
+			if (k === 'size') return map.size;
+			if (k === Symbol.iterator) {
+				return function *() {
+					for (const obj of map.values()) yield obj;
+				}
+			}
+			if (typeof map[k] === 'function') {
+				return (...args) => Reflect.apply(map[k], map, args);
+			}
+			return map.get(k);
+		}
+	});
+
+	for (const obj of arr) {
+		if (!obj) continue;
+		obj_map.set(obj.id.toString(), obj);
+	}
+
+	return ret;
+}
