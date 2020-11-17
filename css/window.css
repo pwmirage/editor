@@ -186,6 +186,12 @@ input[type=text]:focus {
 	background-color: #e0b0b0;
 }
 
+.input-text:empty:after,
+.input-number:empty:after {
+	content: attr(data-placeholder);
+	color: #a39f9f;
+}
+
 input[type="text"].supershort,
 input[type="number"].supershort {
 	width: 32px;

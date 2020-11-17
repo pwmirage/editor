@@ -102,7 +102,7 @@
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
 		<span>Name:</span>
-		<span data-input style="flex: 1;" data-link="{serialize $spawner} => 'name'"></span>
+		<span data-input style="flex: 1;" data-link="{serialize $spawner} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns flex-all" style="align-items: center;">
 		<a class="button" style="visibility:hidden; max-height: 0;" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">Pos:</a>
