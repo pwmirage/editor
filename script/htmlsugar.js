@@ -367,6 +367,8 @@ class HTMLSugar {
 
 			if (obj._db.base && !val_obj.hasOwnProperty(p)) {
 				el.classList.add('forked');
+			} else {
+				el.classList.remove('forked');
 			}
 		}
 
@@ -462,6 +464,12 @@ class HTMLSugar {
 			el.classList.add('selected');
 			link_el.textContent = id;
 			link_el.oninput();
+
+			if (link_el.classList.contains('forked')) {
+				el.classList.add('forked');
+			} else {
+				el.classList.remove('forked');
+			}
 		}
 
 		close_el.onclick = () => {
@@ -552,6 +560,10 @@ class HTMLSugar {
 				edit_el.dataset.text = edit_el.title = edit_el.textContent = type.name;
 				el.classList.add('selected');
 			}
+		}
+
+		if (link_el.classList.contains('forked')) {
+			el.classList.add('forked');
 		}
 	}
 

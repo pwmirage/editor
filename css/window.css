@@ -166,17 +166,21 @@ input[type=text]:focus {
 }
 
 .input-text,
-.input-number {
+.input-number,
+.input-select {
 	position: relative;
 }
 
 .input-text.forked,
-.input-number.forked {
+.input-number.forked,
+.input-select.forked,
+.input-select.selected.forked > .edit:after {
 	color: #c19f9f;
 }
 
 .input-text.forked:before,
-.input-number.forked:before {
+.input-number.forked:before,
+.input-select.forked:before {
 	content: '';
 	position: absolute;
 	left: 0px;
@@ -184,6 +188,7 @@ input[type=text]:focus {
 	width: 6px;
 	height: 6px;
 	background-color: #e0b0b0;
+	z-index: 2;
 }
 
 .input-text:empty:after,

@@ -74,9 +74,11 @@ class NPCWindow extends Window {
 		g_open_npcs.add(this.npc);
 
 		if (!this.npc.id_type) {
-			db.open(this.npc);
-			this.npc.id_type = NPCWindow.types[0].id;
-			db.commit(this.npc);
+			/* fix to default (just like the game does) */
+			const npc = db.npcs[this.npc._db.base] || this.npc;
+			db.open(npc);
+			npc.id_type = NPCWindow.types[0].id;
+			db.commit(npc);
 		}
 
 		await g_npc_tpl;
