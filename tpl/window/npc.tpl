@@ -28,9 +28,9 @@
 	<div id="items" class="flex-columns" style="flex-wrap: wrap;">
 		{assign tab = $goods.pages[$win.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
-			{assign id = $tab.item_id[i]}
+			{assign id = $tab?.item_id ? $tab?.item_id[i] : 0}
 			{assign item = db.items[$id || 0]}
-			<span class="item" ondblclick="" data-type="{@$i}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
+			<span class="item" ondblclick="" data-type="{@$i}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
 		{/for}
 	</div>
 </div>

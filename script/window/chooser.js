@@ -110,7 +110,6 @@ class ChooserWindow extends Window {
 		if (this.onchoose) {
 			this.onchoose(null);
 		}
-		g_open_npc_model = null;
 		super.close();
 	}
 
