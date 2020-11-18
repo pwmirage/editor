@@ -39,24 +39,6 @@ class NPCGoodsWindow extends Window {
 	}
 }
 
-let g_open_npc_model = null;
-
-class NPCModelChooserWindow extends ChooserWindow {
-
-	async init() {
-		this.npc_win = this.args.parent;
-		this.npc = this.npc_win.npc;
-		if (g_open_npc_model) return false;
-		g_open_npc_model = this;
-
-		await g_npc_tpl;
-		this.args.tpl = 'tpl-npc-model';
-		this.args.width = 100;
-		this.args.height = 34;
-		await super.init();
-	}
-}
-
 const g_open_npcs = new Set();
 class NPCWindow extends Window {
 	static types = init_id_array([
