@@ -217,17 +217,27 @@ class NPCWindow extends Window {
 		this.in_greeting_modify = false;
 	}
 
-	async choose_model() {
-		const win = await NPCModelChooserWindow.open({ parent: this });
-		win.onchoose = (mtype) => {
-			if (!mtype) {
-				return;
-			}
+	async edit(el, what) {
+		const coords = Window.get_el_coords(el);
+		const x = coords.left;
+		const y = coords.bottom;
+		const obj = db.npc_sells[this.npc.id_sell_service || 0];
+		HTMLSugar.open_edit_rmenu(x, y, 
+			obj, 'npc_sells', {
+			pick_win_title: 'Pick new Goods for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
+			update_obj_fn: (new_obj) => {
+				const n = this.npc;
+				db.open(n);
+				n.id_sell_service = new_obj?.id || 0;
+				db.commit(n);
+				this.tpl.reload('#goods');
 
-			db.open(this.npc);
-			this.npc.file_model = NPCModelChooserWindow.models[mtype].file;
-			db.commit(this.npc);
-			this.tpl.reload('#model');
-		};
+			},
+			edit_obj_fn: (new_obj) => {
+				console.log('open Goods edit window for ' + serialize_db_id(new_obj.id));
+			},
+		});
+
+
 	}
 }

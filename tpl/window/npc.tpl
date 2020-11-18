@@ -97,18 +97,18 @@ input[type="text"].tabname.selected {
 	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
 		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Type:</span>
-			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'" style="width: auto; min-width: 100px; flex: 1;"></span>
+			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'" style="width: auto; min-width: 75px; flex: 1;"></span>
 		</div>
 		<div id="model" class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Model:</span>
 			<span data-select="NPCWindow.models" data-select-field="file" data-link="{serialize $npc} => 'file_model'" style="width: min-width: 100px; auto; flex: 1;"></span>
 		</div>
 	</div>
-	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">
+	<div id="goods" class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">
 		<div>
 			<span style="margin-right: 8px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button" onclick=";">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }&nbsp;<i class="fa fa-angle-right"></i></a>
+			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'goods');" style="text-align: center;">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }</a>
 		</div>
 		<div>
 			<span style="margin-right: 8px;">Craft:</span>

@@ -19,7 +19,7 @@
 					<div class="menu">
 							{for c of $e.children}
 								{if $c.visible == false}{continue}{/if}
-								<div class="entry {if $c.disabled}disabled{/if}{if !$c.id} unclickable{/if}{if !$c.id && !$c.children} text{/if}" onclick="{serialize $win}.select({@$c.id});" onmouseenter="{serialize $win}.hover_entry(this);">
+								<div class="entry {if $c.disabled}disabled{/if}{if !$c.id} unclickable{/if}{if !$c.id && !$c.children} text{/if}" onclick="{if $c.id && !$c.disabled}{serialize $win}.select({@$c.id});{/if}" onmouseenter="{serialize $win}.hover_entry(this);">
 									<span>{@$c.name}</span>
 								</div>
 							{/for}

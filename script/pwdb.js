@@ -58,7 +58,6 @@ class PWDB {
 			return o ?? null;
 		};
 
-		const _delete_ = Symbol();
 		const set_val = (obj, val) => {
 			const o = obj;
 			for (let p_idx = 0; p_idx < path.length - 2; p++) {
@@ -69,11 +68,7 @@ class PWDB {
 				}
 			}
 			const f = path[path.length - 1];
-			if (val == _delete_) {
-				delete o[f];
-			} else {
-				o[f] = val;
-			}
+			o[f] = val;
 		};
 
 		let prev_val;
