@@ -120,6 +120,7 @@
 	margin-bottom: -12px;
 	overflow: hidden;
 	padding: 12px;
+	column-gap: 0;
 }
 
 #items > * {
