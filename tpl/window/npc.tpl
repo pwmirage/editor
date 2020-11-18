@@ -94,21 +94,14 @@ input[type="text"].tabname.selected {
 		<span style="width: 45px;">Name:</span>
 		<span data-input style="flex: 1;" data-link="{serialize $npc} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
+	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
 		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Type:</span>
-			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'"></span>
+			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'" style="width: auto; min-width: 100px; flex: 1;"></span>
 		</div>
 		<div id="model" class="flex-columns" style="align-items: center; margin-top: 8px;">
 			<span style="width: 45px;">Model:</span>
-			{assign name = "(default)"}
-			{foreach mtype in NPCModelChooserWindow.models}
-				{if NPCModelChooserWindow.models[mtype].file == $npc.file_model}
-					{assign name = NPCModelChooserWindow.models[mtype].name}
-				{/if}
-			{/foreach}
-
-			<a class="button" onclick="{serialize $win}.choose_model();">{@$name}&nbsp;<i class="fa fa-angle-right"></i></a>
+			<span data-select="NPCWindow.models" data-select-field="file" data-link="{serialize $npc} => 'file_model'" style="width: min-width: 100px; auto; flex: 1;"></span>
 		</div>
 	</div>
 	<div class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">

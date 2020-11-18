@@ -451,6 +451,8 @@ class HTMLSugar {
 		el.removeAttribute('data-select');
 		const link_str = el.dataset.link;
 		el.removeAttribute('data-link');
+		const field_name = el.dataset.selectField;
+		el.removeAttribute('data-select-field');
 		const title_str = el.dataset.title;
 
 		const select_arr = new Function('return ' + f_str)();
@@ -461,7 +463,12 @@ class HTMLSugar {
 		edit_el.contentEditable = "true";
 		el.append(edit_el);
 
-		const link_el = newElement('<span class="input-number"></span>');
+		const link_el = newElement('<span></span>');
+		if (!field_name) {
+			link_el.classList.add('input-number');
+		} else {
+			link_el.classList.add('input-text');
+		}
 		link_el.dataset.link = link_str;
 		link_el.style.display = 'none';
 		el.append(link_el);
@@ -495,7 +502,7 @@ class HTMLSugar {
 			edit_el.focus();
 			edit_el.dataset.text = edit_el.title = edit_el.textContent = text;
 			el.classList.add('selected');
-			link_el.textContent = id;
+			link_el.textContent = field_name ? select_arr[id][field_name] : id;
 			link_el.oninput();
 
 			if (link_el.classList.contains('forked')) {
@@ -588,7 +595,14 @@ class HTMLSugar {
 		};
 
 		const update_el = (link_val) => {
-			const type = select_arr[link_val];
+			let type;
+			if (field_name) {
+				/* escape all special characters */
+				type = [...select_arr.values()].find((a) => a[field_name] == link_val);
+			} else {
+				type = select_arr[link_val];
+			}
+
 			edit_el.dataset.text = edit_el.title = edit_el.textContent = type?.name || "";
 			if (type?.name) {
 				el.classList.add('selected');

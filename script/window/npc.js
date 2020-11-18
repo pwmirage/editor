@@ -42,10 +42,6 @@ class NPCGoodsWindow extends Window {
 let g_open_npc_model = null;
 
 class NPCModelChooserWindow extends ChooserWindow {
-	static models = {
-		apothecary01: { name: 'Apothecary 01', file: 'Models\\NPCs\\npc\\男npc7\\男npc7.ecm' },
-		headhunter: { name: 'Head Hunter', file: 'Models\\NPCs\\npc\\男npc21\\男npc21.ecm' }
-	};
 
 	async init() {
 		this.npc_win = this.args.parent;
@@ -68,10 +64,24 @@ class NPCWindow extends Window {
 		{ id: 3216, name: 'Guard' },
 	]);
 
+	static models = null;
+
 	async init() {
 		this.npc = this.args.npc;
 		if (!this.args.debug && g_open_npcs.has(this.npc)) return false;
 		g_open_npcs.add(this.npc);
+
+		if (!NPCWindow.models) {
+			NPCWindow.models = init_id_array([
+				{ id: 2162, name: 'Apothecary 01' },
+				{ id: 24740, name: 'Head Hunter' },
+			]);
+
+			for (const m of NPCWindow.models) {
+				const npc = g_db.npcs.find((n) => n.id == m.id);
+				m.file = npc.file_model;
+			}
+		}
 
 		if (!this.npc.id_type) {
 			/* fix to default (just like the game does) */
