@@ -38,6 +38,78 @@ class PWDB {
 		return usages;
 	}
 
+	static undo(obj, path) {
+		if (typeof path === 'string') {
+			path = [ path ];
+		}
+		
+		if (!obj._db.changesets || obj._db.changesets.length < 2) {
+			/* never opened or never committed */
+			return false;
+		}
+
+		const get_val = (o) => {
+			for (const p of path) {
+				if (!(p in o)) {
+					return undefined;
+				}
+				o = o[p];
+			}
+			return o ?? null;
+		};
+
+		const _delete_ = Symbol();
+		const set_val = (obj, val) => {
+			const o = obj;
+			for (let p_idx = 0; p_idx < path.length - 2; p++) {
+				const p = path[p_idx];
+				if (!(p in o)) {
+					Loading.show_error_tag('Trying to undo a field which doesn\'t exist now');
+					return;
+				}
+			}
+			const f = path[path.length - 1];
+			if (val == _delete_) {
+				delete o[f];
+			} else {
+				o[f] = val;
+			}
+		};
+
+		let prev_val;
+		for (let i = obj._db.changesets.length - 2; i >= 0; i--) {
+			const c = obj._db.changesets[i];
+
+			if (c._db.undone) {
+				continue;
+			}
+
+			const prev_val = get_val(c);
+			if (prev_val == undefined && i > 0) {
+				/* no change in this changeset, continue looking */
+				/* TODO don't undo changes from other projects */
+				/* maybe save project id in changesets? */
+				continue;
+			}
+
+			db.open(obj);
+			/* update obj */
+			set_val(obj, prev_val);
+			db.commit(obj);
+
+			/* mark all subsequent changes as non undo-able, otherwise
+			 * undo will just always make a cycle */
+			for (let j = Math.max(1, i); j < obj._db.changesets.length - 1; j++) { 
+				const c = obj._db.changesets[j];
+				c._db.undone = true;
+			}
+
+			db.new_generation();
+			break;
+		}
+
+	}
+
 	static loaded_maps = {};
 	static tag_categories = {};
 	static tags = {};
@@ -144,6 +216,10 @@ const g_pwdb_init_promise = Promise.all([
 	pwdb_register_data_type('equipment_addons'),
 ]);
 //pwdb_register_data_type('quests');
+
+db.register_commit_cb((obj, diff, prev_vals) => {
+	obj._db.undo_idx = undefined;
+});
 
 db.load_map = async (name) => {
 	if (PWDB.loaded_maps[name]) {
