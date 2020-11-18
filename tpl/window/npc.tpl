@@ -64,6 +64,7 @@ span.tabname.selected {
 }
 
 #items > * {
+	width: 32px;
 	height: 32px;
 }
 </style>
