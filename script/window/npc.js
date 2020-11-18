@@ -72,14 +72,22 @@ class NPCWindow extends Window {
 		g_open_npcs.add(this.npc);
 
 		if (!NPCWindow.models) {
-			NPCWindow.models = init_id_array([
-				{ id: 2162, name: 'Apothecary 01' },
-				{ id: 24740, name: 'Head Hunter' },
-			]);
+			NPCWindow.models = init_id_array([]);
 
-			for (const m of NPCWindow.models) {
-				const npc = g_db.npcs.find((n) => n.id == m.id);
-				m.file = npc.file_model;
+			const file_set = new Set();
+			for (const o of g_db.npcs) {
+				if (!o || !o.file_model) {
+					continue;
+				}
+
+				if (!file_set.has(o.file_model)) {
+					file_set.add(o.file_model);
+					NPCWindow.models[o.id] = {
+						id: o.id,
+						name: o.name + ' ' + serialize_db_id(o.id),
+						file: o.file_model,
+					};
+				}
 			}
 		}
 
