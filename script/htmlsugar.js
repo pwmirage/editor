@@ -395,8 +395,9 @@ class HTMLSugar {
 				const numberText = el.textContent.replace(/[^0-9\-\.\,]+/g, '');
 				if (numberText !== el.textContent) {
 					el.focus();
+
 					/* for debug purposes check window selection as well */
-					const selection = [this.shadow.getSelection(), window.getSelection()].find(s => s.rangeCount > 0);
+					const selection = [el.getRootNode().getSelection(), window.getSelection()].find(s => s.rangeCount > 0);
 					const r1 = selection.getRangeAt(0);
 					r1.setStart(el, 0);
 					const off = Math.max(r1.toString().length - 1, 0);
