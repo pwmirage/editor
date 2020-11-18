@@ -1,5 +1,5 @@
 <script id="tpl-npc-goods" type="text/x-dot-template">
-<div class="window" style="width: 308px; height: 400px;">
+<div class="window" style="width: 316px; height: 400px;">
 <div class="header">
 	<span>
 		NPC Goods: {@$goods._name || "(unnamed)"} #{@$goods.id}
@@ -12,60 +12,62 @@
 </div>
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
-		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $goods} => '_name'">
+		<span style="width: 45px;">Name</span>
+		<span data-input style="flex: 1;" data-link="{serialize $goods} => '_name'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
-		<span style="width: 45px;">Name:</span>
-		<input type="text" style="flex: 1; width: 100%;" placeholder="(unnamed)" data-link="{serialize $goods} => '_name'">
+		<span style="width: 45px;">NPC option</span>
+		<span data-input style="flex: 1;" data-link="{serialize $goods} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
-	<div id="tabs" class="flex-columns flex-gap" style="flex-wrap: wrap; margin-bottom: 16px;">
+	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
 	{for i = 0; i < 8; i++}
-		{assign tab = $goods.pages[i]}
-		<input type="text" placeholder="(None)" class="tabname" onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'page_title'">
+		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'page_title'" data-placeholder="(none)"></span>
 	{/for}
 	</div>
-	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap">
-	{assign tab = $goods.pages[$win.selected_tab || 0]}
-	{for i = 0; i < 32; i++}
-		{assign item = db.items[$tab.item_id[i] || 0]}
-		<pw-item pw-icon="{@$item?.icon || 0}"></pw-item>
-	{/for}
+	<div id="items" class="flex-columns" style="flex-wrap: wrap;">
+		{assign tab = $goods.pages[$win.selected_tab || 0]}
+		{for i = 0; i < 32; i++}
+			{assign id = $tab.item_id[i]}
+			{assign item = db.items[$id || 0]}
+			<span class="item" ondblclick="" data-type="{@$i}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
+		{/for}
 	</div>
 </div>
 </div>
 
-TEMPLATE_END
+{@@
 <style>
 #tabs {
 	margin-right: -8px;
 	margin-top: 0px;
 }
 
-input[type="text"].tabname {
-	width: 55px;
+span.tabname {
+	width: 57px;
 	padding: 2px 4px;
-	margin-right: 8px;
+	margin-right: -2px;
 	margin-top: 4px;
 	position:relative;
 	margin-bottom: 4px;
 }
 
-input[type="text"].tabname.selected {
+span.tabname.selected {
 	border-bottom: 5px solid #e0b0b0;
 	margin-bottom: 0px;
 }
 
 #items {
-	margin-right: -4px;
+	background-color: #000;
+	gap: 4px;
+	padding: 4px;
 }
 
 #items > * {
-	margin-right: 4px;
-	margin-top: 4px;
+	height: 32px;
 }
 </style>
+@@}
 </script>
 
 <script id="tpl-npc" type="text/x-dot-template">

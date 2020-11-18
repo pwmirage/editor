@@ -224,7 +224,7 @@ class NPCWindow extends Window {
 
 			},
 			edit_obj_fn: (new_obj) => {
-				console.log('open Goods edit window for ' + serialize_db_id(new_obj.id));
+				NPCGoodsWindow.open({ goods: new_obj });
 			},
 		});
 
