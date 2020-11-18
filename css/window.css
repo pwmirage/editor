@@ -110,15 +110,12 @@
 .flex-columns {
 	display: flex;
 	flex-direction: row;
+	column-gap: 10px;
 }
 
 .flex-rows {
 	display: flex;
 	flex-direction: column;
-}
-
-.flex-columns > *:not(:last-child) {
-	margin-right: 10px;
 }
 
 .flex-all > * {
