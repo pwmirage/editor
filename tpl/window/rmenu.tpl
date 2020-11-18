@@ -10,6 +10,7 @@
 <div id="background" onclick="{serialize $win}.close();" oncontextmenu="this.onclick(); return false;" class="{if $bg}visible{/if}">
 	<div class="menu" style="left: {@$x}px; top: {@$y}px;" oncontextmenu="event.stopPropagation(); return false;">
 		{for e of $entries}
+			{if $e.visible == false}{continue}{/if}
 			<div class="entry{if $e.disabled} disabled{/if}{if !$e.id} unclickable{/if}{if !$e.id && !$e.children}text{/if}" onclick="event.stopPropagation();{if $e.id && !$e.disabled}{serialize $win}.select({@$e.id});{/if}" onmouseenter="{serialize $win}.hover_entry(this);">
 				<span>{@$e.name}</span>
 				{if $e.children}
@@ -17,6 +18,7 @@
 					<i class="fa fa-angle-right"></i>
 					<div class="menu">
 							{for c of $e.children}
+								{if $c.visible == false}{continue}{/if}
 								<div class="entry {if $c.disabled}disabled{/if}{if !$c.id} unclickable{/if}{if !$c.id && !$c.children} text{/if}" onclick="{serialize $win}.select({@$c.id});" onmouseenter="{serialize $win}.hover_entry(this);">
 									<span>{@$c.name}</span>
 								</div>
