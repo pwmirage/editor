@@ -317,6 +317,7 @@ class HTMLSugar {
 		const val_obj = get_val_obj();
 		const val = val_obj[p];
 
+		const is_float = el.classList.contains('is_float');
 		const set_el_val = (val) => {
 			if (obj._db.base && !val_obj.hasOwnProperty(p)) {
 				el.classList.add('forked');
@@ -324,7 +325,6 @@ class HTMLSugar {
 				el.classList.remove('forked');
 			}
 
-			const is_float = el.classList.contains('is_float');
 			el.checked = !!val;
 			if (el.type == 'number' || (el.nodeName != 'INPUT' && el.classList.contains('input-number'))) {
 				if (is_float) {
@@ -419,7 +419,7 @@ class HTMLSugar {
 		};
 
 		if (!el.hasAttribute('data-preview')) {
-			el.oncontextmenu = (e) => { e.preventDefault(); (async () => {
+			el.oncontextmenu = (e) => { e.preventDefault(); return (async () => {
 				const coords = Window.get_el_coords(el);
 				const x = e.clientX - Window.bounds.left;
 				const y = e.clientY - Window.bounds.top;
@@ -586,16 +586,28 @@ class HTMLSugar {
 			hints_el.style.display = '';
 		};
 
-		if (link_el.textContent && link_el.textContent != '0') {
-			const type = select_arr[link_el.textContent];
+		const update_el = (link_val) => {
+			const type = select_arr[link_val];
+			edit_el.dataset.text = edit_el.title = edit_el.textContent = type?.name || "";
 			if (type?.name) {
-				edit_el.dataset.text = edit_el.title = edit_el.textContent = type.name;
 				el.classList.add('selected');
 			}
 		}
 
+		if (link_el.textContent && link_el.textContent != '0') {
+			update_el(link_el.textContent);
+		}
+
 		if (link_el.classList.contains('forked')) {
 			el.classList.add('forked');
+		}
+
+		if (!el.hasAttribute('data-preview')) {
+			el.oncontextmenu = (e) => {
+				link_el.oncontextmenu(e).then(() => {
+					update_el(link_el.textContent);
+				});
+			}
 		}
 	}
 
