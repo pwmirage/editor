@@ -306,16 +306,23 @@ class HTMLSugar {
 			path = [ path ];
 		}
 
-		const get_val_obj = () => {
+		const get_val_obj = (populate = false) => {
 			let o = obj;
 			for (let i = 0; i < path.length - 1; i++) {
+				if (!(path[i] in o)) {
+					if (populate) {
+						o[path[i]] = isNaN(path[i]) ? {} : [];
+					} else {
+						return undefined;
+					}
+				}
 				o = o[path[i]];
 			}
 			return o;
 		};
 		const p = path[path.length - 1];
-		const val_obj = get_val_obj();
-		const val = val_obj[p];
+		const val_obj = get_val_obj() || {};
+		const val = val_obj[p] || "";
 
 		const is_float = el.classList.contains('is_float');
 		const set_el_val = (val) => {
@@ -330,7 +337,7 @@ class HTMLSugar {
 				if (is_float) {
 					el.value = (Math.round((val || 0) * 1000) / 1000);
 				} else {
-					el.value = val || "0";
+					el.value = parseInt(val) || "0";
 				}
 			} else {
 				el.value = val ?? "";
@@ -367,7 +374,7 @@ class HTMLSugar {
 
 		el._mg_set_val = (val) => {
 			db.open(obj);
-			const val_obj = get_val_obj();
+			const val_obj = get_val_obj(true);
 			val_obj[p] = val;
 			db.commit(obj);
 
@@ -437,7 +444,8 @@ class HTMLSugar {
 				switch(sel) {
 					case 1: {
 						PWDB.undo(obj, path);
-						set_el_val(get_val_obj()[p]);
+						const o = get_val_obj();
+						set_el_val(o ? o[p] : "");
 						break;
 					}
 				}
