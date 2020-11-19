@@ -22,7 +22,6 @@
 			<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="0"><img src="data:," alt=""></span>
 		{/for}
 	</div>
-	<div id="item_info"></div>
 	<div style="flex: 1;"></div>
 	<div id="pager" style="float: right; width: auto;">
 		<span style="margin-right: 10px;">{@1 + $win.pager_offset} - {@Math.min($win.pager_offset + $win.items_per_page, $win.items.length)} of {@$win.items.length}</span>

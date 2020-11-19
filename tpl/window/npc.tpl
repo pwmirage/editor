@@ -2,7 +2,7 @@
 <div class="window" style="width: 316px; height: 400px;">
 <div class="header">
 	<span>
-		NPC Goods: {@$goods._name || "(unnamed)"} #{@$goods.id}
+		Goods: {@$goods._name || ""} #{@$goods.id}
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -25,12 +25,12 @@
 		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'page_title'" data-placeholder="(none)"></span>
 	{/for}
 	</div>
-	<div id="items" class="flex-columns" style="flex-wrap: wrap;">
+	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="{serialize $win}.onmousemove(event);">
 		{assign tab = $goods.pages[$win.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.item_id ? $tab?.item_id[i] : 0}
 			{assign item = db.items[$id || 0]}
-			<span class="item" ondblclick="" data-type="{@$i}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
+			<span class="item" ondblclick="" data-id="{@$id}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
 		{/for}
 	</div>
 </div>
@@ -66,7 +66,31 @@ span.tabname.selected {
 #items > * {
 	width: 32px;
 	height: 32px;
+	position: relative;
 }
+
+#items > .item,
+#items > .item > img {
+	outline: none;
+}
+
+#items > .item:focus {
+	box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
+	border: 1px solid var(--header-color);
+	margin: -1px;
+}
+
+#items > .item:focus:after {
+	content: ' ';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: var(--header-color);
+	opacity: 0.4;
+}
+
 </style>
 @@}
 </script>

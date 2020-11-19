@@ -1,7 +1,7 @@
 <script id="tpl-item-info" type="text/x-dot-template">
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
-<div class="window">
+<div class="window" style="{if !$edit}display: none;{/if}">
 <div class="content">
 {* dummy *}
 </div>
@@ -452,8 +452,8 @@
 
 		<div id="desc" style="">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
 	{else}
-		<span style="">{@$item.name} #{@$item.id}</span>
-		<span style="">{@Item.types[$item.type].name}</span>
+		<span style="">{@ Item.types[$item.type] ? ($item?.name || "(unnamed)") : ""} #{@$item.id}</span>
+		<span style="">{@Item.types[$item.type]?.name || "Invalid item"}</span>
 	{/if}
 </div>
 

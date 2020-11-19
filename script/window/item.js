@@ -28,12 +28,7 @@ class ItemChooserWindow extends ChooserWindow {
 			this.filter(this.args.itemname);
 		}
 
-		await g_item_tpl;
-		this.item_win = await ItemTooltipWindow.open({ item: db.items.entries().next().value[1], edit: false });
-		this.shadow.querySelector('#item_info').replaceWith(this.item_win.dom);
-		this.item_win.dom.style.display = 'none';
-		this.item_win.dom.style.position = 'fixed';
-		this.item_win.dom.style.color = '#fff';
+		this.item_win = await ItemTooltipWindow.open({ parent_el: this.shadow, item: db.items.entries().next().value[1], edit: false });
 	}
 
 	reload_items() {
@@ -82,12 +77,8 @@ class ItemChooserWindow extends ChooserWindow {
 		const idx = parseInt(el.dataset.type);
 		const item = this.items[this.pager_offset + idx];
 
-		this.item_win.tpl.reload('#item_info', { item });
-		info.style.display = 'block';
-
-		const item_el = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
-		info.style.left = item_el.right + 3 + 'px';
-		info.style.top = item_el.top + 'px';
+		const item_bounds = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
+		this.item_win.tooltip_over(item, item_bounds);
 	}
 
 	_filter(f) {
@@ -119,7 +110,8 @@ class ItemChooserWindow extends ChooserWindow {
 
 class ItemTooltipWindow extends Window {
 	async init() {
-		this.item = this.args.item;
+		this.item = this.args.item || db.items.entries().next().value[1];
+		this.itemid = this.args.itemid || 0;
 		this.edit = this.args.edit || false;
 		
 		await g_item_tpl;
@@ -131,8 +123,24 @@ class ItemTooltipWindow extends Window {
 		await super.init();
 
 		align_dom(this.shadow.querySelectorAll('.input'), 25);
-		const info = this.shadow.querySelector('#item_info');
-		const last_c = info.lastElementChild;
+
+		if (!this.edit) {
+			this.dom.style.border = 'none';
+			this.dom.style.display = 'none';
+			this.dom.style.position = 'fixed';
+			this.dom.style.color = '#fff';
+		}
+	}
+
+	tooltip_over(item, bounds) {
+		this.focus();
+		this.item = item;
+		const prev = this.tpl.data;
+		const newtpl = this.tpl.run({ item });
+		prev.replaceWith(newtpl);
+		this.dom.style.display = 'block';
+		this.dom.style.left = bounds.right + 3 + 'px';
+		this.dom.style.top = bounds.top + 'px';
 	}
 
 	add_addon(type) {
