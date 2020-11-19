@@ -192,6 +192,7 @@ input[type=text]:focus {
 .input-number:empty:after {
 	content: attr(data-placeholder);
 	color: #a39f9f;
+	cursor: text;
 }
 
 input[type="text"].supershort,
