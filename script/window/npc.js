@@ -41,6 +41,7 @@ class NPCGoodsWindow extends Window {
 			return;
 		}
 
+		this.hover_el = el;
 		if (!el) {
 			info.style.display = 'none';
 			return;
@@ -55,6 +56,59 @@ class NPCGoodsWindow extends Window {
 		const item = db.items[id] || { id };
 		const item_bounds = el.getBoundingClientRect();
 		this.item_win.tooltip_over(item, item_bounds);
+	}
+
+	onclick(e) {
+		if (this.hover_el == undefined || this.selected_tab == undefined) {
+			return;
+		}
+
+		let page = this.goods.pages[this.selected_tab];
+		const item_idx = parseInt(this.hover_el.dataset.idx);
+
+		(async () => {
+			if (e.which == 1) {
+				const itemid = page?.item_id ? page.item_id[item_idx] : 0;
+				const obj = db.items[itemid];
+				const coords = Window.get_el_coords(this.hover_el);
+				const x = coords.left;
+				const y = coords.bottom;
+
+				HTMLSugar.open_edit_rmenu(x, y, 
+					obj, 'items', {
+					pick_win_title: 'Pick new item for ' + (this.goods.name || 'Goods') + ' ' + serialize_db_id(this.goods.id),
+					update_obj_fn: (new_obj) => {
+						const s = this.goods;
+						db.open(s);
+
+						let page = this.goods.pages[this.selected_tab];
+						if (!page) {
+							page = this.goods.pages[this.selected_tab] = {};
+						}
+
+						if (!page.item_id) {
+							page.item_id = [];
+						}
+
+						page.item_id[item_idx] = new_obj?.id;
+
+						db.commit(s);
+						this.tpl.reload('#items');
+
+					},
+					edit_obj_fn: (new_obj) => {
+						/* TODO */
+					},
+					usage_name_fn: (item) => {
+						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
+					}
+				});
+				
+
+			}
+		})();
+		e.preventDefault();
+		return false;
 	}
 
 	close() {

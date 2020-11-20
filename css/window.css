@@ -364,6 +364,7 @@ a.button:hover:not(.disabled) {
 	text-decoration: none;
 }
 
+.menu-triangle:after,
 a.button.menu-triangle:after {
 	content: '';
 	width: 0;
@@ -376,6 +377,7 @@ a.button.menu-triangle:after {
 	position: absolute;
 }
 
+.menu-triangle:hover:after,
 a.button.menu-triangle:hover:after {
 	border-color: transparent transparent #fff transparent;
 }

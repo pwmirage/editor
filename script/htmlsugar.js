@@ -664,7 +664,12 @@ class HTMLSugar {
 				let items = db[obj_type];
 
 				/* TODO make a 'new' entry inside? */
-				const win = await SimpleChooserWindow.open({ title: pick_win_title, items, width: 176, name_fn: (obj) => (obj.name || '(unnamed)') + ' ' + serialize_db_id(obj.id) });
+				let win;
+				if (obj_type == 'items') {
+					win = await ItemChooserWindow.open({ });
+				} else {
+					win = await SimpleChooserWindow.open({ title: pick_win_title, items, width: 176, name_fn: (obj) => (obj.name || '(unnamed)') + ' ' + serialize_db_id(obj.id) });
+				}
 
 				win.onchoose = (type) => {
 					if (type) {

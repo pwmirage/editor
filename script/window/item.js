@@ -111,7 +111,6 @@ class ItemChooserWindow extends ChooserWindow {
 class ItemTooltipWindow extends Window {
 	async init() {
 		this.item = this.args.item || db.items.entries().next().value[1];
-		this.itemid = this.args.itemid || 0;
 		this.edit = this.args.edit || false;
 		
 		await g_item_tpl;
@@ -129,6 +128,7 @@ class ItemTooltipWindow extends Window {
 			this.dom.style.display = 'none';
 			this.dom.style.position = 'fixed';
 			this.dom.style.color = '#fff';
+			this.args.parent_el.append(this.dom);
 		}
 	}
 

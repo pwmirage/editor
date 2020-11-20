@@ -22,15 +22,15 @@
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
 	{for i = 0; i < 8; i++}
-		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'page_title'" data-placeholder="(none)"></span>
+		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'title'" data-placeholder="(none)"></span>
 	{/for}
 	</div>
-	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="{serialize $win}.onmousemove(event);">
+	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);" onmousedown="return {serialize $win}.onclick(event);" oncontextmenu="return {serialize $win}.onclick(event);">
 		{assign tab = $goods.pages[$win.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.item_id ? $tab?.item_id[i] : 0}
 			{assign item = db.items[$id || 0]}
-			<span class="item" ondblclick="" data-id="{@$id}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
+			<span class="item menu-triangle" ondblclick="" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@ $id ? Item.get_icon($item?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}" alt=""></span>
 		{/for}
 	</div>
 </div>
@@ -80,7 +80,11 @@ span.tabname.selected {
 	margin: -1px;
 }
 
-#items > .item:focus:after {
+.item.menu-triangle:after {
+	border-color: transparent transparent #222 transparent;
+}
+
+#items > .item:focus:before {
 	content: ' ';
 	position: absolute;
 	left: 0;
