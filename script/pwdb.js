@@ -42,7 +42,7 @@ class PWDB {
 		if (typeof path === 'string') {
 			path = [ path ];
 		}
-		
+
 		if (!obj._db.changesets || obj._db.changesets.length < 2) {
 			/* never opened or never committed */
 			return false;
@@ -58,14 +58,14 @@ class PWDB {
 			return o ?? null;
 		};
 
-		const set_val = (obj, val) => {
-			const o = obj;
-			for (let p_idx = 0; p_idx < path.length - 2; p++) {
+		const set_val = (o, val) => {
+			for (let p_idx = 0; p_idx < path.length - 1; p_idx++) {
 				const p = path[p_idx];
 				if (!(p in o)) {
 					Loading.show_error_tag('Trying to undo a field which doesn\'t exist now');
 					return;
 				}
+				o = o[p];
 			}
 			const f = path[path.length - 1];
 			o[f] = val;
@@ -94,7 +94,7 @@ class PWDB {
 
 			/* mark all subsequent changes as non undo-able, otherwise
 			 * undo will just always make a cycle */
-			for (let j = Math.max(1, i); j < obj._db.changesets.length - 1; j++) { 
+			for (let j = Math.max(1, i); j < obj._db.changesets.length - 1; j++) {
 				const c = obj._db.changesets[j];
 				c._db.undone = true;
 			}
