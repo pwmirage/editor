@@ -128,6 +128,9 @@ class ItemTooltipWindow extends Window {
 			this.dom.style.display = 'none';
 			this.dom.style.position = 'fixed';
 			this.dom.style.color = '#fff';
+			const tooltip = this.shadow.querySelector('#item_info');
+			tooltip.remove();
+			this.shadow.append(tooltip);
 			this.args.parent_el.append(this.dom);
 		}
 	}

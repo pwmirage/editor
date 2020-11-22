@@ -3,11 +3,7 @@
 
 <div class="window" style="{if !$edit}display: none;{/if}">
 <div class="content">
-{* dummy *}
-</div>
-</div>
-
-<div id="item_info" class="item_info {if $edit}edit{/if}" style="{if $edit}max-height: 700px;{/if}" data-onload="">
+<div id="item_info" class="item_info {if $edit}edit{/if}">
 	{if !$edit}
 		{assign data_preview = 'data-preview'}
 	{else}
@@ -456,11 +452,12 @@
 		<span style="">{@Item.types[$item.type]?.name || "Invalid item"}</span>
 	{/if}
 </div>
+</div>
+</div>
 
 {@@
 <style>
 #item_info {
-	background-color: rgba(0, 0, 0, 0.9);
 	border-radius: 3px;
 	padding: 5px;
 	position: relative;
@@ -471,7 +468,12 @@
 	margin-right: -4px;
 }
 
-#item_info:after {
+#item_info:not(.edit) {
+	background-color: rgba(0, 0, 0, 0.9);
+}
+
+
+#item_info:not(.edit):after {
 	content: ' ';
 	position: absolute;
 	bottom: 0;
@@ -491,8 +493,8 @@
 }
 
 .item_info.edit .section {
-	width: 282px;
-	background-color: rgba(255, 255, 255, 0.1);
+	background-color: rgb(251 241 241);
+	border: 1px solid #e0b0b0;
 	padding: 6px;
 	padding-left: 14px;
 	padding-right: 14px;

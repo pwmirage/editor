@@ -97,7 +97,7 @@ class NPCGoodsWindow extends Window {
 
 					},
 					edit_obj_fn: (new_obj) => {
-						/* TODO */
+						ItemTooltipWindow.open({ item: new_obj, edit: true });
 					},
 					usage_name_fn: (item) => {
 						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);

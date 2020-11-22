@@ -81,7 +81,7 @@ span.tabname.selected {
 }
 
 .item.menu-triangle:after {
-	border-color: transparent transparent #222 transparent;
+	border-color: transparent transparent #a0b2a6 transparent;
 }
 
 #items > .item:focus:before {
