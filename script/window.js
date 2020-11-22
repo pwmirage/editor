@@ -54,6 +54,17 @@ class Window {
 		Window.container.append(this.dom);
 
 		this.full_bounds = this.dom_win.getBoundingClientRect();
+		if (this.full_bounds.height > Window.bounds.height) {
+			this.dom_win.style.height = Window.bounds.height - 40 + 'px';
+			this.move(20, 20);
+		}
+
+		if (this.full_bounds.width > Window.bounds.width) {
+			this.dom_win.style.width = Window.bounds.width - 40 + 'px';
+			this.move(20, 20);
+		}
+
+		this.full_bounds = this.dom_win.getBoundingClientRect();
 		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
 
 		/* remove all text selection */
@@ -120,8 +131,8 @@ class Window {
 
 			const win = Window.resized_win;
 			const offset = win.resizeOffset;
-			let w = Math.max(250, (mousex - offset.x));
-			let h = Math.max(250, (mousey - offset.y));
+			let w = Math.max(250, Math.min(Window.bounds.width, (mousex - offset.x)));
+			let h = Math.max(250, Math.min(Window.bounds.height, (mousey - offset.y)));
 
 			win.dom_win.style.width = w + 'px';
 			win.dom_win.style.height = h + 'px';

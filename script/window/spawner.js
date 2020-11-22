@@ -15,7 +15,7 @@ class SpawnerGroupWindow extends PopupWindow {
 		this.tpl = new Template('tpl-spawner-group-info');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.run({ win: this, group: this.group, spawner: this.spawner });
+		const data = this.tpl.run({ win: this, group: this.group, spawner: this.spawner });
 		shadow.append(data);
 
 		return super.init();

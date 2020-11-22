@@ -1,8 +1,18 @@
 <script id="tpl-item-info" type="text/x-dot-template">
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
-<div class="window" style="{if !$edit}display: none;{/if}">
-<div class="content">
+<div class="window resizable" style="{if !$edit}display: none;{/if}">
+<div class="header">
+	<span>
+		Item {@$item.name || ""} {@serialize_db_id($item.id || 0)}
+	</span>
+	<div class="menu">
+		<i class="minimize fa" aria-hidden="true"></i>
+		<i class="maximize fa" aria-hidden="true"></i>
+		<i class="close fa fa-close" aria-hidden="true"></i>
+	</div>
+</div>
+<div class="content" style="overflow: hidden; padding-right: 28px;">
 <div id="item_info" class="item_info {if $edit}edit{/if}">
 	{if !$edit}
 		{assign data_preview = 'data-preview'}
@@ -58,7 +68,7 @@
 			{/if}
 		</div>
 
-		<div id="prereqs" class="section flex-all" style="flex-wrap: wrap;">
+		<div id="prereqs" class="section flex-all" style="width: 282px; flex-wrap: wrap;">
 			{if $edit}<span class="section-header" style="width: 140px;">Prerequisites</span>{/if}
 			{if $edit || $item.require_level}<span style="">{if $edit}&nbsp;{else}Requisite {/if}Lv. {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_level'"></span></span>{/if}
 			{if $edit || $item.require_vitality}<span style="">{if !$edit}Requisite {/if}Vitality {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_vitality'"></span></span>{/if}
@@ -160,7 +170,7 @@
 			</div>
 		</div>
 
-		<div class="section flex-rows">
+		<div class="section flex-rows" style="{if $edit}overflow: auto;{/if}">
 			<span class="flex-columns section-header" style="width: 100%;">
 				{if $edit}
 					<span style="flex: 1;">Addons{if $edit} (drop){/if}</span>
@@ -200,7 +210,7 @@
 		</div>
 
 		{if $edit}
-			<div class="section flex-rows">
+			<div class="section flex-rows" style="{if $edit}overflow: auto;{/if}">
 				<span class="flex-columns section-header" style="width: 100%;">
 					<span style="flex: 1;">Addons (craft)</span>
 					<span style="width: 36px;">%</span>
@@ -320,7 +330,7 @@
 		</div>
 
 		{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
-			<div class="section flex-rows">
+			<div class="section flex-rows" style="{if $edit}min-height: 120px;{/if}">
 				{if $edit}
 					<span class="section-header">Description</span>
 					<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
@@ -472,6 +482,12 @@
 	background-color: rgba(0, 0, 0, 0.9);
 }
 
+#item_info.edit {
+	overflow-x: auto;
+	width: 100%;
+	height: 100%;
+	overflow-y: hidden;
+}
 
 #item_info:not(.edit):after {
 	content: ' ';
