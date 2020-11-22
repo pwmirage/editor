@@ -116,7 +116,7 @@ class ItemTooltipWindow extends Window {
 		await g_item_tpl;
 		this.tpl = new Template('tpl-item-info');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-		const data = await this.tpl.run({ win: this, item: this.item, edit: this.edit });
+		const data = this.tpl.run({ win: this, item: this.item, edit: this.edit });
 
 		this.shadow.append(data);
 		await super.init();
@@ -138,9 +138,9 @@ class ItemTooltipWindow extends Window {
 	tooltip_over(item, bounds) {
 		this.focus();
 		this.item = item;
-		const prev = this.tpl.data;
-		const newtpl = this.tpl.run({ item });
-		prev.replaceWith(newtpl);
+		const old_tooltip = this.shadow.querySelector('#item_info');
+		const newdata = this.tpl.run({ win: this, item: this.item, edit: this.edit });
+		old_tooltip.replaceWith(newdata.querySelector('#item_info'));
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';
 		this.dom.style.top = bounds.top + 'px';
