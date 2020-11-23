@@ -55,17 +55,16 @@ class PWMap {
 		this.pos = { scale: 1, offset: { x: 0, y: 0} };
 
 		this.drag = {
-			origin: {
-				x: 0,
-				y: 0
-			},
-			is_drag: false,
+			mousedownorigin: { x: 0, y: 0 },
+			origin: { x: 0, y: 0 },
+			drag_button: -1,
 			moved: false,
 		};
 
 		this.marker_img = {};
 		this.hovered_spawner = null;
 		this.focused_spawners = new Set();
+		this.selected_spawners = new Set();
 		this.hover_lbl = null;
 		/* either an eye-candy artwork or real ingame terrain */
 		this.show_real_bg = false;
@@ -97,10 +96,16 @@ class PWMap {
 	}
 
 	async refresh_focused_spawners() {
-		await this.post_canvas_msg({
-			type: 'set_focused_spawners',
-			spawners: [...this.focused_spawners],
-		});
+		await Promise.all([
+			this.post_canvas_msg({
+				type: 'set_focused_spawners',
+				spawners: [...this.focused_spawners],
+			}),
+			this.post_canvas_msg({
+				type: 'set_selected_spawners',
+				spawners: [...this.selected_spawners],
+			})
+		]);
 		await this.redraw_dyn_overlay();
 	}
 
@@ -147,7 +152,6 @@ class PWMap {
 						o.style.height = o.styledHeight + 'px';
 					}
 				}
-
 
 				prev_overlay.classList.remove('shown');
 				overlay.classList.add('shown');
@@ -216,6 +220,8 @@ class PWMap {
 
 
 		});
+
+		const q_canvas = this.q_canvas = this.shadow.querySelector('#quick-canvas');
 
 		for (const m in PWMap.maps) {
 			db.load_map(m);
@@ -336,30 +342,37 @@ class PWMap {
 		e.preventDefault();
 		this.drag.clicked_el = e.path[0];
 
-		if (e.which == 2) {
+		if (this.drag.drag_button == -1) {
+			this.drag.mousedownorigin.x = e.clientX;
+			this.drag.mousedownorigin.y = e.clientY;
 			this.drag.origin.x = e.clientX;
 			this.drag.origin.y = e.clientY;
-			this.drag.is_drag = true;
+			this.drag.drag_button = e.which;
 			this.drag.moved = false;
 		}
 	}
 
 	onmousemove(e) {
-		if (this.drag.is_drag) {
+		if (this.drag.drag_button) {
 			if (e.clientX == this.drag.origin.x &&
 					e.clientY == this.drag.origin.y) {
 				/* no mouse movement */
-				return;
+				return false;
 			}
 
 			const new_offset = {
 				x: this.pos.offset.x + (this.drag.origin.x - e.clientX),
 				y: this.pos.offset.y + (this.drag.origin.y - e.clientY)
 			};
-			this.move_to(new_offset);
-			this.redraw_dyn_overlay();
 
-			e.preventDefault();
+			if (this.drag.drag_button == 2) {
+				this.move_to(new_offset);
+				this.redraw_dyn_overlay();
+				e.preventDefault();
+			} else if (this.drag.drag_button == 1) {
+				this.redraw_q_canvas(e);
+			}
+
 			this.drag.origin.x = e.clientX;
 			this.drag.origin.y = e.clientY;
 			this.drag.moved = true;
@@ -385,82 +398,114 @@ class PWMap {
 
 	onmouseup(e) {
 		const mouse_pos = { x: e.clientX, y: e.clientY };
-		if (e.which == 3 && e.path[0] == this.drag.clicked_el) {
-			(async () => {
-				const x = mouse_pos.x - Window.bounds.left;
-				const y = mouse_pos.y - Window.bounds.top;
-				const map_coords = this.mouse_coords_to_map(mouse_pos.x, mouse_pos.y);
-				const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
+		if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
+			if (this.hovered_spawner) {
+				if (!this.drag.moved && this.canvas.querySelector(':hover')) {
+					let spawner = this.hovered_spawner;
+					if (spawner) {
+						spawner = db[spawner._db.type][spawner.id];
+						(async () => {
+							const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
+									y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
 
-				const win = await RMenuWindow.open({
-				x: x, y: y,
-				entries: [
-					{ name: 'Spawn', children: [
-						{ id: 1, name: 'NPC' },
-						{ id: 2, name: 'Monster' },
-						{ id: 3, name: 'Resource' },
-					]},
-					{ id: 10, name: 'Undo' },
-				]});
-				const sel = await win.wait();
-				switch(sel) {
-					case 1: {
-						const spawner = db.new('spawners_' + this.maptype.id);
-						db.open(spawner);
-						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
-						spawner.is_npc = true;
-						db.commit(spawner);
-						console.log('new npc');
-						break;
-					}
-					case 2: {
-						console.log('new monster');
-						break;
-					}
-					case 3: {
-						console.log('new resource');
-						break;
-					}
-					case 10: {
-						console.log('undo');
-						break;
+							win.onfocus = () => {
+								this.focused_spawners.add(spawner);
+								this.refresh_focused_spawners();
+							};
+							win.onfocus();
+							win.onclose = () => {
+								this.focused_spawners.delete(spawner);
+								this.refresh_focused_spawners();
+							};
+						})();
 					}
 				}
-			})();
-			return false;
-		}
-
-		if (this.drag.is_drag) {
-			this.redraw_dyn_overlay();
-			this.drag.is_drag = false;
-		}
-
-		if (!this.drag.moved && this.canvas.querySelector(':hover')) {
-			let spawner = this.hovered_spawner;
-			if (spawner) {
-				spawner = db[spawner._db.type][spawner.id];
+			} else {
 				(async () => {
-					const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
-							y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
+					const x = mouse_pos.x - Window.bounds.left;
+					const y = mouse_pos.y - Window.bounds.top;
+					const map_coords = this.mouse_coords_to_map(mouse_pos.x, mouse_pos.y);
+					const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
 
-					win.onfocus = () => {
-						this.focused_spawners.add(spawner);
-						this.refresh_focused_spawners();
-					};
-					win.onfocus();
-					win.onclose = () => {
-						this.focused_spawners.delete(spawner);
-						this.refresh_focused_spawners();
-					};
+					const win = await RMenuWindow.open({
+					x: x, y: y,
+					entries: [
+						{ name: 'Spawn', children: [
+							{ id: 1, name: 'NPC' },
+							{ id: 2, name: 'Monster' },
+							{ id: 3, name: 'Resource' },
+						]},
+						{ id: 10, name: 'Undo' },
+					]});
+					const sel = await win.wait();
+					switch(sel) {
+						case 1: {
+							const spawner = db.new('spawners_' + this.maptype.id);
+							db.open(spawner);
+							spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
+							spawner.is_npc = true;
+							db.commit(spawner);
+							console.log('new npc');
+							break;
+						}
+						case 2: {
+							console.log('new monster');
+							break;
+						}
+						case 3: {
+							console.log('new resource');
+							break;
+						}
+						case 10: {
+							console.log('undo');
+							break;
+						}
+					}
 				})();
 			}
+		} else if (this.drag.drag_button == 2) {
+			this.redraw_dyn_overlay();
+		} else if (this.drag.drag_button == 1) {
+			this.selected_spawners.clear();
+
+			const point_a = this.drag.mousedownorigin;
+			const point_b = { x: e.clientX, y: e.clientY };
+
+			const point_am = this.mouse_coords_to_map(point_a.x, point_a.y);
+			const point_as = this.map_coords_to_spawner(point_am.x, point_am.y);
+
+			const point_bm = this.mouse_coords_to_map(point_b.x, point_b.y);
+			const point_bs = this.map_coords_to_spawner(point_bm.x, point_bm.y);
+
+			const point_tl = { x: Math.min(point_as.x, point_bs.x), y: Math.min(point_as.y, point_bs.y) };
+			const point_br = { x: Math.max(point_as.x, point_bs.x), y: Math.max(point_as.y, point_bs.y) };
+
+			const filter = (s) => {
+				return s.pos[0] >= point_tl.x && s.pos[0] <= point_br.x &&
+					s.pos[2] >= point_tl.y && s.pos[2] <= point_br.y;
+			};
+			const sel_spawners = db['spawners_' + this.maptype.id].filter(filter);
+			const sel_resources = db['resources_' + this.maptype.id].filter(filter);
+			for (const s of [...sel_spawners, ...sel_resources]) {
+
+				this.selected_spawners.add(s);
+			}
+			this.refresh_focused_spawners();
+			this.redraw_q_canvas();
 		}
 
 		this.drag.clicked_el = null;
+		this.drag.drag_button = -1;
 		this.drag.moved = false;
 	}
 
 	async onresize(e) {
+		const q_canvas = this.q_canvas;
+		q_canvas.width = this.canvas.offsetWidth;
+		q_canvas.height = this.canvas.offsetHeight;
+		q_canvas.style.width = q_canvas.width + 'px';
+		q_canvas.style.height = q_canvas.height + 'px';
+		this.redraw_q_canvas(e);
 		await this.post_canvas_msg({ type: 'resize', width: this.canvas.offsetWidth,
 				height: this.canvas.offsetHeight });
 		return this.redraw_dyn_overlay();
@@ -469,7 +514,7 @@ class PWMap {
 
 	onwheel(e) {
 		const delta = -Math.sign(e.deltaX + e.deltaY + e.deltaZ) / 10.0;
-		this.zoom(delta, { x: e.clientX, y: e.clientY });
+		this.zoom(delta, { x: e.clientX - Window.bounds.left, y: e.clientY - Window.bounds.top });
 		e.preventDefault();
 	}
 
@@ -507,6 +552,27 @@ class PWMap {
 		setTimeout(fn, 251);
 	}
 
+	redraw_q_canvas(e) {
+		window.requestAnimationFrame((t0) => {
+			const ctx = this.q_canvas.getContext('2d');
+
+			ctx.setTransform(1, 0, 0, 1, 0.5, 0.5);
+			ctx.clearRect(0, 0, this.q_canvas.width, this.q_canvas.height);
+			ctx.setLineDash([6]);
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = 'white';
+
+			if (this.drag.drag_button == 1) {
+				this.drag.origin.x - e.clientX;
+				const pos = this.drag.mousedownorigin;
+				const endpos = { x: e.clientX, y: e.clientY };
+				const size = { w: endpos.x - pos.x, h: endpos.y - pos.y };
+				ctx.strokeRect(pos.x - Window.bounds.left, pos.y - Window.bounds.top, size.w, size.h);
+			}
+
+		});
+	}
+
 	async filter_spawners(opts) {
 		await this.post_canvas_msg({ type: 'set_options', opts: opts });
 		return this.redraw_dyn_overlay();
@@ -528,7 +594,7 @@ class PWMap {
 		this.pos.offset = new_offset;
 	
 		return new Promise((resolve) => {
-			window.requestAnimationFrame(async (t0) => {
+			window.requestAnimationFrame((t0) => {
 				this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
 				this.move_dyn_overlay();
 				setTimeout(async () => {

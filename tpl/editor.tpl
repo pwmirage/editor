@@ -5,6 +5,7 @@
 		</div>
 		<canvas class="dyn-canvas shown gpu"></canvas>
 		<canvas class="dyn-canvas gpu"></canvas>
+		<canvas id="quick-canvas"></canvas>
 		<div class="label"></div>
 	</div>
 	<div id="pw-windows">
@@ -57,6 +58,13 @@
 	opacity: 1.0;
 	transition: opacity 0.25s ease-in-out;
 	transition-delay: 0s;
+}
+
+#pw-map-canvas > #quick-canvas {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
 }
 
 .label {

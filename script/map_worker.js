@@ -8,6 +8,7 @@ let g_pos = null;
 let g_marker_size = 0;
 let g_window_size = { width: 1, height: 1 };
 let g_focused_spawners = new Set();
+let g_selected_spawners = new Set();
 
 /* both spawners and resources */
 let g_drawn_spawners = null;
@@ -27,6 +28,7 @@ self.onmessage = async (e) => {
 			get_icon('red');
 			get_icon('yellow');
 			get_icon('green');
+			get_icon('select');
 			break;
 		}
 		case 'mouse': {
@@ -81,6 +83,15 @@ self.onmessage = async (e) => {
 			g_focused_spawners.clear();
 			for (const s of spawners) {
 				g_focused_spawners.add(s.id);
+			}
+			break;
+		}
+		case 'set_selected_spawners': {
+			const spawners = e.data.spawners;
+
+			g_selected_spawners.clear();
+			for (const s of spawners) {
+				g_selected_spawners.add(s.id);
 			}
 			break;
 		}
@@ -291,6 +302,7 @@ const redraw = () => {
 	}
 
 	let i;
+	const select_img = get_icon('select');
 	for (const list in g_drawn_spawners) {
 		let marker_img;
 		if (list == 'mob') {
@@ -337,6 +349,9 @@ const redraw = () => {
 				ctx.globalAlpha = 0.3;
 			}
 			drawAt(marker_img, rad, x, y, g_marker_size, g_marker_size);
+			if (g_selected_spawners.has(spawner.id)) {
+				ctx.drawImage(select_img, x - g_marker_size / 2, y - g_marker_size / 2, g_marker_size, g_marker_size);
+			}
 		}
 	}
 
