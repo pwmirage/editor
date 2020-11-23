@@ -5,7 +5,7 @@
 let g_legend_win = null;
 
 class LegendWindow extends Window {
-	static loaded = load_tpl(ROOT_URL + 'tpl/window/map_legend.tpl');
+	static loaded = load_tpl(ROOT_URL + 'tpl/window/map.tpl');
 
 	async init() {
 		if (g_legend_win) return false;
