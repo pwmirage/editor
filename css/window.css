@@ -1,5 +1,5 @@
 :host {
-	transition: margin-top 0.4s ease-in-out;
+	transition: margin-top 0.2s ease-in-out;
 	--header-color: #822525;
 }
 
@@ -7,7 +7,7 @@
 	position: absolute;
 	display: flex;
 	flex-direction: column;
-	transition: max-height 0.4s ease-in-out;
+	transition: max-height 0.2s ease-in-out;
 	border: 1px var(--header-color) solid;
 }
 

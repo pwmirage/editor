@@ -78,6 +78,48 @@ class Window {
 	static set_container(container) {
 		Window.container = container;
 		Window.onresize();
+
+		const fn = () => {
+			for (const win_dom of Window.container.children) {
+				const win = win_dom._win;
+				if (!win) {
+					continue;
+				}
+
+				let bounds = win.dom_win.getBoundingClientRect();
+				if (bounds.left < Window.bounds.left) {
+					win.absmove(0, undefined);
+
+				}
+				if (bounds.top < Window.bounds.top) {
+					win.absmove(undefined, 0);
+				}
+
+				bounds = win.dom_win.getBoundingClientRect();
+				if (bounds.right > Window.bounds.right) {
+					win.absmove(Math.max(0, Window.bounds.right - bounds.width), undefined);
+
+				}
+				if (bounds.bottom > Window.bounds.bottom) {
+					win.absmove(undefined, Math.max(0, Window.bounds.bottom - bounds.height));
+				}
+
+				bounds = win.dom_win.getBoundingClientRect();
+				if (bounds.height > Window.bounds.height) {
+					win.dom_win.style.height = Window.bounds.height + 'px';
+				}
+				if (bounds.width > Window.bounds.width) {
+					win.dom_win.style.width = Window.bounds.width + 'px';
+				}
+			}
+		};
+
+		const fn2 = async () => {
+			await fn();
+			setTimeout(fn2, 2000);
+		}
+
+		fn2();
 	}
 
 	static async open(args) {
@@ -162,6 +204,7 @@ class Window {
 			Window.dragged_win = this;
 			Window.dragged_win.dragOffset.x = e.clientX - bounds.left;
 			Window.dragged_win.dragOffset.y = e.clientY - bounds.top;
+			this.bounds = this.dom_win.getBoundingClientRect();
 		} else if (this.dom_win.classList.contains('resizable') &&
 				e.clientX - bounds.left >= bounds.width - 18 &&
 				e.clientY - bounds.top >= bounds.height - 18) {
@@ -231,8 +274,12 @@ class Window {
 	}
 
 	move(new_x, new_y) {
-		this.dom.style.left = (new_x - this.margins.x) + 'px';
-		this.dom.style.top = (new_y - this.margins.y) + 'px';
+		if (!isNaN(new_x)) {
+			this.dom.style.left = Math.max(-this.margins.x, Math.min(Window.bounds.width - (this.bounds?.width || 0) - this.margins.x, (new_x - this.margins.x))) + 'px';
+		}
+		if (!isNaN(new_y)) {
+			this.dom.style.top = Math.max(-this.margins.y, Math.min(Window.bounds.height - (this.bounds?.height || 0) - this.margins.y, (new_y - this.margins.y))) + 'px';
+		}
 	}
 
 	absmove(new_x, new_y) {
