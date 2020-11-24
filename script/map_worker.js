@@ -342,7 +342,7 @@ const redraw = () => {
 			let { x, y } = spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
 			x *= pos.scale;
 			y *= pos.scale;
-			const rad = -Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2;
+			const rad = spawner.dir ? (-Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2) : 0;
 			if (!g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 				ctx.globalAlpha = 1.0;
 			} else {
