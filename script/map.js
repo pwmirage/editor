@@ -271,6 +271,7 @@ class PWMap {
 				this.bg.style.marginTop = - img_off.y + 'px';
 
 				this.canvas.onmousedown = (e) => this.onmousedown(e);
+				this.canvas.ondblclick = (e) => this.ondblclick(e);
 				this.canvas.oncontextmenu = (e) => false;
 				this.canvas.onwheel = (e) => this.onwheel(e);
 
@@ -397,73 +398,85 @@ class PWMap {
 		return e.defaultPrevented;
 	}
 
+	async ondblclick(e) {
+		const mouse_pos = { x: e.clientX, y: e.clientY };
+
+		let spawner = this.hovered_spawner;
+		spawner = spawner ? db[spawner._db.type][spawner.id] : null;
+
+		if (e.which == 1 && spawner) {
+			const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
+					y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
+
+			win.onfocus = () => {
+				this.focused_spawners.add(spawner);
+				this.refresh_focused_spawners();
+			};
+			win.onfocus();
+			win.onclose = () => {
+				this.focused_spawners.delete(spawner);
+				this.refresh_focused_spawners();
+			};
+		}
+
+	}
+
 	onmouseup(e) {
 		const mouse_pos = { x: e.clientX, y: e.clientY };
 		if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
-			if (this.hovered_spawner) {
-				if (!this.drag.moved && this.canvas.querySelector(':hover')) {
-					let spawner = this.hovered_spawner;
-					if (spawner) {
-						spawner = db[spawner._db.type][spawner.id];
-						(async () => {
-							const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
-									y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
+			(async () => {
+				const x = mouse_pos.x - Window.bounds.left;
+				const y = mouse_pos.y - Window.bounds.top;
+				const map_coords = this.mouse_coords_to_map(mouse_pos.x, mouse_pos.y);
+				const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
 
-							win.onfocus = () => {
-								this.focused_spawners.add(spawner);
-								this.refresh_focused_spawners();
-							};
-							win.onfocus();
-							win.onclose = () => {
-								this.focused_spawners.delete(spawner);
-								this.refresh_focused_spawners();
-							};
-						})();
+				const win = await RMenuWindow.open({
+				x: x, y: y, bg: false,
+				entries: [
+					{ name: 'Spawner', visible: !!this.hovered_spawner, children: [
+						{ id: 20, name: 'Edit' },
+						{ id: 21, name: 'Move' },
+						{ id: 21, name: 'Rotate' },
+						{ id: 22, name: 'Delete' },
+					]},
+					{ name: this.selected_spawners.size + ' selected', visible: !!this.selected_spawners.size, children: [
+						{ id: 10, name: 'Edit' },
+						{ id: 11, name: 'Move' },
+						{ id: 11, name: 'Rotate' },
+						{ id: 12, name: 'Delete' },
+					]},
+					{ name: 'New', visible: !this.hovered_spawner, children: [
+						{ id: 1, name: 'NPC' },
+						{ id: 2, name: 'Monster' },
+						{ id: 3, name: 'Resource' },
+					]},
+					{ id: 10, name: 'Undo' },
+				]});
+				const sel = await win.wait();
+				switch(sel) {
+					case 1: {
+						const spawner = db.new('spawners_' + this.maptype.id);
+						db.open(spawner);
+						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
+						spawner.is_npc = true;
+						db.commit(spawner);
+						console.log('new npc');
+						break;
+					}
+					case 2: {
+						console.log('new monster');
+						break;
+					}
+					case 3: {
+						console.log('new resource');
+						break;
+					}
+					case 10: {
+						console.log('undo');
+						break;
 					}
 				}
-			} else {
-				(async () => {
-					const x = mouse_pos.x - Window.bounds.left;
-					const y = mouse_pos.y - Window.bounds.top;
-					const map_coords = this.mouse_coords_to_map(mouse_pos.x, mouse_pos.y);
-					const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
-
-					const win = await RMenuWindow.open({
-					x: x, y: y,
-					entries: [
-						{ name: 'Spawn', children: [
-							{ id: 1, name: 'NPC' },
-							{ id: 2, name: 'Monster' },
-							{ id: 3, name: 'Resource' },
-						]},
-						{ id: 10, name: 'Undo' },
-					]});
-					const sel = await win.wait();
-					switch(sel) {
-						case 1: {
-							const spawner = db.new('spawners_' + this.maptype.id);
-							db.open(spawner);
-							spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
-							spawner.is_npc = true;
-							db.commit(spawner);
-							console.log('new npc');
-							break;
-						}
-						case 2: {
-							console.log('new monster');
-							break;
-						}
-						case 3: {
-							console.log('new resource');
-							break;
-						}
-						case 10: {
-							console.log('undo');
-							break;
-						}
-					}
-				})();
-			}
+			})();
 		} else if (this.drag.drag_button == 2) {
 			this.redraw_dyn_overlay();
 		} else if (this.drag.drag_button == 1) {
@@ -563,7 +576,7 @@ class PWMap {
 			const ctx = this.q_canvas.getContext('2d');
 
 			ctx.setTransform(1, 0, 0, 1, 0.5, 0.5);
-			ctx.clearRect(0, 0, this.q_canvas.width, this.q_canvas.height);
+			ctx.clearRect(-0.5, -0.5, this.q_canvas.width, this.q_canvas.height);
 			ctx.setLineDash([6]);
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = 'white';
