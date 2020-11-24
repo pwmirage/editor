@@ -216,7 +216,7 @@ class PWMap {
 			(async () => {
 				await this.post_canvas_msg({ type: 'update_obj', obj: obj });
 				this.force_mouse_update = true;
-				await this.post_canvas_msg({ type: 'redraw', pos: this.pos, marker_size: this.getmarkersize() });
+				await this.redraw_dyn_overlay();
 			})();
 
 
