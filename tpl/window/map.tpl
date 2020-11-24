@@ -83,7 +83,8 @@
 
 	<div style="flex: 1;"></div>
 	<label style="margin-top: 4px;"><input type="checkbox" class="checkbox" id="show-real-bg"><span>Show real ingame terrain</span></label>
-	<label style="margin-top: 4px;"><input type="checkbox" class="checkbox" id="show-name-labels"><span>Show name labels</span></label>
+	<label style=""><input type="checkbox" class="checkbox" id="fade-spawners"><span>Fade non-selected spawners</span></label>
+	<label style=""><input type="checkbox" class="checkbox" id="show-name-labels"><span>Show name labels</span></label>
 </div>
 </div>
 

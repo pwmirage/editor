@@ -351,7 +351,7 @@ const redraw = () => {
 				x *= pos.scale;
 				y *= pos.scale;
 
-				if (!g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
+				if (!g_opts['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 					ctx.globalAlpha = 1.0;
 				} else {
 					ctx.globalAlpha = 0.3;
@@ -373,7 +373,7 @@ const redraw = () => {
 			x *= pos.scale;
 			y *= pos.scale;
 			const rad = spawner.dir ? (-Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2) : 0;
-			if (!g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
+			if (!g_opts['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 				ctx.globalAlpha = 1.0;
 			} else {
 				ctx.globalAlpha = 0.3;
