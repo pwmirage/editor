@@ -141,15 +141,16 @@ class PWMap {
 				const overlay = overlays[e.data.id];
 				const prev_overlay = overlays[1 - e.data.id];
 
+				const w = Math.floor(8/6 * this.canvas.offsetWidth);
+				const h = Math.floor(8/6 * this.canvas.offsetHeight);
 				for (const o of overlays) {
-					if (o.styledWidth != 8/6 * this.canvas.offsetWidth ||
-							o.styledHeight != 8/6 * this.canvas.offsetHeight) {
+					if (o.styledWidth != w || o.styledHeight != h) {
 						o.style.left = Math.floor(-1/6 * this.canvas.offsetWidth) + 'px';
 						o.style.top = Math.floor(-1/6 * this.canvas.offsetHeight) + 'px';
-						o.styledWidth = Math.floor(8/6 * this.canvas.offsetWidth);
-						o.styledHeight = Math.floor(8/6 * this.canvas.offsetHeight);
-						o.style.width = o.styledWidth + 'px';
-						o.style.height = o.styledHeight + 'px';
+						o.styledWidth = w;
+						o.styledHeight = h;
+						o.style.width = w + 'px';
+						o.style.height = h + 'px';
 					}
 				}
 
