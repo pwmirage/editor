@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
+ */
+
 const g_canvases = [];
 let g_canvas_id = 0;
 
