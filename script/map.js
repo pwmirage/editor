@@ -161,7 +161,7 @@ class PWMap {
 				const hovered = e.data.hovered_spawner;
 				const spawner = hovered ? db[hovered._db.type][hovered.id] : null;
 
-				this.hovered_spawner = spawner;
+				this.hovered_spawner = spawner ? db[spawner._db.type][spawner.id] : null;
 				this.hover_lbl.style.display = spawner ? 'block' : 'none';
 				if (spawner) {
 					const type = spawner.groups[0]?.type;
@@ -224,6 +224,43 @@ class PWMap {
 
 		this.q_canvas = this.shadow.querySelector('#quick-canvas');
 		this.select_menu = this.shadow.querySelector('#select-menu');
+
+		this.select_menu.onclick = async (e) => {
+			const x = e.clientX - Window.bounds.left;
+			const y = e.clientY - Window.bounds.top;
+			const b = this.select_menu.getBoundingClientRect();
+
+			const win = await RMenuWindow.open({
+			x: b.left - Window.bounds.left, y: b.top - 165 - Window.bounds.top, bg: false,
+			entries: [
+				{ id: 20, name: 'Edit' },
+				{ id: 21, name: 'Move' },
+				{ id: 22, name: 'Rotate' },
+				{ id: 23, name: 'Unselect' },
+				{ id: 24, name: 'Delete' },
+			]});
+			const sel = await win.wait();
+			switch(sel) {
+				case 10: {
+					this.open_spawner(hovered_spawner, e);
+					break;
+				}
+				case 23: {
+					this.selected_spawners.clear();
+					this.refresh_focused_spawners();
+					break;
+				}
+				case 24: {
+					for (const s of this.selected_spawners) {
+						db.open(s);
+						s._removed = true;
+						db.commit(s);
+					}
+					break;
+				}
+			}
+		};
+
 
 		for (const m in PWMap.maps) {
 			db.load_map(m);
@@ -399,32 +436,32 @@ class PWMap {
 		return e.defaultPrevented;
 	}
 
-	async ondblclick(e) {
-		const mouse_pos = { x: e.clientX, y: e.clientY };
-
-		let spawner = this.hovered_spawner;
-		spawner = spawner ? db[spawner._db.type][spawner.id] : null;
-
-		if (e.which == 1 && spawner) {
-			const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
-					y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
-
-			win.onfocus = () => {
-				this.focused_spawners.add(spawner);
-				this.refresh_focused_spawners();
-			};
-			win.onfocus();
-			win.onclose = () => {
-				this.focused_spawners.delete(spawner);
-				this.refresh_focused_spawners();
-			};
+	ondblclick(e) {
+		if (e.which == 1 && this.hovered_spawner) {
+			this.open_spawner(this.hovered_spawner, e);
 		}
 
+	}
+
+	async open_spawner(spawner, e) {
+		const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
+				y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
+
+		win.onfocus = () => {
+			this.focused_spawners.add(spawner);
+			this.refresh_focused_spawners();
+		};
+		win.onfocus();
+		win.onclose = () => {
+			this.focused_spawners.delete(spawner);
+			this.refresh_focused_spawners();
+		};
 	}
 
 	onmouseup(e) {
 		const mouse_pos = { x: e.clientX, y: e.clientY };
 		if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
+			const hovered_spawner = this.hovered_spawner;
 			(async () => {
 				const x = mouse_pos.x - Window.bounds.left;
 				const y = mouse_pos.y - Window.bounds.top;
@@ -434,45 +471,68 @@ class PWMap {
 				const win = await RMenuWindow.open({
 				x: x, y: y, bg: false,
 				entries: [
-					{ name: 'Spawner', visible: !!this.hovered_spawner, children: [
-						{ id: 20, name: 'Edit' },
-						{ id: 21, name: 'Move' },
-						{ id: 21, name: 'Rotate' },
-						{ id: 22, name: 'Delete' },
-					]},
-					{ name: this.selected_spawners.size + ' selected', visible: this.selected_spawners.size > 1, children: [
+					{ name: 'Spawner', visible: !!hovered_spawner, children: [
 						{ id: 10, name: 'Edit' },
 						{ id: 11, name: 'Move' },
-						{ id: 11, name: 'Rotate' },
-						{ id: 12, name: 'Delete' },
+						{ id: 12, name: 'Rotate' },
+						{ id: 13, name: 'Delete' },
 					]},
-					{ name: 'New', visible: !this.hovered_spawner, children: [
-						{ id: 1, name: 'NPC' },
-						{ id: 2, name: 'Monster' },
-						{ id: 3, name: 'Resource' },
+					{ name: this.selected_spawners.size + ' selected', visible: this.selected_spawners.size > 1 || (this.selected_spawners.size == 1 && !hovered_spawner), children: [
+						{ id: 20, name: 'Edit' },
+						{ id: 21, name: 'Move' },
+						{ id: 22, name: 'Rotate' },
+						{ id: 23, name: 'Unselect' },
+						{ id: 24, name: 'Delete' },
 					]},
-					{ id: 10, name: 'Undo' },
+					{ name: 'New', visible: !hovered_spawner, children: [
+						{ id: 31, name: 'NPC' },
+						{ id: 32, name: 'Monster' },
+						{ id: 33, name: 'Resource' },
+					]},
+					{ id: 1, name: 'Undo' },
 				]});
 				const sel = await win.wait();
 				switch(sel) {
-					case 1: {
+					case 10: {
+						this.open_spawner(hovered_spawner, e);
+						break;
+					}
+					case 13: {
+						db.open(hovered_spawner);
+						hovered_spawner._removed = true;
+						db.commit(hovered_spawner);
+						break;
+					}
+					case 23: {
+						this.selected_spawners.clear();
+						this.refresh_focused_spawners();
+						break;
+					}
+					case 24: {
+						for (const s of this.selected_spawners) {
+							db.open(s);
+							s._removed = true;
+							db.commit(s);
+						}
+						break;
+					}
+					case 31:
+					case 32: {
 						const spawner = db.new('spawners_' + this.maptype.id);
 						db.open(spawner);
 						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
-						spawner.is_npc = true;
+						spawner.is_npc = sel == 31;
 						db.commit(spawner);
-						console.log('new npc');
 						break;
 					}
-					case 2: {
-						console.log('new monster');
+					case 33: {
+						const spawner = db.new('resources_' + this.maptype.id);
+						db.open(spawner);
+						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
+						db.commit(spawner);
 						break;
 					}
-					case 3: {
-						console.log('new resource');
-						break;
-					}
-					case 10: {
+					case 1: {
 						console.log('undo');
 						break;
 					}

@@ -289,6 +289,10 @@ const filter_spawners = (canvas) => {
 				type = 'mob';
 			}
 
+			if (spawner._removed) {
+				continue;
+			}
+
 			if (!map_filters[type](spawner)) {
 				continue;
 			}
@@ -308,8 +312,6 @@ const spawner_coords_to_map = (x, y) => {
 }
 
 const redraw = () => {
-	const t0 = performance.now();
-
 	const pos = g_pos;
 	g_canvas_id = (++g_canvas_id) % g_canvases.length;
 	const canvas = g_active_canvas = g_canvases[g_canvas_id];
@@ -382,7 +384,4 @@ const redraw = () => {
 			}
 		}
 	}
-
-	const t1 = performance.now();
-	console.log('canvas rendering took: ' + (t1 - t0) + 'ms');
 };
