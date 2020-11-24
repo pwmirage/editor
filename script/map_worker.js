@@ -9,6 +9,7 @@ let g_marker_size = 0;
 let g_window_size = { width: 1, height: 1 };
 let g_focused_spawners = new Set();
 let g_selected_spawners = new Set();
+let g_hovered_spawner = null;
 
 /* both spawners and resources */
 let g_drawn_spawners = null;
@@ -35,7 +36,34 @@ self.onmessage = async (e) => {
 			const x = e.data.x;
 			const y = e.data.y;
 
-			resp.hovered_spawner = get_spawner_at(x, y);
+			resp.hovered_spawner = g_hovered_spawner = get_spawner_at(x, y);
+			break;
+		}
+		case 'mousearea': {
+			const tl = e.data.tl;
+			const br = e.data.br;
+
+			const selected_spawners = [];
+			const area = (br.x - tl.x) * (br.y - tl.y);
+			if (area <= 4 && g_hovered_spawner) {
+				/* this spawner was simply left-clicked */
+				selected_spawners.push(g_hovered_spawner);
+			} else {
+				const filter = (s) => {
+					return s.pos[0] >= tl.x && s.pos[0] <= br.x &&
+						s.pos[2] >= tl.y && s.pos[2] <= br.y;
+				};
+
+				for (const type in g_drawn_spawners) {
+					for (const s of g_drawn_spawners[type]) {
+						if (filter(s)) {
+							selected_spawners.push(s);
+						}
+					}
+				}
+			}
+
+			resp.spawners = selected_spawners;
 			break;
 		}
 		case 'set_map': {
@@ -187,7 +215,7 @@ const filter_spawners = (canvas) => {
 	const by_mob = (fn) => {
 		return (s) => {
 			const type = s.groups[0]?.type || 0;
-			const mob = g_objs.monsters[type];
+			const mob = g_objs.monsters.get(type);
 			if (!mob) return true;
 			return fn(mob);
 		}

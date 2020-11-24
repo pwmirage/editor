@@ -238,7 +238,7 @@ class PWMap {
 			const fn = (e) => {
 				if (e.data.msg_id == msg_id) {
 					this.canvas_worker.removeEventListener('message', fn);
-					return resolve();
+					return resolve(e.data);
 				}
 			};
 
@@ -439,7 +439,7 @@ class PWMap {
 						{ id: 21, name: 'Rotate' },
 						{ id: 22, name: 'Delete' },
 					]},
-					{ name: this.selected_spawners.size + ' selected', visible: !!this.selected_spawners.size, children: [
+					{ name: this.selected_spawners.size + ' selected', visible: this.selected_spawners.size > 1, children: [
 						{ id: 10, name: 'Edit' },
 						{ id: 11, name: 'Move' },
 						{ id: 11, name: 'Rotate' },
@@ -480,43 +480,33 @@ class PWMap {
 		} else if (this.drag.drag_button == 2) {
 			this.redraw_dyn_overlay();
 		} else if (this.drag.drag_button == 1) {
-			this.selected_spawners.clear();
+			(async () => {
 
-			const point_a = this.drag.mousedownorigin;
-			const point_b = { x: e.clientX, y: e.clientY };
+				const point_a = this.drag.mousedownorigin;
+				const point_b = { x: e.clientX, y: e.clientY };
 
-			const point_am = this.mouse_coords_to_map(point_a.x, point_a.y);
-			const point_as = this.map_coords_to_spawner(point_am.x, point_am.y);
+				const point_am = this.mouse_coords_to_map(point_a.x, point_a.y);
+				const point_as = this.map_coords_to_spawner(point_am.x, point_am.y);
 
-			const point_bm = this.mouse_coords_to_map(point_b.x, point_b.y);
-			const point_bs = this.map_coords_to_spawner(point_bm.x, point_bm.y);
+				const point_bm = this.mouse_coords_to_map(point_b.x, point_b.y);
+				const point_bs = this.map_coords_to_spawner(point_bm.x, point_bm.y);
 
-			const point_tl = { x: Math.min(point_as.x, point_bs.x), y: Math.min(point_as.y, point_bs.y) };
-			const point_br = { x: Math.max(point_as.x, point_bs.x), y: Math.max(point_as.y, point_bs.y) };
-			const area = (point_br.x - point_tl.x) * (point_br.y - point_tl.y);
+				const point_tl = { x: Math.min(point_as.x, point_bs.x), y: Math.min(point_as.y, point_bs.y) };
+				const point_br = { x: Math.max(point_as.x, point_bs.x), y: Math.max(point_as.y, point_bs.y) };
 
-			if (area <= 4 && this.hovered_spawner) {
-				/* this spawner was simply left-clicked */
-				this.selected_spawners.add(this.hovered_spawner);
-			} else {
-				const filter = (s) => {
-					return s.pos[0] >= point_tl.x && s.pos[0] <= point_br.x &&
-						s.pos[2] >= point_tl.y && s.pos[2] <= point_br.y;
-				};
-				const sel_spawners = db['spawners_' + this.maptype.id].filter(filter);
-				const sel_resources = db['resources_' + this.maptype.id].filter(filter);
+				const mousearea = await this.post_canvas_msg({ type: 'mousearea', tl: point_tl, br: point_br });
 
-				for (const s of [...sel_spawners, ...sel_resources]) {
-
+				this.selected_spawners.clear();
+				for (const s of mousearea.spawners) {
 					this.selected_spawners.add(s);
 				}
-			}
 
-			this.select_menu.querySelector('.count').textContent = this.selected_spawners.size;
-			this.select_menu.style.display = this.selected_spawners.size ? 'block' : 'none';
+				this.select_menu.querySelector('.count').textContent = this.selected_spawners.size;
+				this.select_menu.style.display = this.selected_spawners.size ? 'block' : 'none';
 
-			this.refresh_focused_spawners();
-			this.redraw_q_canvas();
+				this.refresh_focused_spawners();
+				this.redraw_q_canvas();
+			})();
 		}
 
 		this.drag.clicked_el = null;
