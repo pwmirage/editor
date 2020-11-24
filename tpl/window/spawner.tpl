@@ -14,10 +14,10 @@
 	{if !$spawner.is_npc || $spawner.groups?.length != 1}
 		<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
 			<span>Count:</span>
-			<input type="number" data-link="{serialize $win.group} => 'count'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
+			<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'count'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
 			<div style="flex: 1"></div>
 			{if $spawner._db.type.startsWith("spawners_") && !$spawner.is_npc}
-				<label><input type="checkbox" data-link="{serialize $win.group} => 'aggro'" class="checkbox"><span>Is Aggressive</span></label>
+				<label><input type="checkbox" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'aggro'" class="checkbox"><span>Is Aggressive</span></label>
 			{/if}
 		</div>
 	{/if}

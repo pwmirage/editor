@@ -15,7 +15,7 @@ class SpawnerGroupWindow extends PopupWindow {
 		this.tpl = new Template('tpl-spawner-group-info');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = this.tpl.run({ win: this, group: this.group, spawner: this.spawner });
+		const data = this.tpl.run({ win: this, group: this.group, group_idx: this.args.group_idx, spawner: this.spawner });
 		shadow.append(data);
 
 		return super.init();
@@ -82,7 +82,7 @@ class SpawnerWindow extends Window {
 	info_group(el, idx) {
 		if (!el._mg_group) {
 			const group = this.spawner.groups[idx];
-			el._mg_group = SpawnerGroupWindow.open({ parent: this, spawner: this.spawner, group });
+			el._mg_group = SpawnerGroupWindow.open({ parent: this, spawner: this.spawner, group, group_idx: idx });
 			(async () => {
 				const win = await el._mg_group;
 				win.move(0, 0);
