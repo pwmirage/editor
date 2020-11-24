@@ -14,7 +14,6 @@
 	<center><a class="button" id="close_btn" style="margin-top: 10px;">Close</a></center>
 </div>
 
-TEMPLATE_END
 <style>
 </style>
 
