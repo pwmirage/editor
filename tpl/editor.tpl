@@ -11,6 +11,9 @@
 	<div id="pw-windows">
 		<div id="pw-map-pos-label"></div>
 		<i id="open-legend" style="display: none;" title="Map legend"></i>
+		<div id="select-menu" style="display: none;">
+			<span class="count">4</span> spawners
+		</div>
 	</div>
 </div>
 
@@ -134,6 +137,24 @@
 	background-color: rgba(156, 120, 120, 1);
 	color: rgba(255, 255, 255, 1);
 	text-decoration: none;
+}
+
+#select-menu {
+	display: block;
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+	background-color: rgba(207, 69, 69, 1);
+	color: rgba(255, 255, 255, 1);
+	text-transform: uppercase;
+	cursor: pointer;
+	padding: 8px 18px;
+	user-select: none;
+	border-radius: 2px;
+}
+
+#select-menu:hover {
+	background-color: rgba(172, 56, 56, 1);
 }
 
 .window {

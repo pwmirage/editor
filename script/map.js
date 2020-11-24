@@ -221,7 +221,8 @@ class PWMap {
 
 		});
 
-		const q_canvas = this.q_canvas = this.shadow.querySelector('#quick-canvas');
+		this.q_canvas = this.shadow.querySelector('#quick-canvas');
+		this.select_menu = this.shadow.querySelector('#select-menu');
 
 		for (const m in PWMap.maps) {
 			db.load_map(m);
@@ -486,10 +487,15 @@ class PWMap {
 			};
 			const sel_spawners = db['spawners_' + this.maptype.id].filter(filter);
 			const sel_resources = db['resources_' + this.maptype.id].filter(filter);
+
 			for (const s of [...sel_spawners, ...sel_resources]) {
 
 				this.selected_spawners.add(s);
 			}
+
+			this.select_menu.querySelector('.count').textContent = this.selected_spawners.size;
+			this.select_menu.style.display = this.selected_spawners.size ? 'block' : 'none';
+
 			this.refresh_focused_spawners();
 			this.redraw_q_canvas();
 		}
