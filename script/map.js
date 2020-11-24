@@ -493,17 +493,23 @@ class PWMap {
 
 			const point_tl = { x: Math.min(point_as.x, point_bs.x), y: Math.min(point_as.y, point_bs.y) };
 			const point_br = { x: Math.max(point_as.x, point_bs.x), y: Math.max(point_as.y, point_bs.y) };
+			const area = (point_br.x - point_tl.x) * (point_br.y - point_tl.y);
 
-			const filter = (s) => {
-				return s.pos[0] >= point_tl.x && s.pos[0] <= point_br.x &&
-					s.pos[2] >= point_tl.y && s.pos[2] <= point_br.y;
-			};
-			const sel_spawners = db['spawners_' + this.maptype.id].filter(filter);
-			const sel_resources = db['resources_' + this.maptype.id].filter(filter);
+			if (area <= 4 && this.hovered_spawner) {
+				/* this spawner was simply left-clicked */
+				this.selected_spawners.add(this.hovered_spawner);
+			} else {
+				const filter = (s) => {
+					return s.pos[0] >= point_tl.x && s.pos[0] <= point_br.x &&
+						s.pos[2] >= point_tl.y && s.pos[2] <= point_br.y;
+				};
+				const sel_spawners = db['spawners_' + this.maptype.id].filter(filter);
+				const sel_resources = db['resources_' + this.maptype.id].filter(filter);
 
-			for (const s of [...sel_spawners, ...sel_resources]) {
+				for (const s of [...sel_spawners, ...sel_resources]) {
 
-				this.selected_spawners.add(s);
+					this.selected_spawners.add(s);
+				}
 			}
 
 			this.select_menu.querySelector('.count').textContent = this.selected_spawners.size;
