@@ -56,36 +56,39 @@
 				let prev_files = new Array(watch_files.length);
 
 				const fn = async () => {
-					if (document.querySelector("#refreshCheck").checked) {
-						const new_files = await Promise.all(watch_files.map(f => get(f).then(r => r.data)));
-						let modified = false;
-						for (let i = 0; i < prev_files.length; i++) {
-							if (prev_files[i] != new_files[i]) {
-								modified = true;
-								break;
+					try {
+						if (document.querySelector("#refreshCheck").checked) {
+							const new_files = await Promise.all(watch_files.map(f => get(f).then(r => r.data)));
+							let modified = false;
+							for (let i = 0; i < prev_files.length; i++) {
+								if (prev_files[i] != new_files[i]) {
+									modified = true;
+									break;
+								}
+							}
+
+							if (modified) {
+								prev_files = new_files;
+
+								const prev_win = g_win;
+								const cls_name = g_params.class;
+								await load_tpl(ROOT_URL + 'tpl/window/' + win_name + '.tpl');
+								const cls = eval(cls_name);
+								const spawner = db.spawners_gs01[12920];
+								g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109],
+										goods: db.npc_sells[2241], item: db.items[40], x: win_name == 'rmenu' ? 100 : 0, y: win_name == 'rmenu' ? 100 : 0, edit: true,
+										entries: [ { id: 0, name: 'First', children: [ { id: 1, name: 'NPC' } ] }, { id: 1, name: 'Second' }] });
+								if (prev_win) {
+									await sleep(150);
+									g_win.dom.style.visibility = 'visible';
+									await prev_win.close();
+								}
 							}
 						}
-
-						if (modified) {
-							prev_files = new_files;
-
-							const prev_win = g_win;
-							const cls_name = g_params.class;
-							await load_tpl(ROOT_URL + 'tpl/window/' + win_name + '.tpl');
-							const cls = eval(cls_name);
-							const spawner = db.spawners_gs01[12920];
-							g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109],
-									goods: db.npc_sells[2241], item: db.items[40], x: win_name == 'rmenu' ? 100 : 0, y: win_name == 'rmenu' ? 100 : 0, edit: true,
-									entries: [ { id: 0, name: 'First', children: [ { id: 1, name: 'NPC' } ] }, { id: 1, name: 'Second' }] });
-							if (prev_win) {
-								await sleep(150);
-								g_win.dom.style.visibility = 'visible';
-								await prev_win.close();
-							}
-						}
+					} finally {
+						setTimeout(fn, 3000);
 					}
 
-					setTimeout(fn, 3000);
 				};
 
 				await fn();
