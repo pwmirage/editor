@@ -28,57 +28,17 @@ const is_empty = (obj) => {
 	return Object.keys(obj).length == 0;
 }
 
-const css_essentials = `
-.window {
-	position: relative;
-	vertical-align: top;
-	border: 1px solid #e0e0e0;
-	display: inline-block;
-	background-color: #f1ecec;
-}
-
-.window.loading {
-	width: 280px;
-	height: 261px;
-	overflow: hidden;
-}
-.window.loading > * {
-	visibility: hidden;
-}
-
-@keyframes spinner {
-	to { transform: rotate(360deg); }
-}
-
-.window.loading:before {
-	content: '';
-	visibility: visible;
-	box-sizing: border-box;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 20px;
-	height: 20px;
-	margin-top: -10px;
-	margin-left: -10px;
-	border-radius: 50%;
-	border-top: 2px solid #07d;
-	border-right: 2px solid transparent;
-	animation: spinner .6s linear infinite;
-}
-`;
-
 class PreviewElement extends HTMLElement {
 	constructor(element_name) {
 		super();
-		const shadow = this.attachShadow({mode: 'open'});
-		const link = newStyle();
-		const style = document.createElement('style');
-		style.textContent = css_essentials;
-		shadow.append(style);
-		shadow.append(newStyle(ROOT_URL + 'css/preview/common.css?v=' + VERSION));
-		shadow.append(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-		this.tpl = compile_tpl(element_name);
+		this.shadow = this.attachShadow({mode: 'open'});
+
+		this.styles = [];
+		this.styles.push(newStyle(ROOT_URL + 'css/window.css'));
+		this.styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+
+		this.shadow.append(...styles);
+		this.tpl = new Template(element_name);
 	}
 
 	load_promises = [];
@@ -107,7 +67,7 @@ class PreviewElement extends HTMLElement {
 		if (!this.initialized) {
 			this.initialized = 1;
 			const postInit = async () => {
-				await Promise.all(this.load_promises);
+				await Promise.all(this.styles.map((s) => new Promise((resolve) => { s.onload = resolve; })));
 				this.shadowRoot.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 				this.shadowRoot.querySelectorAll('.window.loading').forEach(w => {
 					w.classList.remove('loading');
@@ -135,7 +95,7 @@ class PreviewElement extends HTMLElement {
 class RecipeTooltip extends PreviewElement {
 	constructor() {
 		super('pw-recipe-tooltip');
-		this.addStyle(ROOT_URL + 'css/preview/pw-recipe-tooltip.css?v=' + VERSION);
+		this.styles.push(newStyle(ROOT_URL + 'css/preview/pw-recipe-tooltip.css'));
 	}
 
 	init() {
