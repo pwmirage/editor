@@ -16,7 +16,7 @@ const g_db_meta = {
 
 class PWDB {
 	static async find_usages(obj) {
-		const usages = [];
+		let usages = [];
 
 		if (!obj) {
 			return usages;
@@ -33,6 +33,8 @@ class PWDB {
 					}
 				}
 			}
+		} else if (obj._db.type == 'npc_sells') {
+			usages = db.npcs.filter(n => n.id_sell_service == obj.id);
 		}
 
 		return usages;

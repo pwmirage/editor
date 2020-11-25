@@ -723,4 +723,32 @@ class HTMLSugar {
 		}
 	}
 
+	static show_item_tooltip(item_win, el) {
+		const info = item_win?.dom;
+		if (!info) {
+			/* still loading */
+			return;
+		}
+
+		if (el == item_win.hover_el) {
+			/* no change */
+			return;
+		}
+
+		item_win.hover_el = el;
+		if (!el) {
+			info.style.display = 'none';
+			return;
+		}
+
+		const id = parseInt(el.dataset.id);
+		if (!id) {
+			info.style.display = 'none';
+			return;
+		}
+
+		const item = db.items[id] || { id };
+		const item_bounds = el.getBoundingClientRect();
+		item_win.tooltip_over(item, item_bounds);
+	}
 }
