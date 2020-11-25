@@ -21,6 +21,13 @@ class Window {
 		this.dragOffset = { x: 0, y: 0 };
 		this.resizeOffset = { x: 0, y: 0 };
 		this.margins = { x: 0, y: 0 };
+
+		const styles = [];
+		styles.push(newStyle(ROOT_URL + 'css/window.css'));
+		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+
+		this.style_promises = styles.map((s) => new Promise((resolve) => { s.onload = resolve; }));
+		this.shadow.append(...styles);
 	}
 
 	async init() {
@@ -40,14 +47,8 @@ class Window {
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
 
-		const styles = [];
-		styles.push(newStyle(ROOT_URL + 'css/window.css'));
-		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+		await Promise.all(this.style_promises);
 
-		const style_promises = styles.map((s) => new Promise((resolve) => { s.onload = resolve; }));
-		await Promise.all(style_promises);
-
-		this.shadow.append(...styles);
 		this.focus();
 		this.move(this.args.x ?? 10, this.args.y ?? 10);
 
