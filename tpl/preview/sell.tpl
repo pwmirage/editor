@@ -1,3 +1,42 @@
+<script id="pw-goods-list" type="text/x-dot-template">
+<div class="window loading">
+	{assign prev = $npc_goods._db.prev || {\}}
+	<div class="header">
+		<div>
+			{if $prev.id == -1}
+				<p class="data diff-plus">(New) NPC Goods: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>
+			{else}
+				<p class="data">NPC Goods: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>
+				{if $prev.name}<p class="prev">NPC Goods: {@$npc_goods.name || "(unnamed)"} #{@$npc_goods.id}</p>{/if}
+			{/if}
+		</div>
+		{if $npc_goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$npc_goods._db.refs.length})</span>{/if}
+	</div>
+	<div class="content">
+		<div id="tabs">
+			{for i = 0; i < 8; i++}
+				{assign tab = $npc_goods.tabs[i]}
+				{assign prev_tab = $prev.tabs ? $prev.tabs[i] : null}
+				<span class="tab" data-idx="{@$i}" onclick="{@@$this}.setTab({@$i});">
+					{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
+					{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
+				</span>
+			{/foreach}
+		</div>
+
+		<div id="items" class="item-container">
+			{for i = 0; i < 32; i++}
+				<div style="position: relative;">
+					<pw-item data-idx="{@$i}"></pw-item>
+					<pw-itemdata-idx="{@$i}" class="mini-item"></pw-item>
+				</div>
+			{/for}
+		</div>
+	</div>
+</div>
+
+{@@
+<style>
 .window {
 	width: 280px;
 }
@@ -92,9 +131,11 @@ pw-item.mini-item.force-visible[pw-id="0"]:after {
 	box-shadow: 0px 0px 10px 2px white;
 }
 
-::after {}
-
 .item {
 	position: relative;
 	margin: 1px;
 }
+</style>
+@@}
+</script>
+
