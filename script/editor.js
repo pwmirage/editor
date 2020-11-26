@@ -11,7 +11,6 @@ class Editor {
 	static navbar = null;
 
 	static async load() {
-		await Loading.init();
 		console.log('Editor loading');
 
 //  const timestamp = 0;
@@ -21,12 +20,9 @@ class Editor {
 		document.body.classList.add('mge-fullscreen');
 
 		await Promise.all([
-			load_script(ROOT_URL + 'script/db.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/navbar.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
 		]);
 
@@ -45,10 +41,6 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/history.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
-
-		const tag = Loading.show_tag('Loading item icons');
-		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
-		Loading.hide_tag(tag);
 
 		const tag_p = Loading.show_tag('Processing item icons');
 		/* don't await icon processing */
@@ -80,30 +72,22 @@ class Editor {
 
 	}
 
-	static async open({id}) {
-		await Loading.init_promise;
-		Loading.show_curtain();
-
-		{
-			if (!Editor.loaded) {
-				await Editor.load();
-				Editor.loaded = true;
-			}
-
-			console.log('Editor open');
-			if (g_map) {
-				g_map.close();
-			}
-
-			if (navigator.userAgent.indexOf("Chrome") == -1){
-				const win = await UnsupportedBrowserWindow.open({ });
-			} else {
-				const win = await MapChooserWindow.open({ });
-			}
+	static async open(args) {
+		if (!Editor.loaded) {
+			await Editor.load();
+			Editor.loaded = true;
 		}
 
-		//await sleep(500);
-		Loading.hide_curtain();
+		console.log('Editor open');
+		if (g_map) {
+			g_map.close();
+		}
+
+		if (navigator.userAgent.indexOf("Chrome") == -1){
+			const win = await UnsupportedBrowserWindow.open({ });
+		} else {
+			const win = await MapChooserWindow.open({ });
+		}
 	}
 
 	static close() {

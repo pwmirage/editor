@@ -9,13 +9,7 @@ const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
 let MG_VERSION = '0';
 
-let g_last_body_el = null;
-
-let g_main_initialized = false;
 const mg_init = async () => {
-	if (g_main_initialized) return;
-	g_main_initialized = true;
-
 	/* check authentication first */
 	await Promise.all([
 		fetch(ROOT_URL + 'version.php', { is_json: 1 }).then(async (r) => {
@@ -25,11 +19,10 @@ const mg_init = async () => {
 	]);
 
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION);
 
-	await Promise.all([
-		load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
-		load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION)
-	]);
+	await PWPreview.load_promise;
 };
 
 const load_script = (src) => {
@@ -44,6 +37,7 @@ const load_script = (src) => {
 	});
 }
 
+let g_last_body_el = null;
 const load_tpl = async (src) => {
 	const file = await get(src);
 	if (!file.ok) {
@@ -56,5 +50,22 @@ const load_tpl = async (src) => {
 	g_last_body_el.insertAdjacentHTML('afterend', file.data);
 }
 
+let g_mg_editor_open = false;
+const mg_open_editor = async (args) => {
+	if (g_mg_editor_open) return;
+	g_mg_editor_open = true;
 
-const g_loaded = mg_init();
+	try {
+		await g_mg_loaded;
+		Loading.show_curtain();
+		document.body.classList.add('mge-fullscreen');
+		await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
+		await Editor.open(args);
+		Loading.hide_curtain();
+	} finally {
+		g_mg_editor_open = false;
+	}
+}
+
+
+const g_mg_loaded = mg_init();

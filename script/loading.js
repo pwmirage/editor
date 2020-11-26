@@ -1,28 +1,18 @@
 class Loading {
 	static labels = null;
-	static init_promise = null;
 	static tpl = null;
 	static shadow = null;
 	static next_cleanup_time = 0;
 
-	static init() {
-		if (Loading.init_promise) {
-			return Loading.init_promise;
-		}
+	static async init() {
+		Loading.tpl = await get(ROOT_URL + 'tpl/loading.tpl');
 
-		Loading.init_promise = (async () => {
-			Loading.tpl = await get(ROOT_URL + 'tpl/loading.tpl', 'tpl-loading');
+		const el = newElement('<div class="loading"></div>');
+		const shadow = el.attachShadow({mode: 'open'});
+		shadow.append(...newArrElements(Loading.tpl.data));
+		document.querySelector('#mgeArea').append(el);
 
-			const el = newElement('<div class="loading"></div>');
-			const shadow = el.attachShadow({mode: 'open'});
-			shadow.append(...newArrElements(Loading.tpl.data));
-			document.querySelector('#mgeArea').append(el);
-
-			Loading.shadow = shadow;
-
-		})();
-
-		return Loading.init_promise;
+		Loading.shadow = shadow;
 	}
 
 	static show_curtain() {
