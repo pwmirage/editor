@@ -147,14 +147,13 @@ class Item {
 		const icon_count = width * height;
 		let index = 0;
 
-		/* generate them in async chunks not to block the main thread */
 		while (index < icon_count) {
-			await new Promise((resolve) => setTimeout(() => {
-				for (let i = 0; i < 32; i++) {
-					Item.get_icon(index++);
-				}
-				resolve();
-			}, 10));
+			for (let i = 0; i < 32; i++) {
+				Item.get_icon(index++);
+			}
+
+			/* don't block the main thread */
+			await new Promise((res) => setTimeout(res, 10));
 		}
 
 		if (Item.iconset_cache) {
@@ -173,4 +172,3 @@ class Item {
 		}
 	}
 }
-
