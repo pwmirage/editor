@@ -45,8 +45,6 @@ class Item {
 		{ id: 38, name: 'Dye' }
 	];
 
-
-
 	static typeid(name) {
 		name = name.toLowerCase();
 		return Item.types.find((t) => t.name.toLowerCase().includes(name))?.id || -1;
@@ -102,8 +100,6 @@ class Item {
 		} else {
 			Item.gen_promise = Promise.resolve();
 		}
-
-		customElements.define('pw-item', HTMLPWItem);
 	}
 
 	static get_icon(index) {
@@ -175,40 +171,6 @@ class Item {
 		} else if (name.startsWith('☆')) {
 			return 'blue';
 		}
-	}
-}
-
-class HTMLPWItem extends HTMLElement {
-	constructor() {
-		super();
-	}
-
-	static get observedAttributes() { return ['pw-icon']; }
-
-	attributeChangedCallback(name, old_val, val) {
-		switch (name) {
-			case 'pw-icon': {
-				if (val == -1) {
-					this.style.backgroundImage = '';
-					const prev = this.querySelector('img');
-					if (prev) prev.remove();
-					return;
-				}
-
-				const prev = this.querySelector('img');
-				const img = document.createElement('img');
-				this.appendChild(img);
-				img.onload = () => {
-					img.style.opacity = 1;
-					if (prev) prev.remove();
-				};
-
-				img.src = Item.get_icon(val);
-			}
-		}
-	}
-	connectedCallback() {
-		this.classList.add('pwitem');
 	}
 }
 
