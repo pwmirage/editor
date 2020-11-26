@@ -1,3 +1,11 @@
+<script id="pw-diff-preview" type="text/x-jstemplate">
+<div id="container">
+	<div id="menu"></div>
+	<div id="element"></div>
+</div>
+
+{@@
+<style>
 :host {
 	display: block;
 	position: static;
@@ -48,3 +56,6 @@
 #menu div.more.expanded > div {
 	max-height: 30px;
 }
+</style>
+@@}
+</script>

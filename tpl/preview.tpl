@@ -340,9 +340,3 @@
 	</div>
 </script>
 
-<script id="pw-diff" type="text/x-dot-template">
-	<div id="container">
-		<div id="menu"></div>
-		<div id="element"></div>
-	</div>
-</script>
