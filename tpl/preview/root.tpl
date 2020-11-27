@@ -1,9 +1,18 @@
-<script id="pw-diff-preview" type="text/x-jstemplate">
+<script id="pw-preview-root" type="text/x-jstemplate">
 <div id="container">
 	<div id="menu">
-		{for tab of $preview.tabs}
-			<div onclick="{serialize $preview}.select_tab('{@$tab.id}');">
-				<p>{@$tab.name}</p>
+		{for i = 0; i < $preview.tabs.length; i++}
+			{assign tab = $preview.tabs[$i]}
+			<div onclick="{serialize $preview}.select_tab('{@$i}');">
+				{assign tabnames = \{
+					npcs: 'NPC',
+					npc_spawns: 'Spawner',
+					npc_recipes: 'NPC Recipes',
+					npc_goods: 'NPC Goods',
+					recipes: 'Recipes',
+					items: 'Items',
+				\}}
+				<p>{@$i + 1}. {@$tabnames[$tab.type] || $tab.type}</p>
 			</div>
 		{/for}
 		{if $preview.tabs.length == 0}
@@ -28,6 +37,8 @@
 }
 
 #menu {
+	overflow-y: auto;
+	overflow-x: hidden;
 	border: 1px solid #b47a63;
 	height: fit-content;
 }

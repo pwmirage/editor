@@ -18,137 +18,70 @@ class PWPreview {
 		customElements.define('pw-diff', PWPreviewElement);
 	}
 
+	static is_empty(obj) {
+		if (!obj) return true;
+		if (typeof obj === 'object' && Array.isArray(obj)) {
+			if (obj.length == 0) return true;
+			if (obj.every(i => i === null)) return true;
+			return false;
+		}
+		return Object.keys(obj).length == 0;
+	}
+
+	static is_modified(obj, path) {
+		if (typeof(path) == 'string') {
+			path = [ path ];
+		}
+
+		if (!obj._db.prev) {
+			return false;
+		}
+
+		let p = obj._db.prev;
+		for (const c of path) {
+			if (!(c in p)) {
+				return false;
+			}
+			p = p[c];
+		}
+
+		return p !== null;
+	}
+
 	static load_promise;
 }
 
-class ShadowElement {
-	constructor(db) {
-		this.db = db;
+class PWPreviewShadowElement {
+	constructor(root) {
+		this.root = root;
+		this.db = this.root.db;
 		this.dom = document.createElement('div');
 		this.dom._el = this;
 		this.shadow = this.dom.attachShadow({mode: 'open'});
 
-		this.styles = [];
-		this.styles.push(newStyle(ROOT_URL + 'css/window.css'));
-		this.styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
+		const styles = [];
+		styles.push(newStyle(ROOT_URL + 'css/preview.css'));
+		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 
-		this.shadow.append(...this.styles);
-	}
-
-	load_styles() {
-		return Promise.all(this.styles.map((s) => new Promise((resolve) => { s.onload = resolve; })));
+		this.style_promises = Promise.all(styles.map((s) => new Promise((resolve) => { s.onload = resolve; })));
+		this.shadow.append(...styles);
 	}
 }
 
 class PWPreviewElement extends HTMLElement {
-	constructor(element_name) {
+	constructor() {
 		super();
 
 		this.shadow = this.attachShadow({mode: 'open'});
 
 		const styles = [];
-		styles.push(newStyle(ROOT_URL + 'css/window.css'));
+		styles.push(newStyle(ROOT_URL + 'css/preview.css'));
 		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 
 		this.style_promises = styles.map((s) => new Promise((resolve) => { s.onload = resolve; }));
 		this.shadow.append(...styles);
 
-		this.tpl = new Template('pw-diff-preview');
-	}
-
-	async connectedCallback() {
-
-		const el_types = {
-			npcs: { type: 'pw-npc', title: 'NPC' },
-			npc_spawns: { type: 'pw-npc-spawn', title: 'NPC Spawner' },
-			npc_recipes: { type: 'pw-recipe-list', title: 'NPC Crafts' },
-			npc_goods: { type: 'pw-goods-list', title: 'NPC Goods' },
-			items: { type: 'pw-item-list', title: 'Items' },
-		};
-
-		let cur_cnt = 0;
-		const max_cnt = this.dataset.maxItems || 99999;
-		const menu_el = shadow.querySelector('#menu');
-		const pw_container = shadow.querySelector('#element');
-
-		let items_queued = [];
-		let items_tab = null;
-		let parent_container = menu_el;
-		for (const arr in this.db) {
-			if (arr === 'metadata') continue;
-			const el_type = el_types[arr];
-			if (!el_type) continue;
-			for (const obj of this.db[arr]) {
-				if (arr == 'items') {
-					if (!obj._db.prev) continue;
-					if (items_queued.length < 32) {
-						items_queued.push(obj);
-						if (items_tab) {
-							continue;
-						}
-					}
-				}
-
-				if (cur_cnt == max_cnt) {
-					const tab_el = document.createElement('div')
-					tab_el.className = 'disabled more';
-
-					menu_el.append(tab_el);
-					parent_container = tab_el;
-				}
-				cur_cnt++;
-
-				const tab_el = document.createElement('div');
-				const p = document.createElement('p');
-				p.textContent = cur_cnt + '. ' + el_type.title;
-				tab_el.append(p);
-
-				if (arr == 'items') {
-					items_tab = tab_el;
-					if (items_queued.length == 32) {
-						items_queued = [obj];
-					}
-					tab_el.items = items_queued;
-				}
-
-				p.onclick = () => {
-					const selected = menu_el.querySelector('.selected');
-					if (selected == tab_el) {
-						/* nothing to do */
-						return;
-					}
-
-					const prev_el = pw_container.children[0];
-					if (selected) selected.classList.remove('selected');
-					tab_el.classList.add('selected');
-
-					if (!tab_el.pwElement) {
-						const pw_el = document.createElement(el_type.type);
-						if (tab_el.items) pw_el.items = tab_el.items;
-						pw_el.obj = obj;
-						pw_el.db = this.db;
-						tab_el.pwElement = pw_el;
-					}
-
-					if (prev_el) {
-						tab_el.pwElement.style.display = 'none';
-						const reload_tab = () => {
-							try {
-								pw_container.removeChild(prev_el);
-								tab_el.pwElement.style.display = 'block';
-								tab_el.pwElement.onload = null;
-							} catch (e) {
-								setTimeout(reload_tab, 20);
-							}
-						};
-						tab_el.pwElement.onload = reload_tab;
-					}
-					pw_container.appendChild(tab_el.pwElement);
-				};
-
-				parent_container.append(tab_el);
-			}
-		}
+		this.tpl = new Template('pw-preview-root');
 	}
 
 	async connectedCallback() {
@@ -160,28 +93,19 @@ class PWPreviewElement extends HTMLElement {
 		if (!req.ok) return;
 		this.db = req.data;
 
-		const tabtypes = {
-			npcs: 'NPC',
-			spawners: 'Spawner',
-			npc_recipes: 'NPC Recipes',
-			npc_goods: 'NPC Goods',
-			recipes: 'Recipes',
-			items: 'Items',
-		};
-
 		this.tabs = [];
 		let count = 0;
 		for (const arr_name in this.db) {
-			const arr_type = tabtypes[arr_name];
-			if (!arr_type) {
+			this.db[arr_name] = init_id_array(this.db[arr_name]);
+			if (arr_name == 'metadata') {
 				continue;
 			}
 
 			for (const obj of this.db[arr_name]) {
-				this.tabs.push({ id: arr_type, name: ++count + '. ' + arr_type });
+				this.tabs.push({ obj: obj, type: arr_name });
 			}
 		}
-		
+
 		await Promise.all([
 			this.style_promises,
 			load_tpl(ROOT_URL + 'tpl/preview/root.tpl'),
@@ -190,7 +114,7 @@ class PWPreviewElement extends HTMLElement {
 		const data = await this.tpl.run({ preview: this, db: this.db });
 		this.shadow.append(data);
 
-	//	this.shadow.querySelector('#menu > div').click();
+		await this.select_tab(0);
 
 		this.shadow.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 		this.shadow.querySelectorAll('.window.loading').forEach(w => {
@@ -198,6 +122,77 @@ class PWPreviewElement extends HTMLElement {
 		});
 
 		this.classList.add('loaded');
+	}
+
+	select_tab(id) {
+		const tab = this.tabs[id];
+
+		const el = this.shadow.querySelector('#element');
+		while (el.firstChild) {
+			el.firstChild.remove();
+		}
+
+		let win;
+		switch(tab.obj._db.type) {
+			case 'npc_goods': {
+				win = new PWPreviewNPCSells(this, tab.obj);
+				break;
+			}
+			default:
+				break;
+		}
+
+		if (win) {
+			el.append(win.dom);
+			return new Promise(async (resolve) => {
+				await win.init();
+				win.shadow.querySelector('.window').classList.remove('loading');
+				resolve();
+			});
+		}
+
+	}
+}
+
+class PWPreviewNPCSells extends PWPreviewShadowElement {
+	constructor(root, obj) {
+		super(root);
+		this.obj = obj;
+		this.tpl = new Template('pw-preview-sells');
+	}
+
+	async init() {
+		/* clean up some tabs so they don't appear as clickable */
+		for (let idx = 0; idx < 8; idx++) {
+			if (this.obj.tabs[idx] && !this.obj.tabs[idx].title && PWPreview.is_empty(this.obj.tabs[idx].items)) {
+				this.obj.tabs[idx] = null;
+			}
+		}
+
+		await load_tpl(ROOT_URL + 'tpl/preview/sell.tpl');
+		const data = await this.tpl.run({ win: this, db: this.db, goods: this.obj });
+		this.shadow.append(data);
+	}
+
+	is_tab_modified(idx) {
+		if (PWPreview.is_modified(this.obj, [ 'tabs', idx ])) {
+			return true;
+		}
+
+		for (const item_id of (this.obj?.tabs?.[idx]?.items || [])) {
+			const item = this.db.items[item_id];
+			if (!item) return true;
+			if (PWPreview.is_modified(item, [])) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	async set_tab(tab_el, idx) {
+		const tab = this.obj
+
 	}
 }
 
