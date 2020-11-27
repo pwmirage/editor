@@ -152,6 +152,15 @@ class PWPreviewElement extends HTMLElement {
 		}
 
 	}
+
+	get_item_icon(itemid) {
+		if (!itemid) {
+			return (ROOT_URL + 'img/itemslot.png');
+		}
+
+		return Item.get_icon(this.db.items[itemid]?.icon || 0);
+	}
+
 }
 
 class PWPreviewNPCSells extends PWPreviewShadowElement {
@@ -169,8 +178,10 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 			}
 		}
 
+		this.selected_tab = 0;
+
 		await load_tpl(ROOT_URL + 'tpl/preview/sell.tpl');
-		const data = await this.tpl.run({ win: this, db: this.db, goods: this.obj });
+		const data = await this.tpl.run({ preview: this.root, win: this, db: this.db, goods: this.obj });
 		this.shadow.append(data);
 	}
 
@@ -190,9 +201,17 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 		return false;
 	}
 
-	async set_tab(tab_el, idx) {
+	async select_tab(tab_el, idx) {
 		const tab = this.obj
+		this.selected_tab = idx;
+		this.tpl.reload('#items');
 
+		const prev_tab = this.shadow.querySelector('.tab.selected');
+		if (prev_tab) {
+			prev_tab.classList.remove('selected');
+		}
+
+		tab_el.classList.add('selected');
 	}
 }
 
