@@ -28,193 +28,7 @@ const is_empty = (obj) => {
 	return Object.keys(obj).length == 0;
 }
 
-class ShadowElement {
-	constructor(db) {
-		this.db = db;
-		this.dom = document.createElement('div');
-		this.dom._el = this;
-		this.shadow = this.dom.attachShadow({mode: 'open'});
-
-		this.styles = [];
-		this.styles.push(newStyle(ROOT_URL + 'css/window.css'));
-		this.styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-
-		this.shadow.append(...this.styles);
-	}
-
-	load_styles() {
-		return Promise.all(styles.map((s) => new Promise((resolve) => { s.onload = resolve; })));
-	}
-}
-
-class PWPreviewElement extends HTMLElement {
-	constructor(element_name) {
-		super();
-
-		/* cant inherit two classes, copy ShadowElement code below */
-		this.dom = document.createElement('div');
-		this.dom._el = this;
-		this.shadow = this.dom.attachShadow({mode: 'open'});
-
-		this.styles = [];
-		this.styles.push(newStyle(ROOT_URL + 'css/window.css'));
-		this.styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
-
-		this.shadow.append(...this.styles);
-
-		this.tpl = new Template('pw-diff');
-	}
-
-	load_styles() {
-		return Promise.all(styles.map((s) => new Promise((resolve) => { s.onload = resolve; })));
-	}
-
-	async init() {
-		this.db = db; /* TODO */
-		if (!this.project) {
-			this.project = this.dataset.project || "";
-		}
-
-		const req = await get(ROOT_URL + 'get_preview.php?' + this.project, { is_json: true });
-		if (!req.ok) return;
-		this.db = req.data;
-		
-		await load_styles();
-
-		const data = await this.tpl.run({ preview: this, db: this.db });
-		this.shadow.append(data);
-
-		const el_types = {
-			npcs: { type: 'pw-npc', title: 'NPC' },
-			npc_spawns: { type: 'pw-npc-spawn', title: 'NPC Spawner' },
-			npc_recipes: { type: 'pw-recipe-list', title: 'NPC Crafts' },
-			npc_goods: { type: 'pw-goods-list', title: 'NPC Goods' },
-			items: { type: 'pw-item-list', title: 'Items' },
-		};
-
-		let cur_cnt = 0;
-		const max_cnt = this.dataset.maxItems || 99999;
-		const menu_el = shadow.querySelector('#menu');
-		const pw_container = shadow.querySelector('#element');
-
-		let items_queued = [];
-		let items_tab = null;
-		let parent_container = menu_el;
-		for (const arr in this.db) {
-			if (arr === 'metadata') continue;
-			const el_type = el_types[arr];
-			if (!el_type) continue;
-			for (const obj of this.db[arr]) {
-				if (arr == 'items') {
-					if (!obj._db.prev) continue;
-					if (items_queued.length < 32) {
-						items_queued.push(obj);
-						if (items_tab) {
-							continue;
-						}
-					}
-				}
-
-				if (cur_cnt == max_cnt) {
-					const tab_el = document.createElement('div')
-					tab_el.className = 'disabled more';
-
-					menu_el.append(tab_el);
-					parent_container = tab_el;
-				}
-				cur_cnt++;
-
-				const tab_el = document.createElement('div');
-				const p = document.createElement('p');
-				p.textContent = cur_cnt + '. ' + el_type.title;
-				tab_el.append(p);
-
-				if (arr == 'items') {
-					items_tab = tab_el;
-					if (items_queued.length == 32) {
-						items_queued = [obj];
-					}
-					tab_el.items = items_queued;
-				}
-
-				p.onclick = () => {
-					const selected = menu_el.querySelector('.selected');
-					if (selected == tab_el) {
-						/* nothing to do */
-						return;
-					}
-
-					const prev_el = pw_container.children[0];
-					if (selected) selected.classList.remove('selected');
-					tab_el.classList.add('selected');
-
-					if (!tab_el.pwElement) {
-						const pw_el = document.createElement(el_type.type);
-						if (tab_el.items) pw_el.items = tab_el.items;
-						pw_el.obj = obj;
-						pw_el.db = this.db;
-						tab_el.pwElement = pw_el;
-					}
-
-					if (prev_el) {
-						tab_el.pwElement.style.display = 'none';
-						const reload_tab = () => {
-							try {
-								pw_container.removeChild(prev_el);
-								tab_el.pwElement.style.display = 'block';
-								tab_el.pwElement.onload = null;
-							} catch (e) {
-								setTimeout(reload_tab, 20);
-							}
-						};
-						tab_el.pwElement.onload = reload_tab;
-					}
-					pw_container.appendChild(tab_el.pwElement);
-				};
-
-				parent_container.append(tab_el);
-			}
-		}
-
-		if (menu_el.children.length == 0) {
-				const tab_el = document.createElement('div')
-				tab_el.className = 'disabled';
-				const p = document.createElement('p');
-				p.textContent = 'No changes';
-				tab_el.append(p);
-
-				menu_el.append(tab_el);
-		}
-		menu_el.children[0].children[0].click();
-
-		if (cur_cnt > max_cnt) {
-			const p = document.createElement('p');
-			p.textContent = '+ ' + (cur_cnt - max_cnt) + ' more';
-			p.onclick = () => {
-				if (parent_container.classList.toggle('expanded')) {
-					p.textContent = '^ ' + (cur_cnt - max_cnt) + ' less';
-				} else {
-					p.textContent = '+ ' + (cur_cnt - max_cnt) + ' more';
-				}
-			};
-			parent_container.append(p);
-		}
-
-		this.classList.add('loaded');
-	}
-
-	connectedCallback() {
-		(async () => {
-			await this.init();
-			this.shadowRoot.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
-			this.shadowRoot.querySelectorAll('.window.loading').forEach(w => {
-				w.classList.remove('loading');
-			});
-			if (this.onload) this.onload();
-		})();
-	}
-}
-
+/*
 class RecipeTooltip {
 	async init() {
 		super.init();
@@ -281,6 +95,7 @@ class RecipeList extends PreviewElement {
 			this.obj = find_by_id(this.db.npc_recipes, this.dataset.id);
 		}
 		/* clean up some tabs so they don't appear as clickable */
+/*
 		for (let idx = 0; idx < 8; idx++) {
 			if (this.obj.tabs[idx] && !this.obj.tabs[idx].title && is_empty(this.obj.tabs[idx].recipes)) {
 				this.obj.tabs[idx] = null;
@@ -332,6 +147,7 @@ class RecipeList extends PreviewElement {
 
 			if (prev.id == -1 || is_empty(prev.tabs[idx]) || !prev.tabs[idx].recipes) {
 				/* this is a brand new tab */
+/*
 				if (this.obj.tabs[idx].recipes[r.dataset.idx]) {
 					r.setAttribute('pw-id', 0);
 					r.classList.add('force-visible');
@@ -427,7 +243,7 @@ class NPCSpawn extends PreviewElement {
 		}
 	}
 }
-
+*/
 
 class PWPreviewGoods extends ShadowElement {
 	constructor(db, goods) {
@@ -526,6 +342,7 @@ class PWPreviewGoods extends ShadowElement {
 	}
 }
 
+/*
 class ItemList extends PreviewElement {
 	constructor() {
 		super('pw-item-list');
@@ -558,13 +375,10 @@ class ItemList extends PreviewElement {
 		});
 	}
 }
+*/
 
-
-
-
-
+/* TODO */
 (async () => {
-	await on_version_ready;
 	await Promise.all([
 		((async () => {
 			const tag = show_loading_tag('Fetching preview scheme');

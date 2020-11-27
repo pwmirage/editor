@@ -1,7 +1,17 @@
 <script id="pw-diff-preview" type="text/x-jstemplate">
 <div id="container">
-	<div id="menu"></div>
-	<div id="element"></div>
+	<div id="menu">
+		{for tab of $preview.tabs}
+			<div onclick="{serialize $preview}.select_tab('{@$tab.id}');">
+				<p>{@$tab.name}</p>
+			</div>
+		{/for}
+		{if $preview.tabs.length == 0}
+			<div class="disabled"><p>No changes</p></div>
+		{/if}
+	</div>
+	<div id="element">
+	</div>
 </div>
 
 {@@
@@ -25,10 +35,13 @@
 #menu div > p {
 	display: inline-block;
 	padding: 8px;
+	margin: 0;
 	width: 100px;
 	background-color: var(--color-button-bg);
 	color: var(--color-button-fg);
 	cursor: pointer;
+	font-size: 12px;
+	font-weight: bold;
 }
 
 #menu div.selected > p {
