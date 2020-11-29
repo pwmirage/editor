@@ -11,6 +11,7 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/db.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
 		]);
 
 		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
@@ -84,6 +85,16 @@ class PWPreviewElement extends HTMLElement {
 		this.tpl = new Template('pw-preview-root');
 	}
 
+	onmousemove(e) {
+		const item = e.path?.find(el => el?.classList?.contains('item'));
+		if (!this.item_win) {
+			/* not initialized yet */
+			return;
+		}
+
+		HTMLSugar.show_item_tooltip(this.item_win, item, { db: this.db });
+	}
+
 	async connectedCallback() {
 		if (!this.dataset.project) {
 			return;
@@ -96,7 +107,7 @@ class PWPreviewElement extends HTMLElement {
 		this.tabs = [];
 		let count = 0;
 		for (const arr_name in this.db) {
-			this.db[arr_name] = init_id_array(this.db[arr_name]);
+			this.db[arr_name] = init_id_array(this.db[arr_name], db[arr_name]);
 			if (arr_name == 'metadata') {
 				continue;
 			}
@@ -105,6 +116,8 @@ class PWPreviewElement extends HTMLElement {
 				this.tabs.push({ obj: obj, type: arr_name });
 			}
 		}
+		/* fill in other arrays */
+		Object.setPrototypeOf(this.db, db);
 
 		await Promise.all([
 			this.style_promises,
@@ -117,10 +130,10 @@ class PWPreviewElement extends HTMLElement {
 		await this.select_tab(0);
 
 		this.shadow.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
-		this.shadow.querySelectorAll('.window.loading').forEach(w => {
-			w.classList.remove('loading');
-		});
 
+		this.item_win = new ItemTooltip({ parent_el: this.shadow, edit: false });
+
+		data.onmousemove = (e) => this.onmousemove(e);
 		this.classList.add('loaded');
 	}
 

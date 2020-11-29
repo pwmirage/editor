@@ -17,7 +17,7 @@
 			{for i = 0; i < 8; i++}
 				{assign tab = $goods.tabs[i]}
 				{assign prev_tab = $prev.tabs ? $prev.tabs[$i] : null}
-				<span class="tab {if $win.selected_tab== $i}selected{/if} {if $win.is_tab_modified($i)}modified{/if}" onclick="{serialize $win}.select_tab(this, {@$i});">
+				<span class="tab {if $win.selected_tab == $i}selected{/if} {if $win.is_tab_modified($i)}modified{/if}" onclick="{serialize $win}.select_tab(this, {@$i});">
 					{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
 					{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
 				</span>
@@ -28,8 +28,8 @@
 			{assign tab = $goods.tabs[$win.selected_tab]}
 			{for i = 0; i < 32; i++}
 				{assign item_id = $tab.items[$i]}
-				<span class="item" tabindex="0">
-					<img{ } src="{@$preview.get_item_icon($item_id)}" alt="">
+				<span class="item" data-id="{@$item_id}" tabindex="0">
+					<img{ } src="{@$preview.get_item_icon($item_id)}">
 				</span>
 			{/for}
 		</div>

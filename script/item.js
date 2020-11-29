@@ -54,6 +54,8 @@ class Item {
 	static iconset_cache;
 
 	static async init(iconset_url) {
+		await load_tpl(ROOT_URL + 'tpl/window/item.tpl');
+
 		let cached = await new Promise((resolve, reject) => {
 			if (!window.indexedDB) {
 				gen_all_icons();
@@ -171,4 +173,46 @@ class Item {
 			return 'blue';
 		}
 	}
+}
+
+class ItemTooltip {
+	constructor(args) {
+		this.item = args.item || { id: 0 }
+		this.edit = args.edit || false;
+		this.db = args.db || document.db;
+
+		this.tpl = new Template('tpl-item-info');
+		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
+		const data = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
+
+		this.dom = document.createElement('div');
+		this.dom.className = 'window';
+		this.shadow = this.dom.attachShadow({mode: 'open'});
+		this.shadow.append(data);
+
+		align_dom(this.shadow.querySelectorAll('.input'), 25);
+
+		if (!this.edit) {
+			this.dom.style.border = 'none';
+			this.dom.style.display = 'none';
+			this.dom.style.position = 'fixed';
+			this.dom.style.color = '#fff';
+			const tooltip = this.shadow.querySelector('#item_info');
+			tooltip.remove();
+			this.shadow.append(tooltip);
+			args.parent_el.append(this.dom);
+		}
+	}
+
+	reload(item, bounds) {
+		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
+		this.item = item;
+		const old_tooltip = this.shadow.querySelector('#item_info');
+		const newdata = this.tpl.run({ win: this, item: this.item, edit: this.edit });
+		old_tooltip.replaceWith(newdata.querySelector('#item_info'));
+		this.dom.style.display = 'block';
+		this.dom.style.left = bounds.right + 3 + 'px';
+		this.dom.style.top = bounds.top + 'px';
+	}
+
 }

@@ -25,9 +25,9 @@
 		<span class="flex-columns" style=""><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
 			<span {@$data_preview} data-select="Item.types" class="noalign" style="width: 175px;" data-link="{serialize $item} => 'type'" data-title="Change item type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 		<span style="">
-			<span {@$data_preview} data-select="db.weapon_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change weapon type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+			<span {@$data_preview} data-select="{serialize $db}.weapon_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change weapon type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 			&nbsp;-&nbsp;
-			<span {@$data_preview} data-select="db.weapon_minor_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change weapon subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+			<span {@$data_preview} data-select="{serialize $db}.weapon_minor_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change weapon subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 		</span>
 		{if $edit || $item.character_combo_id}
 			<span style="">Requisite Class <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'character_combo_id'"></span></span>
@@ -36,7 +36,7 @@
 		<div class="section flex-rows">
 			{if $edit}<span class="section-header">Base stats</span>{/if}
 			<span style="">Lv. <span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'level'"></span></span>
-			<span style="">Attack Rate(atks/sec) {@(db.weapon_minor_types[$item.minor_type]?.attack_speed)?.toFixed(2) || "(unknown)"}</span>
+			<span style="">Attack Rate(atks/sec) {@($db.weapon_minor_types[$item.minor_type]?.attack_speed)?.toFixed(2) || "(unknown)"}</span>
 			<span style="">Range <span {@$data_preview} data-input class="input-number width-5c" data-link="{serialize $item} => 'attack_range'"></span></span>
 			{if $edit || $item.damage_high}
 				<span style="">Physical Attack&nbsp;
@@ -183,7 +183,7 @@
 					{assign idx = 0}
 					{for idx = 0; idx < $item.addons.length; idx++}
 						<div class="flex-columns">
-							<span data-select="db.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'addons', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+							<span data-select="{serialize $db}.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'addons', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 							<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold; margin-left: 4px;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'addons', {@$idx}, 'prob'"></span>
 						</div>
 					{/for}
@@ -202,7 +202,7 @@
 							<span style="font-weight: bold;">... and {@$arr.length - $idx} more</span>
 							{break}
 						{/if}
-						<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+						<span><span class="addon">{@$db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
 						{$idx++}
 					{/for}
 				{/if}
@@ -220,7 +220,7 @@
 						{assign idx = 0}
 						{for idx = 0; idx < $item.rands.length; idx++}
 							<div class="flex-columns">
-								<span data-select="db.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'rands', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+								<span data-select="{serialize $db}.equipment_addons" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'rands', {@$idx}, 'id'" data-title="Choose addon for \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 								<span data-input class="input-number is_float width-4c noalign" style="font-weight: bold; margin-left: 4px;" oninput="this.style.color = '#' + calculate_middle_color('FF3300', '00FF00', Math.pow(-10 * parseFloat(this.textContent) - 0.4, -1) / 2.5 + 1)" data-link="{serialize $item} => 'rands', {@$idx}, 'prob'"></span>
 							</div>
 						{/for}
@@ -278,7 +278,7 @@
 								<span style="font-weight: bold;">... and {@$item.uniques.length - $idx} more</span>
 								{break}
 							{/if}
-							<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+							<span><span class="addon">{@$db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
 							{$idx++}
 
 						{/for}
@@ -311,7 +311,7 @@
 			{if $edit}
 				<div id="decompose" class="flex-columns" style="align-items: center; margin-top: 3px;">
 					<span style="white-space: nowrap;">Decompose to </span>
-					{assign decomp = db.items[$item.element_id || 0]}
+					{assign decomp = $db.items[$item.element_id || 0]}
 					<span class="item" ondblclick="{serialize $win}.select_decomp();" tabindex="0"><img{ } src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}"></span>
 
 					x&nbsp;<span {@$data_preview} data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'element_num'"></span>
@@ -345,7 +345,7 @@
 	{else if $item.type == Item.typeid('Armor')}
 		{* ======== ARMORS ========= *}
 		<span style="">{@$item.name} #{@$item.id}</span>
-		<span style="">Armor - {@db.armor_major_types[$item.major_type]?.name || "(unknown)"} - {@db.armor_minor_types[$item.minor_type]?.name || "(unknown)"}</span>
+		<span style="">Armor - {@$db.armor_major_types[$item.major_type]?.name || "(unknown)"} - {@$db.armor_minor_types[$item.minor_type]?.name || "(unknown)"}</span>
 		{if $item.character_combo_id != 255}<span style="">Requisite Class {@$item.character_combo_id}</span>{/if}
 		<span style="">Lv. {@$item.level}</span>
 		{if $item.defence_high}<span style="">Phys. Res.: {@$item.defence_low} - {@$item.defence_high}</span>{/if}
@@ -418,7 +418,7 @@
 				</div>
 
 				{for addon of (($item.addons?.length ? $item.addons : $item.rands) || [])}
-					<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+					<span><span class="addon">{@$db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
 
 				{/for}
 			{/if}
@@ -431,7 +431,7 @@
 				<span>Probability to have an unique addon <b>{@$sanitize_f($item.probability_unique * 100)}%</b></span>
 				{for addon of $item.uniques}
 					{if !$addon.prob}{continue}{/if}
-					<span><span class="addon">{@db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
+					<span><span class="addon">{@$db.equipment_addons[$addon.id]?.name || "(unknown #" + $addon.id + ")"}</span> ({@ $addon.prob < 0.05 ? $sanitize_f($addon.prob * 100) : Math.round($addon.prob * 1000) / 10}%)</span>
 
 				{/for}
 			{/if}
@@ -447,7 +447,7 @@
 			<div class="flex-columns">
 				<span style="">Decompose to </span>
 				<span style="flex: 1;"></span>
-				<span style="">{@db.items[$item.element_id || 0]?.name || '(unknown)'} #{@$item.element_id} x{@$item.element_num}</span>
+				<span style="">{@$db.items[$item.element_id || 0]?.name || '(unknown)'} #{@$item.element_id} x{@$item.element_num}</span>
 			</div>
 			<div class="flex-columns">
 				<span style="">Decompose time {@$item.decompose_time || 0}s</span>

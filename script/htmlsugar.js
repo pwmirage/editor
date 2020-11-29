@@ -723,7 +723,8 @@ class HTMLSugar {
 		}
 	}
 
-	static show_item_tooltip(item_win, el) {
+	static show_item_tooltip(item_win, el, params) {
+		params = params || {};
 		const info = item_win?.dom;
 		if (!info) {
 			/* still loading */
@@ -747,8 +748,9 @@ class HTMLSugar {
 			return;
 		}
 
-		const item = db.items[id] || { id };
+		params.db = params.db || document.db;
+		const item = params.db.items[id] || { id };
 		const item_bounds = el.getBoundingClientRect();
-		item_win.tooltip_over(item, item_bounds);
+		item_win.reload(item, item_bounds);
 	}
 }

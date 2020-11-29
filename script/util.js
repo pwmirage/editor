@@ -163,7 +163,7 @@ const serialize_db_id = (id) => {
 	return '#' + p + ':' + i;
 }
 
-const init_id_array = (arr) => {
+const init_id_array = (arr, fallback) => {
 	const obj_map = new Map();
 	const ret = new Proxy(obj_map, {
 		set(map, k, v) {
@@ -193,7 +193,11 @@ const init_id_array = (arr) => {
 			if (typeof map[k] === 'function') {
 				return (...args) => Reflect.apply(map[k], map, args);
 			}
-			return map.get(k);
+
+			const ret = map.get(k);
+			if (!ret) {
+				return fallback[k];
+			}
 		}
 	});
 
