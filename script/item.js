@@ -198,6 +198,7 @@ class ItemTooltip {
 			this.dom.style.position = 'fixed';
 			this.dom.style.backgroundColor = 'transparent';
 			this.dom.style.color = '#fff';
+			this.dom.onmouseenter = (e) => { this.dom.style.display = 'none'; };
 			const tooltip = this.shadow.querySelector('#item_info');
 			tooltip.remove();
 			this.shadow.append(tooltip);
