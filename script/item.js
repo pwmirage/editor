@@ -196,6 +196,7 @@ class ItemTooltip {
 			this.dom.style.border = 'none';
 			this.dom.style.display = 'none';
 			this.dom.style.position = 'fixed';
+			this.dom.style.backgroundColor = 'transparent';
 			this.dom.style.color = '#fff';
 			const tooltip = this.shadow.querySelector('#item_info');
 			tooltip.remove();
@@ -208,7 +209,7 @@ class ItemTooltip {
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.item = item;
 		const old_tooltip = this.shadow.querySelector('#item_info');
-		const newdata = this.tpl.run({ win: this, item: this.item, edit: this.edit });
+		const newdata = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
 		old_tooltip.replaceWith(newdata.querySelector('#item_info'));
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';

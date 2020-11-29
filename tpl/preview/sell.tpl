@@ -27,7 +27,7 @@
 		<div id="items" class="item-container">
 			{assign tab = $goods.tabs[$win.selected_tab]}
 			{for i = 0; i < 32; i++}
-				{assign item_id = $tab.items[$i]}
+				{assign item_id = $tab.item_id[$i]}
 				<span class="item" data-id="{@$item_id}" tabindex="0">
 					<img{ } src="{@$preview.get_item_icon($item_id)}">
 				</span>

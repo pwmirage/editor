@@ -329,14 +329,14 @@
    }
   }
  ],
- "npc_goods": [
+ "npc_sells": [
   {
    "id": 81604406132,
    "name": "testing",
    "tabs": [
     {
      "title": "testing1",
-     "items": [
+     "item_id": [
       20208,
       8179,
       15061,
@@ -373,7 +373,7 @@
     },
     {
      "title": "mats",
-     "items": [
+     "item_id": [
       815,
       816,
       817,
@@ -410,7 +410,7 @@
     },
     {
      "title": "herbs",
-     "items": [
+     "item_id": [
       1837,
       1844,
       1830,
@@ -447,7 +447,7 @@
     },
     {
      "title": "blood",
-     "items": [
+     "item_id": [
       14096,
       14097,
       14098,
@@ -484,7 +484,7 @@
     },
     {
      "title": "N/a",
-     "items": [
+     "item_id": [
       12426,
       12331,
       11288,
@@ -521,19 +521,19 @@
     },
     {
      "title": "",
-     "items": []
+     "item_id": []
     },
     {
      "title": "",
-     "items": []
+     "item_id": []
     },
     {
      "title": "",
-     "items": []
+     "item_id": []
     }
    ],
    "_db": {
-    "type": "npc_goods",
+    "type": "npc_sells",
     "prev": {
      "tabs": [
       null,
@@ -542,7 +542,7 @@
       null,
       {
        "title": "",
-       "items": [
+       "item_id": [
         0,
         0,
         0,
@@ -6539,19 +6539,6 @@
    "shop_price": 50,
    "pile_num_max": 100,
    "proc_type": 0,
-   "_db": {
-    "type": "items"
-   }
-  },
-  {
-   "id": 12426,
-   "type": 31,
-   "name": "N/A",
-   "icon": 5870,
-   "price": 100,
-   "shop_price": 1000,
-   "pile_num_max": 1,
-   "proc_type": 16,
    "_db": {
     "type": "items"
    }

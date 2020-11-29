@@ -2,6 +2,8 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
+let g_latest_db;
+
 class PWPreview {
 	static async load() {
 		await Loading.init();
@@ -12,9 +14,11 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
 
 		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
+		g_latest_db = await PWDB.new_db({ /* XXX */});
 
 		customElements.define('pw-diff', PWPreviewElement);
 	}
@@ -107,7 +111,7 @@ class PWPreviewElement extends HTMLElement {
 		this.tabs = [];
 		let count = 0;
 		for (const arr_name in this.db) {
-			this.db[arr_name] = init_id_array(this.db[arr_name], db[arr_name]);
+			this.db[arr_name] = init_id_array(this.db[arr_name], g_latest_db[arr_name]);
 			if (arr_name == 'metadata') {
 				continue;
 			}
@@ -117,7 +121,7 @@ class PWPreviewElement extends HTMLElement {
 			}
 		}
 		/* fill in other arrays */
-		Object.setPrototypeOf(this.db, db);
+		Object.setPrototypeOf(this.db, g_latest_db);
 
 		await Promise.all([
 			this.style_promises,
@@ -131,7 +135,7 @@ class PWPreviewElement extends HTMLElement {
 
 		this.shadow.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 
-		this.item_win = new ItemTooltip({ parent_el: this.shadow, edit: false });
+		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
 
 		data.onmousemove = (e) => this.onmousemove(e);
 		this.classList.add('loaded');
@@ -147,7 +151,7 @@ class PWPreviewElement extends HTMLElement {
 
 		let win;
 		switch(tab.obj._db.type) {
-			case 'npc_goods': {
+			case 'npc_sells': {
 				win = new PWPreviewNPCSells(this, tab.obj);
 				break;
 			}
@@ -163,7 +167,6 @@ class PWPreviewElement extends HTMLElement {
 				resolve();
 			});
 		}
-
 	}
 
 	get_item_icon(itemid) {

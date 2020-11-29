@@ -39,7 +39,6 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/unsupported.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/history.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
 
 		const tag_p = Loading.show_tag('Processing item icons');

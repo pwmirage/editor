@@ -194,10 +194,10 @@ const init_id_array = (arr, fallback) => {
 				return (...args) => Reflect.apply(map[k], map, args);
 			}
 
-			const ret = map.get(k);
-			if (!ret) {
+			if (!map.has(k)) {
 				return fallback[k];
 			}
+			return map.get(k);
 		}
 	});
 

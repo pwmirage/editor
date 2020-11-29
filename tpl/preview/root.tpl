@@ -8,7 +8,7 @@
 					npcs: 'NPC',
 					npc_spawns: 'Spawner',
 					npc_recipes: 'NPC Recipes',
-					npc_goods: 'NPC Goods',
+					npc_sells: 'NPC Goods',
 					recipes: 'Recipes',
 					items: 'Items',
 				\}}
