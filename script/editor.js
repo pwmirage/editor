@@ -5,6 +5,7 @@
 console.log('Editor initializing');
 
 let g_map = null;
+let db;
 
 class Editor {
 	static loaded = false;
@@ -47,7 +48,6 @@ class Editor {
 			Loading.hide_tag(tag_p);
 		});
 
-		await g_pwdb_init_promise;
 		await PWMap.add_elements(document.querySelector('#mgeArea'));
 
 		const org_menu = document.querySelector('.mainMenu .boxMenu');
@@ -84,9 +84,12 @@ class Editor {
 
 		if (navigator.userAgent.indexOf("Chrome") == -1){
 			const win = await UnsupportedBrowserWindow.open({ });
-		} else {
-			const win = await MapChooserWindow.open({ });
+			return;
 		}
+
+		/* db is global */
+		db = await PWDB.new_db(args);
+		const win = await MapChooserWindow.open({ });
 	}
 
 	static close() {

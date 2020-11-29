@@ -81,6 +81,7 @@ class Window {
 		Window.onresize();
 
 		const fn = () => {
+			Window.bounds = Window.container.getBoundingClientRect();
 			for (const win_dom of Window.container.children) {
 				const win = win_dom._win;
 				if (!win) {

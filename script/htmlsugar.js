@@ -443,7 +443,7 @@ class HTMLSugar {
 				const sel = await win.wait();
 				switch(sel) {
 					case 1: {
-						PWDB.undo(obj, path);
+						PWDB.undo(db, obj, path);
 						const o = get_val_obj();
 						set_el_val(o ? o[p] : "");
 						break;
@@ -636,7 +636,7 @@ class HTMLSugar {
 
 	static async open_edit_rmenu(x, y, obj, obj_type, { pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
-		const usages = await PWDB.find_usages(obj);
+		const usages = await PWDB.find_usages(db, obj);
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [

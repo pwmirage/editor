@@ -263,7 +263,7 @@ class PWMap {
 
 
 		for (const m in PWMap.maps) {
-			db.load_map(m);
+			PWDB.load_db_map(db, m);
 		}
 
 		this.initialized = true;
@@ -313,7 +313,7 @@ class PWMap {
 				this.canvas.oncontextmenu = (e) => false;
 				this.canvas.onwheel = (e) => this.onwheel(e);
 
-				await db.load_map(mapid);
+				await PWDB.load_db_map(db, mapid);
 
 				const get_name = (spawner) => {
 					let name;

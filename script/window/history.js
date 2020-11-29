@@ -53,7 +53,7 @@ class HistoryWindow extends Window {
 		let usages = [];
 		let ret = '';
 		if (obj._db.type == 'npc_sells') {
-			usages = PWDB.find_usages(obj);
+			usages = PWDB.find_usages(db, obj);
 		}
 
 		if (usages.length > 0) {

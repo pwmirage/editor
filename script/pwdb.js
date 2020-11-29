@@ -2,9 +2,8 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-const db = new DB();
-let g_db_cache;
-let g_db_promise;
+let g_db_cache = null;
+let g_db_promises = {};
 
 const g_db_meta = {
 	id: 0,
@@ -15,7 +14,56 @@ const g_db_meta = {
 };
 
 class PWDB {
-	static async find_usages(obj) {
+	static async new_db(args) {
+		const db = new DB();
+		this.db_promise = null;
+		db.new_id_start = 0x80000001;
+
+		db.register_commit_cb((obj, diff, prev_vals) => {
+			obj._db.undo_idx = undefined;
+		});
+
+		await Promise.all([
+			db.register_type('metadata', [g_db_meta]),
+			PWDB.register_data_type(db, 'mines'),
+			PWDB.register_data_type(db, 'recipes'),
+			PWDB.register_data_type(db, 'npc_sells'),
+			PWDB.register_data_type(db, 'npc_crafts'),
+			PWDB.register_data_type(db, 'npcs'),
+			PWDB.register_data_type(db, 'monsters'),
+			PWDB.register_data_type(db, 'items'),
+			PWDB.register_data_type(db, 'weapon_major_types', 'object_types'),
+			PWDB.register_data_type(db, 'weapon_minor_types', 'object_types'),
+			PWDB.register_data_type(db, 'armor_major_types', 'object_types'),
+			PWDB.register_data_type(db, 'armor_minor_types', 'object_types'),
+			PWDB.register_data_type(db, 'decoration_major_types', 'object_types'),
+			PWDB.register_data_type(db, 'decoration_minor_types', 'object_types'),
+			PWDB.register_data_type(db, 'medicine_major_types', 'object_types'),
+			PWDB.register_data_type(db, 'medicine_minor_types', 'object_types'),
+			PWDB.register_data_type(db, 'material_major_types', 'object_types'),
+			PWDB.register_data_type(db, 'material_minor_types', 'object_types'),
+			PWDB.register_data_type(db, 'projectile_types', 'object_types'),
+			PWDB.register_data_type(db, 'quiver_types', 'object_types'),
+			PWDB.register_data_type(db, 'armor_sets', 'object_types'),
+			PWDB.register_data_type(db, 'equipment_addons'),
+		]);
+
+		return db;
+	}
+
+	static load_db_map(db, name) {
+		if (g_db_promises[name]) {
+			return g_db_promises[name];
+		}
+
+		 g_db_promises[name] = Promise.all([
+			PWDB.register_data_type(db, 'spawners_' + name, 'spawners', ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
+			PWDB.register_data_type(db, 'resources_' + name, 'resources', ROOT_URL + 'data/base/map/' + name + '/resources.json'),
+		]);
+		return g_db_promises[name];
+	}
+
+	static async find_usages(db, obj) {
 		let usages = [];
 
 		if (!obj) {
@@ -24,7 +72,7 @@ class PWDB {
 
 		if (obj._db.type == 'npcs') {
 			for (const mapid in PWMap.maps) {
-				await db.load_map(mapid);
+				await PWDB.load_db_map(db, mapid);
 
 				const arr = db['spawners_' + mapid];
 				for (const i of arr) {
@@ -40,7 +88,7 @@ class PWDB {
 		return usages;
 	}
 
-	static undo(obj, path) {
+	static undo(db, obj, path) {
 		if (typeof path === 'string') {
 			path = [ path ];
 		}
@@ -107,126 +155,93 @@ class PWDB {
 
 	}
 
-	static loaded_maps = {};
+	static async load_db_file(type, url) {
+		let final_resolve = null;
+
+		if (g_db_promises[type]) {
+			return g_db_promises[type];
+		}
+
+		g_db_promises[type] = new Promise((r) => { final_resolve = r; });
+
+		/* is the cache db in place? */
+		let cached = await new Promise((resolve, reject) => {
+			if (g_db_cache) return resolve(true);
+			if (!window.indexedDB) return resolve(false);
+
+			const request = window.indexedDB.open("db-cache", 1);
+			request.onerror = reject;
+			let cached = true;
+
+			request.onsuccess = () => {
+				g_db_cache = request.result;
+				resolve(cached);
+			};
+
+			request.onupgradeneeded = (event) => {
+				cached = false;
+				let db = event.target.result;
+				db.createObjectStore('tables', { keyPath: 'type' });
+			}
+		});
+
+		/* try to retrieve this arr from cached db */
+		if (cached) {
+			await new Promise((resolve, reject) => {
+				const cache = g_db_cache.transaction(['tables'], 'readonly').objectStore('tables');
+				const request = cache.get(type);
+				request.onerror = reject;
+				request.onsuccess = () => {
+					const cache = request.result;
+					if (cache) {
+						g_db[type] = cache.arr;
+					} else {
+						cached = false;
+					}
+					resolve();
+				};
+			});
+		}
+
+		/* fallback to loading the file */
+		if (!cached) {
+			if (!url) {
+				url = ROOT_URL + 'data/base/' + type + '.json';
+			}
+			url += '?v=' + MG_VERSION;
+			console.log('fetching ' + url);
+			g_db[type] = (await get(url, { is_json: 1, headers: {
+				"Content-Type": "application/json; charset=UTF-8"
+			}})).data;
+
+			/* save to cache */
+			const cache = g_db_cache.transaction(['tables'], 'readwrite').objectStore('tables');
+			cache.add({ type, arr: g_db[type] });
+		}
+
+		final_resolve();
+	}
+
 	static tag_categories = {};
 	static tags = {};
+
+	static async register_data_type(db, type, tag_category, url) {
+		if (!tag_category) tag_category = type;
+		const show_tag = !PWDB.tag_categories[tag_category];
+		const tag = show_tag ? Loading.show_tag('Loading ' + tag_category) : null;
+		PWDB.tag_categories[tag_category] = (PWDB.tag_categories[tag_category] || 0) + 1;
+		if (tag) PWDB.tags[tag_category] = tag;
+
+		await PWDB.load_db_file(type, url);
+		db.register_type(type, g_db[type]);
+
+		setTimeout(() => {
+			--PWDB.tag_categories[tag_category];
+			if (PWDB.tag_categories[tag_category] == 0) {
+				Loading.hide_tag(PWDB.tags[tag_category]);
+			}
+		}, 400);
+	}
+
 }
 
-const pwdb_register_data_type = async (type, tag_category, url) => {
-	let resolve = null;
-
-	if (g_db_promise) {
-		await g_db_promise;
-	} else {
-		g_db_promise = new Promise((r) => { resolve = r; });
-	}
-
-	if (!tag_category) tag_category = type;
-	const show_tag = !PWDB.tag_categories[tag_category];
-	const tag = show_tag ? Loading.show_tag('Loading ' + tag_category) : null;
-	PWDB.tag_categories[tag_category] = (PWDB.tag_categories[tag_category] || 0) + 1;
-	if (tag) PWDB.tags[tag_category] = tag;
-
-	let cached = await new Promise((resolve, reject) => {
-		if (g_db_cache) return resolve(true);
-		if (!window.indexedDB) return resolve(false);
-
-		const request = window.indexedDB.open("db-cache", 1);
-		request.onerror = reject;
-		let cached = true;
-
-		request.onsuccess = () => {
-			g_db_cache = request.result;
-			resolve(cached);
-		};
-
-		request.onupgradeneeded = (event) => {
-			cached = false;
-			let db = event.target.result;
-			db.createObjectStore('tables', { keyPath: 'type' });
-		}
-	});
-
-	if (cached) {
-		await new Promise((resolve, reject) => {
-			const cache = g_db_cache.transaction(['tables'], 'readonly').objectStore('tables');
-			const request = cache.get(type);
-			request.onerror = reject;
-			request.onsuccess = () => {
-				const cache = request.result;
-				if (cache) {
-					g_db[type] = cache.arr;
-				} else {
-					cached = false;
-				}
-				resolve();
-			};
-		});
-	}
-
-	if (!cached) {
-		if (!url) {
-			url = ROOT_URL + 'data/base/' + type + '.json';
-		}
-		url += '?v=' + MG_VERSION;
-		console.log('fetching ' + url);
-		g_db[type] = (await get(url, { is_json: 1, headers: {
-			"Content-Type": "application/json; charset=UTF-8"
-		}})).data;
-		const cache = g_db_cache.transaction(['tables'], 'readwrite').objectStore('tables');
-		cache.add({ type, arr: g_db[type] });
-	}
-	db.register_type(type, g_db[type]);
-
-	if (resolve) resolve();
-	setTimeout(() => {
-		--PWDB.tag_categories[tag_category];
-		if (PWDB.tag_categories[tag_category] == 0) {
-			Loading.hide_tag(PWDB.tags[tag_category]);
-		}
-	}, 400);
-}
-
-db.new_id_start = 0x80000001;
-const g_pwdb_init_promise = Promise.all([
-	db.register_type('metadata', [g_db_meta]),
-	pwdb_register_data_type('mines'),
-	pwdb_register_data_type('recipes'),
-	pwdb_register_data_type('npc_sells'),
-	pwdb_register_data_type('npc_crafts'),
-	pwdb_register_data_type('npcs'),
-	pwdb_register_data_type('monsters'),
-	pwdb_register_data_type('items'),
-	pwdb_register_data_type('weapon_major_types', 'object_types'),
-	pwdb_register_data_type('weapon_minor_types', 'object_types'),
-	pwdb_register_data_type('armor_major_types', 'object_types'),
-	pwdb_register_data_type('armor_minor_types', 'object_types'),
-	pwdb_register_data_type('decoration_major_types', 'object_types'),
-	pwdb_register_data_type('decoration_minor_types', 'object_types'),
-	pwdb_register_data_type('medicine_major_types', 'object_types'),
-	pwdb_register_data_type('medicine_minor_types', 'object_types'),
-	pwdb_register_data_type('material_major_types', 'object_types'),
-	pwdb_register_data_type('material_minor_types', 'object_types'),
-	pwdb_register_data_type('projectile_types', 'object_types'),
-	pwdb_register_data_type('quiver_types', 'object_types'),
-	pwdb_register_data_type('armor_sets', 'object_types'),
-	pwdb_register_data_type('equipment_addons'),
-]);
-//pwdb_register_data_type('quests');
-
-db.register_commit_cb((obj, diff, prev_vals) => {
-	obj._db.undo_idx = undefined;
-});
-
-db.load_map = async (name) => {
-	if (PWDB.loaded_maps[name]) {
-		return PWDB.loaded_maps[name];
-	}
-
-	 PWDB.loaded_maps[name] = Promise.all([
-		pwdb_register_data_type('spawners_' + name, 'spawners', ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
-		pwdb_register_data_type('resources_' + name, 'resources', ROOT_URL + 'data/base/map/' + name + '/resources.json'),
-		g_pwdb_init_promise
-	]);
-	return PWDB.loaded_maps[name];
-}
