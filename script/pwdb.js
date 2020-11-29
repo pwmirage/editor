@@ -14,7 +14,7 @@ const g_db_meta = {
 };
 
 class PWDB {
-	static async new_db(args) {
+	static async new_db(args = {}) {
 		const db = new DB();
 		this.db_promise = null;
 		db.new_id_start = 0x80000001;
@@ -25,27 +25,27 @@ class PWDB {
 
 		await Promise.all([
 			db.register_type('metadata', [g_db_meta]),
-			PWDB.register_data_type(db, 'mines'),
-			PWDB.register_data_type(db, 'recipes'),
-			PWDB.register_data_type(db, 'npc_sells'),
-			PWDB.register_data_type(db, 'npc_crafts'),
-			PWDB.register_data_type(db, 'npcs'),
-			PWDB.register_data_type(db, 'monsters'),
-			PWDB.register_data_type(db, 'items'),
-			PWDB.register_data_type(db, 'weapon_major_types', 'object_types'),
-			PWDB.register_data_type(db, 'weapon_minor_types', 'object_types'),
-			PWDB.register_data_type(db, 'armor_major_types', 'object_types'),
-			PWDB.register_data_type(db, 'armor_minor_types', 'object_types'),
-			PWDB.register_data_type(db, 'decoration_major_types', 'object_types'),
-			PWDB.register_data_type(db, 'decoration_minor_types', 'object_types'),
-			PWDB.register_data_type(db, 'medicine_major_types', 'object_types'),
-			PWDB.register_data_type(db, 'medicine_minor_types', 'object_types'),
-			PWDB.register_data_type(db, 'material_major_types', 'object_types'),
-			PWDB.register_data_type(db, 'material_minor_types', 'object_types'),
-			PWDB.register_data_type(db, 'projectile_types', 'object_types'),
-			PWDB.register_data_type(db, 'quiver_types', 'object_types'),
-			PWDB.register_data_type(db, 'armor_sets', 'object_types'),
-			PWDB.register_data_type(db, 'equipment_addons'),
+			PWDB.register_data_type(db, args, 'mines'),
+			PWDB.register_data_type(db, args, 'recipes'),
+			PWDB.register_data_type(db, args, 'npc_sells'),
+			PWDB.register_data_type(db, args, 'npc_crafts'),
+			PWDB.register_data_type(db, args, 'npcs'),
+			PWDB.register_data_type(db, args, 'monsters'),
+			PWDB.register_data_type(db, args, 'items'),
+			PWDB.register_data_type(db, args, 'weapon_major_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'weapon_minor_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'armor_major_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'armor_minor_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'decoration_major_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'decoration_minor_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'medicine_major_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'medicine_minor_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'material_major_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'material_minor_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'projectile_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'quiver_types', 'object_types'),
+			PWDB.register_data_type(db, args, 'armor_sets', 'object_types'),
+			PWDB.register_data_type(db, args, 'equipment_addons'),
 		]);
 
 		return db;
@@ -225,22 +225,29 @@ class PWDB {
 	static tag_categories = {};
 	static tags = {};
 
-	static async register_data_type(db, type, tag_category, url) {
-		if (!tag_category) tag_category = type;
-		const show_tag = !PWDB.tag_categories[tag_category];
-		const tag = show_tag ? Loading.show_tag('Loading ' + tag_category) : null;
-		PWDB.tag_categories[tag_category] = (PWDB.tag_categories[tag_category] || 0) + 1;
-		if (tag) PWDB.tags[tag_category] = tag;
+	static async register_data_type(db, args, type, tag_category, url) {
+		let tag;
+		if (!args.no_tag) {
+			if (!tag_category) tag_category = type;
+			const show_tag = !PWDB.tag_categories[tag_category];
+			tag = show_tag ? Loading.show_tag('Loading ' + tag_category) : null;
+			PWDB.tag_categories[tag_category] = (PWDB.tag_categories[tag_category] || 0) + 1;
+			if (tag) PWDB.tags[tag_category] = tag;
+		}
 
 		await PWDB.load_db_file(type, url);
 		db.register_type(type, g_db[type]);
 
-		setTimeout(() => {
-			--PWDB.tag_categories[tag_category];
-			if (PWDB.tag_categories[tag_category] == 0) {
-				Loading.hide_tag(PWDB.tags[tag_category]);
-			}
-		}, 400);
+		if (tag) Loading.try_cancel_tag(tag);
+
+		if (!args.no_tag) {
+			setTimeout(() => {
+				--PWDB.tag_categories[tag_category];
+				if (PWDB.tag_categories[tag_category] == 0) {
+					Loading.hide_tag(PWDB.tags[tag_category]);
+				}
+			}, 400);
+		}
 	}
 
 }

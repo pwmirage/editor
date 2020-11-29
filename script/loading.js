@@ -58,8 +58,11 @@ class Loading {
 
 	static show_tag(name) {
 		const p = newElement('<div><p>' + escape(name) + '</p></div>');
-		Loading.shadow.querySelector('#labels').append(p);
-		setTimeout(() => { p.classList.add('appear'); }, 1);
+		p._mg_timeout = setTimeout(() => {
+			p._mg_shown = true;
+			Loading.shadow.querySelector('#labels').append(p);
+			setTimeout(() => { p.classList.add('appear'); }, 1);
+		}, 100);
 		return p;
 	}
 
@@ -78,6 +81,12 @@ class Loading {
 			tag.cleanup_time = Date.now() + 800;
 			Loading.cleanup_tags();
 		 }, 1);
+	}
+
+	static try_cancel_tag(tag) {
+		if (!tag._mg_shown) {
+			clearTimeout(tag._mg_timeout);
+		}
 	}
 };
 

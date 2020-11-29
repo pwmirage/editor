@@ -18,8 +18,6 @@ class PWPreview {
 		]);
 
 		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
-		g_latest_db = await PWDB.new_db({ /* XXX */});
-
 		customElements.define('pw-diff', PWPreviewElement);
 	}
 
@@ -102,6 +100,10 @@ class PWPreviewElement extends HTMLElement {
 	async connectedCallback() {
 		if (!this.dataset.project) {
 			return;
+		}
+
+		if (!g_latest_db) {
+			g_latest_db = await PWDB.new_db({ /* XXX */ no_tag: true });
 		}
 
 		const req = await get(ROOT_URL + 'get_preview.php?' + this.dataset.project, { is_json: true });
