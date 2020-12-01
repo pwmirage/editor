@@ -144,6 +144,10 @@ class PWPreviewElement extends HTMLElement {
 		this.shadow.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
+		const s = newStyle(ROOT_URL + 'css/preview.css');
+		const s_p = new Promise((resolve) => { s.onload = resolve; });
+		this.item_win.shadow.append(s);
+		await s_p;
 
 		data.onmousemove = (e) => this.onmousemove(e);
 		this.classList.add('loaded');

@@ -70,6 +70,46 @@ p, pre {
 	flex-basis: 0;
 }
 
+.flex-columns {
+	display: flex;
+	flex-direction: row;
+	column-gap: 10px;
+}
+
+.flex-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.flex-all > * {
+	flex: 1;
+}
+
+.flex-basis-all > * {
+	flex-basis: 100%;
+}
+
+.flex-wide {
+	flex: 1;
+}
+
+.flex-gap {
+	margin-top: -10px;
+}
+
+.flex-gap > * {
+	margin-top: 10px;
+}
+
+.flex-justify > * {
+	justify-content: center;
+}
+
+.v-centered {
+	display: flex;
+	align-items: center;
+}
+
 .item-container {
 	display: grid;
 	grid-template-columns: repeat(8, 34px);
