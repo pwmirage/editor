@@ -167,6 +167,10 @@ class PWPreviewElement extends HTMLElement {
 				win = new PWPreviewNPCSells(this, tab.obj);
 				break;
 			}
+			case 'npc_crafts': {
+				win = new PWPreviewNPCCrafts(this, tab.obj);
+				break;
+			}
 			default:
 				break;
 		}
@@ -188,7 +192,6 @@ class PWPreviewElement extends HTMLElement {
 
 		return Item.get_icon(this.db.items[itemid]?.icon || 0);
 	}
-
 }
 
 class PWPreviewNPCSells extends PWPreviewShadowElement {
@@ -242,5 +245,67 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 		tab_el.classList.add('selected');
 	}
 }
+
+class PWPreviewNPCCrafts extends PWPreviewShadowElement {
+	constructor(root, obj) {
+		super(root);
+		this.obj = obj;
+		this.tpl = new Template('pw-preview-crafts');
+	}
+
+	async init() {
+		/* clean up some tabs so they don't appear as clickable */
+		for (let idx = 0; idx < 8; idx++) {
+			if (this.obj.tabs[idx] && !this.obj.tabs[idx].title && PWPreview.is_empty(this.obj.tabs[idx].recipes)) {
+				this.obj.tabs[idx] = null;
+			}
+		}
+
+		this.selected_tab = 0;
+
+		await load_tpl(ROOT_URL + 'tpl/preview/craft.tpl');
+		const data = await this.tpl.run({ preview: this.root, win: this, db: this.db, crafts: this.obj });
+		this.shadow.append(data);
+	}
+
+	is_tab_modified(idx) {
+		if (PWPreview.is_modified(this.obj, [ 'tabs', idx ])) {
+			return true;
+		}
+
+		for (const recipe_id of (this.obj?.tabs?.[idx]?.recipes || [])) {
+			const recipe = this.db.recipes[recipe_id];
+			if (!recipe) return true;
+			if (PWPreview.is_modified(recipe, [])) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	async select_tab(tab_el, idx) {
+		const tab = this.obj
+		this.selected_tab = idx;
+		this.tpl.reload('#recipes');
+
+		const prev_tab = this.shadow.querySelector('.tab.selected');
+		if (prev_tab) {
+			prev_tab.classList.remove('selected');
+		}
+
+		tab_el.classList.add('selected');
+	}
+
+	get_recipe_icon(recipe_id) {
+		if (!recipe_id) {
+			return (ROOT_URL + 'img/itemslot.png');
+		}
+
+		const recipe = this.db.recipes[recipe_id];
+		return this.root.get_item_icon(recipe?.targets?.[0]?.id || -1);
+	}
+}
+
 
 PWPreview.load_promise = PWPreview.load();

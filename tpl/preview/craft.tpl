@@ -1,22 +1,22 @@
-<script id="pw-preview-sells" type="text/x-dot-template">
+<script id="pw-preview-crafts" type="text/x-dot-template">
 <div class="window loading">
-	{assign prev = $goods._db.prev || {\}}
+	{assign prev = $crafts._db.prev || {\}}
 	<div class="header">
 		<div>
 			{if $prev.id == -1}
-				<p class="data diff-plus">(New) NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>
+				<p class="data diff-plus">(New) NPC Crafts: {@$crafts.name || "(unnamed)"} #{@$crafts.id}</p>
 			{else}
-				<p class="data">NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>
-				{if $prev.name}<p class="prev">NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>{/if}
+				<p class="data">NPC Crafts: {@$crafts.name || "(unnamed)"} #{@$crafts.id}</p>
+				{if $prev.name}<p class="prev">NPC Crafts: {@$crafts.name || "(unnamed)"} #{@$crafts.id}</p>{/if}
 			{/if}
 		</div>
-		{if $goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$goods._db.refs.length})</span>{/if}
+		{if $crafts._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$crafts._db.refs.length})</span>{/if}
 	</div>
 	<div class="content">
 		<div id="tabs">
 			{for i = 0; i < 8; i++}
-				{assign tab = $goods.tabs[i]}
-				{assign prev_tab = $prev.tabs ? $prev.tabs[$i] : null}
+				{assign tab = $crafts.tabs[i]}
+				{assign prev_tab = $prev.tabs ? $prev.tabs[i] : null}
 				<span class="tab {if $win.selected_tab == $i}selected{/if} {if $win.is_tab_modified($i)}modified{/if}" onclick="{serialize $win}.select_tab(this, {@$i});">
 					{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
 					{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
@@ -24,12 +24,12 @@
 			{/for}
 		</div>
 
-		<div id="items" class="item-container">
-			{assign tab = $goods.tabs[$win.selected_tab]}
+		<div id="recipes" class="item-container">
+			{assign tab = $crafts.tabs[$win.selected_tab]}
 			{for i = 0; i < 32; i++}
-				{assign item_id = $tab.item_id[$i]}
-				<span class="item" data-id="{@$item_id}" tabindex="0">
-					<img{ } src="{@$preview.get_item_icon($item_id)}">
+				{assign recipe_id = $tab.recipes[$i]}
+				<span class="recipe" data-id="{@$recipe_id}" tabindex="0">
+					<img{ } src="{@$win.get_recipe_icon($recipe_id)}">
 				</span>
 			{/for}
 		</div>
@@ -139,4 +139,5 @@ pw-item.mini-item.force-visible[pw-id="0"]:after {
 </style>
 @@}
 </script>
+
 

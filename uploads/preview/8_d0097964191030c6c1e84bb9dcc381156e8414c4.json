@@ -23,7 +23,7 @@
  ],
  "npc_spawns": [],
  "npcs": [],
- "npc_recipes": [
+ "npc_crafts": [
   {
    "id": 2909,
    "name": "Remedy Manufacturing ",
@@ -279,7 +279,7 @@
     }
    ],
    "_db": {
-    "type": "npc_recipes",
+    "type": "npc_crafts",
     "prev": {
      "tabs": [
       {
@@ -630,7 +630,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -679,7 +679,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -728,7 +728,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -777,7 +777,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -826,7 +826,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -875,7 +875,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -933,7 +933,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -991,7 +991,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1049,7 +1049,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1107,7 +1107,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1165,7 +1165,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1274,7 +1274,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1332,7 +1332,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1390,7 +1390,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1448,7 +1448,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1506,7 +1506,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1564,7 +1564,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1622,7 +1622,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1680,7 +1680,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1738,7 +1738,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1796,7 +1796,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
@@ -1854,7 +1854,7 @@
      {
       "id": 2909,
       "_db": {
-       "type": "npc_recipes"
+       "type": "npc_crafts"
       }
      }
     ]
