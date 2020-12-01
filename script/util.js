@@ -194,7 +194,7 @@ const init_id_array = (arr, fallback) => {
 				return (...args) => Reflect.apply(map[k], map, args);
 			}
 
-			if (!map.has(k)) {
+			if (!map.has(k) && fallback) {
 				return fallback[k];
 			}
 			return map.get(k);
