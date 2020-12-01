@@ -179,8 +179,9 @@ class PWDB {
 
 			/* save to cache */
 			const cache = await IDB.open('db-cache', 1, 'readwrite');
-			IDB.set(cache, type, g_db[type]);
+			await IDB.set(cache, type, g_db[type]);
 		}
+		g_db[type] = init_id_array(g_db[type]);
 
 		final_resolve();
 	}
