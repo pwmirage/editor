@@ -44,7 +44,7 @@ class PWPreview {
 
 		let p = obj._db.prev;
 		for (const c of path) {
-			if (!(c in p)) {
+			if (!p || !(c in p)) {
 				return false;
 			}
 			p = p[c];
@@ -223,13 +223,24 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 
 		for (const item_id of (this.obj?.tabs?.[idx]?.items || [])) {
 			const item = this.db.items[item_id];
-			if (!item) return true;
+			if (!item) return !!item_id;
 			if (PWPreview.is_modified(item, [])) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	is_item_modified(idx) {
+		if (PWPreview.is_modified(this.obj, [ 'tabs', this.selected_tab, 'items', idx ])) {
+			return true;
+		}
+
+		const item_id = this.obj?.tabs?.[this.selected_tab]?.items?.[idx];
+		const item = this.db.items[item_id];
+		if (!item) return !!item_id;
+		return PWPreview.is_modified(item, []);
 	}
 
 	async select_tab(tab_el, idx) {
@@ -275,7 +286,7 @@ class PWPreviewNPCCrafts extends PWPreviewShadowElement {
 
 		for (const recipe_id of (this.obj?.tabs?.[idx]?.recipes || [])) {
 			const recipe = this.db.recipes[recipe_id];
-			if (!recipe) return true;
+			if (!recipe) return !!recipe_id;
 			if (PWPreview.is_modified(recipe, [])) {
 				return true;
 			}
@@ -305,6 +316,18 @@ class PWPreviewNPCCrafts extends PWPreviewShadowElement {
 		const recipe = this.db.recipes[recipe_id];
 		return this.root.get_item_icon(recipe?.targets?.[0]?.id || -1);
 	}
+
+	is_recipe_modified(idx) {
+		if (PWPreview.is_modified(this.obj, [ 'tabs', this.selected_tab, 'recipes', idx ])) {
+			return true;
+		}
+
+		const recipe_id = this.obj?.tabs?.[this.selected_tab]?.recipes?.[idx];
+		const recipe = this.db.recipes[recipe_id];
+		if (!recipe) return !!recipe_id;
+		return PWPreview.is_modified(recipe, []);
+	}
+
 }
 
 

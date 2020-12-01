@@ -28,7 +28,7 @@
 			{assign tab = $crafts.tabs[$win.selected_tab]}
 			{for i = 0; i < 32; i++}
 				{assign recipe_id = $tab.recipes[$i]}
-				<span class="recipe" data-id="{@$recipe_id}" tabindex="0">
+				<span class="item recipe {if $win.is_recipe_modified($i)}modified{/if}" data-id="{@$recipe_id}" tabindex="0">
 					<img{ } src="{@$win.get_recipe_icon($recipe_id)}">
 				</span>
 			{/for}
@@ -101,7 +101,7 @@ pw-recipe {
 }
 
 pw-recipe:not(.modified):after,
-pw-item:not(.modified):after {
+.item:not(.modified):after {
 	content: ' ';
 	position: absolute;
 	left: 0;
