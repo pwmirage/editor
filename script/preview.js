@@ -18,14 +18,6 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 		]);
 
-	const t0 = performance.now();
-	const req1 = await get('/cache_db.json', { is_json: 1 });
-	g_db2 = req1.data;
-	const t1 = performance.now();
-	console.log('db load took ' + (t1 - t0) + 'ms');
-
-
-
 		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
 		customElements.define('pw-diff', PWPreviewElement);
 	}
