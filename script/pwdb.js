@@ -2,7 +2,6 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_db_cache = null;
 let g_db_promises = {};
 
 const g_db_meta = {
@@ -164,47 +163,11 @@ class PWDB {
 
 		g_db_promises[type] = new Promise((r) => { final_resolve = r; });
 
-		/* is the cache db in place? */
-		let cached = await new Promise((resolve, reject) => {
-			if (g_db_cache) return resolve(true);
-			if (!window.indexedDB) return resolve(false);
-
-			const request = window.indexedDB.open("db-cache", 1);
-			request.onerror = reject;
-			let cached = true;
-
-			request.onsuccess = () => {
-				g_db_cache = request.result;
-				resolve(cached);
-			};
-
-			request.onupgradeneeded = (event) => {
-				cached = false;
-				let db = event.target.result;
-				db.createObjectStore('tables', { keyPath: 'type' });
-			}
-		});
-
-		/* try to retrieve this arr from cached db */
-		if (cached) {
-			await new Promise((resolve, reject) => {
-				const cache = g_db_cache.transaction(['tables'], 'readonly').objectStore('tables');
-				const request = cache.get(type);
-				request.onerror = reject;
-				request.onsuccess = () => {
-					const cache = request.result;
-					if (cache) {
-						g_db[type] = cache.arr;
-					} else {
-						cached = false;
-					}
-					resolve();
-				};
-			});
-		}
-
-		/* fallback to loading the file */
-		if (!cached) {
+		try {
+			const cache = await IDB.open('db-cache', 1);
+			g_db[type] = await IDB.get(cache, type);
+		} catch (e) {
+			/* fallback to loading the file */
 			if (!url) {
 				url = ROOT_URL + 'data/base/' + type + '.json';
 			}
@@ -215,8 +178,8 @@ class PWDB {
 			}})).data;
 
 			/* save to cache */
-			const cache = g_db_cache.transaction(['tables'], 'readwrite').objectStore('tables');
-			cache.add({ type, arr: g_db[type] });
+			const cache = await IDB.open('db-cache', 1, 'readwrite');
+			IDB.set(cache, type, g_db[type]);
 		}
 
 		final_resolve();
