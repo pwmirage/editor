@@ -3,6 +3,7 @@
  */
 
 let g_latest_db;
+let g_latest_db_promise;
 
 class PWPreview {
 	static async load() {
@@ -103,9 +104,13 @@ class PWPreviewElement extends HTMLElement {
 			return;
 		}
 
-		if (!g_latest_db) {
-			g_latest_db = await PWDB.new_db({ /* XXX */ no_tag: true });
+		if (!g_latest_db_promise) {
+			g_latest_db_promise = new Promise(async (resolve) => {
+				g_latest_db = await PWDB.new_db({ /* XXX */ no_tag: true });
+				resolve();
+			});
 		}
+		await g_latest_db_promise;
 
 		const req = await get(ROOT_URL + 'get_preview.php?' + this.dataset.project, { is_json: true });
 		if (!req.ok) return;
@@ -114,11 +119,11 @@ class PWPreviewElement extends HTMLElement {
 		this.tabs = [];
 		let count = 0;
 		for (const arr_name in this.db) {
-			this.db[arr_name] = init_id_array(this.db[arr_name], g_latest_db[arr_name]);
 			if (arr_name == 'metadata') {
 				continue;
 			}
 
+			this.db[arr_name] = init_id_array(this.db[arr_name], g_latest_db[arr_name]);
 			for (const obj of this.db[arr_name]) {
 				this.tabs.push({ obj: obj, type: arr_name });
 			}
