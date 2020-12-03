@@ -90,13 +90,17 @@ class PWPreviewElement extends HTMLElement {
 	}
 
 	onmousemove(e) {
-		const item = e.path?.find(el => el?.classList?.contains('item'));
-		if (!this.item_win) {
+		if (!this.item_win || !this.recipe_win) {
 			/* not initialized yet */
 			return;
 		}
 
+		const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
+		const item = el?.classList.contains('item') ? el : null;
+		const recipe = el?.classList.contains('recipe') ? el : null;
+
 		HTMLSugar.show_item_tooltip(this.item_win, item, { db: this.db });
+		HTMLSugar.show_recipe_tooltip(this.recipe_win, recipe, { db: this.db });
 	}
 
 	async connectedCallback() {
@@ -144,10 +148,13 @@ class PWPreviewElement extends HTMLElement {
 		this.shadow.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
-		const s = newStyle(ROOT_URL + 'css/preview.css');
-		const s_p = new Promise((resolve) => { s.onload = resolve; });
-		this.item_win.shadow.append(s);
-		await s_p;
+		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db: this.db, edit: false });
+		for (const shadow of [ this.recipe_win.shadow, this.item_win.shadow ]) {
+			const s = newStyle(ROOT_URL + 'css/preview.css');
+			const s_p = new Promise((resolve) => { s.onload = resolve; });
+			shadow.prepend(s);
+			await s_p;
+		}
 
 		data.onmousemove = (e) => this.onmousemove(e);
 		this.classList.add('loaded');

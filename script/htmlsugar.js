@@ -723,20 +723,20 @@ class HTMLSugar {
 		}
 	}
 
-	static show_item_tooltip(item_win, el, params) {
+	static show_tooltip(win, type, el, params) {
 		params = params || {};
-		const info = item_win?.dom;
+		const info = win?.dom;
 		if (!info) {
 			/* still loading */
 			return;
 		}
 
-		if (el == item_win.hover_el) {
+		if (el == win.hover_el) {
 			/* no change */
 			return;
 		}
 
-		item_win.hover_el = el;
+		win.hover_el = el;
 		if (!el) {
 			info.style.display = 'none';
 			return;
@@ -749,8 +749,16 @@ class HTMLSugar {
 		}
 
 		params.db = params.db || document.db;
-		const item = params.db.items[id] || { id };
-		const item_bounds = el.getBoundingClientRect();
-		item_win.reload(item, item_bounds);
+		const obj = params.db[type][id] || { id };
+		const bounds = el.getBoundingClientRect();
+		win.reload(obj, bounds);
+	}
+
+	static show_item_tooltip(item_win, el, params) {
+		return HTMLSugar.show_tooltip(item_win, 'items', el, params);
+	}
+
+	static show_recipe_tooltip(recipe_win, el, params) {
+		return HTMLSugar.show_tooltip(recipe_win, 'recipes', el, params);
 	}
 }

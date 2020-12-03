@@ -54,7 +54,10 @@ class Item {
 	static iconset_cache;
 
 	static async init(iconset_url) {
-		await load_tpl(ROOT_URL + 'tpl/window/item.tpl');
+		await Promise.all([
+			load_tpl(ROOT_URL + 'tpl/window/item.tpl'),
+			load_tpl(ROOT_URL + 'tpl/window/recipe.tpl'),
+		]);
 
 		let cached = await new Promise((resolve, reject) => {
 			if (!window.indexedDB) {
@@ -212,6 +215,49 @@ class ItemTooltip {
 		const old_tooltip = this.shadow.querySelector('#item_info');
 		const newdata = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
 		old_tooltip.replaceWith(newdata.querySelector('#item_info'));
+		this.dom.style.display = 'block';
+		this.dom.style.left = bounds.right + 3 + 'px';
+		this.dom.style.top = bounds.top + 'px';
+	}
+
+}
+
+class RecipeTooltip {
+	constructor(args) {
+		this.recipe = args.recipe || { id: 0 }
+		this.db = args.db || document.db;
+
+		this.tpl = new Template('tpl-recipe-info');
+		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
+		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit });
+
+		this.dom = document.createElement('div');
+		this.dom.className = 'window';
+		this.shadow = this.dom.attachShadow({mode: 'open'});
+		this.shadow.append(data);
+
+		align_dom(this.shadow.querySelectorAll('.input'), 25);
+
+		if (!this.edit) {
+			this.dom.style.border = 'none';
+			this.dom.style.display = 'none';
+			this.dom.style.position = 'fixed';
+			this.dom.style.backgroundColor = 'transparent';
+			this.dom.style.color = '#fff';
+			this.dom.onmouseenter = (e) => { this.dom.style.display = 'none'; };
+			const tooltip = this.shadow.querySelector('#recipe_info');
+			tooltip.remove();
+			this.shadow.append(tooltip);
+			args.parent_el.append(this.dom);
+		}
+	}
+
+	reload(recipe, bounds) {
+		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
+		this.recipe = recipe;
+		const old_tooltip = this.shadow.querySelector('#recipe_info');
+		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit });
+		old_tooltip.replaceWith(newdata.querySelector('#recipe_info'));
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';
 		this.dom.style.top = bounds.top + 'px';
