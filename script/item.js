@@ -223,13 +223,22 @@ class ItemTooltip {
 }
 
 class RecipeTooltip {
+	static craft_types = init_id_array([
+		{ id: 0, name: 'None' },
+		{ id: 158, name: 'Blacksmith' },
+		{ id: 159, name: 'Tailor' },
+		{ id: 160, name: 'Craftsman' },
+		{ id: 161, name: 'Apothecary' },
+	]);
+
 	constructor(args) {
 		this.recipe = args.recipe || { id: 0 }
 		this.db = args.db || document.db;
+		this.simplified = args.simplified;
 
 		this.tpl = new Template('tpl-recipe-info');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
-		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit });
+		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit, simplified: this.simplified });
 
 		this.dom = document.createElement('div');
 		this.dom.className = 'window';
@@ -256,7 +265,7 @@ class RecipeTooltip {
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
 		const old_tooltip = this.shadow.querySelector('#recipe_info');
-		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit });
+		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit, simplified: this.simplified });
 		old_tooltip.replaceWith(newdata.querySelector('#recipe_info'));
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';

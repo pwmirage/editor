@@ -42,10 +42,11 @@
 			</p>
 
 			<div class="targets">
+				{assign targets = ($simplified ? ($recipe.targets?.filter(t => t?.id)) : $recipe.targets) || []}
 				{for i = 0; i < 4; i++}
 					<div class="target">
-						{assign tgt = $recipe.targets[$i] || \{ id: 0 \}}
-						<span class="prob">{@($tgt.prob * 100) || "0"}%</span>
+						{assign tgt = $targets[$i] || \{ id: 0 \}}
+						<span class="prob">{@$sanitize_f(($tgt.prob || 0) * 100)}%</span>
 						<span class="item" data-id="{@$tgt.id}" tabindex="0">
 							<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
 						</span>
@@ -57,7 +58,7 @@
 					{for i = 0; i < 4; i++}
 						<div class="target">
 							{assign tgt = $prev.targets[$i] || \{ id: 0 \}}
-							<span class="prob">{@($tgt.prob * 100) || "0"}%</span>
+							<span class="prob">{@$sanitize_f(($tgt.prob || 0) * 100)}%</span>
 							<span class="item" data-id="{@$tgt.id}" tabindex="0">
 								<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
 							</span>
@@ -69,37 +70,36 @@
 			<p style="margin-top: 5px;">
 				<div class="data flex-equal">
 					<span>
-						{if $recipe.craft_id === 0}
+						{if !$recipe.skill_id}
 							Generic Craft
 						{else}
-							(Craft #{@$recipe.craft_id})&nbsp;
-							Lv {@$recipe.craft_level}
+							(Req. {@RecipeTooltip.craft_types[$recipe.skill_id]?.name} Lv {@$recipe.skill_level})
 						{/if}
 					</span>
-					<span>Fail chance: {@$recipe.fail_prob * 100}%</span>
+					<span>Fail chance: {@$sanitize_f(($recipe.fail_prob || 0) * 100)}%</span>
 				</div>
-				{if $prev.craft_id !== undefined || $prev.craft_level !== undefined || $prev.fail_prob !== undefined}
+				{if $prev.skill_id !== undefined || $prev.skill_level !== undefined || $prev.fail_prob !== undefined}
 					<div class="prev flex-equal">
 						<span>
-							{if get_default($prev.craft_id, $recipe.craft_id) === 0}
+							{if get_default($prev.skill_id, $recipe.skill_id) === 0}
 								Generic Craft
 							{else}
-								(Craft #{@get_default($prev.craft_id, $recipe.craft_id)})
-								Lv {@get_default($prev.craft_level, $recipe.craft_level)}
+								(Req. {@RecipeTooltip.craft_types[get_default($prev.skill_id, $recipe.skill_id)]?.name} Lv {@get_default($prev.skill_level, $recipe.skill_level)})
 							{/if}
 						</span>
-						<span>Fail chance: {@get_default($prev.fail_prob, $recipe.fail_prob) * 100}%</span>
+						<span>Fail chance: {@get_default($prev.fail_prob, $recipe.fail_prob || 0) * 100}%</span>
 					</div>
 				{/if}
 			</p>
 
 			<p style="margin: 5px 0;">Mats:</p>
+			{assign materials = ($simplified ? ($recipe.mats?.filter(t => t?.id)) : $recipe.mats) || []}
 			{for off = 0; off < 8; off += 4}
 				<div class="materials">
 					{for i = $off; i < $off + 4; i++}
 						<div class="material">
-							{assign tgt = $recipe.mats[$i] || \{ id: 0 \}}
-							<span class="num">{@($tgt.prob * 100) || "0"}%</span>
+							{assign tgt = $materials[$i] || \{ id: 0 \}}
+							<span class="num">{@$tgt.num || "0"}</span>
 							<span class="item" data-id="{@$tgt.id}" tabindex="0">
 								<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
 							</span>
@@ -111,7 +111,7 @@
 						{for i = $off; i < $off + 4; i++}
 							<div class="material">
 								{assign tgt = $prev.mats[$i] || \{ id: 0 \}}
-								<span class="num">{@($tgt.prob * 100) || "0"}%</span>
+								<span class="num">{@$tgt.num || "0"}</span>
 								<span class="item" data-id="{@$tgt.id}" tabindex="0">
 									<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
 								</span>
@@ -123,26 +123,26 @@
 
 			<p style="margin-top: 5px;">
 				<div class="data flex-equal">
-					<span>Coins: {@$recipe.coins}</span>
+					<span>Coins: {@$recipe.coins || 0}</span>
 				</div>
 				{if $prev.coins}
 					<div class="prev flex-equal">
-						<span>Coins: {@$prev.coins}</span>
+						<span>Coins: {@$prev.coins || 0}</span>
 					</div>
 				{/if}
 			</p>
 
 			<p style="margin-top: 5px;">
 			<div class="data flex-equal">
-				<span>Craft time {@$recipe.duration}s</span>
-				<span>Gained XP: {@$recipe.xp}</span>
-				<span>SP: {@$recipe.sp}</span>
+				<span>Craft time {@$recipe.duration || 0}s</span>
+				<span>Gained XP: {@$recipe.xp || 0}</span>
+				<span>SP: {@$recipe.sp || 0}</span>
 			</div>
 			{if $prev.xp !== undefined || $prev.sp !== undefined || $prev.duration !== undefined}
 				<div class="prev flex-equal">
-					<span>Craft time {@get_default($prev.duration, $recipe.duration)}s</span>
-					<span>Gained XP: {@get_default($prev.xp, $recipe.xp)}</span>
-					<span>SP: {@get_default($prev.sp, $recipe.sp)}</span>
+					<span>Craft time {@get_default($prev.duration, $recipe.duration || 0)}s</span>
+					<span>Gained XP: {@get_default($prev.xp, $recipe.xp || 0)}</span>
+					<span>SP: {@get_default($prev.sp, $recipe.sp || 0)}</span>
 				</div>
 			{/if}
 

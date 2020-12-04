@@ -6,14 +6,6 @@ let g_open_npc_crafts = new Set();
 let g_npc_tpl = load_tpl(ROOT_URL + 'tpl/window/npc.tpl')
 
 class NPCCraftsWindow extends Window {
-	static craft_types = init_id_array([
-		{ id: 0, name: 'None' },
-		{ id: 158, name: 'Blacksmith' },
-		{ id: 159, name: 'Tailor' },
-		{ id: 160, name: 'Craftsman' },
-		{ id: 161, name: 'Apothecary' },
-	]);
-
 	async init() {
 		await g_npc_tpl;
 		this.crafts = this.args.crafts;
@@ -30,7 +22,7 @@ class NPCCraftsWindow extends Window {
 		await super.init();
 		this.select(0);
 
-		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db, edit: false });
+		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db, edit: false, simplified: true });
 		const s = newStyle(ROOT_URL + 'css/preview.css');
 		const s_p = new Promise((resolve) => { s.onload = resolve; });
 		this.recipe_win.shadow.prepend(s);

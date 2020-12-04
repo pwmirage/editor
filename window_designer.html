@@ -77,7 +77,7 @@
 								await load_tpl(ROOT_URL + 'tpl/window/' + win_name + '.tpl');
 								const cls = eval(cls_name);
 								const spawner = db.spawners_gs01[12920];
-								g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109], crafts: db.npc_crafts[2902],
+								g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109], crafts: db.npc_crafts[2902], simplified: true,
 										goods: db.npc_sells[2241], item: db.items[40], x: win_name == 'rmenu' ? 100 : 0, y: win_name == 'rmenu' ? 100 : 0, edit: true,
 										entries: [ { id: 0, name: 'First', children: [ { id: 1, name: 'NPC' } ] }, { id: 1, name: 'Second' }] });
 								if (prev_win) {

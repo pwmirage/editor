@@ -21,7 +21,7 @@
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 75px;">Shown skill</span>
-		<span data-select="NPCCraftsWindow.craft_types" style="flex: 1;" data-link="{serialize $crafts} => 'make_skill_id'"></span>
+		<span data-select="RecipeTooltip.craft_types" style="flex: 1;" data-link="{serialize $crafts} => 'make_skill_id'"></span>
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
