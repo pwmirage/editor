@@ -56,8 +56,8 @@ class PWDB {
 		}
 
 		 g_db_promises[name] = Promise.all([
-			PWDB.register_data_type(db, 'spawners_' + name, 'spawners', ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
-			PWDB.register_data_type(db, 'resources_' + name, 'resources', ROOT_URL + 'data/base/map/' + name + '/resources.json'),
+			PWDB.register_data_type(db, {}, 'spawners_' + name, 'spawners', ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
+			PWDB.register_data_type(db, {}, 'resources_' + name, 'resources', ROOT_URL + 'data/base/map/' + name + '/resources.json'),
 		]);
 		return g_db_promises[name];
 	}

@@ -2,8 +2,136 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_open_npc_goods = new Set();
+let g_open_npc_crafts = new Set();
 let g_npc_tpl = load_tpl(ROOT_URL + 'tpl/window/npc.tpl')
+
+class NPCCraftsWindow extends Window {
+	static craft_types = init_id_array([
+		{ id: 0, name: 'None' },
+		{ id: 158, name: 'Blacksmith' },
+		{ id: 159, name: 'Tailor' },
+		{ id: 160, name: 'Craftsman' },
+		{ id: 161, name: 'Apothecary' },
+	]);
+
+	async init() {
+		await g_npc_tpl;
+		this.crafts = this.args.crafts;
+		if (!this.args.debug &&g_open_npc_crafts.has(this.crafts)) return false;
+		g_open_npc_crafts.add(this.crafts);
+
+		const shadow = this.dom.shadowRoot;
+		this.tpl = new Template('tpl-npc-crafts');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+
+		const data = await this.tpl.run({ win: this, crafts: this.crafts });
+		shadow.append(data);
+
+		await super.init();
+		this.select(0);
+
+		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db, edit: false });
+		const s = newStyle(ROOT_URL + 'css/preview.css');
+		const s_p = new Promise((resolve) => { s.onload = resolve; });
+		this.recipe_win.shadow.prepend(s);
+		await s_p;
+	}
+
+	get_recipe_icon(recipe_id) {
+		if (!recipe_id) {
+			return (ROOT_URL + 'img/itemslot.png');
+		}
+
+		const recipe = db.recipes[recipe_id];
+		const tgt_id = recipe?.targets?.[0]?.id || 0;
+
+		if (!tgt_id) {
+			return (ROOT_URL + 'img/itemslot.png');
+		}
+
+		return Item.get_icon(db.items[tgt_id]?.icon || 0);
+	}
+
+	onmousemove(e) {
+		if (!this.recipe_win) {
+			return;
+		}
+
+		const recipe = e.path?.find(el => el?.classList?.contains('recipe'));
+		HTMLSugar.show_recipe_tooltip(this.recipe_win, recipe, { db });
+
+	}
+
+	onclick(e) {
+		const hover_el = this.recipe_win?.hover_el;
+		if (hover_el == undefined || this.selected_tab == undefined) {
+			return;
+		}
+
+		let page = this.crafts.pages[this.selected_tab];
+		const recipe_idx = parseInt(hover_el.dataset.idx);
+
+		(async () => {
+			if (e.which == 1) {
+				const recipeid = page?.recipe_id? page.recipe_id[recipe_idx] : 0;
+				const obj = db.recipes[recipeid];
+				const coords = Window.get_el_coords(hover_el);
+				const x = coords.left;
+				const y = coords.bottom;
+
+				HTMLSugar.open_edit_rmenu(x, y, 
+					obj, 'recipes', {
+					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + serialize_db_id(this.crafts.id),
+					update_obj_fn: (new_obj) => {
+						const s = this.crafts;
+						db.open(s);
+
+						let page = this.crafts.pages[this.selected_tab];
+						if (!page) {
+							page = this.crafts.pages[this.selected_tab] = {};
+						}
+
+						if (!page.recipe_id) {
+							page.recipe_id = [];
+						}
+
+						page.recipe_id[recipe_idx] = new_obj?.id;
+
+						db.commit(s);
+						this.tpl.reload('#items');
+
+					},
+					edit_obj_fn: (new_obj) => {
+						/* TODO */
+						//ItemTooltipWindow.open({ item: new_obj, edit: true });
+					},
+					usage_name_fn: (recipe) => {
+						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
+					}
+				});
+				
+
+			}
+		})();
+		e.preventDefault();
+		return false;
+	}
+
+	close() {
+		g_open_npc_crafts.delete(this.goods);
+		super.close();
+	}
+
+	select(idx) {
+		this.selected_tab = idx;
+		for (const tname of this.shadow.querySelectorAll('.tabname')) {
+			tname.classList.remove('selected');
+		}
+
+		this.shadow.querySelectorAll('.tabname')[idx].classList.add('selected');
+		this.tpl.reload('#items');
+	}
+}
 
 class NPCGoodsWindow extends Window {
 	async init() {
@@ -299,20 +427,35 @@ class NPCWindow extends Window {
 		const coords = Window.get_el_coords(el);
 		const x = coords.left;
 		const y = coords.bottom;
-		const obj = db.npc_sells[this.npc.id_sell_service || 0];
+		let obj;
+		const is_craft = what == 'crafts';
+		if (!is_craft) {
+			obj = db.npc_sells[this.npc.id_sell_service || 0];
+		} else {
+			obj = db.npc_crafts[this.npc.id_make_service || 0];
+		}
+
 		HTMLSugar.open_edit_rmenu(x, y, 
-			obj, 'npc_sells', {
-			pick_win_title: 'Pick new Goods for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
+			obj, 'npc_' + what, {
+				pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
 			update_obj_fn: (new_obj) => {
 				const n = this.npc;
 				db.open(n);
-				n.id_sell_service = new_obj?.id || 0;
+				if (is_craft) {
+					n.id_make_service = new_obj?.id || 0;
+				} else {
+					n.id_sell_service = new_obj?.id || 0;
+				}
 				db.commit(n);
 				this.tpl.reload('#goods');
 
 			},
 			edit_obj_fn: (new_obj) => {
-				NPCGoodsWindow.open({ goods: new_obj });
+				if (is_craft) {
+					NPCCraftsWindow.open({ crafts: new_obj });
+				} else {
+					NPCGoodsWindow.open({ goods: new_obj });
+				}
 			},
 		});
 

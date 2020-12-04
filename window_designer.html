@@ -41,9 +41,11 @@
 
 
 			window.onload = async () => {
-				await g_loaded;
+				await g_mg_loaded;
+				await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
 				await Editor.load();
-				await db.load_map('gs01')
+				db = await PWDB.new_db({});
+				await PWDB.load_db_map(db, 'gs01')
 
 				Template.debug = true;
 				Window.set_container(document.querySelector('#windows'));
@@ -75,7 +77,7 @@
 								await load_tpl(ROOT_URL + 'tpl/window/' + win_name + '.tpl');
 								const cls = eval(cls_name);
 								const spawner = db.spawners_gs01[12920];
-								g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109],
+								g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109], crafts: db.npc_crafts[2902],
 										goods: db.npc_sells[2241], item: db.items[40], x: win_name == 'rmenu' ? 100 : 0, y: win_name == 'rmenu' ? 100 : 0, edit: true,
 										entries: [ { id: 0, name: 'First', children: [ { id: 1, name: 'NPC' } ] }, { id: 1, name: 'Second' }] });
 								if (prev_win) {
