@@ -2,7 +2,7 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_item_tpl = load_tpl(ROOT_URL + 'tpl/window/item.tpl');
+const g_item_tpl = load_tpl(ROOT_URL + 'tpl/item_tooltip.tpl');
 class ItemChooserWindow extends ChooserWindow {
 	async init() {
 		this.args.tpl = 'tpl-item-chooser';

@@ -55,8 +55,8 @@ class Item {
 
 	static async init(iconset_url) {
 		await Promise.all([
-			load_tpl(ROOT_URL + 'tpl/window/item.tpl'),
-			load_tpl(ROOT_URL + 'tpl/window/recipe.tpl'),
+			load_tpl(ROOT_URL + 'tpl/item_tooltip.tpl'),
+			load_tpl(ROOT_URL + 'tpl/recipe_tooltip.tpl'),
 		]);
 
 		let cached = await new Promise((resolve, reject) => {
