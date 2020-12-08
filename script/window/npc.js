@@ -1,5 +1,5 @@
-/*
- * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
+/* SPDX-License-Identifier: MIT
+ * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
 let g_open_npc_crafts = new Set();
@@ -9,7 +9,7 @@ class NPCCraftsWindow extends Window {
 	async init() {
 		await g_npc_tpl;
 		this.crafts = this.args.crafts;
-		if (!this.args.debug &&g_open_npc_crafts.has(this.crafts)) return false;
+		if (!this.args.debug && g_open_npc_crafts.has(this.crafts)) return false;
 		g_open_npc_crafts.add(this.crafts);
 
 		const shadow = this.dom.shadowRoot;
@@ -20,13 +20,13 @@ class NPCCraftsWindow extends Window {
 		shadow.append(data);
 
 		await super.init();
-		this.select(0);
 
-		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db, edit: false, simplified: true });
-		const s = newStyle(ROOT_URL + 'css/preview.css');
-		const s_p = new Promise((resolve) => { s.onload = resolve; });
-		this.recipe_win.shadow.prepend(s);
-		await s_p;
+		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
+		this.recipe_win = await RecipeWindow.open({ recipe: db.recipes.values().next().value, embedded: true });
+
+		this.select_tab(0);
+		this.shadow.querySelector('#items .recipe').click();
+
 	}
 
 	get_recipe_icon(recipe_id) {
@@ -45,29 +45,36 @@ class NPCCraftsWindow extends Window {
 	}
 
 	onmousemove(e) {
-		if (!this.recipe_win) {
-			return;
-		}
+		const item = e.path?.find(el => el?.classList?.contains('item'));
 
-		const recipe = e.path?.find(el => el?.classList?.contains('recipe'));
-		HTMLSugar.show_recipe_tooltip(this.recipe_win, recipe, { db });
-
+		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
 	}
 
 	onclick(e) {
-		const hover_el = this.recipe_win?.hover_el;
-		if (hover_el == undefined || this.selected_tab == undefined) {
+		if (this.selected_tab == undefined) {
 			return;
 		}
 
+		const recipe_el = e.path?.find(el => el?.classList?.contains('recipe'));
+		if (!recipe_el) {
+			return;
+		}
+
+		const recipe_idx = parseInt(recipe_el.dataset.id);
+		if (!recipe_idx) {
+			return;
+		}
+
+		this.select_recipe(recipe_el);
+
+		const obj = db.recipes[recipe_idx] || { id: recipe_idx };
 		let page = this.crafts.pages[this.selected_tab];
-		const recipe_idx = parseInt(hover_el.dataset.idx);
 
 		(async () => {
-			if (e.which == 1) {
+			if (e.which == 3) {
 				const recipeid = page?.recipe_id? page.recipe_id[recipe_idx] : 0;
 				const obj = db.recipes[recipeid];
-				const coords = Window.get_el_coords(hover_el);
+				const coords = Window.get_el_coords(recipe_el);
 				const x = coords.left;
 				const y = coords.bottom;
 
@@ -105,8 +112,7 @@ class NPCCraftsWindow extends Window {
 
 			}
 		})();
-		e.preventDefault();
-		return false;
+
 	}
 
 	close() {
@@ -114,7 +120,7 @@ class NPCCraftsWindow extends Window {
 		super.close();
 	}
 
-	select(idx) {
+	select_tab(idx) {
 		this.selected_tab = idx;
 		for (const tname of this.shadow.querySelectorAll('.tabname')) {
 			tname.classList.remove('selected');
@@ -122,9 +128,26 @@ class NPCCraftsWindow extends Window {
 
 		this.shadow.querySelectorAll('.tabname')[idx].classList.add('selected');
 		this.tpl.reload('#items');
+		this.select_recipe(this.shadow.querySelector('#items .recipe'));
+	}
+
+	select_recipe(recipe_el) {
+		this.selected_recipe = recipe_el.dataset.idx;
+		const page = this.crafts.pages[this.selected_tab];
+		const recipe_id = page.recipe_id[this.selected_recipe];
+		const recipe = db.recipes[recipe_id] || { id: recipe_id };
+
+		const prev_focused = this.shadow.querySelector('.recipe.focus');
+		if (prev_focused) prev_focused.classList.remove('focus');
+		recipe_el.classList.add('focus');
+
+		this.tpl.reload('#recipe');
+		const recipe_edit_el = this.shadow.querySelector('#recipe');
+		this.recipe_win.reembed(recipe_edit_el, recipe);
 	}
 }
 
+let g_open_npc_goods = new Set();
 class NPCGoodsWindow extends Window {
 	async init() {
 		await g_npc_tpl;

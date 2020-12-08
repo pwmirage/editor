@@ -35,6 +35,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/npc.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/recipe.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/map_chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/unsupported.js?v=' + MG_VERSION),

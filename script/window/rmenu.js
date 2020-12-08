@@ -29,6 +29,16 @@ class RMenuWindow extends Window {
 		super.init();
 	}
 
+	activate() {
+		this.activated = true;
+	}
+
+	tryclose() {
+		if (this.activated) {
+			this.close();
+		}
+	}
+
 	hover_entry(el) {
 		const entries = this.shadow.querySelectorAll('.entry.hovered');
 		for (const e of entries) {

@@ -364,6 +364,16 @@ a.button:hover:not(.disabled) {
 	text-decoration: none;
 }
 
+.item {
+	display: inline-block;
+	height: 32px;
+	outline: none;
+}
+
+.menu-triangle {
+	position: relative;
+}
+
 .menu-triangle:after,
 a.button.menu-triangle:after {
 	content: '';

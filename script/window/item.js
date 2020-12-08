@@ -58,7 +58,7 @@ class ItemChooserWindow extends ChooserWindow {
 				}
 			}
 		})();
-		
+
 		super.reload_items();
 	}
 
@@ -112,11 +112,12 @@ class ItemTooltipWindow extends Window {
 	async init() {
 		this.item = this.args.item || db.items.entries().next().value[1];
 		this.edit = this.args.edit || false;
-		
+		this.db = this.args.db;
+
 		await g_item_tpl;
 		this.tpl = new Template('tpl-item-info');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-		const data = this.tpl.run({ win: this, item: this.item, edit: this.edit });
+		const data = this.tpl.run({ win: this, item: this.item, edit: this.edit, db: this.db });
 
 		this.shadow.append(data);
 		await super.init();

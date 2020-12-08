@@ -110,9 +110,9 @@ class Template {
 		return this.data;
 	}
 
-	reload(selector, args) {
+	reload(selector, args, tpl_args = {}) {
 		const raw = this.raw_data.querySelector(selector);
-		const real = this.data.querySelector(selector);
+		const real = tpl_args.el || this.data.querySelector(selector);
 
 		if (!raw || !real) {
 			return false;

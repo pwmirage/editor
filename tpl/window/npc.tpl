@@ -23,18 +23,26 @@
 		<span style="width: 75px;">Shown skill</span>
 		<span data-select="RecipeTooltip.craft_types" style="flex: 1;" data-link="{serialize $crafts} => 'make_skill_id'"></span>
 	</div>
-	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
 	{for i = 0; i < 8; i++}
-		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $crafts} => 'pages', {@$i}, 'title'" data-placeholder="(none)"></span>
+		<span class="tabname" data-input onfocus="{serialize $win}.select_tab({@$i});" data-link="{serialize $crafts} => 'pages', {@$i}, 'title'" data-placeholder="(none)"></span>
 	{/for}
 	</div>
-	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);" onmousedown="return {serialize $win}.onclick(event);" oncontextmenu="return {serialize $win}.onclick(event);">
+	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousedown="return {serialize $win}.onclick(event);" oncontextmenu="return {serialize $win}.onclick(event);">
 		{assign tab = $crafts.pages[$win.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.recipe_id ? $tab?.recipe_id[i] : 0}
-			<span class="recipe menu-triangle" ondblclick="" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@$win.get_recipe_icon($id)}" alt=""></span>
+			<span class="recipe menu-triangle" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@$win.get_recipe_icon($id)}" alt=""></span>
 		{/for}
+	</div>
+	<div id="recipe" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">
+		{if $win.selected_recipe != undefined}
+			{assign recipe_id = $crafts.pages[$win.selected_tab].recipe_id[$win.selected_recipe]}
+			{assign recipe = db.recipes[$recipe_id] || \{ id: $recipe_id \}}
+			<div style="background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">
+				Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}
+			</div>
+		{/if}
 	</div>
 </div>
 </div>
@@ -58,6 +66,7 @@ span.tabname {
 span.tabname.selected {
 	border-bottom: 5px solid #e0b0b0;
 	margin-bottom: 0px;
+	box-shadow: 1px 1px 5px #ceccc7;
 }
 
 #items {
@@ -77,17 +86,18 @@ span.tabname.selected {
 	outline: none;
 }
 
-#items > .recipe:focus {
+#items > .recipe:hover {
 	box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
 	border: 1px solid var(--header-color);
 	margin: -1px;
 }
 
-.item.menu-triangle:after {
-	border-color: transparent transparent #a0b2a6 transparent;
+.menu-triangle:after {
+	border-color: transparent transparent #a0b2a6 transparent !important;
 }
 
-#items > .recipe:focus:before {
+#items > .recipe:focus:before,
+#items > .recipe.focus:before {
 	content: ' ';
 	position: absolute;
 	left: 0;
@@ -98,6 +108,9 @@ span.tabname.selected {
 	opacity: 0.4;
 }
 
+#recipe {
+	margin-top: 8px;
+}
 </style>
 @@}
 </script>

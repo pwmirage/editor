@@ -112,6 +112,11 @@ class Item {
 			return Item.icons[index];
 		}
 
+		if (!Item.icon_canvas_ctx) {
+			/* only cached icons */
+			return Item.icons[0];
+		}
+
 		let width = Item.iconset_img?.width / 32;
 		let height = Item.iconset_img?.height / 32;
 		let x = index % width;
@@ -125,6 +130,16 @@ class Item {
 		Item.icons[index] = Item.icon_canvas.toDataURL('image/jpeg', 0.95);
 		return Item.icons[index];
 	}
+
+	static get_icon_by_item(db, id) {
+		if (!id) {
+			return (ROOT_URL + 'img/itemslot.png');
+		}
+
+		const item = db.items[id];
+		return Item.get_icon(item?.icon || 0);
+	}
+
 
 	static load_iconset(url) {
 		Item.icon_canvas = document.createElement('canvas')
@@ -202,10 +217,18 @@ class ItemTooltip {
 			this.dom.style.backgroundColor = 'transparent';
 			this.dom.style.color = '#fff';
 			this.dom.onmouseenter = (e) => { this.dom.style.display = 'none'; };
+
+			const s = newStyle(ROOT_URL + 'css/preview.css');
+			const s_p = new Promise((resolve) => { s.onload = resolve; });
+			this.shadow.prepend(s);
+
 			const tooltip = this.shadow.querySelector('#item_info');
 			tooltip.remove();
 			this.shadow.append(tooltip);
-			args.parent_el.append(this.dom);
+
+			s_p.then(() => {
+				args.parent_el.append(this.dom);
+			});
 		}
 	}
 

@@ -7,7 +7,7 @@
 </div>
 </div>
 
-<div id="background" onclick="{serialize $win}.close();" oncontextmenu="this.onclick(); return false;" class="{if $bg}visible{/if}">
+<div id="background" onmousedown="{serialize $win}.activate();" onclick="{serialize $win}.tryclose();" oncontextmenu="this.onclick(); return false;" class="{if $bg}visible{/if}">
 	<div class="menu" style="left: {@$x}px; top: {@$y}px;" oncontextmenu="event.stopPropagation(); return false;">
 		{for e of $entries}
 			{if $e.visible == false}{continue}{/if}
