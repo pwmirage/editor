@@ -23,7 +23,7 @@
 
 	{if $item.type == Item.typeid('Weapon')}
 		{* ======== WEAPONS ========= *}
-		<span class="flex-columns" style=""><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
+		<span class="flex-columns" style="{if !$edit}font-size: 13px; margin-bottom: 3px;{/if}"><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
 			<span {@$data_preview} data-select="Item.types" class="noalign" style="width: 175px;" data-link="{serialize $item} => 'type'" data-title="Change item type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 		<span style="">
 			<span {@$data_preview} data-select="{serialize $db}.weapon_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change weapon type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
