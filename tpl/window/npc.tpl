@@ -39,8 +39,10 @@
 		{if $win.selected_recipe != undefined}
 			{assign recipe_id = $crafts.pages[$win.selected_tab].recipe_id[$win.selected_recipe]}
 			{assign recipe = db.recipes[$recipe_id] || \{ id: $recipe_id \}}
-			<div style="background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">
-				Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}
+			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 8px;">
+				<span style="align-self: center;">Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}</span>
+				<span style="flex: 1;"></span>
+				<i id="recipe-details" class="fa fa-ellipsis-v"></i>
 			</div>
 		{/if}
 	</div>
@@ -110,6 +112,15 @@ span.tabname.selected {
 
 #recipe {
 	margin-top: 8px;
+}
+
+#recipe-details {
+	padding: 10px 14px;
+	font-size: 14px;
+}
+
+#recipe-details:hover {
+	cursor: pointer;
 }
 </style>
 @@}

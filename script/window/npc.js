@@ -22,7 +22,8 @@ class NPCCraftsWindow extends Window {
 		await super.init();
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
-		this.recipe_win = await RecipeWindow.open({ recipe: db.recipes.values().next().value, embedded: true });
+		const recipe_edit_el = this.shadow.querySelector('#recipe');
+		this.recipe_win = await RecipeWindow.open({ recipe: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
 
 		this.select_tab(0);
 		this.shadow.querySelector('#items .recipe').click();
@@ -51,6 +52,7 @@ class NPCCraftsWindow extends Window {
 	}
 
 	onclick(e) {
+		e.preventDefault();
 		if (this.selected_tab == undefined) {
 			return;
 		}
@@ -65,15 +67,15 @@ class NPCCraftsWindow extends Window {
 			return;
 		}
 
-		this.select_recipe(recipe_el);
+		if (e.which == 1) {
+			this.select_recipe(recipe_el);
+		}
 
 		const obj = db.recipes[recipe_idx] || { id: recipe_idx };
 		let page = this.crafts.pages[this.selected_tab];
 
 		(async () => {
 			if (e.which == 3) {
-				const recipeid = page?.recipe_id? page.recipe_id[recipe_idx] : 0;
-				const obj = db.recipes[recipeid];
 				const coords = Window.get_el_coords(recipe_el);
 				const x = coords.left;
 				const y = coords.bottom;
@@ -103,6 +105,7 @@ class NPCCraftsWindow extends Window {
 					edit_obj_fn: (new_obj) => {
 						/* TODO */
 						//ItemTooltipWindow.open({ item: new_obj, edit: true });
+						RecipeWindow.open({ recipe: new_obj });
 					},
 					usage_name_fn: (recipe) => {
 						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
