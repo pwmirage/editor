@@ -1,5 +1,5 @@
 <script id="tpl-npc-crafts" type="text/x-dot-template">
-<div class="window" style="width: 316px; height: 400px;">
+<div class="window" style="width: 316px;">
 <div class="header">
 	<span>
 		Crafts: {@$crafts._name || ""} #{@$crafts.id}
@@ -116,12 +116,13 @@ span.tabname.selected {
 
 #recipe {
 	margin-top: 8px;
-	height: 400px;
+	min-height: 400px;
 }
 
 #recipe-details {
 	padding: 10px 14px;
 	font-size: 14px;
+	word-break: break-word;
 }
 
 #recipe-details:hover {
