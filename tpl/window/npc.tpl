@@ -42,7 +42,7 @@
 			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 8px;">
 				<span style="align-self: center;">Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}</span>
 				<span style="flex: 1;"></span>
-				<i id="recipe-details" class="fa fa-ellipsis-v"></i>
+				<i id="recipe-details" class="fa fa-ellipsis-v" onclick="{serialize $win}.recipe_details_onclick(this, event);"></i>
 			</div>
 		{/if}
 	</div>

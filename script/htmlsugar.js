@@ -642,7 +642,7 @@ class HTMLSugar {
 		entries: [
 			{ id: 1, name: 'Edit directly', disabled: !obj },
 			{ id: 2, name: 'Pick' },
-			{ id: 3, name: 'Create new', visible: !obj },
+			{ id: 3, name: obj ? 'Replace with new' : 'Create new' },
 			{ id: 4, name: 'Clone & Edit', disabled: !obj },
 			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
 			{ name: '...', children: [
@@ -718,6 +718,61 @@ class HTMLSugar {
 			}
 			case 25: { /* clear */
 				update_obj_fn(null);
+				break;
+			}
+		}
+	}
+
+	static async open_details_rmenu(x, y, obj, obj_type, { update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
+		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
+		const usages = await PWDB.find_usages(db, obj);
+		const win = await RMenuWindow.open({
+		x, y, bg: false,
+		entries: [
+			{ id: 4, name: 'Clone & Edit', disabled: !obj },
+			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
+			{ name: '...', children: [
+				{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
+				{ id: 21, name: 'Rebase', disabled: !obj },
+				{ id: 22, name: 'Fork & Edit', disabled: !obj },
+				{ id: 23, name: 'Detach from base', disabled: !base },
+				{ id: 24, name: 'Apply to base', disabled: !base },
+			]},
+		]});
+		const sel = await win.wait();
+		switch(sel) {
+			case 4: { /* clone & edit */
+				const clone = db.clone(obj);
+				db.open(clone);
+				clone.name += ' (clone)';
+				db.commit(clone);
+				update_obj_fn(clone);
+				edit_obj_fn(clone);
+				break;
+			}
+			case 5: { /* find usages */
+				const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + serialize_db_id(obj.id), items: usages, width: 176, name_fn: usage_name_fn });
+
+				break;
+			}
+			case 21: { /* rebase */
+				break;
+			}
+			case 22: { /* fork & edit */
+				const fork = db.new(obj_type);
+
+				db.open(fork);
+				db.rebase(fork, obj);
+				db.commit(fork);
+
+				update_obj_fn(fork);
+				edit_obj_fn(fork);
+				break;
+			}
+			case 23: { /* detach from base */
+				break;
+			}
+			case 24: { /* apply to base */
 				break;
 			}
 		}

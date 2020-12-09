@@ -62,8 +62,9 @@ class NPCCraftsWindow extends Window {
 			return;
 		}
 
-		const recipe_idx = parseInt(recipe_el.dataset.id);
-		if (!recipe_idx) {
+		const recipe_idx = parseInt(recipe_el.dataset.idx);
+		const recipe_id = parseInt(recipe_el.dataset.id);
+		if (isNaN(recipe_idx) || isNaN(recipe_id)) {
 			return;
 		}
 
@@ -71,7 +72,7 @@ class NPCCraftsWindow extends Window {
 			this.select_recipe(recipe_el);
 		}
 
-		const obj = db.recipes[recipe_idx] || { id: recipe_idx };
+		const obj = db.recipes[recipe_id] || { id: recipe_id };
 		let page = this.crafts.pages[this.selected_tab];
 
 		(async () => {
@@ -103,8 +104,6 @@ class NPCCraftsWindow extends Window {
 
 					},
 					edit_obj_fn: (new_obj) => {
-						/* TODO */
-						//ItemTooltipWindow.open({ item: new_obj, edit: true });
 						RecipeWindow.open({ recipe: new_obj });
 					},
 					usage_name_fn: (recipe) => {
@@ -116,6 +115,45 @@ class NPCCraftsWindow extends Window {
 			}
 		})();
 
+	}
+
+	recipe_details_onclick(el, e) {
+		const page = this.crafts.pages[this.selected_tab];
+		const recipe_id = page.recipe_id[this.selected_recipe];
+		const recipe = db.recipes[recipe_id];
+
+		const coords = Window.get_el_coords(el);
+		const x = coords.left;
+		const y = coords.bottom;
+
+		HTMLSugar.open_details_rmenu(x, y, 
+			recipe, 'recipes', {
+			update_obj_fn: (new_obj) => {
+				const s = this.crafts;
+				db.open(s);
+
+				let page = this.crafts.pages[this.selected_tab];
+				if (!page) {
+					page = this.crafts.pages[this.selected_tab] = {};
+				}
+
+				if (!page.recipe_id) {
+					page.recipe_id = [];
+				}
+
+				page.recipe_id[this.selected_recipe] = new_obj?.id;
+
+				db.commit(s);
+				this.tpl.reload('#items');
+
+			},
+			edit_obj_fn: (new_obj) => {
+				RecipeWindow.open({ recipe: new_obj });
+			},
+			usage_name_fn: (recipe) => {
+				return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
+			}
+		});
 	}
 
 	close() {
@@ -135,7 +173,13 @@ class NPCCraftsWindow extends Window {
 	}
 
 	select_recipe(recipe_el) {
+		if (recipe_el.dataset.idx == this.selected_recipe &&
+				this.selected_recipe_tab == this.selected_tab) {
+			return;
+		}
+
 		this.selected_recipe = recipe_el.dataset.idx;
+		this.selected_recipe_tab = this.selected_tab;
 		const page = this.crafts.pages[this.selected_tab];
 		const recipe_id = page.recipe_id[this.selected_recipe];
 		const recipe = db.recipes[recipe_id] || { id: recipe_id };
