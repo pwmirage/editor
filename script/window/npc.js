@@ -192,9 +192,12 @@ class NPCCraftsWindow extends Window {
 		if (prev_focused) prev_focused.classList.remove('focus');
 		recipe_el.classList.add('focus');
 
-		this.tpl.reload('#recipe');
-		const recipe_edit_el = this.shadow.querySelector('#recipe');
-		this.recipe_win.reembed(recipe_edit_el, recipe);
+		const prev_recipe_el = this.shadow.querySelector('#recipe');
+		const container = newElement('<div><div></div></div>');
+		this.tpl.reload('#recipe', {}, { el: container.firstChild });
+		this.recipe_win.reembed(container.firstChild, recipe).then(() => {
+			prev_recipe_el.replaceWith(container.firstChild);
+		});
 	}
 }
 
