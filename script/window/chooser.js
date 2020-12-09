@@ -149,7 +149,7 @@ class SimpleChooserWindow extends ChooserWindow {
 				el.style.display = 'none';
 				continue;
 			}
-			el.textContent = this.name_fn ? this.name_fn(item) : item.name;
+			el.innerHTML = this.name_fn ? this.name_fn(item) : item.name;
 			el.style.display = '';
 		}
 

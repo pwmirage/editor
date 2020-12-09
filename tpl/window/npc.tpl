@@ -32,7 +32,7 @@
 		{assign tab = $crafts.pages[$win.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.recipe_id ? $tab?.recipe_id[i] : 0}
-			<span class="recipe menu-triangle" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@$win.get_recipe_icon($id)}" alt=""></span>
+			<span class="recipe menu-triangle" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($id)}" alt=""></span>
 		{/for}
 	</div>
 	<div id="recipe" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">

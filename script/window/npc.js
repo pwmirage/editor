@@ -30,7 +30,7 @@ class NPCCraftsWindow extends Window {
 
 	}
 
-	get_recipe_icon(recipe_id) {
+	static get_recipe_icon(recipe_id) {
 		if (!recipe_id) {
 			return (ROOT_URL + 'img/itemslot.png');
 		}
@@ -64,7 +64,7 @@ class NPCCraftsWindow extends Window {
 
 		const recipe_idx = parseInt(recipe_el.dataset.idx);
 		const recipe_id = parseInt(recipe_el.dataset.id);
-		if (isNaN(recipe_idx) || isNaN(recipe_id)) {
+		if (isNaN(recipe_idx)) {
 			return;
 		}
 
@@ -72,7 +72,7 @@ class NPCCraftsWindow extends Window {
 			this.select_recipe(recipe_el);
 		}
 
-		const obj = db.recipes[recipe_id] || { id: recipe_id };
+		const obj = db.recipes[recipe_id];
 		let page = this.crafts.pages[this.selected_tab];
 
 		(async () => {
@@ -108,7 +108,10 @@ class NPCCraftsWindow extends Window {
 					},
 					usage_name_fn: (recipe) => {
 						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
-					}
+					},
+					undo_obj: this.crafts,
+					undo_path: [ 'pages', this.selected_tab, 'recipe_id', recipe_idx ],
+					undo_fn: () => this.tpl.reload('#items'),
 				});
 				
 
@@ -152,7 +155,8 @@ class NPCCraftsWindow extends Window {
 			},
 			usage_name_fn: (recipe) => {
 				return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
-			}
+			},
+			undo_path: [ 'pages', this.selected_tab, 'recipe_id', this.selected_recipe ],
 		});
 	}
 
