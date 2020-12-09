@@ -36,10 +36,26 @@
 	</div>
 	<div>Materials:</div>
 	<div id="mats" class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
-		{for i = 0; i < 8; i++}
+		{assign count = 0}
+		{assign i = 0}
+		{assign slots_to_take = []}
+		{for mat of $recipe?.mats}
+			{if !$mat?.id}
+				{$slots_to_take.push($i)}
+				{$i++}
+				{continue}
+			{/if}
+			{$count++}
 			<div class="target">
-				{assign mat = $recipe?.mats?.[$i] || \{ \} }
 				<span class="item menu-triangle" onmousedown="{serialize $win}.item_onclick(event, this, 'mats', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'mats', {@$i});" data-id="{@$mat.id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $mat.id)}" alt=""></span>
+				<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $recipe} => 'mats', {@$i}, num" data-placeholder="(unnamed)"></span>
+			</div>
+			{$i++}
+		{/for}
+		{for j = $count; j < 8; j++}
+			{assign i = $slots_to_take.shift()}
+			<div class="target">
+				<span class="item menu-triangle" onmousedown="{serialize $win}.item_onclick(event, this, 'mats', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'mats', {@$i});" data-id="0" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, 0)}" alt=""></span>
 				<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $recipe} => 'mats', {@$i}, num" data-placeholder="(unnamed)"></span>
 			</div>
 		{/for}
