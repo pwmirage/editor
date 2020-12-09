@@ -371,6 +371,7 @@ a.button:hover:not(.disabled) {
 	width: 32px;
 	height: 32px;
 	outline: none;
+	user-select: none;
 }
 
 .menu-triangle {

@@ -104,7 +104,7 @@ class NPCCraftsWindow extends Window {
 
 					},
 					edit_obj_fn: (new_obj) => {
-						RecipeWindow.open({ recipe: new_obj });
+						RecipeWindow.open({ recipe: new_obj, debug: this.args.debug });
 					},
 					usage_name_fn: (recipe) => {
 						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
