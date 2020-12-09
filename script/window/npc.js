@@ -186,7 +186,7 @@ class NPCCraftsWindow extends Window {
 		this.selected_recipe_tab = this.selected_tab;
 		const page = this.crafts.pages[this.selected_tab];
 		const recipe_id = page.recipe_id[this.selected_recipe];
-		const recipe = db.recipes[recipe_id] || { id: recipe_id };
+		const recipe = db.recipes[recipe_id];
 
 		const prev_focused = this.shadow.querySelector('.recipe.focus');
 		if (prev_focused) prev_focused.classList.remove('focus');
@@ -195,9 +195,13 @@ class NPCCraftsWindow extends Window {
 		const prev_recipe_el = this.shadow.querySelector('#recipe');
 		const container = newElement('<div><div></div></div>');
 		this.tpl.reload('#recipe', {}, { el: container.firstChild });
-		this.recipe_win.reembed(container.firstChild, recipe).then(() => {
+		if (recipe) {
+			this.recipe_win.reembed(container.firstChild, recipe).then(() => {
+				prev_recipe_el.replaceWith(container.firstChild);
+			});
+		} else {
 			prev_recipe_el.replaceWith(container.firstChild);
-		});
+		}
 	}
 }
 
