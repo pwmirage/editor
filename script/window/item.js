@@ -28,7 +28,7 @@ class ItemChooserWindow extends ChooserWindow {
 			this.filter(this.args.itemname);
 		}
 
-		this.item_win = await ItemTooltipWindow.open({ parent_el: this.shadow, item: db.items.entries().next().value[1], edit: false });
+		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
 	}
 
 	reload_items() {
@@ -44,6 +44,7 @@ class ItemChooserWindow extends ChooserWindow {
 
 				if (item) {
 					el.firstElementChild.src = Item.get_icon(item.icon || 0);
+					el.dataset.id = item.id;
 					el.style.display = '';
 				} else {
 					el.style.display = 'none';
@@ -63,22 +64,7 @@ class ItemChooserWindow extends ChooserWindow {
 	}
 
 	hover_item(el) {
-		const info = this.item_win?.dom;
-		if (!info) {
-			/* still loading */
-			return;
-		}
-
-		if (!el) {
-			info.style.display = 'none';
-			return;
-		}
-
-		const idx = parseInt(el.dataset.type);
-		const item = this.items[this.pager_offset + idx];
-
-		const item_bounds = this.shadow.querySelector('#items').children[idx].getBoundingClientRect();
-		this.item_win.tooltip_over(item, item_bounds);
+		HTMLSugar.show_item_tooltip(this.item_win, el, { db });
 	}
 
 	_filter(f) {
