@@ -61,6 +61,7 @@ class Item {
 
 		let cached = await new Promise((resolve, reject) => {
 			if (!window.indexedDB) {
+				Item.gen_blank();
 				gen_all_icons();
 				return resolve(false);
 			}
@@ -100,6 +101,7 @@ class Item {
 
 		if (!cached) {
 			await Item.load_iconset(iconset_url);
+			await Item.gen_blank();
 			/* gen icons in (semi-)background */
 			Item.gen_promise = Item.gen_all_icons();
 		} else {
@@ -110,6 +112,11 @@ class Item {
 	static get_icon(index) {
 		if (Item.icons[index]) {
 			return Item.icons[index];
+		}
+
+		if (index < 0) {
+			/* the blank icon */
+			return Item.icons[Item.icons.length - 1];
 		}
 
 		if (!Item.icon_canvas_ctx) {
@@ -133,7 +140,7 @@ class Item {
 
 	static get_icon_by_item(db, id) {
 		if (!id) {
-			return (ROOT_URL + 'img/itemslot.png');
+			return Item.get_icon(-1);
 		}
 
 		const item = db.items[id];
@@ -155,6 +162,25 @@ class Item {
 			img.onerror = reject;
 			img.src = url;
 		});
+	}
+
+	static async gen_blank() {
+		const img = new Image();
+
+		await new Promise((resolve, reject) => {
+			img.onload = resolve;
+			img.onerror = reject;
+			img.src = ROOT_URL + 'img/itemslot.png';
+		});
+
+		const width = Item.iconset_img.width / 32;
+		const height = Item.iconset_img.height / 32;
+		const index = width * height;
+
+		Item.icon_canvas_ctx.drawImage(img, 0, 0, 32, 32, 0, 0, 32, 32);
+		Item.icons[index] = Item.icon_canvas.toDataURL('image/jpeg', 0.95);
+		return Item.icons[index];
+
 	}
 
 	static async gen_all_icons() {
