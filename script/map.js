@@ -393,6 +393,10 @@ class PWMap {
 	}
 
 	onmousemove(e) {
+		if (!this.map_bounds) {
+			return;
+		}
+
 		if (this.drag.drag_button) {
 			if (e.clientX == this.drag.origin.x &&
 					e.clientY == this.drag.origin.y) {
