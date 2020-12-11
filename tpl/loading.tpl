@@ -81,6 +81,10 @@
 	background-color: rgba(169, 68, 66, 1);
 }
 
+#labels > .warning {
+	background-color: #bb9107;
+}
+
 #curtain{
 	position: absolute;
 	width: 100vw;

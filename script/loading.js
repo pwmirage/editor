@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
+ */
+
 class Loading {
 	static labels = null;
 	static tpl = null;
@@ -66,9 +70,20 @@ class Loading {
 		return p;
 	}
 
-	static show_error_tag(name) {
-		const p = Loading.show_tag(name);
-		p.classList.add('error');
+	static show_error_tag(txt) {
+		return Loading.notify('error', txt);
+	}
+
+	static notify(arg1, arg2) {
+		let type = 'info';
+		let txt = arg1;
+		if (arg2) {
+			type = arg1;
+			txt = arg2;
+		}
+
+		const p = Loading.show_tag(txt);
+		p.classList.add(type);
 		setTimeout(() => {
 			Loading.hide_tag(p);
 		}, 8000);
