@@ -21,22 +21,23 @@ class Navbar {
 		};
 
 		p = this.add_button(b['editor'], 'Browse');
-		p = this.add_button(p, 'Items');
-		p = this.add_button(p, 'NPC Recipes');
-		p = this.add_button(p, 'NPC Goods');
-		p = this.add_button(p, 'NPCs');
-		p = this.add_button(p, 'Monsters');
-		p = this.add_button(p, 'Resources');
-		p = this.add_button(p, 'Triggers');
-		p = this.add_button(p, 'Quests');
+		b['items'] = p = this.add_button(p, 'Items');
+		b['recipes'] = p = this.add_button(p, 'Recipes');
+		b['npc_crafts'] = p = this.add_button(p, 'NPC Crafts');
+		b['npc_sells'] = p = this.add_button(p, 'NPC Goods');
+		b['npcs'] = p = this.add_button(p, 'NPCs');
+		b['monsters'] = p = this.add_button(p, 'Monsters');
+		b['resources'] = p = this.add_button(p, 'Resources');
+		b['triggers'] = p = this.add_button(p, 'Triggers');
+		b['quests'] = p = this.add_button(p, 'Quests');
 
 		p = this.add_button(null, 'Project');
-		this.add_button(p, 'Show summary');
-		b['proj_edit'] = this.add_button(p, 'Edit');
+		b['proj_summary'] = this.add_button(p, 'Show summary');
+		b['proj_new'] = this.add_button(p, 'New');
 		b['proj_save'] = this.add_button(p, 'Save');
 		b['proj_publish'] = this.add_button(p, 'Publish');
-		this.add_button(p, 'Rebase');
-		this.add_button(p, 'Share');
+		b['proj_rebase'] = this.add_button(p, 'Rebase');
+		b['proj_share'] = this.add_button(p, 'Share');
 
 		this.search = newElement('<div style="display: flex; align-items: center; padding-left: 15px;"><i class="fa fa-search" style="color: #fff;"></i><input type="text" style="margin-left: 5px;" placeholder="Quick search"></div>');
 		this.dom.append(this.search);
@@ -60,5 +61,29 @@ class Navbar {
 		}
 		parent.appendChild(btn);
 		return btn;
+	}
+
+	reload() {
+		const b = this.buttons;
+		const has_proj = !!db?.metadata[1]?.pid;
+
+		b['proj_summary'].onclick = () => {
+			HistoryWindow.open();
+		};
+
+		const set_enabled = (btn, enabled) => {
+			if (enabled) {
+				btn.classList.remove('disabled');
+			} else {
+				btn.classList.add('disabled');
+				btn.onclick = null;
+			}
+		};
+
+		set_enabled(b['proj_summary'], has_proj);
+		set_enabled(b['proj_save'], has_proj);
+		set_enabled(b['proj_publish'], has_proj);
+		set_enabled(b['proj_rebase'], has_proj);
+		set_enabled(b['proj_share'], has_proj);
 	}
 }
