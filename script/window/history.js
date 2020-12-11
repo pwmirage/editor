@@ -19,13 +19,13 @@ class HistoryWindow extends Window {
 
 		await super.init();
 
-		this.item_win = await ItemTooltipWindow.open({ parent_el: this.shadow, edit: false });
+		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
 	}
 
 	onmousemove(e) {
 		const item = e.path?.find(el => el?.classList?.contains('item'));
 
-		HTMLSugar.show_item_tooltip(this.item_win, item);
+		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
 	}
 
 	demo() {
