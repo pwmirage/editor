@@ -16,6 +16,10 @@ const mg_init = async () => {
 			MG_VERSION_FULL = await r.json();
 			MG_VERSION = MG_VERSION_FULL.mtime;
 		}),
+		fetch(ROOT_URL + 'project/t').then(async (r) => {
+			const sec = await r.json();
+			g_security_key = sec.t;
+		}),
 	]);
 
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);

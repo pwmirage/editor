@@ -4,26 +4,73 @@
 
 let g_db_promises = {};
 
-const g_db_meta = {
-	id: 0,
-	tag: "version",
-	base: 0,
-	edit_time: 0,
-	project: {},
-};
-
 class PWDB {
+	static has_unsaved_changes = false;
+
+	static async watch_db() {
+		const cache_save_fn = () => {
+			if (!db || !PWDB.has_unsaved_changes) {
+				return;
+			}
+
+			const project = db.metadata[1];
+			db.open(project);
+			project.edit_time = Math.floor(Date.now() / 1000);
+			db.commit(project);
+
+			const dump = db.dump_last();
+			PWDB.has_unsaved_changes = false;
+			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
+		};
+		const cache_save_fn2 = () => {
+			cache_save_fn();
+			setTimeout(() => {
+				cache_save_fn2();
+			}, 1000 * 5);
+		}
+		cache_save_fn2();
+
+		const save_fn = async () => {
+			if (!db) {
+				return;
+			}
+
+			const project = db.metadata[1];
+			if (project.pid == 0) {
+				return;
+			}
+
+			const changes = localStorage.getItem('pwdb_lchangeset_' + project.pid);
+			if (!changes) {
+				return;
+			}
+
+			await PWDB.save(db, false);
+		};
+		const save_fn2 = () => {
+			save_fn();
+			setTimeout(() => {
+				save_fn2();
+			}, 1000 * 60 * 5);
+		}
+		save_fn2();
+	}
+
 	static async new_db(args = {}) {
 		const db = new DB();
 		this.db_promise = null;
-		db.new_id_start = 0x80000001;
 
-		db.register_commit_cb((obj, diff, prev_vals) => {
-			obj._db.undo_idx = undefined;
-		});
+		const project = {
+			id: 1,
+			tag: "project",
+			pid: args.id || 0,
+			base: 0,
+			edit_time: 0,
+		};
+		db.new_id_start = 0x80000000 + project.pid;
 
 		await Promise.all([
-			db.register_type('metadata', [g_db_meta]),
+			db.register_type('metadata', [project]),
 			PWDB.register_data_type(db, args, 'mines'),
 			PWDB.register_data_type(db, args, 'recipes'),
 			PWDB.register_data_type(db, args, 'npc_sells'),
@@ -47,7 +94,45 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 		]);
 
+		/* TODO: fetch project/<id>/load */
+		const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
+		if (changeset_str) {
+			const changeset = JSON.parse(changeset_str);
+			/* load as array of changesets to avoid bumping the generation number */
+			db.load([ changeset ]);
+		}
+
+		db.register_commit_cb((obj, diff, prev_vals) => {
+			obj._db.undo_idx = undefined;
+			PWDB.has_unsaved_changes = true;
+		});
+
 		return db;
+	}
+
+	static async save(db, show_tag = true) {
+		let project = db.metadata[1];
+		if (!project || project.read_only) {
+			Loading.notify('warning', 'This project is read-only.');
+			return;
+		}
+
+		const data = db.dump_last();
+		db.new_generation();
+		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
+
+		const req = await post('/map/project/' + project.pid + '/save', {
+			file: new File([new Blob([data])], 'project.js', { type: "text/plain" }),
+		});
+
+		if (!req.ok) {
+			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
+			return;
+		}
+
+		if (show_tag) {
+			Loading.notify('Saved');
+		}
 	}
 
 	static load_db_map(db, name) {

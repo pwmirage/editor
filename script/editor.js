@@ -69,6 +69,8 @@ class Editor {
 			//await this.close();
 		};
 
+		PWDB.watch_db();
+
 	}
 
 	static async open(args) {
