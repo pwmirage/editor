@@ -3,9 +3,14 @@
  */
 
 class MapChooserWindow extends Window {
+	static is_open = false;
 	static loaded = load_tpl(ROOT_URL + 'tpl/window/map_chooser.tpl');
 	async init() {
 		await MapChooserWindow.loaded;
+		if (MapChooserWindow.is_open) {
+			return;
+		}
+		MapChooserWindow.is_open = true;
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-map-chooser');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
@@ -26,6 +31,11 @@ class MapChooserWindow extends Window {
 		this.move((Window.bounds.right - Window.bounds.left - this.dom_win.offsetWidth) / 2,
 				(Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight) / 2);
 		return true;
+	}
+
+	close() {
+		MapChooserWindow.is_open = false;
+		super.close();
 	}
 
 	select_map(id) {
