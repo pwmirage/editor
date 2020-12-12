@@ -69,6 +69,8 @@ class PWDB {
 		};
 		db.new_id_start = 0x80000000 + project.pid;
 
+		let spawner_arrs = null;
+
 		await Promise.all([
 			db.register_type('metadata', [project]),
 			PWDB.register_data_type(db, args, 'mines'),
@@ -78,6 +80,9 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'npcs'),
 			PWDB.register_data_type(db, args, 'monsters'),
 			PWDB.register_data_type(db, args, 'items'),
+			get(ROOT_URL + 'data/base/spawners.json', { is_json: 1 }).then((req) => {
+				spawner_arrs = req.data;
+			}),
 			PWDB.register_data_type(db, args, 'weapon_major_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'weapon_minor_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'armor_major_types', 'object_types'),
@@ -94,12 +99,16 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 		]);
 
+		for (const arr of spawner_arrs) {
+			db.register_type('spawners_' + arr.tag, arr.entries);
+		}
+
 		/* TODO: fetch project/<id>/load */
 		const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
 		if (changeset_str) {
 			const changeset = JSON.parse(changeset_str);
 			/* load as array of changesets to avoid bumping the generation number */
-			db.load([ changeset ]);
+			//db.load([ changeset ]);
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
@@ -135,41 +144,27 @@ class PWDB {
 		}
 	}
 
-	static load_db_map(db, name) {
-		if (g_db_promises[name]) {
-			return g_db_promises[name];
-		}
-
-		 g_db_promises[name] = Promise.all([
-			PWDB.register_data_type(db, {}, 'spawners_' + name, 'spawners', ROOT_URL + 'data/base/map/' + name + '/spawners.json'),
-			PWDB.register_data_type(db, {}, 'resources_' + name, 'resources', ROOT_URL + 'data/base/map/' + name + '/resources.json'),
-		]);
-		return g_db_promises[name];
-	}
-
 	static async find_usages(db, obj) {
-		let usages = [];
-
 		if (!obj) {
-			return usages;
+			return [];
 		}
 
 		if (obj._db.type == 'npcs') {
+			const usages = [];
 			for (const mapid in PWMap.maps) {
-				await PWDB.load_db_map(db, mapid);
-
 				const arr = db['spawners_' + mapid];
 				for (const i of arr) {
-					if (i && i.is_npc && i.groups && i.groups.find(g => g.type == obj.id)) {
+					if (i && i.type == 'npc' && i.groups && i.groups.find(g => g.type == obj.id)) {
 						usages.push(i);
 					}
 				}
 			}
+			return usages;
 		} else if (obj._db.type == 'npc_sells') {
-			usages = db.npcs.filter(n => n.id_sell_service == obj.id);
+			return db.npcs.filter(n => n.id_sell_service == obj.id);
 		}
 
-		return usages;
+		return [];
 	}
 
 	static undo(db, obj, path) {

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Merge Spawners</title>
+		<meta charset="UTF-8">
+
+		<script type="text/javascript">
+			const maps = {
+				gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 } },
+
+				is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 }, img_scale: 2 },
+				is06: { name: 'Den of Rabid Wolves', id: 'is06', size: { x: 512, y: 512 }, img_off: { x: 318, y: 62 } },
+				is07: { name: 'Cave of the Vicious', id: 'is07', size: { x: 512, y: 512 } },
+
+				is02: { name: 'Secret Passage', id: 'is02', size: { x: 512, y: 512 } },
+				is08: { name: 'Hall of Deception', id: 'is08', size: { x: 512, y: 512 } },
+
+				is09: { name: 'Gate of Delirium', id: 'is09', size: { x: 512, y: 512 }, img_off: { x: 300, y: 300 } },
+				is10: { name: 'Secret Frostcover Grounds', id: 'is10', size: { x: 512, y: 512 }, img_off: { x: 64, y: 64 } },
+				is11: { name: 'Valley of Disaster', id: 'is11', size: { x: 512, y: 512 }, img_off: { x: 201, y: 198 } },
+				is12: { name: 'Forest Ruins', id: 'is12', size: { x: 512, y: 512 }, img_off: { x: 46, y: 46 } },
+				is13: { name: 'Cave of Sadistic Glee', id: 'is13', size: { x: 512, y: 512 } },
+				is14: { name: 'Wraithgate', id: 'is14', size: { x: 512, y: 512 } },
+				is15: { name: 'Hallucinatory Trench', id: 'is15', size: { x: 512, y: 512 }, img_off: { x: 122, y: 122 } },
+				is16: { name: 'Eden', id: 'is16', size: { x: 512, y: 512 }, img_off: { x: 191, y: 191 } },
+				is17: { name: 'Brimstone Pit', id: 'is17', size: { x: 512, y: 512 }, img_off: { x: 191 , y: 191 } },
+				is18: { name: 'Temple of the Dragon', id: 'is18', size: { x: 512, y: 512 } },
+				is19: { name: 'Nightscream Island', id: 'is19', size: { x: 512, y: 512 }, img_off: { x: 280, y: 280 } },
+				is32: { name: 'Cube of Fate', id: 'is32', size: { x: 1536, y: 1536 } },
+
+				is20: { name: 'Snake Isle', id: 'is20', size: { x: 512, y: 512 }, img_off: { x: 202, y: 281 } },
+
+				is21: { name: 'Lothranis', id: 'is21', size: { x: 1024, y: 1024 }, img_off: { x: 250, y: 250 } },
+				is22: { name: 'Momaganon', id: 'is22', size: { x: 1024, y: 1024 }, img_off: { x: 250, y: 250 } },
+				is23: { name: 'Seat of Torment', id: 'is23', size: { x: 512, y: 512 }, img_off: { x: 217, y: 217 } },
+				is24: { name: 'Abaddon', id: 'is24', size: { x: 512, y: 512 }, img_off: { x: 233, y: 233 } },
+				a26b: { name: 'Palace of Nirvana', id: 'a26b', size: { x: 512, y: 512 }, img_off: { x: 68, y: 68 } },
+				is27: { name: 'Lunar Glade', id: 'is27', size: { x: 512, y: 512 }, img_off: { x: 233, y: 233 } },
+				is28: { name: 'Valley of Reciprocity', id: 'is28', size: { x: 512, y: 512 }, img_off: { x: 228, y: 228 } },
+				is29: { name: 'Frostcover City', id: 'is29', size: { x: 512, y: 512 }, img_off: { x: 99, y: 99 } },
+				is31: { name: 'Twilight Temple', id: 'is31', size: { x: 512, y: 512 } },
+
+				is33: { name: 'Chrono City', id: 'is33', size: { x: 1024, y: 1024 } },
+
+				is01: { name: 'City of Abominations', id: 'is01', size: { x: 512, y: 512 } },
+				is25: { name: 'City of Naught', id: 'is25', size: { x: 512, y: 512 }, img_off: { x: 128, y: 128 } },
+				is26: { name: 'Hall of Blasphemy', id: 'is26', size: { x: 512, y: 512 }, img_off: { x: 103, y: 103 } },
+			};
+
+			const is_empty = (obj) => {
+				for (const f in obj) {
+					const v = obj[f];
+					if (v == 0 || v == '' || f == '_db') continue;
+					return false;
+				}
+
+				return true;
+			};
+
+			const dump2 = (data, spacing = 1) => {
+				return JSON.stringify(data, function(k, v) {
+					/* dont include any nulls, undefined results in no output at all */
+					if (v === null) return undefined;
+					/* stringify javascript sets */
+					if (typeof v === 'object' && v instanceof Set) {
+						return [...v];
+					}
+					if (typeof v === 'object' && !Array.isArray(v)) {
+						if (is_empty(v)) return undefined;
+					}
+					return v;
+				}, spacing);
+			};
+
+			window.onload = async () => {
+				let spawners = [];
+				for (const m in maps) {
+					const s = await fetch('data/base/map/' + m + '/spawners.json');
+					const r = await fetch('data/base/map/' + m + '/resources.json');
+					const _sp = await s.json();
+					const _rs = await r.json();
+					const map = maps[m];
+					for (const s of _sp) {
+						s.type = s.is_npc ? 'npc' : 'monster';
+						delete s.is_npc;
+					}
+					for (const r of _rs) {
+						r.type = 'resource';
+					}
+					spawners.push({ id: spawners.length, tag: m, name: map.name, entries: [..._sp, ..._rs] });
+				}
+
+				const d = dump2(spawners, 0);
+
+				const file = new Blob([d], {type: 'application/json'});
+				const a = document.createElement('a');
+				a.href = URL.createObjectURL(file);
+				a.download = 'spawners.json';
+				a.click();
+			};
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

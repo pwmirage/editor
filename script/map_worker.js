@@ -84,10 +84,12 @@ self.onmessage = async (e) => {
 		case 'update_obj': {
 			const obj = e.data.obj;
 			let arr = null;
-			if (obj._db.type.startsWith('resources_')) {
-				arr = g_objs.resources;
-			} else if (obj._db.type.startsWith('spawners_')) {
-				arr = g_objs.spawners;
+			if (obj._db.type.startsWith('spawners_')) {
+				if (obj.type == 'resource') {
+					arr = g_objs.resources;
+				} else {
+					arr = g_objs.spawners;
+				}
 			} else if (obj._db.type == 'monsters') {
 				arr = g_objs.monsters;
 			}
@@ -182,7 +184,7 @@ const get_spawner_at = (mx, my) => {
 const get_name = (spawner, group_idx = 0) => {
 	let obj = null;
 	const type = spawner.groups[group_idx]?.type;
-	if (spawner._db.type.startsWith('resources_')) {
+	if (spawner.type == 'resources') {
 		obj = g_objs.mines?.get(type);
 	} else {
 		obj = g_objs.npcs?.get(type) || g_objs.monsters?.get(type);
@@ -204,7 +206,7 @@ const get_icon = (type) => {
 const filter_spawners = (canvas) => {
 	const opt = (q) => g_opts[q];
 
-	const filters = { npc: [], resource: [], mob: [] };
+	const filters = { npc: [], resource: [], monster: [] };
 
 	if (!opt('npc-show')) filters.npc.push((s) => false);
 	if (!opt('npc-show-auto')) filters.npc.push((s) => s.trigger);
@@ -212,9 +214,9 @@ const filter_spawners = (canvas) => {
 	if (!opt('resource-show')) filters.resource.push((s) => false);
 	if (!opt('resource-show-auto')) filters.resource.push((s) => s.trigger);
 	if (!opt('resource-show-on-trigger')) filters.resource.push((s) => !s.trigger);
-	if (!opt('mob-show')) filters.mob.push((s) => false);
-	if (!opt('mob-show-auto')) filters.mob.push((s) => s.trigger);
-	if (!opt('mob-show-on-trigger')) filters.mob.push((s) => !s.trigger);
+	if (!opt('mob-show')) filters.monster.push((s) => false);
+	if (!opt('mob-show-auto')) filters.monster.push((s) => s.trigger);
+	if (!opt('mob-show-on-trigger')) filters.monster.push((s) => !s.trigger);
 
 	const by_mob = (fn) => {
 		return (s) => {
@@ -224,18 +226,18 @@ const filter_spawners = (canvas) => {
 			return fn(mob);
 		}
 	}
-	if (!opt('mob-show-ground')) filters.mob.push(by_mob((m) => m.stand_mode == 2 || m.swim_speed));
-	if (!opt('mob-show-flying')) filters.mob.push(by_mob((m) => m.stand_mode != 2 || m.swim_speed));
-	if (!opt('mob-show-water')) filters.mob.push(by_mob((m) => !m.swim_speed));
+	if (!opt('mob-show-ground')) filters.monster.push(by_mob((m) => m.stand_mode == 2 || m.swim_speed));
+	if (!opt('mob-show-flying')) filters.monster.push(by_mob((m) => m.stand_mode != 2 || m.swim_speed));
+	if (!opt('mob-show-water')) filters.monster.push(by_mob((m) => !m.swim_speed));
 
-	if (!opt('mob-show-boss')) filters.mob.push(by_mob((m) => !m.show_level));
-	if (!opt('mob-show-nonboss')) filters.mob.push(by_mob((m) => m.show_level));
-	if (!opt('mob-show-aggressive')) filters.mob.push(by_mob((m) => !m.is_aggressive));
-	if (!opt('mob-show-nonaggressive')) filters.mob.push(by_mob((m) => m.is_aggressive));
+	if (!opt('mob-show-boss')) filters.monster.push(by_mob((m) => !m.show_level));
+	if (!opt('mob-show-nonboss')) filters.monster.push(by_mob((m) => m.show_level));
+	if (!opt('mob-show-aggressive')) filters.monster.push(by_mob((m) => !m.is_aggressive));
+	if (!opt('mob-show-nonaggressive')) filters.monster.push(by_mob((m) => m.is_aggressive));
 
 	const minlevel = opt('mob-show-lvl-min');
 	const maxlevel = opt('mob-show-lvl-max');
-	filters.mob.push(by_mob((m) => m.level >= minlevel && m.level <= maxlevel));
+	filters.monster.push(by_mob((m) => m.level >= minlevel && m.level <= maxlevel));
 
 	const map_filters = {};
 
@@ -252,57 +254,46 @@ const filter_spawners = (canvas) => {
 
 	const search = opt('search')?.toLowerCase();
 
-	const drawn_spawners = { npc: [], mob: [], resource: [] };
-	for (const list of [g_objs.resources, g_objs.spawners]) {
-		if (!list) continue;
-		for (const spawner of list.values()) {
-			let { x, y } = spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
-			x *= g_pos.scale;
-			y *= g_pos.scale;
+	const drawn_spawners = { npc: [], monster: [], resource: [] };
+	for (const spawner of g_objs.spawners.values()) {
+		let { x, y } = spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
+		x *= g_pos.scale;
+		y *= g_pos.scale;
 
-			if (x <= g_pos.offset.x - canvas.width / 8 || x > g_pos.offset.x + canvas.width * 7 / 8 ||
-					y <= g_pos.offset.y - canvas.height / 8 || y > g_pos.offset.y + canvas.height * 7 / 8) {
-				continue;
-			}
-
-			if (search) {
-				let match = false;
-
-				if (spawner.name?.toLowerCase()?.includes(search)) {
-					match = true;
-				}
-
-				for (let i = 0; i < spawner.groups.length; i++) {
-					if (get_name(spawner, i)?.toLowerCase()?.includes(search)) {
-						match = true;
-						break;
-					}
-				}
-
-				if (!match) {
-					continue;
-				}
-			}
-
-			let type = '';
-			if (spawner._db.type.startsWith('resources_')) {
-				type = 'resource';
-			} else if (spawner.is_npc) {
-				type = 'npc';
-			} else {
-				type = 'mob';
-			}
-
-			if (spawner._removed) {
-				continue;
-			}
-
-			if (!map_filters[type](spawner)) {
-				continue;
-			}
-
-			drawn_spawners[type].push(spawner);
+		if (x <= g_pos.offset.x - canvas.width / 8 || x > g_pos.offset.x + canvas.width * 7 / 8 ||
+				y <= g_pos.offset.y - canvas.height / 8 || y > g_pos.offset.y + canvas.height * 7 / 8) {
+			continue;
 		}
+
+		if (search) {
+			let match = false;
+
+			if (spawner.name?.toLowerCase()?.includes(search)) {
+				match = true;
+			}
+
+			for (let i = 0; i < spawner.groups.length; i++) {
+				if (get_name(spawner, i)?.toLowerCase()?.includes(search)) {
+					match = true;
+					break;
+				}
+			}
+
+			if (!match) {
+				continue;
+			}
+		}
+
+		if (spawner._removed) {
+			continue;
+		}
+
+		let type = spawner.type;
+		if (!map_filters[type](spawner)) {
+			continue;
+		}
+
+		drawn_spawners[type].push(spawner);
 	}
 
 	g_drawn_spawners = drawn_spawners;
@@ -339,7 +330,7 @@ const redraw = () => {
 	const select_img = get_icon('select');
 	for (const list in g_drawn_spawners) {
 		let marker_img;
-		if (list == 'mob') {
+		if (list == 'monster') {
 			marker_img = get_icon('red');
 		} else if (list == 'npc') {
 			marker_img = get_icon('yellow');

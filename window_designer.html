@@ -45,7 +45,6 @@
 				await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
 				await Editor.load();
 				db = await PWDB.new_db({});
-				await PWDB.load_db_map(db, 'gs01')
 
 				Template.debug = true;
 				Window.set_container(document.querySelector('#windows'));

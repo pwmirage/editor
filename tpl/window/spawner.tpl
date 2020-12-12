@@ -3,20 +3,20 @@
 <div class="window popup square-left" style="position: absolute; width: 340px;">
 <div class="content flex-rows" style="padding: 25px;">
 	<span>
-		{if $spawner._db.type.startsWith("resources_")}
+		{if $spawner.type == 'resource'}
 			{assign obj = db.mines[$group.type]}
 		{else}
-			{assign obj = ($spawner.is_npc ? db.npcs : db.monsters)[$group.type]}
+			{assign obj = ($spawner.type == 'npc' ? db.npcs : db.monsters)[$group.type]}
 		{/if}
 		{@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")} #{@$group.type}
 	</span>
-	{assign simplified_ui = $spawner.is_npc && $spawner.groups?.length == 1}
-	{if !$spawner.is_npc || $spawner.groups?.length != 1}
+	{assign simplified_ui = $spawner.type == 'npc' && $spawner.groups?.length == 1}
+	{if $spawner.type != 'npc' || $spawner.groups?.length != 1}
 		<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
 			<span>Count:</span>
 			<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'count'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
 			<div style="flex: 1"></div>
-			{if $spawner._db.type.startsWith("spawners_") && !$spawner.is_npc}
+			{if $spawner.type == 'monster'}
 				<label><input type="checkbox" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'aggro'" class="checkbox"><span>Is Aggressive</span></label>
 			{/if}
 		</div>
@@ -36,7 +36,7 @@
 		</a>
 	</div>
 
-	{if $spawner._db.type.startsWith("spawners_") && !$spawner.is_npc && $spawner.groups?.length != 1}
+	{if $spawner.type == 'monster'}
 		<div class="flex-columns flex-all" style="align-items: center;">
 			<span>Group:</span>
 			<span>Accept help group:</span>
@@ -89,8 +89,8 @@
 <div class="window resizable" style="width: 305px;">
 <div class="header">
 	<span>
-		{if $spawner._db.type.startsWith("resources_")}Resource{/if}
-		{if $spawner._db.type.startsWith("spawners")}{if $spawner.is_npc}NPC{else}Monster{/if}{/if}
+		{if $spawner.type == 'resource'}Resource{/if}
+		{if $spawner.type == 'npc'}NPC{else}Monster{/if}
 		&nbsp;Spawner {@serialize_db_id($spawner.id)}
 	</span>
 	<div class="menu">
@@ -123,11 +123,11 @@
 		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
-	{assign simplified_ui = $spawner.is_npc && $spawner.groups?.length == 1}
+	{assign simplified_ui = $spawner.type == 'npc' && $spawner.groups?.length == 1}
 	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}
 		{foreach group of ($spawner.groups || [])}
-			{if $spawner._db.type.startsWith("resources_")}
+			{if $spawner.type == 'resource'}
 				{assign obj = db.mines[$group.type]}
 			{else}
 				{assign obj = db.npcs[$group.type] || db.monsters[$group.type]}
@@ -155,7 +155,7 @@
 		<div>Trigger:</div>
 		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">(none) &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 	</div>
-	{if !$simplified_ui && $spawner._db.type.startsWith('spawners_')}
+	{if !$simplified_ui && $spawner.type == 'npc'}
 		<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
 			<div class="no-break">Lifetime: (sec) </div>
 			<input type="number" style="flex: 1;" data-link="{serialize $win.spawner} => 'lifetime'">

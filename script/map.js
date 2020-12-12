@@ -209,7 +209,7 @@ class PWMap {
 		});
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
-			if (!obj._db.type.startsWith('spawners_') && !obj._db.type.startsWith('resources_')) {
+			if (!obj._db.type.startsWith('spawners_')) {
 				return;
 			}
 
@@ -261,11 +261,6 @@ class PWMap {
 			}
 		};
 
-
-		for (const m in PWMap.maps) {
-			PWDB.load_db_map(db, m);
-		}
-
 		this.initialized = true;
 	}
 
@@ -313,28 +308,18 @@ class PWMap {
 				this.canvas.oncontextmenu = (e) => false;
 				this.canvas.onwheel = (e) => this.onwheel(e);
 
-				await PWDB.load_db_map(db, mapid);
-
 				const get_name = (spawner) => {
 					let name;
 					const type = spawner.groups[0]?.type || 0;
 
 					let obj = null;
-					if (spawner._db.type.startsWith('resources_')) {
+					if (spawner.type == 'resource') {
 						obj = db.mines[type];
 					} else {
 						obj = db.npcs[type] || db.monsters[type];
 					}
 
 					return (obj?.name ?? "(unknown)") || "(unnamed)";
-				}
-
-				for (const list of [db['spawners_' + this.maptype.id], db['resources_' + this.maptype.id]]) {
-					for (const spawner of list) {
-						if (!spawner._db.shown_name) {
-							spawner._db.shown_name = get_name(spawner);
-						}
-					}
 				}
 
 				await this.post_canvas_msg({
@@ -345,10 +330,6 @@ class PWMap {
 				this.post_canvas_msg({
 					type: 'set_objs', obj_type: 'spawners',
 					objs: [...db['spawners_' + this.maptype.id]],
-				});
-				this.post_canvas_msg({
-					type: 'set_objs', obj_type: 'resources',
-					objs: [...db['resources_' + this.maptype.id]],
 				});
 
 				this.pos.scale = Math.min(
@@ -525,14 +506,15 @@ class PWMap {
 						const spawner = db.new('spawners_' + this.maptype.id);
 						db.open(spawner);
 						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
-						spawner.is_npc = sel == 31;
+						spawner.type = sel == 31 ? 'npc' : 'monster';
 						db.commit(spawner);
 						break;
 					}
 					case 33: {
-						const spawner = db.new('resources_' + this.maptype.id);
+						const spawner = db.new('spawners_' + this.maptype.id);
 						db.open(spawner);
 						spawner.pos = [ spawner_pos.x, 0, spawner_pos.y ];
+						spawner.type = 'resource';
 						db.commit(spawner);
 						break;
 					}
@@ -570,7 +552,7 @@ class PWMap {
 				this.select_menu.style.display = this.selected_spawners.size ? 'block' : 'none';
 
 				this.refresh_focused_spawners();
-				this.redraw_q_canvas();
+				this.redraw_q_canvas(e);
 			})();
 		}
 

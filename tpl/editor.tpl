@@ -110,6 +110,10 @@
 	text-align: center;
 }
 
+#pw-map-pos-label:empty {
+	display: none;
+}
+
 #open-legend {
 	position: absolute;
 	left: 6px;

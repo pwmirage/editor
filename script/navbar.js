@@ -8,6 +8,18 @@ class Navbar {
 	constructor(org_menu_dom) {
 		this.org_menu_dom = org_menu_dom;
 		this.dom = newElement('<ol class="boxMenu overlayed"></ol>');
+		this.dom.onclick = (e) => {
+			const par = e.path.find(p => p.className.includes('boxMenuDepth'));
+			if (!par) {
+				return;
+			}
+
+			/* hide the menu */
+			par.style.display = 'none';
+			setTimeout(() => {
+				par.style.display = '';
+			}, 1);
+		}
 
 		this.org_menu_dom.parentNode.insertBefore(this.dom, this.org_menu_dom);
 
@@ -52,7 +64,7 @@ class Navbar {
 		} else if (!parent.classList.contains('boxMenuHasChildren')) {
 			parent.classList.add('boxMenuHasChildren');
 			const depth_regex = parent.parentNode.className.match(/boxMenuDepth([0-9]+)/);
-			const depth = depth_regex ? (parseInt(depth_regex[1]) + 1 || 1) : 1;
+			const depth = depth_regex ? ((parseInt(depth_regex[1]) + 1) || 1) : 1;
 			const sub_list = newElement('<ol class="boxMenuDepth' + depth + '"></ol>');
 			parent.append(sub_list);
 			parent = sub_list;

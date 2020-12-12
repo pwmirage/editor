@@ -100,10 +100,10 @@ class SpawnerWindow extends Window {
 		if (e.which == 1) {
 			let type;
 			let pretty_name;
-			if (this.spawner._db.type.startsWith("resources_")) {
+			if (this.spawner.type == 'resource') {
 				type  = 'mines';
 				pretty_name = 'Resource';
-			} else if (this.spawner.is_npc) {
+			} else if (this.spawner.type == 'npc') {
 				type = 'npcs';
 				pretty_name = 'NPC';
 			} else {
@@ -126,7 +126,7 @@ class SpawnerWindow extends Window {
 						s.groups = [];
 					}
 
-					if (this.spawner.is_npc) {
+					if (this.spawner.type == 'npc') {
 						if (s.groups.length == 0) {
 							s.groups.push({});
 						}
@@ -166,12 +166,5 @@ class SpawnerWindow extends Window {
 
 			}
 		}
-	}
-
-	set_is_npc(is_npc) {
-		db.open(this.spawner);
-		this.spawner.is_npc = is_npc;
-		db.commit(this.spawner);
-		g_map.redraw_dyn_overlay();
 	}
 }
