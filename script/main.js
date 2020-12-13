@@ -17,8 +17,10 @@ const mg_init = async () => {
 			MG_VERSION = MG_VERSION_FULL.mtime;
 		}),
 		fetch(ROOT_URL + 'project/t').then(async (r) => {
-			const sec = await r.json();
-			g_security_key = sec.t;
+			try {
+				const sec = await r.json();
+				g_security_key = sec.t;
+			} catch (e) { }
 		}),
 	]);
 
@@ -61,7 +63,8 @@ const mg_open_editor = async (args) => {
 
 	try {
 		await g_mg_loaded;
-		Loading.show_curtain();
+		await Loading.show_curtain();
+
 		document.body.classList.add('mge-fullscreen');
 		await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
 		await Editor.open(args);

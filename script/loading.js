@@ -23,6 +23,7 @@ class Loading {
 		document.body.classList.add('mge-loading-fullscreen');
 		const curtains = Loading.shadow.querySelector('#curtain');
 		curtains.className = 'showCurtain';
+		return new Promise((resolve) => setTimeout(resolve, 500));
 	}
 
 	static hide_curtain() {

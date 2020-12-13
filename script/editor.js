@@ -79,6 +79,11 @@ class Editor {
 			Editor.loaded = true;
 		}
 
+		const page_main = document.querySelector('#main');
+		if (page_main) {
+			page_main.style.display = 'none';
+		}
+
 		console.log('Editor open');
 		if (g_map) {
 			g_map.close();
@@ -96,6 +101,11 @@ class Editor {
 	}
 
 	static close() {
+		const page_main = document.querySelector('#main');
+		if (page_main) {
+			page_main.style.display = '';
+		}
+
 		document.body.classList.remove('mge-fullscreen');
 	}
 
