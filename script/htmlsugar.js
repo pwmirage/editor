@@ -537,7 +537,7 @@ class HTMLSugar {
 		}
 
 		edit_el.onblur = () => {
-			if (el.querySelector(':hover') != hints_el) {
+			if (!hints_el.matches('div:hover')) {
 				hints_el.style.display = 'none';
 				if (hints_el.children.length == 1 && edit_el.dataset.text == hints_el.children[0].textContent) {
 					select(hints_el.children[0]._mg_id, hints_el.children[0].textContent);

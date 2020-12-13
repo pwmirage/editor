@@ -403,7 +403,7 @@ class PWMap {
 			this.drag.moved = true;
 		}
 
-		if (this.canvas.querySelector(':hover')) {
+		if (this.canvas.matches('div:hover')) {
 			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
 			const spawner_pos = this.mouse_spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
 			this.mouse_pos.x = e.clientX;
