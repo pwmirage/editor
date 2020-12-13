@@ -336,6 +336,10 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	padding: 3px;
 }
 
+i.fa {
+	line-height: 20px;
+}
+
 a.button {
 	position: relative;
 	background-color: #dccfcf;
@@ -347,7 +351,7 @@ a.button {
 	margin: 0;
 	padding: 5px 10px;
 	text-decoration: none;
-	line-height: 1.48;
+	line-height: 20px;
 	user-select: none;
 	display: inline-block;
 }
