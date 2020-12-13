@@ -27,6 +27,8 @@ class RMenuWindow extends Window {
 		this.args.x = 0;
 		this.args.y = 0;
 		super.init();
+
+		setTimeout(() => this.activate(), 750);
 	}
 
 	activate() {
