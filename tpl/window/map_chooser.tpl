@@ -24,7 +24,7 @@
 	<div class="maps">
 		{foreach map_id in $maps}
 			{assign map = $maps[map_id]}
-			<div class="map" id="map-{@$map.id}" onclick="{serialize $win}.select_map('{@$map.id}')" >{@$map.name}</div>
+			<div class="map" id="map-{@$map.id}" onclick="{serialize $win}.select_map('{@$map.id}')" ondblclick="this.onclick(); {serialize $win}.open_map();">{@$map.name}</div>
 		{/foreach}
 	</div>
 	<div style="flex: 1;"></div>
@@ -56,6 +56,10 @@
 	padding: 3px 4px;
 	margin: 0 -4px;
 	border: 1px dashed transparent;
+}
+
+.maps > .map {
+	user-select: none;
 }
 
 .maps > .map:active {
