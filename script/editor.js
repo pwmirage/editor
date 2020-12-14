@@ -65,6 +65,10 @@ class Editor {
 			const minimized = document.body.classList.toggle('mge-background');
 			document.querySelector('#returnToWebsite > a').dataset.tooltip =
 			minimized ? 'Open the editor' : 'Return to website';
+			const page_main = document.querySelector('#main');
+			if (page_main) {
+				page_main.style.display = minimized ? '' : 'none';
+			}
 			//await Window.close_all();
 			//await this.close();
 		};
@@ -101,11 +105,6 @@ class Editor {
 	}
 
 	static close() {
-		const page_main = document.querySelector('#main');
-		if (page_main) {
-			page_main.style.display = '';
-		}
-
 		document.body.classList.remove('mge-fullscreen');
 	}
 
