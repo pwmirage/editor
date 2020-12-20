@@ -6,10 +6,11 @@ const _fetch = async (url, { params, is_json }) => {
 	const resp = await fetch(url, params);
 
 	if (!is_json) {
-		resp.data = await resp.text();
+		resp.data = '';
 		if (!resp.ok) {
 			return resp;
 		}
+		resp.data = await resp.text();
 	} else {
 		try {
 			resp.data = await resp.json();
