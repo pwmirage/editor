@@ -110,8 +110,14 @@ function is_empty(obj) {
 	return true;
 }
 
-function dump(data, spacing = 1) {
+function dump(data, spacing = 1, custom_fn) {
 	return JSON.stringify(data, function(k, v) {
+		if (custom_fn) {
+			const ret = custom_fn(k, v);
+			if (ret !== undefined) {
+				return ret;
+			}
+		}
 		/* keep the _db at its minimum */
 		if (k === '_db') return { type: v.obj._db.type };
 		/* dont include any nulls, undefined results in no output at all */
@@ -447,8 +453,8 @@ class DB {
 	}
 
 	/* dump changesets from the latest generation to JSON -> array of changesets */
-	dump_last() {
-		return dump(this.changelog[this.changelog.length - 1]);
+	dump_last(custom_fn) {
+		return dump(this.changelog[this.changelog.length - 1], 1, custom_fn);
 	}
 
 	/* dump all changesets to JSON as 2d array */
