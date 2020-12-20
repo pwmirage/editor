@@ -16,17 +16,20 @@ const mg_init = async () => {
 			MG_VERSION_FULL = await r.json();
 			MG_VERSION = MG_VERSION_FULL.mtime;
 		}),
-		fetch(ROOT_URL + 'project/t').then(async (r) => {
+		(async () => {
 			try {
+				const req = await fetch(ROOT_URL + 'project/t');
 				const sec = await r.json();
 				g_security_key = sec.t;
 			} catch (e) { }
-		}),
+		})(),
 	]);
 
-	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION)
+	await Promise.all([
+		load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
+		load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
+	]);
 
 	await PWPreview.load_promise;
 };
