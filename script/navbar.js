@@ -9,7 +9,7 @@ class Navbar {
 		this.org_menu_dom = org_menu_dom;
 		this.dom = newElement('<ol class="boxMenu overlayed"></ol>');
 		this.dom.onclick = (e) => {
-			const par = e.path.find(p => p.className.includes('boxMenuDepth'));
+			const par = e.path.find(p => p?.className && p.className.includes('boxMenuDepth'));
 			if (!par) {
 				return;
 			}
@@ -79,9 +79,8 @@ class Navbar {
 		const b = this.buttons;
 		const has_proj = !!db?.metadata[1]?.pid;
 
-		b['proj_summary'].onclick = () => {
-			HistoryWindow.open();
-		};
+		b.proj_summary.onclick = () => HistoryWindow.open();
+		b.proj_save.onclick = () => PWDB.save(db, true);
 
 		const set_enabled = (btn, enabled) => {
 			if (enabled) {
