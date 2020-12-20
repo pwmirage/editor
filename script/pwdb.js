@@ -2,9 +2,8 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_db_promises = {};
-
 class PWDB {
+	static g_db_promises = {};
 	static has_unsaved_changes = false;
 
 	static async watch_db() {
@@ -57,17 +56,22 @@ class PWDB {
 	}
 
 	static async new_db(args = {}) {
+		if (args.pid == 'latest') {
+			args.pid = 99;
+			// todo load project/head
+		}
+
 		const db = new DB();
 		this.db_promise = null;
 
 		const project = {
 			id: 1,
 			tag: "project",
-			pid: args.id || 0,
+			pid: args.pid || 0,
 			base: 0,
 			edit_time: 0,
 		};
-		db.new_id_start = 0x80000000 + project.pid;
+		db.new_id_start = 0x80000000 + project.pid * 0x100000;
 
 		let spawner_arrs = null;
 
@@ -103,12 +107,19 @@ class PWDB {
 			db.register_type('spawners_' + arr.tag, arr.entries);
 		}
 
-		/* TODO: fetch project/<id>/load */
-		const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
-		if (changeset_str) {
-			const changeset = JSON.parse(changeset_str);
-			/* load as array of changesets to avoid bumping the generation number */
-			//db.load([ changeset ]);
+		if (!args.new) {
+			try {
+				const req = await get(ROOT_URL + 'project/' + project.pid + '/load', { is_json: 1 });
+				const changesets = req.data;
+				db.load(changesets);
+				db.new_generation();
+			} catch (e) { }
+
+			const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
+			if (changeset_str) {
+				const changeset = JSON.parse(changeset_str);
+				db.load(changeset);
+			}
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
@@ -127,18 +138,22 @@ class PWDB {
 		}
 
 		const data = db.dump_last();
-		db.new_generation();
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
 
-		const req = await post('/map/project/' + project.pid + '/save', {
-			file: new File([new Blob([data])], 'project.js', { type: "text/plain" }),
+		const req = await post(ROOT_URL + 'project/' + project.pid + '/save', {
+			is_json: 1, data: {
+				file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
+			}
 		});
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
+			const dump = db.dump_last();
+			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 			return;
 		}
 
+		db.new_generation();
 		if (show_tag) {
 			Loading.notify('Saved');
 		}
@@ -237,29 +252,34 @@ class PWDB {
 	static async load_db_file(type, url) {
 		let final_resolve = null;
 
-		if (g_db_promises[type]) {
-			return g_db_promises[type];
+		if (PWDB.g_db_promises[type]) {
+			return PWDB.g_db_promises[type];
 		}
 
-		g_db_promises[type] = new Promise((r) => { final_resolve = r; });
+		PWDB.g_db_promises[type] = new Promise((r) => { final_resolve = r; });
 
 		try {
 			const cache = await IDB.open('db-cache', 1);
 			g_db[type] = await IDB.get(cache, type);
-		} catch (e) {
+		} catch (e) { }
+
+		if (!g_db[type]) {
 			/* fallback to loading the file */
 			if (!url) {
 				url = ROOT_URL + 'data/base/' + type + '.json';
 			}
 			url += '?v=' + MG_VERSION;
 			console.log('fetching ' + url);
-			g_db[type] = (await get(url, { is_json: 1, headers: {
+			const req = await get(url, { is_json: 1, headers: {
 				"Content-Type": "application/json; charset=UTF-8"
-			}})).data;
+			}});
+			g_db[type] = req.data;
 
 			/* save to cache */
-			const cache = await IDB.open('db-cache', 1, 'readwrite');
-			await IDB.set(cache, type, g_db[type]);
+			try {
+				const cache = await IDB.open('db-cache', 1, 'readwrite');
+				await IDB.set(cache, type, g_db[type]);
+			} catch (e) { }
 		}
 		g_db[type] = init_id_array(g_db[type]);
 
@@ -295,4 +315,3 @@ class PWDB {
 	}
 
 }
-
