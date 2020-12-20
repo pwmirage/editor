@@ -104,36 +104,44 @@ class PWPreviewElement extends HTMLElement {
 	}
 
 	async connectedCallback() {
-		if (!this.dataset.project) {
+		if (!this.dataset.tid) {
 			return;
 		}
 
 		if (!g_latest_db_promise) {
 			g_latest_db_promise = new Promise(async (resolve) => {
-				g_latest_db = await PWDB.new_db({ /* XXX */ no_tag: true });
+				g_latest_db = await PWDB.new_db({ pid: 'latest', new: true, no_tag: true });
 				resolve();
 			});
 		}
 		await g_latest_db_promise;
 
-		const req = await get(ROOT_URL + 'get_preview.php?' + this.dataset.project, { is_json: true });
+		const req = await get(ROOT_URL + 'project/preview/' + this.dataset.tid, { is_json: true });
 		if (!req.ok) return;
-		this.db = req.data;
+		const preview_db = req.data;
+		this.db = {};
 
 		this.tabs = [];
 		let count = 0;
-		for (const arr_name in this.db) {
+		for (const arr_name in g_latest_db) {
 			if (arr_name == 'metadata') {
 				continue;
 			}
 
-			this.db[arr_name] = init_id_array(this.db[arr_name], g_latest_db[arr_name]);
-			for (const obj of this.db[arr_name]) {
-				this.tabs.push({ obj: obj, type: arr_name });
+			this.db[arr_name] = init_id_array([], g_latest_db[arr_name]);
+		}
+
+		for (const obj of preview_db) {
+			/* XXX: don't just put everything to tabs -> smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
+			this.tabs.push({ obj: obj, type: arr_name });
+
+			const prev = this.db[obj._db.type][obj.id];
+			if (!prev) {
+				this.db[obj._db.type][obj.id] = obj;
+			} else {
+				/* XXX: apply obj on top of prev */
 			}
 		}
-		/* fill in other arrays */
-		Object.setPrototypeOf(this.db, g_latest_db);
 
 		await Promise.all([
 			this.style_promises,
