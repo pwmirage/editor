@@ -73,7 +73,7 @@ class Window {
 	}
 
 	tpl_compile_cb(dom) {
-		HTMLSugar.process(dom);
+		HTMLSugar.process(dom, this);
 	}
 
 	static set_container(container) {

@@ -216,7 +216,6 @@ class EditableColorText {
 
 		if (this.caret_selection && off) {
 			try {
-				console.log(off);
 				this.caret_selection.removeAllRanges();
 				if (diff == 1) {
 					this.caret_off += 1;
@@ -238,7 +237,7 @@ class EditableColorText {
 }
 
 class HTMLSugar {
-	static process(dom) {
+	static process(dom, win) {
 		for (const el of dom.querySelectorAll('[data-onload]')) {
 			const f_str = el.dataset.onload;
 			el.removeAttribute('data-onload');
@@ -255,7 +254,7 @@ class HTMLSugar {
 			const link_str = el.dataset.link;
 			el.removeAttribute('data-link');
 
-			const text_el = new EditableColorText(el, link_str, this);
+			const text_el = new EditableColorText(el, link_str, win);
 			text_el.open();
 		}
 
