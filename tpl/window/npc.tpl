@@ -282,14 +282,7 @@ span.tabname.selected {
 		</div>
 	</div>
 	<div>Greeting:</div>
-	<div class="pw-editable-color-text">
-		<code contenteditable="true" onkeyup="{serialize $win}.update_caret();" onmouseup="{serialize $win}.update_caret();" onpaste="setTimeout(() => {serialize $win}.save_greeting(), 1);" oninput="{serialize $win}.format_greeting();">
-			{@$npc.greeting?.replace('\n', '<br>') || ""}
-		</code>
-		<div class="color" onclick="{serialize $win}.insert_color();" title="Add color">
-			<i class="fa fa-adjust"></i>
-		</div>
-	</div>
+	<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $npc} => 'greeting'"></div>
 </div>
 </div>
 
