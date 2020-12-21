@@ -223,40 +223,14 @@ class NPCGoodsWindow extends Window {
 		await super.init();
 		this.select(0);
 
-		this.item_win = await ItemTooltipWindow.open({ parent_el: this.shadow, edit: false });
+		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
 	}
 
 	onmousemove(e) {
 		const item = e.path?.find(el => el?.classList?.contains('item'));
 
-		if (item != this.hovered_item) {
-			this.hover_item(item);
-			this.hovered_item = item;
-		}
-	}
-
-	hover_item(el) {
-		const info = this.item_win?.dom;
-		if (!info) {
-			/* still loading */
-			return;
-		}
-
-		this.hover_el = el;
-		if (!el) {
-			info.style.display = 'none';
-			return;
-		}
-
-		const id = parseInt(el.dataset.id);
-		if (!id) {
-			info.style.display = 'none';
-			return;
-		}
-
-		const item = db.items[id] || { id };
-		const item_bounds = el.getBoundingClientRect();
-		this.item_win.tooltip_over(item, item_bounds);
+		this.hover_el = item;
+		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
 	}
 
 	onclick(e) {
@@ -298,7 +272,7 @@ class NPCGoodsWindow extends Window {
 
 					},
 					edit_obj_fn: (new_obj) => {
-						ItemTooltipWindow.open({ item: new_obj, edit: true });
+						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
 					},
 					usage_name_fn: (item) => {
 						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);

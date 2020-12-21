@@ -13,10 +13,10 @@
 		{if $goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$goods._db.refs.length})</span>{/if}
 	</div>
 	<div class="content">
-		<div id="tabs">
+		<div id="pages">
 			{for i = 0; i < 8; i++}
-				{assign tab = $goods.tabs[i]}
-				{assign prev_tab = $prev.tabs ? $prev.tabs[$i] : null}
+				{assign tab = $goods.pages[i]}
+				{assign prev_tab = $prev.pages? $prev.pages[$i] : null}
 				<span class="tab {if $win.selected_tab == $i}selected{/if} {if $win.is_tab_modified($i)}modified{/if}" onclick="{serialize $win}.select_tab(this, {@$i});">
 					{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
 					{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
@@ -25,7 +25,7 @@
 		</div>
 
 		<div id="items" class="item-container">
-			{assign tab = $goods.tabs[$win.selected_tab]}
+			{assign tab = $goods.pages[$win.selected_tab]}
 			{for i = 0; i < 32; i++}
 				{assign item_id = $tab.item_id[$i]}
 				<span class="item {if $win.is_item_modified($i)}modified{/if}" data-id="{@$item_id}" tabindex="0">
@@ -47,7 +47,7 @@
 	margin-left: 8px;
 }
 
-#tabs {
+#pages {
 	display: flex;
 	flex-wrap: wrap;
 	max-width: calc(68.5px * 4);
@@ -55,7 +55,7 @@
 	margin-bottom: 3px;
 }
 
-#tabs > .tab {
+#pages > .tab {
 	width: 64.5px;
 	min-height: 24px;
 	box-sizing: border-box;
@@ -68,28 +68,28 @@
 	cursor: pointer;
 }
 
-#tabs > .tab:empty {
+#pages > .tab:empty {
 	background-color: #afabab;
 	cursor: initial;
 }
 
-#tabs > .tab:empty:after {
+#pages > .tab:empty:after {
 	content: '-';
 	color: gray;
 }
 
-#tabs > .tab:not(.modified) {
+#pages > .tab:not(.modified) {
 	color: gray;
 }
 
-#tabs > .tab.selected,
-#tabs > .tab.selected > .prev:before,
-#tabs > .tab.selected > .data:before {
+#pages > .tab.selected,
+#pages > .tab.selected > .prev:before,
+#pages > .tab.selected > .data:before {
 	background-color: var(--color-button-bg-darker);
 }
 
-#tabs > .tab > .prev:before,
-#tabs > .tab > .data:before {
+#pages > .tab > .prev:before,
+#pages > .tab > .data:before {
 	border-left: 1px solid #b47a63;
 	background-color: var(--color-button-bg);
 }

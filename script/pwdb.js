@@ -64,6 +64,11 @@ class PWDB {
 		const db = new DB();
 		this.db_promise = null;
 
+		if (args.tid) {
+			const req = await get(ROOT_URL + 'project/pid/' + parseInt(args.tid), { is_json: 1 });
+			args.pid = req.data.pid;
+		}
+
 		const project = {
 			id: 1,
 			tag: "project",

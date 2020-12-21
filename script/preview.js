@@ -124,23 +124,21 @@ class PWPreviewElement extends HTMLElement {
 		this.tabs = [];
 		let count = 0;
 		for (const arr_name in g_latest_db) {
-			if (arr_name == 'metadata') {
-				continue;
-			}
-
 			this.db[arr_name] = init_id_array([], g_latest_db[arr_name]);
 		}
 
-		for (const obj of preview_db) {
+		for (let obj of preview_db) {
 			/* XXX: don't just put everything to tabs -> smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
-			this.tabs.push({ obj: obj, type: arr_name });
 
 			const prev = this.db[obj._db.type][obj.id];
 			if (!prev) {
 				this.db[obj._db.type][obj.id] = obj;
 			} else {
-				/* XXX: apply obj on top of prev */
+				DB.apply_diff(prev, obj);
+				obj = prev;
 			}
+
+			this.tabs.push({ obj: obj, type: obj._db.type });
 		}
 
 		await Promise.all([
@@ -217,13 +215,6 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 	}
 
 	async init() {
-		/* clean up some tabs so they don't appear as clickable */
-		for (let idx = 0; idx < 8; idx++) {
-			if (this.obj.tabs[idx] && !this.obj.tabs[idx].title && PWPreview.is_empty(this.obj.tabs[idx].items)) {
-				this.obj.tabs[idx] = null;
-			}
-		}
-
 		this.selected_tab = 0;
 
 		await load_tpl(ROOT_URL + 'tpl/preview/sell.tpl');
@@ -232,11 +223,11 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 	}
 
 	is_tab_modified(idx) {
-		if (PWPreview.is_modified(this.obj, [ 'tabs', idx ])) {
+		if (PWPreview.is_modified(this.obj, [ 'pages', idx ])) {
 			return true;
 		}
 
-		for (const item_id of (this.obj?.tabs?.[idx]?.items || [])) {
+		for (const item_id of (this.obj?.pages?.[idx]?.item_id || [])) {
 			const item = this.db.items[item_id];
 			if (!item) return !!item_id;
 			if (PWPreview.is_modified(item, [])) {
@@ -248,11 +239,11 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 	}
 
 	is_item_modified(idx) {
-		if (PWPreview.is_modified(this.obj, [ 'tabs', this.selected_tab, 'items', idx ])) {
+		if (PWPreview.is_modified(this.obj, [ 'pages', this.selected_tab, 'item_id', idx ])) {
 			return true;
 		}
 
-		const item_id = this.obj?.tabs?.[this.selected_tab]?.items?.[idx];
+		const item_id = this.obj?.pages?.[this.selected_tab]?.item_id?.[idx];
 		const item = this.db.items[item_id];
 		if (!item) return !!item_id;
 		return PWPreview.is_modified(item, []);
