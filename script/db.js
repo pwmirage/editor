@@ -18,22 +18,15 @@ function init_obj_data(obj, base) {
 	}
 }
 
-const is_equal = (a, b) => {
-	if (a == b) return true;
-	if (a == '') a = undefined;
-	if (b == '') b = undefined;
-	return a == b;
-};
-
 function get_obj_diff(obj, prev) {
 	const diff = {};
 
 	for (const f in obj) {
 		if (!obj.hasOwnProperty(f)) continue;
 		if (f === '_db') {
-			if (obj._db.base != prev._db?.base) {
+			if (obj._db?.base != prev._db?.base) {
 				diff[f] = { base: obj._db.base };
-			} else {
+			} else if (diff[f]) {
 				diff[f] = undefined;
 			}
 		} else if (typeof(prev[f]) === 'object') {
@@ -44,7 +37,8 @@ function get_obj_diff(obj, prev) {
 				diff[f] = nested_diff;
 			}
 		} else {
-			if (!is_equal(obj[f], prev[f])) {
+			/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
+			if ((!obj[f] && !!obj[f] != !!prev[f]) || (obj[f] != prev[f])) {
 				diff[f] = obj[f];
 			} else if (diff[f]) {
 				/* delete is super slow, just set to undefined */
@@ -53,18 +47,42 @@ function get_obj_diff(obj, prev) {
 		}
 	}
 
+	/* just check if it has any fields, return null otherwise */
 	for (const field in diff) {
-		if (field !== undefined) {
-			return diff;
-		}
+		return diff;
 	}
-	return null;
+	return undefined;
 }
+
+/* Use diffB as a mask for diffA -> set undefined where diffA is set, but diffB is not */
+const join_diff = (diffA, diffB) => {
+	const diff = {};
+	let is_empty = true;
+	for (const f in diffA) {
+		if (!diffA[f] || !diffB[f]) {
+			diff[f] = undefined;
+		} else if (typeof(diffA[f]) === 'object') {
+			diff[f] = join_diff(diffA[f], diffB[f]);
+			if (diff[f]) {
+				is_empty = false;
+			}
+		} else {
+			diff[f] = diffA[f];
+			is_empty = false;
+		}
+
+	}
+
+	return is_empty ? undefined : diff;
+};
 
 function is_empty(obj) {
 	for (const f in obj) {
 		const v = obj[f];
 		if (v == 0 || v == '' || f == '_db') continue;
+		if (typeof(v) === 'object') {
+			return is_empty(v);
+		}
 		return false;
 	}
 
@@ -256,60 +274,72 @@ class DB {
 
 		/* gather modified fields */
 		const diff = get_obj_diff(obj, obj._db.latest_state);
+		let changeset_diff = null;
 
-		if (!diff) {
-			if (obj._db.changesets.length == 1) {
-				/* no changes and no history, just delete the original copy */
-				obj._db.latest_state = undefined;
-				obj._db.changesets = undefined;
-				return;
-			}
-
-			if (changeset._db.generation == this.changelog.length) {
-				last_changelog.delete(changeset);
-			}
-		} else {
+		if (diff) {
 			/* lazy initialization */
 			if (changeset._db.generation < this.changelog.length) {
+				/* first change since new generation */
+
 				/* promote diff object to a changeset */
 				diff.id = obj.id;
 				if (!diff._db) {
 					diff._db = {};
 				}
 				/* generation 0 is the orig. copy, so always start the real generation at 1+ */
-				diff._db.generation= this.changelog.length;
+				diff._db.generation = this.changelog.length;
 				diff._db.obj = obj;
 
 				obj._db.changesets.push(diff);
 				last_changelog.add(diff);
-				changeset = diff;
+				changeset = changeset_diff = diff;
+
+				/* if this a newly allocated object it will be now appended to the array */
+				if (obj._db.is_allocated && obj.id == 0) {
+					obj.id = this.new_id_start + this.new_id_offset;
+					this.new_id_offset++;
+					diff.id = obj.id;
+					this[obj._db.type][obj.id] = obj;
+				}
 			} else {
-				DB.apply_diff(changeset, diff);
+				/* there were changes before */
+
+				/* fields might have been changed back and forth with no diff at the end,
+				 * in such case no changeset should be created - it would be empty otherwise */
+				const prev_state = obj._db.changesets[obj._db.changesets.length - 2];
+				const changeset_diff_abs = get_obj_diff(diff, prev_state) || {};
+				/* strip diff from fields with val == prev changeset */
+				changeset_diff = join_diff(diff, changeset_diff_abs);
+				if (changeset_diff) {
+					DB.apply_diff(changeset, changeset_diff);
+				} else {
+					last_changelog.delete(changeset);
+					obj._db.changesets.pop();
+				}
 			}
 
-			/* if this a newly allocated object it will be now appended to the array */
-			if (obj._db.is_allocated && obj.id == 0) {
-				obj.id = this.new_id_start + this.new_id_offset;
-				this.new_id_offset++;
-				diff.id = obj.id;
-				this[obj._db.type][obj.id] = obj;
+			if (changeset_diff) {
+				/* add to global changelog, duplicates will be ignored */
+				last_changelog.add(changeset);
 			}
-
-			/* add to global changelog, duplicates will be ignored */
-			last_changelog.add(changeset);
 		}
 
-
-		for (const cb of this.commit_cbs) {
-			cb(obj, diff, obj._db.latest_state);
+		if (diff) {
+			for (const cb of this.commit_cbs) {
+				cb(obj, diff, obj._db.latest_state);
+			}
+			if (obj._db.commit_cb) {
+				obj._db.commit_cb(obj, diff, obj._db.latest_state);
+				obj._db.commit_cb = null;
+			}
 		}
-		if (obj._db.commit_cb) {
-			obj._db.commit_cb(obj, diff, obj._db.latest_state);
-			obj._db.commit_cb = null;
-		}
 
-		if (!diff) {
-			obj._db.latest_state = undefined;
+		if (!diff || !changeset_diff) {
+			if (obj._db.changesets.length == 1) {
+				/* no changes and no history, just delete the original copy */
+				obj._db.latest_state = undefined;
+				obj._db.changesets = undefined;
+			}
 		} else {
 			DB.apply_diff(obj._db.latest_state, diff);
 		}
