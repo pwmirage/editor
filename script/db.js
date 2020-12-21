@@ -18,6 +18,13 @@ function init_obj_data(obj, base) {
 	}
 }
 
+const is_equal = (a, b) => {
+	if (a == b) return true;
+	if (a == '') a = undefined;
+	if (b == '') b = undefined;
+	return a == b;
+};
+
 function get_obj_diff(obj, prev) {
 	const diff = {};
 
@@ -37,7 +44,7 @@ function get_obj_diff(obj, prev) {
 				diff[f] = nested_diff;
 			}
 		} else {
-			if (obj[f] != prev[f]) {
+			if (!is_equal(obj[f], prev[f])) {
 				diff[f] = obj[f];
 			} else if (diff[f]) {
 				/* delete is super slow, just set to undefined */
