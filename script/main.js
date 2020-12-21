@@ -26,10 +26,8 @@ const mg_init = async () => {
 	]);
 
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION)
-	await Promise.all([
-		load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
-		load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
-	]);
+	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
+	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
 
 	await PWPreview.load_promise;
 };
