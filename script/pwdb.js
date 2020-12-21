@@ -17,7 +17,7 @@ class PWDB {
 			project.edit_time = Math.floor(Date.now() / 1000);
 			db.commit(project);
 
-			const dump = db.dump_last();
+			const dump = db.dump_last(0);
 			PWDB.has_unsaved_changes = false;
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 		};
@@ -142,8 +142,13 @@ class PWDB {
 			return;
 		}
 
-		const data = db.dump_last();
+		const data = db.dump_last(0);
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
+
+		if (data == '[]') {
+			Loading.notify('Saved');
+			return;
+		}
 
 		const req = await post(ROOT_URL + 'project/' + project.pid + '/save', {
 			is_json: 1, data: {
@@ -153,7 +158,7 @@ class PWDB {
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
-			const dump = db.dump_last();
+			const dump = db.dump_last(0);
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 			return;
 		}
