@@ -19,7 +19,7 @@ const mg_init = async () => {
 		(async () => {
 			try {
 				const req = await fetch(ROOT_URL + 'project/t');
-				const sec = await r.json();
+				const sec = await req.json();
 				g_security_key = sec.t;
 			} catch (e) { }
 		})(),
