@@ -2,52 +2,6 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-function copy_obj_data(obj, org) {
-	for (const f in org) {
-		if (!(f in org)) continue;
-		if (f === '_db') continue;
-		if (typeof(org[f]) === 'object') {
-			if (!(f in obj)) {
-				obj[f] = Array.isArray(org[f]) ? [] : {};
-			}
-			copy_obj_data(obj[f], org[f]);
-		} else {
-			obj[f] = org[f];
-		}
-	}
-}
-
-function apply_diff(obj, diff) {
-	const has_numeric_keys = (obj) => {
-		for (const f in obj) {
-			if (isNaN(f)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	for (const f in diff) {
-		if (f === '_db') continue;
-		if (typeof(diff[f]) === 'object') {
-			if (!obj.hasOwnProperty(f)) {
-				/* diff is always an object, so can't use Array.isArray() */
-				obj[f] = has_numeric_keys(diff[f]) ? [] : {};
-			}
-			copy_obj_data(obj[f], diff[f]);
-		} else {
-			obj[f] = diff[f];
-		}
-	}
-}
-
-function clone_obj(obj) {
-	let copy = {};
-	copy_obj_data(copy, obj);
-	return copy;
-}
-
 function init_obj_data(obj, base) {
 	for (const f in base) {
 		if (f === '_db') continue;
@@ -131,52 +85,6 @@ function dump(data, spacing = 1, custom_fn) {
 		}
 		return v;
 	}, spacing);
-}
-
-function proxy_array(src) {
-	const dst = [];
-	return new Proxy(src, {
-		set(src, k, v) {
-			dst[k] = v;
-			return true;
-		},
-		get(src, k) {
-			if (k == "setvalues") {
-				return dst;
-			}
-
-			const int_k = parseInt(k);
-			if (Number.isInteger(int_k) && dst[k] !== undefined) {
-				return dst[k];
-			}
-
-			return src[k];
-		}
-	});
-}
-
-function inherit_obj(obj, base) {
-	for (const f in base) {
-		if (f === '_db') continue;
-		if (typeof(base[f]) !== 'object') continue;
-		if (Array.isArray(base[f])) {
-			const prev = obj[f];
-			obj[f] = proxy_array(base[f]);
-			/* copy previous overriden values, if any */
-			if (prev && prev.setvalues) {
-				const dst = prev.setvalues;
-				for (const f in dst.length) {
-					if (dst[f] != prev[f]) {
-						obj[f] = dst[f];
-					}
-				}
-			}
-		} else {
-			if (!obj[f]) obj[f] = {};
-			obj[f] = Object.setPrototypeOf(obj[f], base[f]);
-		}
-		inherit_obj(obj[f], base[f]);
-	}
 }
 
 class DB {
@@ -311,12 +219,12 @@ class DB {
 			return obj;
 		}
 
-		obj._db.latest_state = clone_obj(obj);
+		obj._db.latest_state = DB.clone_obj(obj);
 
 		/* first time open */
 		if (!obj._db.changesets) {
 			/* first changeset is always the full, original object */
-			let org_obj = clone_obj(obj);
+			let org_obj = DB.clone_obj(obj);
 			org_obj._db = { type: obj._db.type, obj: obj, generation: 0 };
 			obj._db.changesets = [ org_obj ];
 		}
@@ -369,7 +277,7 @@ class DB {
 				last_changelog.add(diff);
 				changeset = diff;
 			} else {
-				apply_diff(changeset, diff);
+				DB.apply_diff(changeset, diff);
 			}
 
 			/* if this a newly allocated object it will be now appended to the array */
@@ -396,7 +304,7 @@ class DB {
 		if (!diff) {
 			obj._db.latest_state = undefined;
 		} else {
-			apply_diff(obj._db.latest_state, diff);
+			DB.apply_diff(obj._db.latest_state, diff);
 		}
 
 		return diff;
@@ -404,7 +312,7 @@ class DB {
 
 	clone(obj, commit_cb) {
 		let copy = {};
-		copy_obj_data(copy, obj);
+		DB.copy_obj_data(copy, obj);
 		copy.id = 0;
 		copy._db = { type: obj._db.type, is_allocated: true, commit_cb: commit_cb };
 		return copy;
@@ -434,7 +342,7 @@ class DB {
 		Object.setPrototypeOf(obj, base || {});
 		if (base) {
 			/* TODO detach previous base */
-			inherit_obj(obj, base);
+			DB.inherit_obj(obj, base);
 		} else {
 			/* TODO pull base into obj */
 		}
@@ -487,7 +395,7 @@ class DB {
 			}
 
 			this.open(org);
-			copy_obj_data(org, change);
+			DB.copy_obj_data(org, change);
 			if (org.id !== undefined) {
 				/* we've copied the id over, now it's time to fill the db entry */
 				this[org._db.type][org.id] = org;
@@ -523,6 +431,99 @@ class DB {
 			}
 		}
 	}
+
+	static apply_diff(obj, diff) {
+		const has_numeric_keys = (obj) => {
+			for (const f in obj) {
+				if (isNaN(f)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		for (const f in diff) {
+			if (f === '_db') continue;
+			if (typeof(diff[f]) === 'object') {
+				if (!obj.hasOwnProperty(f)) {
+					/* diff is always an object, so can't use Array.isArray() */
+					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
+				}
+				DB.copy_obj_data(obj[f], diff[f]);
+			} else {
+				obj[f] = diff[f];
+			}
+		}
+	}
+
+	static copy_obj_data(obj, org) {
+		for (const f in org) {
+			if (!(f in org)) continue;
+			if (f === '_db') continue;
+			if (typeof(org[f]) === 'object') {
+				if (!(f in obj)) {
+					obj[f] = Array.isArray(org[f]) ? [] : {};
+				}
+				DB.copy_obj_data(obj[f], org[f]);
+			} else {
+				obj[f] = org[f];
+			}
+		}
+	}
+
+	static clone_obj(obj) {
+		let copy = {};
+		DB.copy_obj_data(copy, obj);
+		return copy;
+	}
+
+	static proxy_array(src) {
+		const dst = [];
+		return new Proxy(src, {
+			set(src, k, v) {
+				dst[k] = v;
+				return true;
+			},
+			get(src, k) {
+				if (k == "setvalues") {
+					return dst;
+				}
+
+				const int_k = parseInt(k);
+				if (Number.isInteger(int_k) && dst[k] !== undefined) {
+					return dst[k];
+				}
+
+				return src[k];
+			}
+		});
+	}
+
+	static inherit_obj(obj, base) {
+		for (const f in base) {
+			if (f === '_db') continue;
+			if (typeof(base[f]) !== 'object') continue;
+			if (Array.isArray(base[f])) {
+				const prev = obj[f];
+				obj[f] = DB.proxy_array(base[f]);
+				/* copy previous overriden values, if any */
+				if (prev && prev.setvalues) {
+					const dst = prev.setvalues;
+					for (const f in dst.length) {
+						if (dst[f] != prev[f]) {
+							obj[f] = dst[f];
+						}
+					}
+				}
+			} else {
+				if (!obj[f]) obj[f] = {};
+				obj[f] = Object.setPrototypeOf(obj[f], base[f]);
+			}
+			DB.inherit_obj(obj[f], base[f]);
+		}
+	}
+
 }
 
 if (typeof window === 'undefined') {
