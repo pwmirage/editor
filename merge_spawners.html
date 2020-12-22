@@ -86,6 +86,7 @@
 					}
 					for (const r of _rs) {
 						r.type = 'resource';
+						r.id += 100000;
 					}
 					spawners.push({ id: spawners.length, tag: m, name: map.name, entries: [..._sp, ..._rs] });
 				}
