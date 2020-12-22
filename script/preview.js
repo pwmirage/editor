@@ -38,19 +38,15 @@ class PWPreview {
 			path = [ path ];
 		}
 
-		if (!obj._db.prev) {
-			return false;
-		}
-
-		let p = obj._db.prev;
+		let d = obj._db.diff;
 		for (const c of path) {
-			if (!p || !(c in p)) {
+			if (!d) {
 				return false;
 			}
-			p = p[c];
+			d = d[c];
 		}
 
-		return p !== null;
+		return !!d;
 	}
 
 	static load_promise;
@@ -104,10 +100,6 @@ class PWPreviewElement extends HTMLElement {
 	}
 
 	async connectedCallback() {
-		if (!this.dataset.tid) {
-			return;
-		}
-
 		if (!g_latest_db_promise) {
 			g_latest_db_promise = new Promise(async (resolve) => {
 				g_latest_db = await PWDB.new_db({ pid: 'latest', new: true, no_tag: true });
@@ -116,9 +108,18 @@ class PWPreviewElement extends HTMLElement {
 		}
 		await g_latest_db_promise;
 
-		const req = await get(ROOT_URL + 'project/preview/' + this.dataset.tid, { is_json: true });
-		if (!req.ok) return;
-		const preview_db = req.data;
+		let preview_db;
+		if (this.dataset.hash) {
+			const req = await get(ROOT_URL + 'project/preview/' + this.dataset.hash, { is_json: true });
+			if (!req.ok) return;
+			preview_db = req.data;
+		} else {
+			/* TODO: get it from local cache (internal url?) or generate it, the below is temporary */
+			const req = await get(ROOT_URL + 'project/preview_by_pid/' + this.dataset.pid, { is_json: true });
+			if (!req.ok) return;
+			preview_db = req.data;
+		}
+
 		this.db = {};
 
 		this.tabs = [];
@@ -127,17 +128,10 @@ class PWPreviewElement extends HTMLElement {
 			this.db[arr_name] = init_id_array([], g_latest_db[arr_name]);
 		}
 
-		for (let obj of preview_db) {
+		for (const obj of preview_db) {
 			/* XXX: don't just put everything to tabs -> smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
 
-			const prev = this.db[obj._db.type][obj.id];
-			if (!prev) {
-				this.db[obj._db.type][obj.id] = obj;
-			} else {
-				DB.apply_diff(prev, obj);
-				obj = prev;
-			}
-
+			this.db[obj._db.type][obj.id] = obj;
 			this.tabs.push({ obj: obj, type: obj._db.type });
 		}
 
@@ -150,8 +144,6 @@ class PWPreviewElement extends HTMLElement {
 		this.shadow.append(data);
 
 		await this.select_tab(0);
-
-		this.shadow.querySelectorAll('.prev').forEach(p => { p.previousSibling.classList.add('new'); });
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
 		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db: this.db, edit: false });
@@ -168,6 +160,10 @@ class PWPreviewElement extends HTMLElement {
 
 	select_tab(id) {
 		const tab = this.tabs[id];
+		if (!tab) {
+			/* XXX: show some dummy window here? */
+			return;
+		}
 
 		const el = this.shadow.querySelector('#element');
 		while (el.firstChild) {
@@ -175,7 +171,7 @@ class PWPreviewElement extends HTMLElement {
 		}
 
 		let win;
-		switch(tab.obj._db.type) {
+		switch(tab?.obj?._db?.type) {
 			case 'npc_sells': {
 				win = new PWPreviewNPCSells(this, tab.obj);
 				break;
@@ -243,7 +239,9 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 			return true;
 		}
 
-		const item_id = this.obj?.pages?.[this.selected_tab]?.item_id?.[idx];
+		const diff = this.obj._db.diff;
+		const new_item_id = diff?.pages?.[this.selected_tab]?.item_id?.[idx];
+		const item_id = new_item_id ?? this.obj.pages?.[this.selected_tab]?.item_id?.[idx];
 		const item = this.db.items[item_id];
 		if (!item) return !!item_id;
 		return PWPreview.is_modified(item, []);

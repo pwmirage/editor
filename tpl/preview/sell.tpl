@@ -1,13 +1,13 @@
 <script id="pw-preview-sells" type="text/x-dot-template">
 <div class="window loading">
-	{assign prev = $goods._db.prev || {\}}
+	{assign diff = $goods._db.diff}
 	<div class="header">
 		<div>
-			{if $prev.id == -1}
-				<p class="data diff-plus">(New) NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>
+			{if $goods.id == -1}
+				<p class="data diff-plus">(New) NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($diff.id)}</p>
 			{else}
+				{if $diff.name}<p class="new">NPC Goods: {@$diff.name || "(unnamed)"} {@serialize_db_id($diff.id)}</p>{/if}
 				<p class="data">NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>
-				{if $prev.name}<p class="prev">NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>{/if}
 			{/if}
 		</div>
 		{if $goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$goods._db.refs.length})</span>{/if}
@@ -15,19 +15,20 @@
 	<div class="content">
 		<div id="pages">
 			{for i = 0; i < 8; i++}
-				{assign tab = $goods.pages[i]}
-				{assign prev_tab = $prev.pages? $prev.pages[$i] : null}
+				{assign tab = $goods.pages[$i]}
+				{assign new_tab = $diff?.pages?.[$i]}
 				<span class="tab {if $win.selected_tab == $i}selected{/if} {if $win.is_tab_modified($i)}modified{/if}" onclick="{serialize $win}.select_tab(this, {@$i});">
+					{if $new_tab?.title}<p class="new">{@$new_tab.title || "(unnamed)"}</p>{/if}
 					{if $tab}<p class="data">{@$tab.title || "(unnamed)"}</p>{/if}
-					{if $prev_tab}<p class="prev">{@$prev_tab.title || "(unnamed)"}</p>{/if}
 				</span>
 			{/for}
 		</div>
 
 		<div id="items" class="item-container">
 			{assign tab = $goods.pages[$win.selected_tab]}
+			{assign new_tab = $diff?.pages?.[$win.selected_tab]}
 			{for i = 0; i < 32; i++}
-				{assign item_id = $tab.item_id[$i]}
+				{assign item_id = $new_tab?.item_id?.[$i] ?? $tab.item_id[$i]}
 				<span class="item {if $win.is_item_modified($i)}modified{/if}" data-id="{@$item_id}" tabindex="0">
 					<img{ } src="{@$preview.get_item_icon($item_id)}">
 				</span>
@@ -42,8 +43,8 @@
 	width: 280px;
 }
 
-.window > .header .prev,
-.window > .header .data.new {
+.window > .header .data,
+.window > .header .new {
 	margin-left: 8px;
 }
 
@@ -83,12 +84,12 @@
 }
 
 #pages > .tab.selected,
-#pages > .tab.selected > .prev:before,
+#pages > .tab.selected > .new:before,
 #pages > .tab.selected > .data:before {
 	background-color: var(--color-button-bg-darker);
 }
 
-#pages > .tab > .prev:before,
+#pages > .tab > .new:before,
 #pages > .tab > .data:before {
 	border-left: 1px solid #b47a63;
 	background-color: var(--color-button-bg);

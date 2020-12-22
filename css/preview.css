@@ -213,7 +213,7 @@ pw-item > img {
 }
 
 .data,
-.prev,
+.new,
 .diff-plus {
 	position: relative;
 }
@@ -223,15 +223,15 @@ pw-item > img {
 	color: #bbe8bb;
 }
 
-.prev {
+.new + .data {
 	color: #808080;
 }
 
-.data.new:before,
+.new:before,
 .diff-plus:before,
-.prev:before {
-	content: '+';
-	color: #32dc32;
+.new + .data:before {
+	content: '-';
+	color: red;
 	font-family: "Courier New", Courier, monospace;
 	font-size: 14px;
 	position: absolute;
@@ -239,9 +239,9 @@ pw-item > img {
 	top: calc(50% - 8px);
 }
 
-.prev:before {
-	content: '-';
-	color: red;
+.new:before {
+	content: '+';
+	color: #32dc32;
 }
 
 .nowrap {
