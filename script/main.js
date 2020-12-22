@@ -8,6 +8,9 @@ const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
 let MG_VERSION = '0';
 
+/* needs to be in / to fetch requests from origin /, .htaccess to the rescue */
+navigator.serviceWorker.register('/service-worker.js');
+
 const mg_init = async () => {
 	/* check authentication first */
 	await Promise.all([
