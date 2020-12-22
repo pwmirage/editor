@@ -35,7 +35,7 @@ const get = async (url, { is_json, headers } = {}) => {
 const post = async (url, { data, is_json } = {}) => {
 	const form_data = new FormData();
 
-	form_data.append('t', g_security_key);
+	form_data.append('t', SECURITY_TOKEN);
 	for (field in data) {
 		form_data.append(field, data[field]);
 	}

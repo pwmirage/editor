@@ -3,7 +3,6 @@
  */
 
 const g_db = {};
-let g_security_key = null;
 
 const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
@@ -16,13 +15,6 @@ const mg_init = async () => {
 			MG_VERSION_FULL = await r.json();
 			MG_VERSION = MG_VERSION_FULL.mtime;
 		}),
-		(async () => {
-			try {
-				const req = await fetch(ROOT_URL + 'project/t');
-				const sec = await req.json();
-				g_security_key = sec.t;
-			} catch (e) { }
-		})(),
 	]);
 
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION)
