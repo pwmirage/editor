@@ -151,6 +151,8 @@ class DB {
 		type.obj_init_cb = obj_init_cb;
 
 		const obj_map = new Map();
+		const static_map = objects;
+		const db = this;
 		this[name] = new Proxy(obj_map, {
 			set(map, k, v) {
 				if (v === undefined) {
@@ -179,16 +181,32 @@ class DB {
 				if (typeof map[k] === 'function') {
 					return (...args) => Reflect.apply(map[k], map, args);
 				}
-				return map.get(k);
+
+				if (k === 'init') {
+					return () => {
+						for (const obj of static_map) {
+							/* trigger lazy initialization */
+							const o = db[name][obj.id];
+						}
+					};
+				}
+
+				let obj = map.get(k);
+				if (obj) {
+					return obj;
+				}
+
+				obj = static_map[k];
+				if (!obj) {
+					return undefined;
+				}
+
+				const clone = DB.clone_obj(obj);
+				db.init(name, clone);
+				map.set(k, clone);
+				return clone;
 			}
 		});
-
-		for (const obj of objects) {
-			if (!obj) continue;
-			obj_map.set(obj.id.toString(), obj);
-			this.init(name, obj);
-		}
-
 	}
 
 	/**

@@ -25,10 +25,18 @@ const finish_test = (name) => {
 	g_pass = true;
 };
 
+const init_id_arr = (arr) => {
+	const id_arr = [];
+	for (const obj of arr) {
+		id_arr[obj.id] = obj;
+	}
+	return id_arr;
+}
+
 const db = new DB();
 db.new_id_start = 42;
 
-db.register_type("items", [{ id: 4096, field: "value", field2: "another" }]);
+db.register_type("items", init_id_arr([{ id: 4096, field: "value", field2: "another" }]));
 let obj = db.items[4096];
 assert(obj);
 assert(obj.id == 4096);
@@ -141,7 +149,7 @@ finish_test('basic');
 	const db2 = new DB();
 	db2.new_id_start = 7;
 
-	db2.register_type("items", [{ id: 4096, field: "value", field2: "another" }]);
+	db2.register_type("items", init_id_arr([{ id: 4096, field: "value", field2: "another" }]));
 
 	const db_json = JSON.parse(dump);
 	db2.load(db_json);
@@ -157,10 +165,10 @@ finish_test('basic');
 	const db = new DB();
 
 
-	db.register_type("items", [
+	db.register_type("items", init_id_arr([
 		{ id: 4096, field: "value", field2: "another" },
 		{ id: 4097, field: "value2", field2: "another2" }
-	]);
+	]));
 
 	let obj = db.new('items', (obj, diff, prev) => {
 		assert(diff.field == undefined);
@@ -215,10 +223,10 @@ finish_test('basic');
 {
 	const db = new DB();
 
-	db.register_type("items", [
+	db.register_type("items", init_id_arr([
 		{ id: 4096, field: "value", array: [ 40, 41, 42 ] },
 		{ id: 4097, field: "value2", array: [ 50, 51, 52 ] },
-	]);
+	]));
 
 	let obj = db.new('items', (obj, diff, prev) => {
 		assert(diff.field == undefined);

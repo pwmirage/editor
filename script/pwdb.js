@@ -55,7 +55,11 @@ class PWDB {
 		save_fn2();
 	}
 
-	static async new_db(args = {}) {
+	static async new_db(args) {
+		if (!args) {
+			args = {};
+		}
+
 		if (args.pid == 'latest') {
 			args.pid = 99;
 			// todo load project/head
@@ -63,11 +67,6 @@ class PWDB {
 
 		const db = new DB();
 		this.db_promise = null;
-
-		if (args.tid) {
-			const req = await get(ROOT_URL + 'project/pid/' + parseInt(args.tid), { is_json: 1 });
-			args.pid = req.data.pid;
-		}
 
 		const project = {
 			id: 1,
@@ -108,8 +107,15 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 		]);
 
+		if (args.preinit) {
+			db.metadata.init();
+		}
+
 		for (const arr of spawner_arrs) {
-			db.register_type('spawners_' + arr.tag, arr.entries);
+			db.register_type('spawners_' + arr.tag, init_id_array(arr.entries));
+			if (args.preinit) {
+				db['spawners_' + arr.tag].init();
+			}
 		}
 
 		if (!args.new) {
@@ -311,6 +317,9 @@ class PWDB {
 
 		await PWDB.load_db_file(type, url);
 		db.register_type(type, g_db[type]);
+		if (args.preinit) {
+			db[type].init();
+		}
 
 		if (tag) Loading.try_cancel_tag(tag);
 

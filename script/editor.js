@@ -99,6 +99,7 @@ class Editor {
 		}
 
 		/* db is global */
+		args.preinit = true;
 		db = await PWDB.new_db(args);
 		Editor.navbar.reload();
 		const win = await MapChooserWindow.open({ });
