@@ -800,8 +800,10 @@ class HTMLSugar {
 		}
 
 		if (el == win.hover_el) {
-			/* no change */
-			return;
+			if (!el || !win.scroll_hidden) {
+				/* no change */
+				return;
+			}
 		}
 
 		win.hover_el = el;
