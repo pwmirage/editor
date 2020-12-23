@@ -5,9 +5,30 @@
 const PRECACHE = 'precache-v1';
 const RUNTIME = 'runtime';
 
-const PRECACHE_URLS = [
-	'./',
-];
+const PRECACHE_URLS = [];
+
+const module = {};
+const MG_VERSION = 1;
+const ROOT_URL = '/editor/';
+const g_db = {};
+
+self.importScripts('editor/script/db.js');
+self.importScripts('editor/script/util.js');
+self.importScripts('editor/script/pwdb.js');
+
+/* mocks */
+class Loading {
+	static show_tag() {};
+	static hide_tag() {};
+	static show_error_tag() {};
+	static try_cancel_tag() {};
+};
+
+class IDB {
+	static async open() { };
+	static async get() { return undefined; };
+	static async set() { };
+};
 
 self.addEventListener('install', event => {
 	event.waitUntil(
@@ -17,63 +38,102 @@ self.addEventListener('install', event => {
 	);
 });
 
-/* cleaning up old caches */
-self.addEventListener('activate', event => {
-	console.log('activating...');
-	const currentCaches = [PRECACHE, RUNTIME];
-	event.waitUntil(
-		caches.keys().then(cacheNames => {
-			return cacheNames.filter((cacheName) => !currentCaches.includes(cacheName));
-		}).then(cachesToDelete => {
-			return Promise.all(cachesToDelete.map((c) => {
-				return caches.delete(c);
-			}));
-		}).then(() => { self.clients.claim(); console.log('activated!'); })
-	);
+self.addEventListener('activate', (event) => {
+	const cur_cache_names = [PRECACHE, RUNTIME];
+	event.waitUntil((async () => {
+		/* clean up old cache revisions */
+		const cache_names = await caches.keys();
+		for (const name of cache_names) {
+			if (cur_cache_names.includes(name)) {
+				/* still exists, nothing to do */
+				continue;
+			}
+
+			caches.delete(c);
+		}
+
+		const cache = await caches.open(RUNTIME);
+		const reqs = await cache.keys();
+		for (const req of reqs) {
+			const resp = await caches.match(req);
+			if (is_resp_expired(resp)) {
+				cache.delete(req);
+			}
+		}
+
+		return self.clients.claim();
+	})());
 });
 
-const cache_db = async () => {
-	const arrays = [ 
-		'mines',
-		'recipes',
-		'npc_sells',
-		'npc_crafts',
-		'npcs',
-		'monsters',
-		'items',
-		'weapon_major_types',
-		'weapon_minor_types',
-		'armor_major_types',
-		'armor_minor_types',
-		'decoration_major_types',
-		'decoration_minor_types',
-		'medicine_major_types',
-		'medicine_minor_types',
-		'material_major_types',
-		'material_minor_types',
-		'projectile_types',
-		'quiver_types',
-		'armor_sets',
-		'equipment_addons',
-	];
+function dump2(data, spacing = 1) {
+	return JSON.stringify(data, function(k, v) {
+		/* dont include any nulls, undefined results in no output at all */
+		if (v === null) return undefined;
+		if (typeof v === 'object' && is_empty(v)) {
+			return Array.isArray(v) ? [] : undefined;
+		}
+		return v;
+	}, spacing);
+}
 
-	const db = {};
-	const promises = [];
-	for (const arr of arrays) {
-		const p = fetch(self.location.origin + '/editor/data/base/' + arr + '.json').then((r) => {
-			return r.json().then((json) => {
-				db[arr] = json;
-				return db[arr];
-			});
-		});
-		promises.push(p);
+const gen_proj_preview = async (req, pid) => {
+	const db = await PWDB.new_db({ pid: 0, new: true });
+
+	const load = await get(ROOT_URL + 'project/' + pid + '/load', { is_json: 1 });
+	const changesets = load.data;
+
+	/* load all changesets but last */
+	for (let i = 0; i < changesets.length - 1; i++) {
+		db.load(changesets[i], { join_changesets: true });
 	}
 
-	await Promise.all(promises);
+	/* seperate previous changes from the last one (the one we're generating for) */
+	db.new_generation();
 
-	console.log('generated fake db');
-	return db;
+	db.register_commit_cb((obj) => {
+		if (obj._db.type == 'metadata' && obj.id != 0) return;
+		if (!obj._db.diff_original) {
+			obj._db.diff_original = DB.clone_obj(obj._db.latest_state);
+		}
+	});
 
+	db.load(changesets[changesets.length - 1], { join_changesets: true });
+
+	const preview_data = [];
+	for (const diff of db.changelog[db.changelog.length - 1]) {
+		const obj = diff._db.obj._db.diff_original;
+		if (!obj) continue;
+		obj._db = { type: diff._db.obj._db.type, diff: diff };
+		diff._db = undefined;
+		preview_data.push(obj);
+	}
+
+	const dump_str = JSON.stringify(preview_data, function(k, v) {
+		/* dont include any nulls, undefined results in no output at all */
+		if (v === null) return undefined;
+		return v;
+	}, 0);
+
+	const date = new Date();
+	const resp = new Response(dump_str, { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() } });
+
+	const cache = await caches.open(RUNTIME);
+	await cache.put(req, resp.clone());
+	return resp;
+}
+
+const is_resp_expired = (cached) => {
+	const date_header = cached.headers.get('date');
+	const date = new Date(date_header);
+	const timestamp = date.getTime();
+
+	if (isNaN(timestamp)) {
+		return true;
+	}
+
+	const expire_timestamp = timestamp + 7 * 24 * 3600 * 1000;
+	const now = Date.now();
+	return (expire_timestamp < now);
 }
 
 self.addEventListener('fetch', (event) => {
@@ -85,34 +145,26 @@ self.addEventListener('fetch', (event) => {
 	
 	const url = req.url.substring(self.location.origin.length);
 
-	const ret = caches.match(req).then((cached) => {
-		if (cached) {
-			return cached;
+	const ret = caches.match(req).then(async (cached) => {
+		const proj_match = url.match(/.*\/project\/preview\/local\/([0-9]+)/);
+		if (proj_match) {
+			const pid = proj_match[1];
+
+			if (cached) {
+				if (is_resp_expired(cached)) {
+					const ret = await gen_proj_preview(req, pid);
+					return ret;
+				}
+
+				return cached;
+			}
+
+			const ret = await gen_proj_preview(req, pid)
+			return ret;
 		}
 
-		if (url.endsWith('/cache_db.json')) {
-			console.log('fake db hook!');
-			return cache_db().then((db) => {
-				return caches.open(RUNTIME).then(cache => {
-					const str = JSON.stringify(db);
-					const resp = new Response(str, { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json' } });
-					return cache.put(req, resp.clone()).then(() => {
-						return resp;
-					});
-				});
-			});
-		}
 
 		return fetch(req);
-
-		return caches.open(RUNTIME).then(cache => {
-			return fetch(req).then(response => {
-				// Put a copy of the response in the runtime cache.
-				return cache.put(req, response.clone()).then(() => {
-					return response;
-				});
-			});
-		});
 	});
 
 	event.respondWith(ret);
