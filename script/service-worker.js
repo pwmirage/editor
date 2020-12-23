@@ -55,7 +55,7 @@ self.addEventListener('activate', (event) => {
 		const cache = await caches.open(RUNTIME);
 		const reqs = await cache.keys();
 		for (const req of reqs) {
-			const resp = await caches.match(req);
+			const resp = await caches.match(req, { ignoreSearch: true });
 			if (is_resp_expired(resp)) {
 				cache.delete(req);
 			}
@@ -76,7 +76,7 @@ function dump2(data, spacing = 1) {
 	}, spacing);
 }
 
-const gen_proj_preview = async (req, pid) => {
+const gen_proj_preview = async (url, pid, edit_time) => {
 	const db = await PWDB.new_db({ pid: 0, new: true });
 
 	const load = await get(ROOT_URL + 'project/' + pid + '/load', { is_json: 1 });
@@ -115,9 +115,10 @@ const gen_proj_preview = async (req, pid) => {
 	}, 0);
 
 	const date = new Date();
-	const resp = new Response(dump_str, { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() } });
+	const resp = new Response(dump_str, { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString(), 'Last-Modified': edit_time } });
 
 	const cache = await caches.open(RUNTIME);
+	const req = new Request(url.split('?')[0]);
 	await cache.put(req, resp.clone());
 	return resp;
 }
@@ -145,21 +146,24 @@ self.addEventListener('fetch', (event) => {
 	
 	const url = req.url.substring(self.location.origin.length);
 
-	const ret = caches.match(req).then(async (cached) => {
-		const proj_match = url.match(/.*\/project\/preview\/local\/([0-9]+)/);
+	const ret = caches.match(req, { ignoreSearch: true }).then(async (cached) => {
+		const proj_match = url.match(/.*\/project\/preview\/local\/([0-9]+)(?:\?t=)?([0-9]+)?/);
 		if (proj_match) {
 			const pid = proj_match[1];
+			const last_edit = proj_match[2] || 0;
 
 			if (cached) {
-				if (is_resp_expired(cached)) {
-					const ret = await gen_proj_preview(req, pid);
+				const cached_last_edit = cached.headers.get('last-modified') || 0;
+
+				if (parseInt(cached_last_edit) < parseInt(last_edit) || is_resp_expired(cached)) {
+					const ret = await gen_proj_preview(url, pid, last_edit);
 					return ret;
 				}
 
 				return cached;
 			}
 
-			const ret = await gen_proj_preview(req, pid)
+			const ret = await gen_proj_preview(url, pid, last_edit)
 			return ret;
 		}
 
