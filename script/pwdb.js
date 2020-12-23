@@ -80,7 +80,7 @@ class PWDB {
 		let spawner_arrs = null;
 
 		await Promise.all([
-			db.register_type('metadata', [project]),
+			db.register_type('metadata', init_id_array([project])),
 			PWDB.register_data_type(db, args, 'mines'),
 			PWDB.register_data_type(db, args, 'recipes'),
 			PWDB.register_data_type(db, args, 'npc_sells'),
