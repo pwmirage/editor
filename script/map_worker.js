@@ -204,7 +204,7 @@ const get_icon = (type) => {
 };
 
 const filter_spawners = (canvas) => {
-	const opt = (q) => g_opts[q];
+	const opt = (q) => !g_opts || g_opts[q];
 
 	const filters = { npc: [], resource: [], monster: [] };
 
@@ -235,8 +235,8 @@ const filter_spawners = (canvas) => {
 	if (!opt('mob-show-aggressive')) filters.monster.push(by_mob((m) => !m.is_aggressive));
 	if (!opt('mob-show-nonaggressive')) filters.monster.push(by_mob((m) => m.is_aggressive));
 
-	const minlevel = opt('mob-show-lvl-min');
-	const maxlevel = opt('mob-show-lvl-max');
+	const minlevel = typeof(opt('mob-show-lvl-min')) == 'number' ? opt('mob-show-lvl-min') : 0;
+	const maxlevel = typeof(opt('mob-show-lvl-max')) == 'number' ? opt('mob-show-lvl-max') : 150;
 	filters.monster.push(by_mob((m) => m.level >= minlevel && m.level <= maxlevel));
 
 	const map_filters = {};
@@ -252,7 +252,7 @@ const filter_spawners = (canvas) => {
 		}
 	}
 
-	const search = opt('search')?.toLowerCase();
+	const search = typeof(opt('search')) == 'string' ? opt('search').toLowerCase() : '';
 
 	const drawn_spawners = { npc: [], monster: [], resource: [] };
 	for (const spawner of g_objs.spawners.values()) {
@@ -340,13 +340,13 @@ const redraw = () => {
 
 		const spawner_list = g_drawn_spawners[list];
 
-		if (g_opts['show-name-labels']) {
+		if (g_opts?.['show-name-labels']) {
 			for (const spawner of spawner_list) {
 				let { x, y } = spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
 				x *= pos.scale;
 				y *= pos.scale;
 
-				if (!g_opts['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
+				if (!g_opts?.['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 					ctx.globalAlpha = 1.0;
 				} else {
 					ctx.globalAlpha = 0.3;
@@ -368,7 +368,7 @@ const redraw = () => {
 			x *= pos.scale;
 			y *= pos.scale;
 			const rad = spawner.dir ? (-Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2) : 0;
-			if (!g_opts['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
+			if (!g_opts?.['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
 				ctx.globalAlpha = 1.0;
 			} else {
 				ctx.globalAlpha = 0.3;

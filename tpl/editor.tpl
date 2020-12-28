@@ -9,11 +9,14 @@
 		<div class="label"></div>
 	</div>
 	<div id="pw-windows">
-		<div id="pw-map-pos-label"></div>
-		<i id="open-legend" style="display: none;" title="Map legend"></i>
+		<div id="pw-map-pos-label">X: 0, Y: 0</div>
+		<div id="pw-map-info"></div>
+		<div id="pw-project-info"></div>
+		<i id="open-legend" title="Map legend"></i>
 		<div id="select-menu" style="display: none;">
-			<span class="count">4</span> spawners
+			<span class="count"></span> spawners
 		</div>
+		<div id="pw-version"></div>
 	</div>
 </div>
 
@@ -112,6 +115,43 @@
 
 #pw-map-pos-label:empty {
 	display: none;
+}
+
+#pw-version {
+	position: absolute;
+	right: 5px;
+	bottom: 3px;
+	box-sizing: border-box;
+	color: #ffffff;
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	text-align: center;
+}
+
+#pw-map-info {
+	position: absolute;
+	left: 168px;
+	bottom: 12px;
+	box-sizing: border-box;
+	color: #ffffff;
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	text-align: center;
+}
+
+#pw-project-info {
+	position: absolute;
+	left: 48px;
+	bottom: 42px;
+	line-height: 15px;
+	box-sizing: border-box;
+	color: #ffffff;
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	text-align: left;
 }
 
 #open-legend {

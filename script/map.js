@@ -90,8 +90,14 @@ class PWMap {
 		Window.set_container(shadow.querySelector('#pw-windows'));
 
 		shadow.querySelector('#open-legend').onclick = async () => {
+			if (!g_map) {
+				return;
+			}
+
 			const win = await LegendWindow.open({ });
 		};
+
+		return shadow;
 
 	}
 
@@ -132,8 +138,6 @@ class PWMap {
 			const offscreen = overlay.transferControlToOffscreen();
 			this.canvas_worker.postMessage({ type: 'set_canvas', id: i, canvas: offscreen }, [offscreen]);
 		}
-
-		this.canvas_worker.postMessage({ type: 'set_options', opts: {} });
 
 		this.canvas_worker.addEventListener('message', (e) => {
 			if (e.data.type == 'redraw') {
@@ -287,6 +291,9 @@ class PWMap {
 			throw new Error('Map ' + mapid + ' doesn\'t exist');
 		}
 
+		const project_info = this.shadow.querySelector('#pw-map-info');
+		project_info.textContent = this.maptype.name;
+
 		this.canvas.classList.remove('shown');
 
 		this.bg.load_tag = Loading.show_tag('Loading ' + this.maptype.name + ' image');
@@ -344,8 +351,6 @@ class PWMap {
 				await this.move_to(this.pos.offset);
 				await this.onresize();
 				this.canvas.classList.add('shown');
-
-				await LegendWindow.open();
 
 				Loading.hide_tag(this.bg.load_tag);
 				resolve();

@@ -10,6 +10,7 @@ let db;
 class Editor {
 	static loaded = false;
 	static navbar = null;
+	static map_shadow = null;
 
 	static async load() {
 		console.log('Editor loading');
@@ -48,7 +49,7 @@ class Editor {
 			Loading.hide_tag(tag_p);
 		});
 
-		await PWMap.add_elements(document.querySelector('#mgeArea'));
+		Editor.map_shadow = await PWMap.add_elements(document.querySelector('#mgeArea'));
 
 		const org_menu = document.querySelector('.mainMenu .boxMenu');
 		if (org_menu) {
@@ -67,7 +68,13 @@ class Editor {
 			minimized ? 'Open the editor' : 'Return to website';
 			const page_main = document.querySelector('#main');
 			if (page_main) {
-				page_main.style.display = minimized ? '' : 'none';
+				if (minimized) {
+					page_main.style.display = '';
+				} else {
+					setTimeout(() => {
+						page_main.style.display = 'none';
+					}, 500);
+				}
 			}
 			//await Window.close_all();
 			//await this.close();
@@ -93,6 +100,10 @@ class Editor {
 			g_map.close();
 		}
 
+		const date = new Date();
+		const version_str = 'Mirage Editor, Version: ' + date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+		Editor.map_shadow.querySelector('#pw-version').textContent = version_str;
+
 		if (navigator.userAgent.indexOf("Chrome") == -1){
 			const win = await UnsupportedBrowserWindow.open({ });
 			return;
@@ -101,6 +112,14 @@ class Editor {
 		/* db is global */
 		args.preinit = true;
 		db = await PWDB.new_db(args);
+
+		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
+		proj_info_el.textContent = 'Project: ' + PROJECT_NAME + ' by ' + db.metadata[1].author;
+
+		const d = new Date(PROJECT_LAST_EDIT * 1000);
+		const d_str = d.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString("en-US");
+		proj_info_el.innerHTML = proj_info_el.textContent + '<br>' + d_str;
+
 		Editor.navbar.reload();
 		const win = await MapChooserWindow.open({ });
 	}
