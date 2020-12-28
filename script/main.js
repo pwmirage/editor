@@ -22,6 +22,7 @@ const mg_init = async () => {
 
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION)
 	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
+	await load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION),
 	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
 
 	await PWPreview.load_promise;
@@ -70,5 +71,27 @@ const mg_open_editor = async (args) => {
 	}
 }
 
+const notify = (type, msg) => {
+	return new Promise(resolve => {
+		require(["Ui/Notification"], function(UiNotification) {
+			UiNotification.show(msg, () => {
+				resolve();
+			}, type);
+		});
+	});
+}
+
+const confirm = (msg) => {
+	return new Promise(resolve => {
+		require(["Ui/Confirmation"], function(UiConfirmation) {
+			UiConfirmation.show({
+				confirm: () => { resolve(true); },
+				cancel: () => { resolve(false);	},
+				messageIsHtml: true,
+				message: msg,
+			});
+		});
+	});
+}
 
 const g_mg_loaded = mg_init();
