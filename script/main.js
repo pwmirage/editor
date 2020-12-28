@@ -66,10 +66,13 @@ const mg_open_editor = async (args) => {
 		PROJECT_NAME = args.name;
 		PROJECT_LAST_EDIT = args.last_edit;
 		await g_mg_loaded;
+		document.body.classList.remove('mge-background');
 		await Loading.show_curtain();
 
 		document.body.classList.add('mge-fullscreen');
-		await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
+		if (typeof(Editor) === 'undefined') {
+			await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
+		}
 		await Editor.open(args);
 		Loading.hide_curtain();
 	} finally {

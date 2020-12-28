@@ -19,7 +19,6 @@ class Editor {
 //  const date = new Date (timestamp * 1000);
 //  $('#pw-version').text('Version: ' + date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + date.toLocaleTimeString("en-US"));
 
-		document.body.classList.add('mge-fullscreen');
 
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window.js?v=' + MG_VERSION),
@@ -85,6 +84,8 @@ class Editor {
 	}
 
 	static async open(args) {
+		document.body.classList.add('mge-fullscreen');
+		document.body.classList.remove('mge-background');
 		if (!Editor.loaded) {
 			await Editor.load();
 			Editor.loaded = true;
@@ -108,6 +109,8 @@ class Editor {
 			const win = await UnsupportedBrowserWindow.open({ });
 			return;
 		}
+
+		await Window.close_all();
 
 		/* db is global */
 		args.preinit = true;

@@ -133,7 +133,11 @@ class Window {
 
 	static close_all() {
 		for (const win_dom of Window.container.children) {
-			Window.container.remove(win_dom);
+			if (!win_dom._win) {
+				continue;
+			}
+
+			win_dom._win.close();
 		}
 	}
 
