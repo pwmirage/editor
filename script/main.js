@@ -80,6 +80,18 @@ const mg_open_editor = async (args) => {
 	}
 }
 
+const g_mg_pages = {};
+const mg_init_page = async (name, args = {}) => {
+	await g_mg_loaded;
+	await load_script(ROOT_URL + 'script/page/' + name + '.js?v=' + MG_VERSION);
+	const page = g_mg_pages[name];
+	if (!page) {
+		return null;
+	}
+
+	return await page.init(args);
+}
+
 const notify = (type, msg) => {
 	return new Promise(resolve => {
 		require(["Ui/Notification"], function(UiNotification) {
@@ -90,15 +102,18 @@ const notify = (type, msg) => {
 	});
 }
 
-const confirm = (msg) => {
+let g_confirm_dom = null;
+const confirm = (msg, html) => {
 	return new Promise(resolve => {
 		require(["Ui/Confirmation"], function(UiConfirmation) {
 			UiConfirmation.show({
 				confirm: () => { resolve(true); },
-				cancel: () => { resolve(false);	},
-				messageIsHtml: true,
+				cancel: () => { resolve(false); },
+				messageIsHtml: false,
 				message: msg,
+				template: html,
 			});
+			g_confirm_dom = UiConfirmation.getContentElement();
 		});
 	});
 }
