@@ -85,7 +85,6 @@ class Editor {
 
 	static async open(args) {
 		document.body.classList.add('mge-fullscreen');
-		document.body.classList.remove('mge-background');
 		if (!Editor.loaded) {
 			await Editor.load();
 			Editor.loaded = true;
