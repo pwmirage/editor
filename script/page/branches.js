@@ -14,7 +14,7 @@ g_mg_pages['branches'] = new class {
 
 		let req;
 		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
-		const branches = req.data;
+		const branches = this.branches = req.data;
 
 		req = await get(ROOT_URL + 'project/admin/mergable', { is_json: 1});
 		const projects = req.data;
@@ -34,6 +34,39 @@ g_mg_pages['branches'] = new class {
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t defer');
+		} else {
+			window.location.reload();
+		}
+	}
+
+	async merge(id, revision) {
+		let ok;
+
+		let tpl = `
+<select class="branch" style="margin-top: 8px;">
+<option value="0" selected="true">(Select one)</option>
+`;
+		for (const b of this.branches) {
+			tpl += '<option value="' + b.id + '">' + b.name.charAt(0).toUpperCase() + b.name.slice(1) + '</option>';
+		}
+		tpl += '</select>';
+
+		ok = await confirm('Merge to:', tpl);
+		if (!ok) {
+			return;
+		}
+
+		const branch_id = parseInt(g_confirm_dom.querySelector('.branch').value);
+		if (!branch_id) {
+			return;
+		}
+
+		const branch = this.branches.find(b => b.id == branch_id);
+		
+		const req = await post(ROOT_URL + 'project/admin/' + id + '/merge', { is_json: 1, data: { revision, branch, branch: branch.name, branch_project_id: branch.project_id} });
+
+		if (!req.ok) {
+			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
 		} else {
 			window.location.reload();
 		}

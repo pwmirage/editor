@@ -14,10 +14,10 @@
 				<tr>
 					<td style="width: 65px;">{@$project.id}</td>
 					<td><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
-					{assign date = new Date($project.edit_time)}
+					{assign date = new Date($project.edit_time * 1000)}
 					<td style="width: 200px;">{@$date.toLocaleDateString("en-US", \{ year: 'numeric', month: 'long', day: 'numeric' \})}<br>{@$date.toLocaleTimeString("en-US")}</td>
 					<td style="width: 225px;">
-						<a class="button" href="javascript:void(0);" onclick="{serialize $page}.merge({@$project.id});"><i class="fa fa-plug fa-button" title="Merge"></i>Merge</a>
+						<a class="button" href="javascript:void(0);" onclick="{serialize $page}.merge({@$project.id}, {@$project.revision});"><i class="fa fa-plug fa-button" title="Merge"></i>Merge</a>
 						<a class="button" href="javascript:void(0);" onclick="{serialize $page}.defer({@$project.id}, true);" style="margin-left: 8px;"><i class="fa fa-history fa-button" title="Defer"></i>Defer</a>
 					</td>
 				</tr>
@@ -27,7 +27,7 @@
 
 	<h2 style="margin-top: 40px;">Current Branches:</h2>
 
-	<table class="table" style="margin-top: 8px;">
+	<table class="table" style="margin-top: 8px; table-layout: fixed;">
 		<tbody>
 			<tr>
 				<th>No.</th>
@@ -38,7 +38,7 @@
 				<tr>
 					<td style="width: 65px;">{@$branch.id}</td>
 					<td>{@$branch.name.charAt(0).toUpperCase() + $branch.name.slice(1)}</td>
-					<td style="width: 200px;">{@$branch.project_id}</td>
+					<td><a href="{@'/forum/thread/' + $branch.project_topic_id}">{@$branch.project_name} ({@$branch.project_id})</a></td>
 				</tr>
 			{/for}
 		</tbody>
@@ -58,10 +58,10 @@
 				<tr>
 					<td style="width: 65px;">{@$project.id}</td>
 					<td><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
-					{assign date = new Date($project.edit_time)}
+					{assign date = new Date($project.edit_time * 1000)}
 					<td style="width: 200px;">{@$date.toLocaleDateString("en-US", \{ year: 'numeric', month: 'long', day: 'numeric' \})}<br>{@$date.toLocaleTimeString("en-US")}</td>
 					<td style="width: 250px;">
-						<a class="button" href="javascript:void(0);" onclick="{serialize $page}.merge({@$project.id});"><i class="fa fa-plug fa-button" title="Merge"></i>Merge</a>
+						<a class="button" href="javascript:void(0);" onclick="{serialize $page}.merge({@$project.id}, {@$project.revision});"><i class="fa fa-plug fa-button" title="Merge"></i>Merge</a>
 						<a class="button" href="javascript:void(0);" onclick="{serialize $page}.defer({@$project.id}, false);" style="margin-left: 8px;"><i class="fa fa-history fa-button" title="Un-Defer"></i>Un-Defer</a>
 					</td>
 				</tr>
