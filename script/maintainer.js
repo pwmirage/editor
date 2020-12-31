@@ -34,23 +34,4 @@ class Maintainer {
 			notify('error', 'Error occured! ' + (req.data.msg || ''));
 		}
 	}
-
-	static async merge({ pid, revision }) {
-
-		let ok;
-
-		const tpl = `
-<br>
-<select class="branch" name="branch">
-	<option value="" selected="">(Select one)</option>
-	<option value="public">Public</option>
-	<option value="test">Test</option>
-</select>
-		`;
-
-		ok = await confirm('Merge to the following branch:', tpl);
-
-		console.log(tpl);
-		console.log(g_confirm_dom.querySelector('.gender').value);
-	}
 }
