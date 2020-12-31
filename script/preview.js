@@ -141,7 +141,8 @@ class PWPreviewElement extends HTMLElement {
 			load_tpl(ROOT_URL + 'tpl/preview/root.tpl'),
 		]);
 
-		const data = await this.tpl.run({ preview: this, db: this.db });
+		const has_local_changes = !!this.dataset.hash && !!this.dataset.edits;
+		const data = await this.tpl.run({ preview: this, db: this.db, has_local_changes });
 		this.shadow.append(data);
 
 		await this.select_tab(0);

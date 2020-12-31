@@ -1,4 +1,7 @@
 <script id="pw-preview-root" type="text/x-jstemplate">
+{if $has_local_changes}
+	<span style="font-weight: bold;">Has non-published changes</span>
+{/if}
 <div id="container">
 	<div id="menu">
 		{for i = 0; i < $preview.tabs.length; i++}
