@@ -7,6 +7,7 @@
 			<tr>
 				<th>ID</th>
 				<th>Name</th>
+				<th>Base</th>
 				<th>Last edit</th>
 				<th>Action</th>
 			</tr>
@@ -14,6 +15,16 @@
 				<tr>
 					<td style="width: 65px;">{@$project.id}</td>
 					<td><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
+					<td>
+						<a href="{@'/forum/thread/' + $project.base_topic_id}">{@$project.base_name || 'None'}</a>
+						{if $project.base_name}
+							{if $project.base_commit_id}
+								<i class="fa fa-check" style="color: green;"></i>
+							{else}
+								<i class="fa fa-close" style="color: red;"></i>
+							{/if}
+						{/if}
+					</td>
 					{assign date = new Date($project.edit_time * 1000)}
 					<td style="width: 200px;">{@$date.toLocaleDateString("en-US", \{ year: 'numeric', month: 'long', day: 'numeric' \})}<br>{@$date.toLocaleTimeString("en-US")}</td>
 					<td style="width: 225px;">
