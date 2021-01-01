@@ -84,12 +84,26 @@ class Template {
 			throw new Error('Template script  ' + this.name + ' doesn\'t exist');
 		}
 
-		const script_text = tpl_script.text;
+		const script_text = tpl_script.text
+			.replace(/(<[^<{>]*{(.*?)>)/g, (match, tpl_tag) => {
+				/* convert code inside a tag into an attribute */
+				let count = 0;
+				return tpl_tag
+					.replace(/{(.*?[^\\])}/g, (match, content) => {
+						const c = count++;
+						content = content
+							.replace(/"/g, '#quot;' /* escape double quotes */)
+							.replace(/'/g, '#apos;');
+						return ' tpl-data' + c + '=\'' + content + '\' tpl-end-data' + c + ' ';
+					})
+			})
+			.replace(/{/g, '<!--')
+			.replace(/}/g, '-->');
 
 		this.raw_data = document.createElement('div');
 		this.raw_data.innerHTML = script_text;
 
-		const f_text = Template.build(script_text);
+		const f_text = Template.build(tpl_script.text);
 		this.func = new Function('tpl', 'local', f_text);
 	}
 
@@ -118,15 +132,22 @@ class Template {
 			return false;
 		}
 
+		const attr_fn = (match, content) => {
+			return ' {' + content
+				.replace(/#quot;/g, '"' /* escape double quotes */)
+				.replace(/#apos;/g, '\'' /* ^ */);
+		};
+
 		/* fix outerHTML mangling some (technically invalid) syntax */
 		const raw_str = raw.outerHTML
-				.replace(/&amp;/g, '&')
-				.replace(/(?<!\s)="" /g, ' ')
-				.replace(/&lt;/g, '<')
-				.replace(/&gt;/g, '>')
-				.replace(/<img{ }/g, '<img')
-				.replace(/<\/img{>/g, '</img>')
-		;
+			.replace(/ tpl-data[0-9]+='(.*?)'/g, attr_fn)
+			.replace(/ tpl-data[0-9]+="(.*?)"/g, attr_fn)
+			.replace(/ tpl-end-data[0-9]+(="")?[ ]?/g, '}')
+			.replace(/(<!--|&lt;!--)/g, '{')
+			.replace(/(-->|--&gt;)/g, '}')
+			.replace(/<img{ }/g, '<img ')
+			.replace(/<\/img{>/g, '</img>');
+
 		const new_fn_text = Template.build(raw_str);
 		const new_fn = new Function('tpl', 'local', new_fn_text);
 
