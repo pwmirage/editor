@@ -109,7 +109,7 @@ const confirm = (msg, html) => {
 			UiConfirmation.show({
 				confirm: () => { resolve(true); },
 				cancel: () => { resolve(false); },
-				messageIsHtml: false,
+				messageIsHtml: true,
 				message: msg,
 				template: html,
 			});
