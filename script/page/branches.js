@@ -14,17 +14,19 @@ g_mg_pages['branches'] = new class {
 
 		let req;
 		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
-		const branches = this.branches = req.data;
+		this.branches = req.data;
 
-		this.selected_branch = branches[0];
+		this.selected_branch = this.branches[0];
 
-		req = await get(ROOT_URL + 'project/admin/mergable', { is_json: 1});
-		const projects = this.projects = req.data;
+		for (const b of this.branches) {
+			for (const p of b.mergables) {
+				p.can_be_merged = !!b.history.find(c => c.id == p.base_project_id);
+			}
+		}
 
-		const mergables = req.data.filter(p => !p.deferred);
-		const deferred = req.data.filter(p => p.deferred);
+		const data = await this.tpl.run({ page: this, branches: this.branches, mergables: [], deferred: [] });
 
-		const data = await this.tpl.run({ page: this, branches, mergables, deferred });
+		await this.on_merge_branch_change(this.selected_branch.id);
 		this.dom.append(data);
 		return this.dom;
 	}
@@ -43,8 +45,11 @@ g_mg_pages['branches'] = new class {
 
 	async on_merge_branch_change(branch_id) {
 		this.selected_branch = this.branches.find(b => b.id == branch_id);
+		this.projects = this.selected_branch.mergables;
+		const mergables = this.projects.filter(p => !p.deferred);
+		const deferred = this.projects.filter(p => p.deferred);
 
-		this.tpl.reload('.mgContent');
+		this.tpl.reload('.mgContent', { mergables, deferred });
 	}
 
 	async merge(id, revision) {
@@ -58,12 +63,53 @@ g_mg_pages['branches'] = new class {
 		}
 		
 		const b = this.selected_branch;
-		const req = await post(ROOT_URL + 'project/admin/' + id + '/merge', { is_json: 1, data: { revision, branch: b.name, branch_project_id: b.project_id} });
+		const req = await post(ROOT_URL + 'project/admin/' + id + '/merge', { is_json: 1, data: { revision, branch: b.id} });
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
 		} else {
 			window.location.reload();
 		}
+	}
+
+	async sync_branches(source_id, dest_id) {
+		const source = this.branches.find(b => b.id == source_id);
+		const dest = this.branches.find(b => b.id == dest_id);
+
+		const projects = [];
+		const project_htmls = [];
+		for (const p of source.history) {
+			if (dest.history.find(dp => dp.id == p.id)) {
+				break;
+			}
+
+			projects.push(p);
+			project_htmls.push('<li><b>' + p.name + '</b> #' + p.id + '</li>');
+		}
+
+		if (projects.length == 0) {
+			notify('warning', 'No projects to pull from "' + dest.name + '"');
+			return;
+		}
+
+		const combined_html = '<ol style="list-style: decimal; margin-left: 20px;">' + project_htmls.reverse().reduce((combined, val) => combined + val) + '</ol>';
+		const branch_name = dest.name.charAt(0).toUpperCase() + dest.name.substring(1);
+		const ok = await confirm('Are you sure you want to merge following projects to <b>' + branch_name + '</b>?',combined_html);
+		if (!ok) {
+			return;
+		}
+
+		for (const p of projects.reverse()) {
+			const req = await post(ROOT_URL + 'project/admin/' + p.id + '/merge', { is_json: 1, data: { revision: p.revision, branch: dest.id } });
+
+			if (!req.ok) {
+				notify('error', req.data.msg || 'Unexpected error, couldn\'t merge ' + p.id);
+				return;
+			}
+		}
+
+		window.location.reload();
+
+
 	}
 };

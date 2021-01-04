@@ -5,12 +5,25 @@
 
 		<select class="branch" oninput="{serialize $page}.on_merge_branch_change(this.value);">
 			{for branch of $branches}
-				<option value="{@$branch.id}" {if $page.selected_branch == $branch}selected="true"{/if}>{@$branch.name.charAt(0).toUpperCase() + $branch.name.substring(1)} ({@$branch.id})</option>
+				<option value="{@$branch.id}" {if $page.selected_branch == $branch}selected="true"{/if}>{@$branch.id}. {@$branch.name.charAt(0).toUpperCase() + $branch.name.substring(1)} ({@$branch.history[0]?.id})</option>
 			{/for}
 		</select>
 
 		{assign branch = $page.selected_branch}
-		<span>Base: <a href="{@'/forum/thread/' + $branch.project_topic_id}">{@$branch.project_name} ({@$branch.project_id})</a></span>
+		<span>Base: <a href="{@'/forum/thread/' + $branch.history[0]?.topic_id}">{@$branch.history[0]?.name} ({@$branch.history[0]?.id})</a></span>
+
+		<span style="flex: 1;"></span>
+		<span style="display: flex; column-gap: 3px; align-items: baseline;">
+			<span>Pull changes from</span>
+			<select class="pull_branch">
+				{for branch of $branches}
+					{if $branch == $page.selected_branch}{continue}{/if}
+					<option value="{@$branch.id}" {if $page.selected_branch == $branch}selected="true"{/if}>{@$branch.id}. {@$branch.name.charAt(0).toUpperCase() + $branch.name.substring(1)} ({@$branch.history[0]?.id})</option>
+				{/for}
+			</select>
+			<a class="button" href="javascript:void(0);" onclick="{serialize $page}.sync_branches(parseInt({serialize $page}.shadow.querySelector('.pull_branch').value), {serialize $page.selected_branch.id});">Pull</a>
+		</span>
+
 	</div>
 
 	<div style="display: flex; column-gap: 15px; margin-top: 16px;">
@@ -42,20 +55,15 @@
 						<th>Action</th>
 					</tr>
 					{for project of $mergables}
-						{if $project.base_commit_id && $project.base_branch_id != $page.selected_branch.id}
-							{continue}
-						{/if}
 						<tr>
 							<td style="width: 65px;">{@$project.id}</td>
 							<td><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
 							<td>
 								<a href="{@'/forum/thread/' + $project.base_topic_id}">{@$project.base_name || 'None'}</a>
-								{if $project.base_name}
-									{if $project.base_commit_id}
-										<i class="fa fa-check" style="color: green;"></i>
-									{else}
-										<i class="fa fa-close" style="color: red;"></i>
-									{/if}
+								{if $project.can_be_merged}
+									<i class="fa fa-check" style="color: green;"></i>
+								{else}
+									<i class="fa fa-close" style="color: red;"></i>
 								{/if}
 							</td>
 							{assign date = new Date($project.edit_time * 1000)}
