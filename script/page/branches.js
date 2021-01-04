@@ -26,9 +26,23 @@ g_mg_pages['branches'] = new class {
 
 		const data = await this.tpl.run({ page: this, branches: this.branches, mergables: [], deferred: [] });
 
-		await this.on_merge_branch_change(this.selected_branch.id);
 		this.dom.append(data);
+		await this.on_merge_branch_change(this.selected_branch.id);
+
+		this.select_tab(0);
 		return this.dom;
+	}
+
+	select_tab(idx) {
+		for (const t of this.dom.querySelectorAll('.tab')) {
+			t.style.display = 'none';
+		}
+		for (const t of this.dom.querySelectorAll('.tabMenu > ul > *')) {
+			t.className = ''
+		}
+
+		this.dom.querySelectorAll('.tab')[idx].style.display = '';
+		this.dom.querySelectorAll('.tabMenu > ul > *')[idx].className = 'active ui-state-active';
 	}
 
 	async defer(id, do_defer) {
@@ -50,6 +64,7 @@ g_mg_pages['branches'] = new class {
 		const deferred = this.projects.filter(p => p.deferred);
 
 		this.tpl.reload('.mgContent', { mergables, deferred });
+		this.select_tab(0);
 	}
 
 	async merge(id, revision) {
@@ -109,7 +124,30 @@ g_mg_pages['branches'] = new class {
 		}
 
 		window.location.reload();
-
-
 	}
+
+	async set_motd() {
+		const motd = this.dom.querySelector('#motd').value;
+		const req = await post(ROOT_URL + 'project/admin/motd', { is_json: 1, data: { branch: this.selected_branch.id, motd } });
+	}
+
+	async publish() {
+		let ok;
+
+		const branch_name = this.selected_branch.name.charAt(0).toUpperCase() + this.selected_branch.name.substring(1);
+		ok = await confirm('Are you sure you want to publish <b>'+ branch_name + '</b>?');
+		if (!ok) {
+			return;
+		}
+
+		const b = this.selected_branch;
+		const req = await post(ROOT_URL + 'project/admin/publish', { is_json: 1, data: { branch: b.id } });
+
+		if (!req.ok) {
+			notify('error', req.data.msg || 'Unexpected error, couldn\'t publish');
+		} else {
+			window.location.reload();
+		}
+	}
+
 };
