@@ -168,7 +168,7 @@ class PWMap {
 				this.hovered_spawner = spawner ? db[spawner._db.type][spawner.id] : null;
 				this.hover_lbl.style.display = spawner ? 'block' : 'none';
 				if (spawner) {
-					const type = spawner.groups[0]?.type;
+					const type = spawner.groups?.[0]?.type;
 					let obj;
 					if (spawner._db.type.startsWith('spawners_')) {
 						obj = db.npcs[type] || db.monsters[type];

@@ -74,10 +74,14 @@ class SpawnerWindow extends Window {
 	}
 
 	add_group() {
+		db.open(this.spawner);
 		this.spawner.groups.push({ type: 0 });
+		db.commit(this.spawner);
 		this.tpl.reload('#groups');
 		this.open_groups = [];
 	}
+
+	/* TODO remove groups by setting count to 0 */
 
 	info_group(el, idx) {
 		if (!el._mg_group) {
@@ -122,18 +126,9 @@ class SpawnerWindow extends Window {
 				update_obj_fn: (new_obj) => {
 					const s = this.spawner;
 					db.open(s);
-					if (!s.groups) {
-						s.groups = [];
-					}
 
-					if (this.spawner.type == 'npc') {
-						if (s.groups.length == 0) {
-							s.groups.push({});
-						}
-						s.groups[0].type = new_obj?.id || 0;
-					} else {
-						/* TODO */
-					}
+					group.type = new_obj?.id || 0;
+					group.count = group.count || 1;
 
 					db.commit(s);
 					this.tpl.reload('#groups');

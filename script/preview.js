@@ -130,6 +130,10 @@ class PWPreviewElement extends HTMLElement {
 		}
 
 		for (const obj of preview_db) {
+			if (!obj) {
+				continue;
+			}
+
 			/* XXX: don't just put everything to tabs -> smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
 
 			this.db[obj._db.type][obj.id] = obj;
