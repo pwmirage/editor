@@ -186,8 +186,8 @@
 #select-menu {
 	display: block;
 	position: absolute;
-	right: 10px;
-	bottom: 10px;
+	right: 6px;
+	bottom: 24px;
 	background-color: rgba(207, 69, 69, 1);
 	color: rgba(255, 255, 255, 1);
 	text-transform: uppercase;
