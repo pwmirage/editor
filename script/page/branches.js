@@ -87,6 +87,27 @@ g_mg_pages['branches'] = new class {
 		}
 	}
 
+	async unmerge(id) {
+		const project = this.selected_branch.history.find(p => p.id == id);
+		let ok;
+
+		const branch_name = this.selected_branch.name.charAt(0).toUpperCase() + this.selected_branch.name.substring(1);
+		ok = await confirm('Are you sure you want to undo merging <b>' + project.name + '</b> from <b>' + branch_name + '</b>?');
+		if (!ok) {
+			return;
+		}
+		
+		const b = this.selected_branch;
+		const req = await post(ROOT_URL + 'project/admin/' + id + '/unmerge', { is_json: 1, data: { branch: b.id} });
+
+		if (!req.ok) {
+			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
+		} else {
+			window.location.reload();
+		}
+	}
+
+
 	async sync_branches(source_id, dest_id) {
 		const source = this.branches.find(b => b.id == source_id);
 		const dest = this.branches.find(b => b.id == dest_id);

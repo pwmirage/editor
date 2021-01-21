@@ -10,7 +10,7 @@
 		</select>
 
 		{assign branch = $page.selected_branch}
-		<span>Base: <a href="{@'/forum/thread/' + $branch.history[0]?.topic_id}">{@$branch.history[0]?.name} ({@$branch.history[0]?.id})</a></span>
+		<span>Base: <a href="{@'/forum/thread/' + $branch.history[0]?.topic_id}">{@$branch.history[0]?.name} ({@$branch.history[0]?.id || '-'})</a></span>
 
 		<span style="flex: 1;"></span>
 		<span style="display: flex; column-gap: 3px; align-items: baseline;">
@@ -36,9 +36,14 @@
 					{for project of $page.selected_branch.history}
 						{assign is_head = $project.commit_id == $page.selected_branch.head_id}
 						{console.log('commit: ' + $project.commit_id)}
-						<tr {if $is_head}class="branch-head"{/if}>
-							<td style="width: 65px;" title="c {@$project.commit_id}">{@$project.id}</td>
+						<tr class="{if $is_head}branch-head{/if} {if $project.is_removed || $project.is_being_removed}project-removed{/if}">
+							<td style="width: 65px;" title="c {@$project.commit_id}">{@$project.id || '-'}</td>
 							<td title="c {@$project.commit_id}"><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
+							{if !$project.is_removed && !$project.is_being_removed && !$project.removed_id}
+								<td style="cursor: pointer;" onclick="{serialize $page}.unmerge({@$project.id});"><i class="fa fa-close"></i>
+							{else}
+								<td></td>
+							{/if}
 						</tr>
 					{/for}
 				</tbody>
@@ -162,12 +167,15 @@
 }
 
 .mgContent .branch-head > td {
-	background-color: black;
-	color: white;
+	background-color: #e2e0e0;
 }
 
 .mgContent .branch-head:hover > td {
-	background-color: #333;
+	background-color: #cecccc;
+}
+
+.mgContent .project-removed {
+	text-decoration: line-through;
 }
 
 </style>
