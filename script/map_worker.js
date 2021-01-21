@@ -33,6 +33,7 @@ self.onmessage = async (e) => {
 			get_icon('red');
 			get_icon('yellow');
 			get_icon('green');
+			get_icon('crossed');
 			get_icon('select');
 			break;
 		}
@@ -374,7 +375,13 @@ const redraw = () => {
 			} else {
 				ctx.globalAlpha = 0.3;
 			}
-			drawAt(marker_img, rad, x, y, g_marker_size, g_marker_size);
+
+			let _marker_img = marker_img;
+			if (!spawner?.groups?.length ||
+				!spawner.groups?.find(g => g.type)) {
+				_marker_img = get_icon('crossed');
+			}
+			drawAt(_marker_img, rad, x, y, g_marker_size, g_marker_size);
 			if (g_selected_spawners.has(spawner.id)) {
 				ctx.drawImage(select_img, x - g_marker_size / 2, y - g_marker_size / 2, g_marker_size, g_marker_size);
 			}
