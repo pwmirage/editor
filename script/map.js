@@ -162,12 +162,29 @@ class PWMap {
 				overlay.classList.add('shown');
 
 			} else if (e.data.type == 'mouse') {
-				const hovered = e.data.hovered_spawner;
-				const spawner = hovered ? db[hovered._db.type][hovered.id] : null;
+				const hovered = e.data.hovered_spawners;
+				const spawners = hovered.map(s => db[s._db.type][s.id]);
 
-				this.hovered_spawner = spawner ? db[spawner._db.type][spawner.id] : null;
-				this.hover_lbl.style.display = spawner ? 'block' : 'none';
-				if (spawner) {
+				this.hovered_spawners = spawners;
+				if (spawners.length) {
+					this.hover_lbl.style.left = (this.mouse_pos.x - this.map_bounds.left + 20) + 'px';
+					this.hover_lbl.style.top = (this.mouse_pos.y - this.map_bounds.top - 10) + 'px';
+				}
+
+				this.hover_lbl.style.display = this.hovered_spawners.length ? 'block' : 'none';
+				while (this.hover_lbl.firstChild) {
+					this.hover_lbl.firstChild.remove();
+				}
+
+				for (const spawner of spawners) {
+					if (this.hover_lbl.children.length > 2) {
+						const div = document.createElement('div');
+						div.style.textAlign = 'right';
+						div.textContent = '... + ' + (spawners.length - 3) + ' more';
+						this.hover_lbl.append(div);
+						break;
+					}
+
 					const type = spawner.groups?.[0]?.type;
 					let obj;
 					if (spawner._db.type.startsWith('spawners_')) {
@@ -177,12 +194,12 @@ class PWMap {
 					}
 					const name = spawner.name || obj?.name;
 
-					this.hover_lbl.style.left = (this.mouse_pos.x - this.map_bounds.left + 20) + 'px';
-					this.hover_lbl.style.top = (this.mouse_pos.y - this.map_bounds.top - 10) + 'px';
-					this.hover_lbl.textContent = name;
+					const div = document.createElement('div');
+					div.textContent = name;
+					this.hover_lbl.append(div);
 				}
 
-				document.body.style.cursor = spawner ? 'pointer' : '';
+				document.body.style.cursor = spawners.length ? 'pointer' : '';
 			}
 		});
 
@@ -245,10 +262,6 @@ class PWMap {
 			]});
 			const sel = await win.wait();
 			switch(sel) {
-				case 10: {
-					this.open_spawner(hovered_spawner, e);
-					break;
-				}
 				case 23: {
 					this.selected_spawners.clear();
 					this.refresh_focused_spawners();
@@ -416,9 +429,9 @@ class PWMap {
 
 			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(spawner_pos.x) + ', Y: ' + parseInt(spawner_pos.y);
 		} else {
-			if (this.hovered_spawner) {
+			if (this.hovered_spawners.length) {
 				this.hover_lbl.style.display = 'none';
-				this.hovered_spawner = null;
+				this.hovered_spawners = [];
 				document.body.style.cursor = '';
 			}
 		}
@@ -426,11 +439,36 @@ class PWMap {
 		return e.defaultPrevented;
 	}
 
-	ondblclick(e) {
-		if (e.which == 1 && this.hovered_spawner) {
-			this.open_spawner(this.hovered_spawner, e);
-		}
+	async ondblclick(e) {
+		const spawners = this.hovered_spawners;
+		if (e.which == 1 && spawners.length) {
+			if (spawners.length == 1) {
+				this.open_spawner(spawners[0], e);
+			} else {
+				let idx = 1;
+				const get_name = (spawner) => {
+					const type = spawner.groups?.[0]?.type;
+					let obj;
+					if (spawner._db.type.startsWith('spawners_')) {
+						obj = db.npcs[type] || db.monsters[type];
+					} else {
+						obj = db.mines[type];
+					}
+					return (spawner.name || obj?.name) + ' ' + serialize_db_id(spawner.id);
+				};
+				const entries = spawners.map(s => ({ name: get_name(s), id: idx++ }));
+				const x = e.clientX - Window.bounds.left;
+				const y = e.clientY - Window.bounds.top;
+				const win = await RMenuWindow.open({
+					x: x, y: y, bg: false, entries
+				});
+				const sel = await win.wait();
+				if (sel > 0) {
+					this.open_spawner(spawners[sel - 1], e);
 
+				}
+			}
+		}
 	}
 
 	async open_spawner(spawner, e) {

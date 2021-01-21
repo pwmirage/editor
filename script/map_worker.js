@@ -13,7 +13,7 @@ let g_marker_size = 0;
 let g_window_size = { width: 1, height: 1 };
 let g_focused_spawners = new Set();
 let g_selected_spawners = new Set();
-let g_hovered_spawner = null;
+let g_hovered_spawners = null;
 
 /* both spawners and resources */
 let g_drawn_spawners = null;
@@ -40,18 +40,18 @@ self.onmessage = async (e) => {
 			const x = e.data.x;
 			const y = e.data.y;
 
-			resp.hovered_spawner = g_hovered_spawner = get_spawner_at(x, y);
+			resp.hovered_spawners = g_hovered_spawners = get_spawners_at(x, y);
 			break;
 		}
 		case 'mousearea': {
 			const tl = e.data.tl;
 			const br = e.data.br;
 
-			const selected_spawners = [];
+			let selected_spawners = [];
 			const area = (br.x - tl.x) * (br.y - tl.y);
-			if (area <= 4 && g_hovered_spawner) {
+			if (area <= 4 && g_hovered_spawners.length) {
 				/* this spawner was simply left-clicked */
-				selected_spawners.push(g_hovered_spawner);
+				selected_spawners = g_hovered_spawners;
 			} else {
 				const filter = (s) => {
 					return s.pos[0] >= tl.x && s.pos[0] <= br.x &&
@@ -157,13 +157,14 @@ const init_objs = (type, arr) => {
 	}
 }
 
-const get_spawner_at = (mx, my) => {
+const get_spawners_at = (mx, my) => {
 	if (!g_drawn_spawners) {
-		return null;
+		return [];
 	}
 
 	const marker_size = g_marker_size * 1.4 / g_pos.scale / g_map.bg_scale;
 
+	const spawners = [];
 	for (const type in g_drawn_spawners) {
 		for (const spawner of g_drawn_spawners[type]) {
 			const x = spawner.pos[0];
@@ -173,12 +174,12 @@ const get_spawner_at = (mx, my) => {
 			    my < y + marker_size / 2 &&
 			    mx < x + marker_size / 2 &&
 			    my >= y - marker_size / 2) {
-				return spawner;
+				spawners.push(spawner);
 			}
 		}
 	}
 
-	return null;
+	return spawners;
 }
 
 const get_name = (spawner, group_idx = 0) => {
