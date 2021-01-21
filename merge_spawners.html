@@ -77,8 +77,8 @@
 				for (const m in maps) {
 					const s = await fetch('data/base/map/' + m + '/spawners.json');
 					const r = await fetch('data/base/map/' + m + '/resources.json');
-					const _sp = await s.json();
-					const _rs = await r.json();
+					let _sp = await s.json();
+					let _rs = await r.json();
 					const map = maps[m];
 					for (const s of _sp) {
 						s.type = s.is_npc ? 'npc' : 'monster';
@@ -88,6 +88,7 @@
 						r.type = 'resource';
 						r.id += 100000;
 					}
+					_sp = _sp.filter(s => s.type == 'monster' || (s?.groups?.filter(g => g.count && g.type)?.length));
 					spawners.push({ id: spawners.length, tag: m, name: map.name, entries: [..._sp, ..._rs] });
 				}
 
