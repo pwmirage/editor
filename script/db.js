@@ -2,22 +2,6 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-function init_obj_data(obj, base) {
-	for (const f in base) {
-		if (f === '_db') continue;
-		if (typeof(base[f]) === 'object') {
-			obj[f] = Array.isArray(base[f]) ? [] : {};
-			init_obj_data(obj[f], base[f]);
-		} else {
-			if (typeof(base[f]) == 'string') {
-				obj[f] = '';
-			} else {
-				obj[f] = 0;
-			}
-		}
-	}
-}
-
 function get_obj_diff(obj, prev) {
 	const diff = {};
 
@@ -384,7 +368,10 @@ class DB {
 		const arr = this[type];
 		if (!arr) throw new Error(`Unknown db type (${type})`);
 
-		const obj = { id: 0 }
+		const base = arr.values().next().value;
+		const obj = { };
+		DB.init_obj_data(obj, base);
+
 		this.init(type, obj);
 		obj._db.is_allocated = true;
 		obj._db.commit_cb = commit_cb;
@@ -579,6 +566,21 @@ class DB {
 		}
 	}
 
+	static init_obj_data(obj, base) {
+		for (const f in base) {
+			if (f === '_db') continue;
+			if (typeof(base[f]) === 'object') {
+				obj[f] = Array.isArray(base[f]) ? [] : {};
+				DB.init_obj_data(obj[f], base[f]);
+			} else {
+				if (typeof(base[f]) == 'string') {
+					obj[f] = '';
+				} else {
+					obj[f] = 0;
+				}
+			}
+		}
+	}
 }
 
 if (typeof window === 'undefined') {
