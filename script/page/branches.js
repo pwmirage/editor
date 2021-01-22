@@ -112,11 +112,20 @@ g_mg_pages['branches'] = new class {
 		const source = this.branches.find(b => b.id == source_id);
 		const dest = this.branches.find(b => b.id == dest_id);
 
+		if (source.history?.[0]?.commit_id != source.head_id) {
+			notify('warning', '<b>' + dest.name + '</b> contains non published changes!');
+			return;
+		}
+
 		const projects = [];
 		const project_htmls = [];
 		for (const p of source.history) {
 			if (dest.history.find(dp => dp.id == p.id)) {
 				break;
+			}
+
+			if (!p.id || p.is_removed) {
+				continue;
 			}
 
 			projects.push(p);
