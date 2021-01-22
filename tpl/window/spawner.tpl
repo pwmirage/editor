@@ -10,7 +10,6 @@
 		{/if}
 		{@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")} #{@$group.type}
 	</span>
-	{assign simplified_ui = $spawner.type == 'npc' && $spawner.groups?.length == 1}
 	{if $spawner.type != 'npc' || $spawner.groups?.length != 1}
 		<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
 			<span>Count:</span>
@@ -123,7 +122,6 @@
 		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
-	{assign simplified_ui = $spawner.type == 'npc' && $spawner.groups?.length == 1}
 	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}
 		{foreach group of ($spawner.groups || [])}
@@ -133,7 +131,7 @@
 				{assign obj = db.npcs[$group.type] || db.monsters[$group.type]}
 			{/if}
 			<div class="group-row flex-columns">
-				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type && !$simplified_ui} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} {@serialize_db_id($group.type)}</div>
+				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type && $spawner.type != 'npc'} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} {@serialize_db_id($group.type)}</div>
 				<div style="flex: 1;"></div>
 				<a class="button no-break menu-triangle" onmousedown="{serialize $win}.open_group(this, {@$idx}, event);" style="width: 13px; text-align: center;"><i class="fa fa-pencil-square-o"></i></a>
 				<a class="group-hover button no-break" onmouseenter="{serialize $win}.info_group(this, {@$idx});" onclick="{serialize $win}.select_group(this.parentNode); event.stopPropagation();" style="margin-right: -10px;"><i class="fa fa-asterisk"></i></a>
@@ -141,7 +139,7 @@
 			{$idx++}
 		{/foreach}
 	</div>
-	{if !$simplified_ui}
+	{if $spawner.type != 'npc'}
 		<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
 			<div style="flex: 1;"></div>
 			<a class="button no-break" onclick="{serialize $win}.add_group()">(add) &nbsp;<i class="fa fa-plus" aria-hidden="true"></i></a>
@@ -155,10 +153,19 @@
 		<div>Trigger:</div>
 		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">(none) &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 	</div>
-	{if !$simplified_ui && $spawner.type == 'npc'}
+	{if $spawner.type != 'npc'}
 		<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
 			<div class="no-break">Lifetime: (sec) </div>
 			<input type="number" style="flex: 1;" data-link="{serialize $win.spawner} => 'lifetime'">
+		</div>
+	{/if}
+	{if $spawner.type == 'npc'}
+		<div id="npc-group" style="min-height: 42px; flex: 1; display: flex; flex-direction: column; margin: 0 -12px;">
+			{assign npc = db.npcs[$spawner.groups[0]?.type || 0]}
+			{if !$npc}
+				<div class="header"><span>-</span></div>
+			{/if}
+			<div id="npc-window" style="flex:1;"></div>
 		</div>
 	{/if}
 </div>

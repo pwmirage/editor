@@ -340,7 +340,7 @@ class NPCWindow extends Window {
 			/* fix to default (just like the game does) */
 			const npc = db.npcs[this.npc._db.base] || this.npc;
 			db.open(npc);
-			npc.id_type = NPCWindow.types[0].id;
+			npc.id_type = NPCWindow.types.values().next().value.id;
 			db.commit(npc);
 		}
 

@@ -11,6 +11,23 @@
 	border: 1px var(--header-color) solid;
 }
 
+.dom.child-dom {
+	border-left: 1px var(--header-color) solid !important;
+	border-right: 1px var(--header-color) solid !important;
+}
+
+.child-dom {
+	left: 0 !important;
+	top: 0 !important;
+	position: static !important;
+	height: 100%;
+	border: none !important;
+}
+
+.child-dom > .content {
+	border: none !important;
+}
+
 .window.maximized {
 	width: 100vw !important;
 	height: calc(100vh - 50px) !important;
@@ -41,6 +58,7 @@
 .window > .header {
 	background-color: var(--header-color);
 	cursor: pointer;
+	color: white;
 }
 
 .window > .header > span {
@@ -49,8 +67,21 @@
 	word-break: break-word;
 }
 
+.window.child-dom > .header > span {
+	padding: 3px 12px;
+}
+
 .window > .header > .menu {
 	display: inline-block;
+}
+
+.window.child-dom > .header > .menu > * {
+	line-height: initial;
+	padding: 8px;
+}
+
+.window.child-dom > .header > .menu:last-child {
+	display: none;
 }
 
 .window > .header > .menu:last-child {

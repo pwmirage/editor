@@ -40,6 +40,14 @@ class SpawnerWindow extends Window {
 
 		this.open_groups = [];
 
+		if (this.spawner.type == 'npc') {
+			const npc = this.npc_win_npc = db.npcs[this.spawner.groups[0]?.type];
+			if (npc) {
+				this.npc_win = await NPCWindow.open({ npc, parent_win: this, debug: this.args.debug });
+				this.shadow.querySelector('#npc-window').append(this.npc_win.dom);
+			}
+		}
+
 		return await super.init();
 	}
 
@@ -65,6 +73,32 @@ class SpawnerWindow extends Window {
 		if (s.groups.length == 0) {
 			s.groups.push({ type: 0 });
 		}
+	}
+
+	async refresh_npc_window() {
+		const npc = db.npcs[this.spawner.groups[0]?.type];
+
+		if (npc == this.npc_win_npc) {
+			return;
+		}
+		this.npc_win_npc = npc;
+
+		if (!npc) {
+			if (this.npc_win) {
+				this.npc_win.close();
+				this.npc_win = null;
+			}
+			this.tpl.reload('#npc-group');
+			return;
+		}
+
+		const new_win = await NPCWindow.open({ npc, parent_win: this, debug: this.args.debug });
+		if (this.npc_win) {
+			this.npc_win.close();
+		}
+		this.tpl.reload('#npc-group');
+		this.npc_win = new_win;
+		this.shadow.querySelector('#npc-window').append(this.npc_win.dom);
 	}
 
 	close() {
@@ -132,6 +166,7 @@ class SpawnerWindow extends Window {
 
 					db.commit(s);
 					this.tpl.reload('#groups');
+					this.refresh_npc_window();
 
 				},
 				edit_obj_fn: (new_obj) => {

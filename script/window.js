@@ -12,10 +12,11 @@ class Window {
 
 	constructor(args) {
 		this.args = args || {};
+		this.parent_win = this.args.parent_win;
 
 		this.dom = document.createElement('div');
 		this.dom._win = this;
-		this.dom.className = 'window';
+		this.dom.className = 'dom window';
 		this.shadow = this.dom.attachShadow({mode: 'open'});
 
 		this.dragOffset = { x: 0, y: 0 };
@@ -31,7 +32,6 @@ class Window {
 	}
 
 	async init() {
-
 		this.dom_win = this.shadow.querySelector('.window');
 		this.dom_header = this.shadow.querySelector('.window > .header');
 		this.dom_content = this.shadow.querySelector('.window > .content');
@@ -49,27 +49,42 @@ class Window {
 
 		await Promise.all(this.style_promises);
 
-		this.focus();
-		this.move(this.args.x ?? 10, this.args.y ?? 10);
+		if (this.parent_win) {
+			this.dom.classList.add('child-dom');
+			this.dom_win.classList.add('child-dom');
+			this.dom_win.classList.remove('resizable');
+			this.dom_win.style.width = '';
+			this.dom_win.style.height = '';
+			this.dom_win.style.maxHeight = '';
+			this.dom.style.borderLeft = this.dom.style.borderRight = '1px var(--header-color) solid !important';
+			if (this.dom_win.parentNode) {
+				this.dom_win.parentNode.style.height = '100%';
+			}
 
-		Window.container.append(this.dom);
+			this.full_bounds = this.dom_win.getBoundingClientRect();
+		} else {
+			this.focus();
+			this.move(this.args.x ?? 10, this.args.y ?? 10);
 
-		this.full_bounds = this.dom_win.getBoundingClientRect();
-		if (this.full_bounds.height > Window.bounds.height) {
-			this.dom_win.style.height = Window.bounds.height - 40 + 'px';
-			this.move(20, 20);
-		}
+			Window.container.append(this.dom);
 
-		if (this.full_bounds.width > Window.bounds.width) {
-			this.dom_win.style.width = Window.bounds.width - 40 + 'px';
-			this.move(20, 20);
-		}
+			this.full_bounds = this.dom_win.getBoundingClientRect();
+			if (this.full_bounds.height > Window.bounds.height) {
+				this.dom_win.style.height = Window.bounds.height - 40 + 'px';
+				this.move(20, 20);
+			}
 
-		this.full_bounds = this.dom_win.getBoundingClientRect();
-		this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+			if (this.full_bounds.width > Window.bounds.width) {
+				this.dom_win.style.width = Window.bounds.width - 40 + 'px';
+				this.move(20, 20);
+			}
 
-		/* remove all text selection */
-		window.getSelection().removeAllRanges();
+			this.full_bounds = this.dom_win.getBoundingClientRect();
+			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
+			}
+
+			/* remove all text selection */
+			window.getSelection().removeAllRanges();
 	}
 
 	tpl_compile_cb(dom) {
@@ -275,8 +290,12 @@ class Window {
 	}
 
 	focus() {
-		this.dom.style.zIndex = Window.focus_win_index++;
-		Window.focus_win = this;
+		if (this.parent_win) {
+			this.parent_win.focus();
+		} else {
+			this.dom.style.zIndex = Window.focus_win_index++;
+			Window.focus_win = this;
+		}
 		if (this.onfocus) this.onfocus.call(this);
 	}
 
