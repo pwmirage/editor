@@ -133,7 +133,7 @@ class Template {
 		}
 
 		const attr_fn = (match, content) => {
-			return ' {' + content
+			return '{' + content
 				.replace(/#quot;/g, '"' /* escape double quotes */)
 				.replace(/#apos;/g, '\'' /* ^ */);
 		};
