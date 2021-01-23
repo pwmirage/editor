@@ -37,8 +37,8 @@
 	</div>
 	<div id="recipe" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">
 		{if $win.selected_recipe != undefined}
-			{assign recipe_id = $crafts.pages[$win.selected_tab].recipe_id[$win.selected_recipe]}
-			{assign recipe = db.recipes[$recipe_id] || \{ id: $recipe_id \}}
+			{assign recipe_id = $crafts.pages[$win.selected_tab]?.recipe_id?.[$win.selected_recipe]}
+			{assign recipe = db.recipes[$recipe_id || -1] || \{ id: $recipe_id \}}
 			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 8px;">
 				{if $recipe_id}
 					<span style="align-self: center;">Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}</span>

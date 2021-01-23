@@ -185,8 +185,8 @@ class NPCCraftsWindow extends Window {
 		this.selected_recipe = recipe_el.dataset.idx;
 		this.selected_recipe_tab = this.selected_tab;
 		const page = this.crafts.pages[this.selected_tab];
-		const recipe_id = page.recipe_id[this.selected_recipe];
-		const recipe = db.recipes[recipe_id];
+		const recipe_id = page?.recipe_id?.[this.selected_recipe];
+		const recipe = db.recipes[recipe_id || -1];
 
 		const prev_focused = this.shadow.querySelector('.recipe.focus');
 		if (prev_focused) prev_focused.classList.remove('focus');
