@@ -429,7 +429,7 @@ class PWMap {
 
 			this.shadow.querySelector('#pw-map-pos-label').textContent = 'X: ' + parseInt(spawner_pos.x) + ', Y: ' + parseInt(spawner_pos.y);
 		} else {
-			if (this.hovered_spawners.length) {
+			if (this.hovered_spawners?.length) {
 				this.hover_lbl.style.display = 'none';
 				this.hovered_spawners = [];
 				document.body.style.cursor = '';
