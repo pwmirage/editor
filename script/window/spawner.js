@@ -102,6 +102,9 @@ class SpawnerWindow extends Window {
 	}
 
 	close() {
+		if (this.npc_win) {
+			this.npc_win.close();
+		}
 		this.normalize_spawner();
 		g_open_spawners.delete(this.spawner);
 		super.close();
