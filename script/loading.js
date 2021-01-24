@@ -7,8 +7,13 @@ class Loading {
 	static tpl = null;
 	static shadow = null;
 	static next_cleanup_time = 0;
+	static init_promise = null;
 
 	static async init() {
+		if (Loading.init_promise) {
+			return Loading.init_promise;
+		}
+
 		Loading.tpl = await get(ROOT_URL + 'tpl/loading.tpl');
 
 		const el = newElement('<div class="loading"></div>');
@@ -106,4 +111,4 @@ class Loading {
 	}
 };
 
-Loading.init();
+Loading.init_promise = Loading.init();
