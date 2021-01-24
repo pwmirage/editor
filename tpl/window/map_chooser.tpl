@@ -7,11 +7,9 @@
 	</span>
 
 	<div class="menu">
-		{if g_map}
-			<i class="minimize fa" aria-hidden="true"></i>
-			<i class="maximize fa" aria-hidden="true"></i>
-			<i class="close fa fa-close" aria-hidden="true"></i>
-		{/if}
+		<i class="minimize fa"></i>
+		<i class="maximize fa"></i>
+		<i class="close fa fa-close"></i>
 	</div>
 </div>
 
@@ -24,6 +22,7 @@
 	<div class="maps">
 		{foreach map_id in $maps}
 			{assign map = $maps[map_id]}
+			{if $map.id == 'none'}{continue}{/if}
 			<div class="map" id="map-{@$map.id}" onclick="{serialize $win}.select_map('{@$map.id}')" ondblclick="this.onclick(); {serialize $win}.open_map();">{@$map.name}</div>
 		{/foreach}
 	</div>

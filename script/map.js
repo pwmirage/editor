@@ -4,6 +4,7 @@
 
 class PWMap {
 	static maps = {
+		none: { name: '', id: 'none', size: { x: 0, y: 0 } },
 		gs01: { name: 'Main World', id: 'gs01', size: { x: 4096, y: 5632 } },
 
 		is05: { name: 'Firecrag Grotto', id: 'is05', size: { x: 512, y: 512 }, img_scale: 2 },
@@ -421,7 +422,10 @@ class PWMap {
 
 		this.canvas.classList.remove('shown');
 
-		this.bg.load_tag = Loading.show_tag('Loading ' + this.maptype.name + ' image');
+		let load_tag = null;
+		if (this.maptype.id != 'none') {
+			load_tag = Loading.show_tag('Loading ' + this.maptype.name + ' image');
+		}
 
 		return new Promise((resolve, reject) => {
 			this.bg.onload = async () => {
@@ -461,7 +465,7 @@ class PWMap {
 
 				this.post_canvas_msg({
 					type: 'set_objs', obj_type: 'spawners',
-					objs: [...db['spawners_' + this.maptype.id]],
+					objs: [...(db['spawners_' + this.maptype.id] || [])],
 				});
 
 				this.pos.scale = Math.min(
@@ -477,7 +481,9 @@ class PWMap {
 				await this.onresize();
 				this.canvas.classList.add('shown');
 
-				Loading.hide_tag(this.bg.load_tag);
+				if (load_tag) {
+					Loading.hide_tag(load_tag);
+				}
 				resolve();
 			};
 			this.bg.onerror = reject;

@@ -9,8 +9,12 @@
 		<div class="label"></div>
 	</div>
 	<div id="pw-windows">
+		<span id="pw-version"></span>
 		<div id="pw-map-info">
 			<div style="display: flex; flex-direction: column; row-gap: 6px;">
+				<div id="select-menu" style="display: none;">
+					<span class="count"></span> spawners
+				</div>
 				<div style="display: flex; column-gap: 6px;">
 					<i id="open-legend" title="Map legend"></i>
 					<div id="pw-project-info"></div>
@@ -20,12 +24,7 @@
 					<div id="map-name"></div>
 				</div>
 			</div>
-			<div id="changed-objects">
-				<span id="pw-version"></span>
-			</div>
-		</div>
-		<div id="select-menu" style="display: none;">
-			<span class="count"></span> spawners
+			<div id="changed-objects"></div>
 		</div>
 	</div>
 </div>
@@ -131,9 +130,9 @@
 	color: #ffffff;
 	display: flex;
 	column-gap: 8px;
-	max-height: 80px;
 	width: 100%;
 	padding: 6px;
+	align-items: flex-end;
 }
 
 #map-name {
@@ -154,6 +153,9 @@
 	flex-wrap: wrap-reverse;
 	column-gap: 5px;
 	align-items: baseline;
+	margin-top: -3px;
+	max-height: 86px;
+	overflow: hidden;
 }
 
 #changed-objects > div {
@@ -173,6 +175,7 @@
 	column-gap: 3px;
 	max-width: 150px;
 	height: 32px;
+	margin-top: 5px;
 }
 
 #changed-objects > div:hover {
@@ -192,8 +195,11 @@
 }
 
 #pw-version {
+	position: absolute;
+	right: 6px;
+	bottom: 6px;
 	display: block;
-	line-height: 34px;
+	line-height: 36px;
 	align-self: flex-start;
 	margin-bottom: -10px;
 	flex: 1;
@@ -217,6 +223,7 @@
 }
 
 #open-legend {
+	width: fit-content;
 	background-color: #dccfcf;
 	border-radius: 2px;
 	border-width: 0;
@@ -246,9 +253,6 @@
 #select-menu {
 	width: fit-content;
 	display: block;
-	position: absolute;
-	right: 6px;
-	bottom: 24px;
 	background-color: rgba(207, 69, 69, 1);
 	color: rgba(255, 255, 255, 1);
 	text-transform: uppercase;

@@ -127,6 +127,13 @@ class Editor {
 			proj_info_el.innerHTML = 'Create a project to store<br>your changes on the server';
 		}
 
+		if (g_map) {
+			await g_map.close();
+		} else {
+			g_map = new PWMap();
+		}
+		await g_map.reinit('none');
+
 		Editor.navbar.reload();
 		const win = await MapChooserWindow.open({ });
 	}

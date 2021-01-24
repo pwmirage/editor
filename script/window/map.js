@@ -30,7 +30,7 @@ class LegendWindow extends Window {
 		};
 
 		await super.init();
-		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 42);
+		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 125);
 
 		g_map.shadow.querySelector('#open-legend').style.display = 'none';
 		this.filter();
