@@ -45,7 +45,7 @@ class Navbar {
 
 		p = this.add_button(null, 'Project');
 		b['proj_summary'] = this.add_button(p, 'Show summary');
-		b['proj_new'] = this.add_button(p, 'New');
+		b['proj_new'] = this.add_button(p, 'Create');
 		b['proj_save'] = this.add_button(p, 'Save');
 		b['proj_publish'] = this.add_button(p, 'Publish');
 		b['proj_rebase'] = this.add_button(p, 'Rebase');
@@ -79,6 +79,7 @@ class Navbar {
 		const b = this.buttons;
 		const has_proj = !!db?.metadata[1]?.pid;
 
+		b.proj_new.onclick = () => CreateProjectWindow.open();
 		b.proj_summary.onclick = () => HistoryWindow.open();
 		b.proj_save.onclick = () => PWDB.save(db, true);
 

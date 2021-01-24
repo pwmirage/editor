@@ -40,6 +40,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/unsupported.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/history.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/project.js?v=' + MG_VERSION),
 		]);
 
 		const tag_p = Loading.show_tag('Processing item icons');
@@ -116,11 +117,15 @@ class Editor {
 		db = await PWDB.new_db(args);
 
 		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
-		proj_info_el.textContent = 'Project: ' + PROJECT_NAME + ' by ' + db.metadata[1].author;
+		if (args.pid) {
+			proj_info_el.textContent = 'Project: ' + PROJECT_NAME + ' by ' + db.metadata[1].author;
 
-		const d = new Date(PROJECT_LAST_EDIT * 1000);
-		const d_str = d.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString("en-US");
-		proj_info_el.innerHTML = proj_info_el.textContent + '<br>' + d_str;
+			const d = new Date(PROJECT_LAST_EDIT * 1000);
+			const d_str = d.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString("en-US");
+			proj_info_el.innerHTML = proj_info_el.textContent + '<br>' + d_str;
+		} else {
+			proj_info_el.innerHTML = 'Create a project to store<br>your changes on the server';
+		}
 
 		Editor.navbar.reload();
 		const win = await MapChooserWindow.open({ });
