@@ -2,8 +2,8 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const PRECACHE = 'precache-v1';
-const RUNTIME = 'runtime';
+const PRECACHE = 'precache-v2';
+const RUNTIME = 'runtime-v2';
 
 const PRECACHE_URLS = [];
 
@@ -49,7 +49,7 @@ self.addEventListener('activate', (event) => {
 				continue;
 			}
 
-			caches.delete(c);
+			caches.delete(name);
 		}
 
 		const cache = await caches.open(RUNTIME);
@@ -83,8 +83,12 @@ const gen_proj_preview = async (url, pid, edit_time) => {
 	const changesets = load.data;
 
 	/* load all changesets but last */
-	for (let i = 0; i < changesets.length - 1; i++) {
-		db.load(changesets[i], { join_changesets: true });
+	let i;
+	for (i = 0; i < changesets.length; i++) {
+		const changeset = changesets[i];
+		if (changeset.find((c) => c.id == 1 && c._db.type == "metadata" && c.pid == pid)) {
+			break;
+		}
 	}
 
 	/* seperate previous changes from the last one (the one we're generating for) */
@@ -97,7 +101,9 @@ const gen_proj_preview = async (url, pid, edit_time) => {
 		}
 	});
 
-	db.load(changesets[changesets.length - 1], { join_changesets: true });
+	for (i; i < changesets.length; i++) {
+		db.load(changesets[i], { join_changesets: true });
+	}
 
 	const preview_data = [];
 	for (const diff of db.changelog[db.changelog.length - 1]) {
