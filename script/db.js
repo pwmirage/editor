@@ -22,7 +22,7 @@ function get_obj_diff(obj, prev) {
 			}
 		} else {
 			/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-			if ((!obj[f] && !!obj[f] != !!prev?.[f]) || (obj[f] != prev?.[f])) {
+			if ((!obj[f] && !!obj[f] != !!prev?.[f]) || (!!obj[f] && obj[f] != prev?.[f])) {
 				diff[f] = obj[f];
 			} else if (diff[f]) {
 				/* delete is super slow, just set to undefined */
@@ -590,7 +590,8 @@ class DB {
 					return true;
 				}
 			} else {
-				if (obj[f] != org[f]) {
+				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
+				if ((!obj[f] && !!obj[f] != !!org?.[f]) || (!!obj[f] && obj[f] != org?.[f])) {
 					return true;
 				}
 			}
