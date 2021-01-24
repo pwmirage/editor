@@ -581,6 +581,23 @@ class DB {
 			}
 		}
 	}
+
+	static is_obj_diff(obj, org) {
+		for (const f in obj) {
+			if (f === '_db') continue;
+			if (typeof(obj[f]) === 'object') {
+				if (DB.is_obj_diff(obj[f], org[f])) {
+					return true;
+				}
+			} else {
+				if (obj[f] != org[f]) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }
 
 if (typeof window === 'undefined') {

@@ -9,14 +9,24 @@
 		<div class="label"></div>
 	</div>
 	<div id="pw-windows">
-		<div id="pw-map-pos-label">X: 0, Y: 0</div>
-		<div id="pw-map-info"></div>
-		<div id="pw-project-info"></div>
-		<i id="open-legend" title="Map legend"></i>
+		<div id="pw-map-info">
+			<div style="display: flex; flex-direction: column; row-gap: 6px;">
+				<div style="display: flex; column-gap: 6px;">
+					<i id="open-legend" title="Map legend"></i>
+					<div id="pw-project-info"></div>
+				</div>
+				<div style="display: flex; column-gap: 6px;">
+					<div id="pw-map-pos-label">X: 0, Y: 0</div>
+					<div id="map-name"></div>
+				</div>
+			</div>
+			<div id="changed-objects">
+				<span id="pw-version"></span>
+			</div>
+		</div>
 		<div id="select-menu" style="display: none;">
 			<span class="count"></span> spawners
 		</div>
-		<div id="pw-version"></div>
 	</div>
 </div>
 
@@ -99,9 +109,6 @@
 }
 
 #pw-map-pos-label {
-	position: absolute;
-	left: 5px;
-	bottom: 5px;
 	width: 156px;
 	height: 32px;
 	padding: 5px;
@@ -117,34 +124,75 @@
 	display: none;
 }
 
-#pw-version {
-	position: absolute;
-	right: 5px;
-	bottom: 3px;
-	box-sizing: border-box;
-	color: #ffffff;
-	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-	font-family: Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	text-align: center;
-}
-
 #pw-map-info {
 	position: absolute;
-	left: 168px;
-	bottom: 12px;
+	bottom: 0;
+	box-sizing: border-box;
+	color: #ffffff;
+	display: flex;
+	column-gap: 8px;
+	max-height: 80px;
+	width: 100%;
+	padding: 6px;
+}
+
+#map-name {
+	display: flex;
+	column-gap: 8px;
+	justify-content: flex-end;
+	align-items: flex-end;
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	text-align: center;
+	line-height: 34px;
+}
+
+#changed-objects {
+	display: flex;
+	flex: 1;
+	flex-wrap: wrap-reverse;
+	column-gap: 5px;
+	align-items: baseline;
+}
+
+#changed-objects > div {
+	background-color: #dccfcf;
+	border-radius: 2px;
+	border-width: 0;
+	color: rgba(33, 33, 33, 1);
+	cursor: pointer;
+	display: inline-block;
+	font-weight: 400;
+	margin: 0;
+	padding: 5px 10px;
+	text-decoration: none;
+	line-height: 1.48;
+	user-select: none;
+}
+
+#changed-objects > div:hover {
+	background-color: rgba(156, 120, 120, 1);
+	color: rgba(255, 255, 255, 1);
+	text-decoration: none;
+}
+
+#pw-version {
+	display: block;
+	line-height: 34px;
+	align-self: flex-start;
+	margin-bottom: -10px;
+	flex: 1;
+	text-align: right;
 	box-sizing: border-box;
 	color: #ffffff;
 	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight: bold;
-	text-align: center;
+	white-space: pre;
 }
 
 #pw-project-info {
-	position: absolute;
-	left: 48px;
-	bottom: 42px;
 	line-height: 15px;
 	box-sizing: border-box;
 	color: #ffffff;
@@ -155,9 +203,6 @@
 }
 
 #open-legend {
-	position: absolute;
-	left: 6px;
-	bottom: 42px;
 	background-color: #dccfcf;
 	border-radius: 2px;
 	border-width: 0;
@@ -182,6 +227,7 @@
 	color: rgba(255, 255, 255, 1);
 	text-decoration: none;
 }
+
 
 #select-menu {
 	display: block;

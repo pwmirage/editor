@@ -73,6 +73,7 @@ class PWMap {
 
 		this.mouse_pos = { x: -1, y: -1 };
 		this.mouse_spawner_pos = { x: -1, y: -1 };
+		this.modified_db_objs = new Set();
 	}
 
 	static async add_elements(parent) {
@@ -229,7 +230,44 @@ class PWMap {
 			objs: [...db.mines],
 		});
 
+		const changed_objects_el = this.shadow.querySelector('#changed-objects');
+		const changed_objects_last_el = changed_objects_el.firstChild;
+		const changed_objects_map = new Map();
+		const set_modified_obj = (obj) => {
+			if (obj._db.type == 'metadata') {
+				return;
+			}
+
+			if (!this.modified_db_objs.has(obj)) {
+				const el = document.createElement('div');
+				el.textContent = obj._db.type + ' ' + serialize_db_id(obj.id);
+
+				changed_objects_el.insertBefore(el, changed_objects_last_el);
+				changed_objects_map.set(obj, el);
+			}
+
+			this.modified_db_objs.add(obj);
+			if (!obj._db.project_initial_state) {
+				obj._db.project_initial_state = DB.clone_obj(obj._db.latest_state);
+			}
+
+			if (!DB.is_obj_diff(obj, obj._db.project_initial_state)) {
+				this.modified_db_objs.delete(obj);
+				const el = changed_objects_map.get(obj);
+				el.remove();
+				changed_objects_map.delete(obj);
+			}
+		};
+
+		for (let i = PWDB.project_changelog_start_idx; i < db.changelog.length; i++) {
+			for (const c of db.changelog[i]) {
+				set_modified_obj(c._db.obj);
+			}
+		}
+
 		db.register_commit_cb((obj, diff, prev_vals) => {
+			set_modified_obj(obj);
+
 			if (!obj._db.type.startsWith('spawners_')) {
 				return;
 			}
@@ -304,7 +342,7 @@ class PWMap {
 			throw new Error('Map ' + mapid + ' doesn\'t exist');
 		}
 
-		const project_info = this.shadow.querySelector('#pw-map-info');
+		const project_info = this.shadow.querySelector('#map-name');
 		project_info.textContent = this.maptype.name;
 
 		this.canvas.classList.remove('shown');

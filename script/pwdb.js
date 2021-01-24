@@ -5,6 +5,9 @@
 class PWDB {
 	static g_db_promises = {};
 	static has_unsaved_changes = false;
+	/* which idx from db.changelog[] points to the first change directly from this project
+	 * (and not its dependencies) */
+	static project_changelog_start_idx = 0;
 
 	static async watch_db() {
 		const cache_save_fn = () => {
@@ -123,6 +126,14 @@ class PWDB {
 				const req = await get(ROOT_URL + 'project/' + project.pid + '/load', { is_json: 1 });
 				const changesets = req.data;
 				db.load(changesets);
+				let i;
+				for (i = db.changelog.length - 1; i >= 0; i--) {
+					const changeset = changeset[i];
+					if (changeset.find((c) => c.id == 1 && c._db.type == "metadata" && c.pid == pid)) {
+						break;
+					}
+				}
+				PWDB.project_changelog_start_idx = i;
 				db.new_generation();
 			} catch (e) { }
 
