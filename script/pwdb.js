@@ -15,11 +15,6 @@ class PWDB {
 				return;
 			}
 
-			const project = db.metadata[1];
-			db.open(project);
-			project.edit_time = Math.floor(Date.now() / 1000);
-			db.commit(project);
-
 			const dump = db.dump_last(0);
 			PWDB.has_unsaved_changes = false;
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
@@ -343,5 +338,4 @@ class PWDB {
 			}, 400);
 		}
 	}
-
 }
