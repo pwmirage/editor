@@ -154,6 +154,10 @@ class Editor {
 
 	static onerror(err) {
 		if (err.error) {
+			if (err.error.stack.includes('WoltLabSuite')) {
+				/* not out fault :) */
+				return;
+			}
 			MessageWindow.open({
 				title: "Error!",
 				msg: err.error.stack.replaceAll(window.location.origin, "")
