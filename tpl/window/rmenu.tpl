@@ -7,8 +7,8 @@
 </div>
 </div>
 
-<div id="background" onmousedown="{serialize $win}.activate();" onmouseup="{serialize $win}.tryclose();" oncontextmenu="this.onclick(); return false;" class="{if $bg}visible{/if}">
-	<div class="menu" style="left: {@$x}px; top: {@$y}px;" oncontextmenu="event.stopPropagation(); return false;">
+<div id="background" onmousedown="{serialize $win}.activate();" onmouseup="{serialize $win}.tryclose();" oncontextmenu="event.stopPropagation(); return false;" class="{if $bg}visible{/if}">
+	<div class="menu" style="left: {@$x}px; top: {@$y}px;">
 		{for e of $entries}
 			{if $e.visible == false}{continue}{/if}
 			<div class="entry{if $e.disabled} disabled{/if}{if !$e.id} unclickable{/if}{if !$e.id && !$e.children}text{/if}" onmouseup="event.stopPropagation();{if $e.id && !$e.disabled}{serialize $win}.select({@$e.id});{/if}" onmouseenter="{serialize $win}.hover_entry(this);">
