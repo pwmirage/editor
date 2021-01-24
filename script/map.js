@@ -240,7 +240,13 @@ class PWMap {
 
 			if (!this.modified_db_objs.has(obj)) {
 				const el = document.createElement('div');
-				el.textContent = obj._db.type + ' ' + serialize_db_id(obj.id);
+				const img = document.createElement('img');
+				const span = document.createElement('span');
+
+				img.src = ROOT_URL + '/img/npc_icon.jpg';
+				span.textContent = obj._db.type + ' ' + serialize_db_id(obj.id);
+				el.appendChild(img);
+				el.appendChild(span);
 
 				changed_objects_el.insertBefore(el, changed_objects_last_el);
 				changed_objects_map.set(obj, el);
