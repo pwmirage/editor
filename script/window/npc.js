@@ -118,6 +118,7 @@ class NPCCraftsWindow extends Window {
 			}
 		})();
 
+		return false;
 	}
 
 	recipe_details_onclick(el, e) {
@@ -161,7 +162,7 @@ class NPCCraftsWindow extends Window {
 	}
 
 	close() {
-		g_open_npc_crafts.delete(this.goods);
+		g_open_npc_crafts.delete(this.crafts);
 		super.close();
 	}
 
