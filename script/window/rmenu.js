@@ -36,9 +36,11 @@ class RMenuWindow extends Window {
 	}
 
 	tryclose() {
-		if (this.activated) {
-			this.close();
-		}
+		setTimeout(() => {
+			if (this.activated) {
+				this.close();
+			}
+		}, 1);
 	}
 
 	hover_entry(el) {
@@ -56,7 +58,10 @@ class RMenuWindow extends Window {
 
 	select(id) {
 		this.selected = id;
-		this.close();
+		/* delay to not let the click event bounce */
+		setTimeout(() => {
+			this.close();
+		}, 1);
 	}
 
 	async wait() {
