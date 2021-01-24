@@ -336,13 +336,11 @@ class DB {
 			}
 		}
 
-		if (!diff || !changeset_diff) {
-			if (obj._db.changesets.length == 1) {
-				/* no changes and no history, just delete the original copy */
-				obj._db.latest_state = undefined;
-				obj._db.changesets = undefined;
-			}
-		} else {
+		if ((!diff || !changeset_diff) && obj._db.changesets.length == 1) {
+			/* no changes and no history, just delete the original copy */
+			obj._db.latest_state = undefined;
+			obj._db.changesets = undefined;
+		} else if (diff) {
 			DB.apply_diff(obj._db.latest_state, diff);
 		}
 
