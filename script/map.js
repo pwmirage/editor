@@ -248,7 +248,12 @@ class PWMap {
 
 			this.modified_db_objs.add(obj);
 			if (!obj._db.project_initial_state) {
-				obj._db.project_initial_state = DB.clone_obj(obj._db.latest_state);
+				const state = obj._db.changesets[0];
+				for (let i = 1; i < PWDB.project_changelog_start_idx; i++) {
+					DB.apply_diff(state, obj._db.changesets[i]);
+				}
+
+				obj._db.project_initial_state = state;
 			}
 
 			if (!DB.is_obj_diff(obj, obj._db.project_initial_state)) {
