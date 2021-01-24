@@ -243,10 +243,73 @@ class PWMap {
 				const img = document.createElement('img');
 				const span = document.createElement('span');
 
-				img.src = ROOT_URL + '/img/npc_icon.jpg';
-				span.textContent = obj._db.type + ' ' + serialize_db_id(obj.id);
+				let name = obj._db.type;
+				let open_fn = () => {};
+				switch (obj._db.type) {
+					case 'npcs':
+						name = 'NPC';
+						open_fn = () => NPCWindow.open({ npc: obj });
+						break;
+					case 'monsters':
+						name = 'Monster';
+						open_fn; /* TODO */
+						break;
+					case 'npc_crafts':
+						name = 'Crafts';
+						open_fn = () => NPCCraftsWindow.open({ crafts: obj });
+						break;
+					case 'npc_goods':
+						name = 'Goods';
+						open_fn = () => NPCGoodsWindow.open({ goods: obj });
+						break;
+					case 'recipes':
+						name = 'Recipe';
+						open_fn = () => RecipeWindow.open({ recipe: obj });
+						break;
+					case 'items':
+						name = 'Item';
+						open_fn = () => ItemTooltipWindow.open({ item: obj, edit: true, db });
+						break;
+					case 'mines':
+						name = 'Resource';
+						open_fn; /* TODO */
+						break;
+					default:
+						break;
+				}
+
+				if (obj._db.type.startsWith('spawners_')) {
+					name = 'Spawner';
+					open_fn = () => SpawnerWindow.open({ spawner: obj });
+				}
+
+				let file = 'item-unknown.png';
+				let src = null;
+				if (['npc_crafts', 'npc_goods', 'monsters', 'npcs', 'mines'].includes(obj._db.type)) {
+					file = 'icon_' + obj._db.type + '.jpg';
+				} else if (obj._db.type.startsWith('spawners_')) {
+					if (obj.type == 'npc') {
+						file = 'icon_spawner_yellow.jpg';
+					} else if (obj.type == 'monster') {
+						file = 'icon_spawner_red.jpg';
+					} else {
+						file = 'icon_spawner_green.jpg';
+					}
+				} else if (obj._db.type == 'items') {
+					src = Item.get_icon(obj.icon);
+				} else if (obj._db.type == 'recipes') {
+					src = Item.get_icon_by_item(db, obj.targets?.[0]?.id || 0);
+				}
+
+				if (src) {
+					img.src = src;
+				} else {
+					img.src = ROOT_URL + '/img/' + file;
+				}
+				span.textContent = name + ' ' + serialize_db_id(obj.id);
 				el.appendChild(img);
 				el.appendChild(span);
+				el.onclick = open_fn;
 
 				changed_objects_el.insertBefore(el, changed_objects_last_el);
 				changed_objects_map.set(obj, el);

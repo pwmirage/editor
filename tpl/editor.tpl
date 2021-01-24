@@ -244,6 +244,7 @@
 
 
 #select-menu {
+	width: fit-content;
 	display: block;
 	position: absolute;
 	right: 6px;
