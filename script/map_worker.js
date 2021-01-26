@@ -280,10 +280,6 @@ const filter_spawners = (canvas) => {
 			}
 		}
 
-		if (spawner._removed) {
-			continue;
-		}
-
 		let type = spawner.type;
 		if (!map_filters[type](spawner)) {
 			continue;
@@ -361,7 +357,8 @@ const redraw = () => {
 
 			let _marker_img = marker_img;
 			if (!spawner?.groups?.length ||
-				!spawner.groups?.find(g => g.type)) {
+				!spawner.groups?.find(g => g.type) ||
+				spawner._removed) {
 				_marker_img = get_icon('crossed');
 			}
 			drawAt(_marker_img, rad, x, y, g_marker_size, g_marker_size);
