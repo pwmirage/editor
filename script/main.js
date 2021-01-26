@@ -63,9 +63,16 @@ const mg_open_editor = async (args) => {
 	g_mg_editor_open = true;
 
 	try {
+
 		PROJECT_NAME = args.name;
 		PROJECT_LAST_EDIT = args.last_edit;
 		await g_mg_loaded;
+		const rel_next = document.querySelector('head link[rel="next"]');
+		if (rel_next) {
+			/* pressing space inside the editor might trigger a click -> disable it */
+			rel_next.setAttribute('rel', 'next.bak');
+		}
+
 		document.body.classList.remove('mge-background');
 		await Loading.show_curtain();
 
