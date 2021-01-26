@@ -616,7 +616,7 @@ class PWMap {
 	onmouseup(e) {
 		const mouse_pos = { x: e.clientX, y: e.clientY };
 		if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
-			const hovered_spawner = this.hovered_spawner;
+			const hovered_spawners = this.hovered_spawners;
 			(async () => {
 				const x = mouse_pos.x - Window.bounds.left;
 				const y = mouse_pos.y - Window.bounds.top;
@@ -626,20 +626,20 @@ class PWMap {
 				const win = await RMenuWindow.open({
 				x: x, y: y, bg: false,
 				entries: [
-					{ name: 'Spawner', visible: !!hovered_spawner, children: [
+					{ name: 'Spawner', visible: !!hovered_spawners?.length, children: [
 						{ id: 10, name: 'Edit' },
 						{ id: 11, name: 'Move' },
 						{ id: 12, name: 'Rotate' },
 						{ id: 13, name: 'Delete' },
 					]},
-					{ name: this.selected_spawners.size + ' selected', visible: this.selected_spawners.size > 1 || (this.selected_spawners.size == 1 && !hovered_spawner), children: [
+					{ name: this.selected_spawners.size + ' selected', visible: this.selected_spawners.size > 1 || (this.selected_spawners.size == 1 && !hovered_spawners?.length), children: [
 						{ id: 20, name: 'Edit' },
 						{ id: 21, name: 'Move' },
 						{ id: 22, name: 'Rotate' },
 						{ id: 23, name: 'Unselect' },
 						{ id: 24, name: 'Delete' },
 					]},
-					{ name: 'New', visible: !hovered_spawner, children: [
+					{ name: 'New', visible: !hovered_spawners?.length, children: [
 						{ id: 31, name: 'NPC' },
 						{ id: 32, name: 'Monster' },
 						{ id: 33, name: 'Resource' },
@@ -649,13 +649,17 @@ class PWMap {
 				const sel = await win.wait();
 				switch(sel) {
 					case 10: {
-						this.open_spawner(hovered_spawner, e);
+						for (const s of hovered_spawners) {
+							this.open_spawner(s, e);
+						}
 						break;
 					}
 					case 13: {
-						db.open(hovered_spawner);
-						hovered_spawner._removed = true;
-						db.commit(hovered_spawner);
+						for (const s of hovered_spawners) {
+							db.open(s);
+							s._removed = true;
+							db.commit(s);
+						}
 						break;
 					}
 					case 23: {
