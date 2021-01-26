@@ -74,6 +74,7 @@ function is_empty(obj) {
 }
 
 function dump(data, spacing = 1, custom_fn) {
+	let force_array = true;
 	return JSON.stringify(data, function(k, v) {
 		if (custom_fn) {
 			const ret = custom_fn(k, v);
@@ -87,10 +88,25 @@ function dump(data, spacing = 1, custom_fn) {
 		if (v === null) return undefined;
 		/* stringify javascript sets */
 		if (typeof v === 'object' && v instanceof Set) {
+			force_array = false;
 			return [...v];
 		}
-		if (typeof v === 'object' && !Array.isArray(v)) {
-			if (is_empty(v)) return undefined;
+		if (typeof v === 'object') {
+			if (Array.isArray(v)) {
+				if (force_array) {
+					force_array = false;
+					return v;
+				}
+
+				/* convert to "associative array" e.g. when it was set explicitly in an obj */
+				const o = {};
+				for (const k in v) {
+					o[k] = v[k];
+				}
+				return o;
+			} else {
+				if (is_empty(v)) return undefined;
+			}
 		}
 		return v;
 	}, spacing);
