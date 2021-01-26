@@ -155,10 +155,20 @@ class DB {
 		const db = this;
 		this[name] = new Proxy(obj_map, {
 			set(map, k, v) {
-				if (v === undefined) {
-					map.delete(k);
+				let id;
+				const id_parts = k.split(':');
+				if (id_parts.length == 1) {
+					id = parseInt(id_parts[0]);
 				} else {
-					map.set(k, v);
+					const pid = parseInt(id_parts[0]) - 1;
+					const off = parseInt(id_parts[1]);
+					id = (pid >= 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
+				}
+
+				if (v === undefined) {
+					map.delete(id);
+				} else {
+					map.set(id, v);
 				}
 				return true;
 			},
@@ -191,19 +201,29 @@ class DB {
 					};
 				}
 
-				let obj = map.get(k);
+				let id;
+				const id_parts = k.split(':');
+				if (id_parts.length == 1) {
+					id = parseInt(id_parts[0]);
+				} else {
+					const pid = parseInt(id_parts[0]) - 1;
+					const off = parseInt(id_parts[1]);
+					id = (pid >= 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
+				}
+
+				let obj = map.get(id);
 				if (obj) {
 					return obj;
 				}
 
-				obj = static_map[k];
+				obj = static_map[id];
 				if (!obj) {
 					return undefined;
 				}
 
 				const clone = DB.clone_obj(obj);
 				db.init(name, clone);
-				map.set(k, clone);
+				map.set(id, clone);
 				return clone;
 			}
 		});
