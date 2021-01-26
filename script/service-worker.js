@@ -86,8 +86,10 @@ const gen_proj_preview = async (url, pid, edit_time) => {
 	let i;
 	for (i = 0; i < changesets.length; i++) {
 		const changeset = changesets[i];
-		if (changeset.find((c) => c.id == 1 && c._db.type == "metadata" && c.pid == pid)) {
-			break;
+		for (const c of changeset) {
+			if (c?.id == 1 && c._db.type == "metadata" && c.pid == pid) {
+				break;
+			}
 		}
 	}
 

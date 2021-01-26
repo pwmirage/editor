@@ -15,6 +15,7 @@ class PWDB {
 				return;
 			}
 
+			const project = db.metadata[1];
 			const dump = db.dump_last(0);
 			PWDB.has_unsaved_changes = false;
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
@@ -123,12 +124,15 @@ class PWDB {
 				db.load(changesets);
 				let i;
 				for (i = db.changelog.length - 1; i >= 0; i--) {
-					const changeset = changeset[i];
-					if (changeset.find((c) => c.id == 1 && c._db.type == "metadata" && c.pid == pid)) {
-						break;
+					const changeset = db.changelog[i];
+					for (const c of changeset) {
+						if (c?.id == 1 && c._db.obj._db.type == "metadata" && c.pid == args.pid) {
+							PWDB.project_changelog_start_idx = i;
+							i = -1;
+							break;
+						}
 					}
 				}
-				PWDB.project_changelog_start_idx = i;
 				db.new_generation();
 			} catch (e) { }
 

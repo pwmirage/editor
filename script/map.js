@@ -319,8 +319,17 @@ class PWMap {
 			this.modified_db_objs.add(obj);
 			if (!obj._db.project_initial_state) {
 				const state = obj._db.changesets[0];
-				for (let i = 1; i < PWDB.project_changelog_start_idx; i++) {
-					DB.apply_diff(state, obj._db.changesets[i]);
+				for (const c of obj._db.changesets) {
+					if (c._db.generation == 0) {
+						/* initial object state */
+						continue;
+					}
+
+					if (c._db.generation >= PWDB.project_changelog_start_idx) {
+						break;
+					}
+
+					DB.apply_diff(state, c);
 				}
 
 				obj._db.project_initial_state = state;
