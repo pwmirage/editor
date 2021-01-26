@@ -325,7 +325,7 @@ class PWMap {
 						continue;
 					}
 
-					if (c._db.generation >= PWDB.project_changelog_start_idx) {
+					if (c._db.generation >= PWDB.project_changelog_start_gen) {
 						break;
 					}
 
@@ -343,7 +343,7 @@ class PWMap {
 			}
 		};
 
-		for (let i = PWDB.project_changelog_start_idx; i < db.changelog.length; i++) {
+		for (let i = PWDB.project_changelog_start_gen; i < db.changelog.length; i++) {
 			for (const c of db.changelog[i]) {
 				set_modified_obj(c._db.obj);
 			}

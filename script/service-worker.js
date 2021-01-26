@@ -83,14 +83,8 @@ const gen_proj_preview = async (url, pid, edit_time) => {
 	const changesets = load.data;
 
 	/* load all changesets but last */
-	let i;
-	for (i = 0; i < changesets.length; i++) {
-		const changeset = changesets[i];
-		for (const c of changeset) {
-			if (c?.id == 1 && c._db.type == "metadata" && c.pid == pid) {
-				break;
-			}
-		}
+	for (let i = 0; i < changesets.length - 1; i++) {
+		db.load(changesets[i], { join_changesets: true });
 	}
 
 	/* seperate previous changes from the last one (the one we're generating for) */
@@ -103,9 +97,7 @@ const gen_proj_preview = async (url, pid, edit_time) => {
 		}
 	});
 
-	for (i; i < changesets.length; i++) {
-		db.load(changesets[i], { join_changesets: true });
-	}
+	db.load(changesets[changesets.length - 1], { join_changesets: true });
 
 	const preview_data = [];
 	for (const diff of db.changelog[db.changelog.length - 1]) {

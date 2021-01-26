@@ -7,7 +7,7 @@ class PWDB {
 	static has_unsaved_changes = false;
 	/* which idx from db.changelog[] points to the first change directly from this project
 	 * (and not its dependencies) */
-	static project_changelog_start_idx = 0;
+	static project_changelog_start_gen = 0;
 
 	static async watch_db() {
 		const cache_save_fn = () => {
@@ -121,19 +121,31 @@ class PWDB {
 			try {
 				const req = await get(ROOT_URL + 'project/' + project.pid + '/load', { is_json: 1 });
 				const changesets = req.data;
-				db.load(changesets);
+				const removed_objs = new Set();
 				let i;
-				for (i = db.changelog.length - 1; i >= 0; i--) {
-					const changeset = db.changelog[i];
+				for (i = 0; i < changesets.length - 1; i++) {
+					db.load(changesets[i], { join_changesets: true });
+				}
+				PWDB.project_changelog_start_gen = db.changelog.length;
+
+				for (const changeset of db.changelog) {
 					for (const c of changeset) {
-						if (c?.id == 1 && c._db.obj._db.type == "metadata" && c.pid == args.pid) {
-							PWDB.project_changelog_start_idx = i;
-							i = -1;
-							break;
+						/* permanently clean up removed objects */
+						if (c._removed && c._db.obj._db.is_allocated) {
+							const obj = c._db.obj;
+							if (removed_objs.has(obj)) {
+								continue;
+							}
+
+							changeset.delete(c);
+							db[obj._db.type][obj.id] = undefined;
+							removed_objs.add(obj);
 						}
 					}
 				}
 				db.new_generation();
+
+				db.load(changesets[i]);
 			} catch (e) { }
 
 			const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
