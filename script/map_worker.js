@@ -11,7 +11,6 @@ let g_objs = {};
 let g_pos = null;
 let g_marker_size = 0;
 let g_window_size = { width: 1, height: 1 };
-let g_focused_spawners = new Set();
 let g_selected_spawners = new Set();
 let g_hovered_spawners = null;
 
@@ -113,12 +112,7 @@ self.onmessage = async (e) => {
 			break;
 		}
 		case 'set_focused_spawners': {
-			const spawners = e.data.spawners;
-
-			g_focused_spawners.clear();
-			for (const s of spawners) {
-				g_focused_spawners.add(s.id);
-			}
+			/* XXX remove */
 			break;
 		}
 		case 'set_selected_spawners': {
@@ -348,12 +342,6 @@ const redraw = () => {
 				x *= pos.scale;
 				y *= pos.scale;
 
-				if (!g_opts?.['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
-					ctx.globalAlpha = 1.0;
-				} else {
-					ctx.globalAlpha = 0.3;
-				}
-
 				const name = get_name(spawner);
 				const w = ctx.measureText(name).width;
 
@@ -370,11 +358,6 @@ const redraw = () => {
 			x *= pos.scale;
 			y *= pos.scale;
 			const rad = spawner.dir ? (-Math.atan2(spawner.dir[2], spawner.dir[0]) + Math.PI / 2) : 0;
-			if (!g_opts?.['fade-spawners'] || !g_focused_spawners.size || g_focused_spawners.has(spawner.id)) {
-				ctx.globalAlpha = 1.0;
-			} else {
-				ctx.globalAlpha = 0.3;
-			}
 
 			let _marker_img = marker_img;
 			if (!spawner?.groups?.length ||
