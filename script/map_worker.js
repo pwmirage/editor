@@ -281,7 +281,11 @@ const filter_spawners = (canvas) => {
 		}
 
 		let type = spawner.type;
-		if (!map_filters[type](spawner)) {
+		if (type && !map_filters[type](spawner)) {
+			continue;
+		}
+
+		if (spawner._removed && !g_opts?.['show-removed-spawners']) {
 			continue;
 		}
 
