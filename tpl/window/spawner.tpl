@@ -86,16 +86,22 @@
 <script id="tpl-spawner" type="text/x-dot-template">
 
 <div class="window resizable" style="width: 305px;">
-<div class="header">
+<div class="header {if $spawner._removed}removed{/if}">
 	<span>
-		{if $spawner.type == 'resource'}Resource{/if}
-		{if $spawner.type == 'npc'}NPC{else}Monster{/if}
-		&nbsp;Spawner {@serialize_db_id($spawner.id)}
+		<span class="name">
+			{if $spawner.type == 'resource'}Resource
+			{else if $spawner.type == 'npc'}NPC
+			{else}Monster{/if}
+			&nbsp;Spawner 
+		</span> <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span>
 	</span>
 	<div class="menu">
-		<i class="minimize fa" aria-hidden="true"></i>
-		<i class="maximize fa" aria-hidden="true"></i>
-		<i class="close fa fa-close" aria-hidden="true"></i>
+		<i class="details fa fa-ellipsis-v"></i>
+	</div>
+	<div class="menu">
+		<i class="minimize fa"></i>
+		<i class="maximize fa"></i>
+		<i class="close fa fa-close"></i>
 	</div>
 </div>
 <div class="content flex-rows">

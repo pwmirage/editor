@@ -246,7 +246,7 @@ span.tabname.selected {
 		{/if}
 	</span>
 	<div class="menu">
-		<i class="fork fa fa-ellipsis-v"></i>
+		<i class="details fa fa-ellipsis-v"></i>
 	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>

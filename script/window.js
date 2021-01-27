@@ -43,6 +43,7 @@ class Window {
 		this.dom.onmousedown = (e) => this.onmousedown(e);
 
 		const queryEl = (name) => this.dom_header?.querySelector(name) || {};
+		queryEl('.details').onclick = (e) => this.details(queryEl('.details'), e);
 		queryEl('.minimize').onclick = () => this.minimize();
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
@@ -81,10 +82,10 @@ class Window {
 
 			this.full_bounds = this.dom_win.getBoundingClientRect();
 			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
-			}
+		}
 
-			/* remove all text selection */
-			window.getSelection().removeAllRanges();
+		/* remove all text selection */
+		window.getSelection().removeAllRanges();
 	}
 
 	tpl_compile_cb(dom) {
@@ -250,6 +251,10 @@ class Window {
 				win_dom._win.onresize();
 			}
 		}
+	}
+
+	async details(details_el, e) {
+		/* to be inherited */
 	}
 
 	minimize() {

@@ -75,6 +75,38 @@ class SpawnerWindow extends Window {
 		}
 	}
 
+	async details(details_el, e) {
+		const coords = Window.get_el_coords(details_el);
+		const x = coords.left;
+		const y = coords.bottom;
+
+		const win = await RMenuWindow.open({
+		x, y, bg: false,
+		entries: [
+			{ name: 'World: ' + this.spawner._db.type.replace('spawners_', '') },
+			{ id: 1, name: 'Remove', visible: !this.spawner._removed },
+			{ id: 2, name: 'Restore', visible: this.spawner._removed },
+		]});
+		const sel = await win.wait();
+		switch (sel) {
+			case 1: {
+				db.open(this.spawner);
+				this.spawner._removed = true;
+				db.commit(this.spawner);
+				this.dom_header.classList.add('removed');
+				break;
+			}
+			case 2: {
+				db.open(this.spawner);
+				this.spawner._removed = false;
+				db.commit(this.spawner);
+				this.dom_header.classList.remove('removed');
+				break;
+			}
+		}
+	}
+
+
 	async refresh_npc_window() {
 		const npc = db.npcs[this.spawner.groups[0]?.type];
 
