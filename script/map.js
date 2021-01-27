@@ -231,6 +231,60 @@ class PWMap {
 			objs: [...db.mines],
 		});
 
+		this.q_canvas = this.shadow.querySelector('#quick-canvas');
+		this.select_menu = this.shadow.querySelector('#select-menu');
+
+		this.select_menu.onclick = async (e) => {
+			const x = e.clientX - Window.bounds.left;
+			const y = e.clientY - Window.bounds.top;
+			const b = this.select_menu.getBoundingClientRect();
+
+			const win = await RMenuWindow.open({
+			x: b.left - Window.bounds.left, y: b.top - 165 - Window.bounds.top, bg: false,
+			entries: [
+				{ id: 20, name: 'Edit' },
+				{ id: 21, name: 'Move' },
+				{ id: 22, name: 'Rotate' },
+				{ id: 23, name: 'Unselect' },
+				{ id: 24, name: 'Delete' },
+			]});
+			const sel = await win.wait();
+			switch(sel) {
+				case 23: {
+					this.selected_spawners.clear();
+					this.refresh_focused_spawners();
+					break;
+				}
+				case 24: {
+					for (const s of this.selected_spawners) {
+						db.open(s);
+						s._removed = true;
+						db.commit(s);
+					}
+					break;
+				}
+			}
+		};
+
+		this.initialized = true;
+	}
+
+	post_canvas_msg(msg, transferable = []) {
+		const msg_id = msg.msg_id = this.canvas_msg_id++;
+		this.canvas_worker.postMessage(msg, transferable);
+		return new Promise((resolve) => {
+			const fn = (e) => {
+				if (e.data.msg_id == msg_id) {
+					this.canvas_worker.removeEventListener('message', fn);
+					return resolve(e.data);
+				}
+			};
+
+			this.canvas_worker.addEventListener('message', fn);
+		});
+	}
+
+	reload_db() {
 		const changed_objects_el = this.shadow.querySelector('#changed-objects');
 		const changed_objects_last_el = changed_objects_el.firstChild;
 		const changed_objects_map = new Map();
@@ -335,7 +389,7 @@ class PWMap {
 				obj._db.project_initial_state = state;
 			}
 
-			if (!DB.is_obj_diff(obj, obj._db.project_initial_state)) {
+			if ((obj._removed && obj._db.is_allocated) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
 				this.modified_db_objs.delete(obj);
 				const el = changed_objects_map.get(obj);
 				el.remove();
@@ -363,58 +417,6 @@ class PWMap {
 			})();
 
 
-		});
-
-		this.q_canvas = this.shadow.querySelector('#quick-canvas');
-		this.select_menu = this.shadow.querySelector('#select-menu');
-
-		this.select_menu.onclick = async (e) => {
-			const x = e.clientX - Window.bounds.left;
-			const y = e.clientY - Window.bounds.top;
-			const b = this.select_menu.getBoundingClientRect();
-
-			const win = await RMenuWindow.open({
-			x: b.left - Window.bounds.left, y: b.top - 165 - Window.bounds.top, bg: false,
-			entries: [
-				{ id: 20, name: 'Edit' },
-				{ id: 21, name: 'Move' },
-				{ id: 22, name: 'Rotate' },
-				{ id: 23, name: 'Unselect' },
-				{ id: 24, name: 'Delete' },
-			]});
-			const sel = await win.wait();
-			switch(sel) {
-				case 23: {
-					this.selected_spawners.clear();
-					this.refresh_focused_spawners();
-					break;
-				}
-				case 24: {
-					for (const s of this.selected_spawners) {
-						db.open(s);
-						s._removed = true;
-						db.commit(s);
-					}
-					break;
-				}
-			}
-		};
-
-		this.initialized = true;
-	}
-
-	post_canvas_msg(msg, transferable = []) {
-		const msg_id = msg.msg_id = this.canvas_msg_id++;
-		this.canvas_worker.postMessage(msg, transferable);
-		return new Promise((resolve) => {
-			const fn = (e) => {
-				if (e.data.msg_id == msg_id) {
-					this.canvas_worker.removeEventListener('message', fn);
-					return resolve(e.data);
-				}
-			};
-
-			this.canvas_worker.addEventListener('message', fn);
 		});
 	}
 

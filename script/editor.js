@@ -133,6 +133,7 @@ class Editor {
 			g_map = new PWMap();
 		}
 		await g_map.reinit('none');
+		await g_map.reload_db();
 
 		Editor.navbar.reload();
 		const win = await MapChooserWindow.open({ });
