@@ -71,8 +71,8 @@ class CreateProjectWindow extends Window {
 			return;
 		}
 
-		await notify('info', 'Project created');
+		notify('info', 'Project created');
 		await sleep(2000);
-		await Editor.open({ pid: new_project.pid });
+		await mg_open_editor({ pid: new_project.pid, name, last_edit: Math.floor(Date.now() / 1000) });
 	}
 }
