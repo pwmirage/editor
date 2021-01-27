@@ -82,6 +82,7 @@ class Navbar {
 		b.proj_new.onclick = () => CreateProjectWindow.open();
 		b.proj_summary.onclick = () => HistoryWindow.open();
 		b.proj_save.onclick = () => PWDB.save(db, true);
+		b.proj_publish.onclick = () => PWDB.publish(db);
 
 		const set_enabled = (btn, enabled) => {
 			if (enabled) {

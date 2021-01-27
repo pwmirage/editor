@@ -197,6 +197,27 @@ class PWDB {
 		}
 	}
 
+	static async publish(db) {
+		let project = db.metadata[1];
+		if (!project || project.read_only) {
+			Loading.notify('warning', 'This project is read-only.');
+			return;
+		}
+
+		await PWDB.save(db, false);
+
+		const req = await post(ROOT_URL + 'project/' + project.pid + '/publish', { is_json: 1 });
+
+		if (!req.ok) {
+			Loading.notify('error', req.data.err || 'Failed to publish: unknown error');
+			return;
+		}
+
+		Loading.notify('Published');
+		await sleep(2000);
+		window.location.href = '/forum/thread/' + project.thread_id;
+	}
+
 	static async find_usages(db, obj) {
 		if (!obj) {
 			return [];
