@@ -55,24 +55,23 @@ class CreateProjectWindow extends Window {
 		const data = db.dump_last(0);
 		localStorage.removeItem('pwdb_lchangeset_' + cur_project.pid);
 
-		if (data == '[]') {
-			return;
-		}
-
-		req = await post(ROOT_URL + 'project/' + new_project.pid + '/save', {
-			is_json: 1, data: {
-				file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
+		if (data != '[]') {
+			req = await post(ROOT_URL + 'project/' + new_project.pid + '/save', {
+				is_json: 1, data: {
+					file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
+				}
+			});
+			if (!req.ok) {
+				Loading.notify('error', 'Project created, but failed to transfer the changes: ' + (req.data.err || 'Unknown error'));
+				const dump = db.dump_last(0);
+				localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
+				return;
 			}
-		});
-		if (!req.ok) {
-			Loading.notify('error', 'Project created, but failed to transfer the changes: ' + (req.data.err || 'Unknown error'));
-			const dump = db.dump_last(0);
-			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
-			return;
 		}
 
 		notify('info', 'Project created');
 		await sleep(2000);
+		Window.close_all();
 		await mg_open_editor({ pid: new_project.pid, name, last_edit: Math.floor(Date.now() / 1000) });
 	}
 }
