@@ -1,14 +1,8 @@
 /* SPDX-License-Identifier: MIT
- * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
+ * Copyright(c) 2019-2021 Darek Stojaczyk for pwmirage.com
  */
 
 class PWDB {
-	static g_db_promises = {};
-	static has_unsaved_changes = false;
-	/* which idx from db.changelog[] points to the first change directly from this project
-	 * (and not its dependencies) */
-	static project_changelog_start_gen = 0;
-
 	static async watch_db() {
 		const cache_save_fn = () => {
 			if (!db || !PWDB.has_unsaved_changes) {
@@ -55,6 +49,16 @@ class PWDB {
 	}
 
 	static async new_db(args) {
+		if (!PWDB.g_db_promises) {
+			PWDB.g_db_promises = {};
+			PWDB.has_unsaved_changes = false;
+			/* which idx from db.changelog[] points to the first change directly from this project
+			 * (and not its dependencies) */
+			PWDB.project_changelog_start_gen = 0;
+			PWDB.tag_categories = {};
+			PWDB.tags = {};
+		}
+
 		if (!args) {
 			args = {};
 		}
@@ -264,7 +268,7 @@ class PWDB {
 				}
 				o = o[p];
 			}
-			return o ?? null;
+			return o ? o : null;
 		};
 
 		const set_val = (o, val) => {
@@ -350,9 +354,6 @@ class PWDB {
 
 		final_resolve();
 	}
-
-	static tag_categories = {};
-	static tags = {};
 
 	static async register_data_type(db, args, type, tag_category, url) {
 		let tag;
