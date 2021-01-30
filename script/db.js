@@ -8,13 +8,13 @@ function get_obj_diff(obj, prev) {
 	for (const f in obj) {
 		if (!obj.hasOwnProperty(f)) continue;
 		if (f === '_db') {
-			if (obj._db?.base != prev._db?.base) {
+			if ((!!obj._db.base && (!prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev._db && !!prev._db.base)) {
 				diff[f] = { base: obj._db.base };
 			} else if (diff[f]) {
 				diff[f] = undefined;
 			}
 		} else if (typeof(obj[f]) === 'object') {
-			const nested_diff = get_obj_diff(obj[f], prev?.[f]);
+			const nested_diff = get_obj_diff(obj[f], prev ? prev[f] : undefined);
 			/* we want to avoid iterable undefined fields in diff[f],
 			 * set it only if needed */
 			if (nested_diff || diff[f]) {
@@ -22,7 +22,7 @@ function get_obj_diff(obj, prev) {
 			}
 		} else {
 			/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-			if ((!obj[f] && !!obj[f] != !!prev?.[f]) || (!!obj[f] && obj[f] != prev?.[f])) {
+			if ((!obj[f] && prev && !!prev[f]) || (!!obj[f] && (!prev || !prev[f] || obj[f] != prev[f]))) {
 				diff[f] = obj[f];
 			} else if (diff[f]) {
 				/* delete is super slow, just set to undefined */
@@ -628,7 +628,7 @@ class DB {
 				}
 			} else {
 				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-				if ((!obj[f] && !!obj[f] != !!org?.[f]) || (!!obj[f] && obj[f] != org?.[f])) {
+				if ((!obj[f] && org && !!org[f]) || (!!obj[f] && (!org || !org[f] || obj[f] != org[f]))) {
 					return true;
 				}
 			}
