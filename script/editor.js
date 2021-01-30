@@ -136,7 +136,11 @@ class Editor {
 		await g_map.reload_db();
 
 		Editor.navbar.reload();
-		const win = await MapChooserWindow.open({ });
+		if (args.action == 'new') {
+			const win = await CreateProjectWindow.open();
+		} else {
+			const win = await MapChooserWindow.open({ });
+		}
 	}
 
 	static close() {
