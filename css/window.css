@@ -55,6 +55,7 @@
 }
 
 .window > .header {
+	position: relative;
 	background-color: var(--header-color);
 	cursor: pointer;
 	color: white;
