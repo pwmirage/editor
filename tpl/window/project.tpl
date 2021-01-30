@@ -18,7 +18,7 @@
 		<span>Name:</span>
 		<input type="text" id="name" style="flex: 1; width: 100%; margin-bottom: 4px;" oninput="{serialize $win}.oninput(this);" autocomplete="off"></input>
 	</div>
-	<label title="You choose to transfer current changes to the newly created project or leave them be, which will keep them as-is in your browser data"><input type="checkbox" class="checkbox" id="transfer-changes" checked><span>Transfer current changes</span><i class="fa fa-info-circle" style="cursor: help; margin-left: 4px;"></i></label>
+	<label title="You can choose to transfer current unsaved changes to the newly created project or leave them be, which will keep them as-is in your browser data"><input type="checkbox" class="checkbox" id="transfer-changes" checked><span>Transfer current changes</span><i class="fa fa-info-circle" style="cursor: help; margin-left: 4px;"></i></label>
 	<div style="margin-top: 8px;">
 		<span id="err"></span>
 		<a class="button disabled" id="submit" style="float: right;" onclick="{serialize $win}.submit()">Create</a>
