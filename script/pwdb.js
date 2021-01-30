@@ -144,8 +144,8 @@ class PWDB {
 					}
 				}
 				db.new_generation();
-
 				db.load(changesets[i]);
+				db.new_generation();
 			} catch (e) { }
 
 			const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
