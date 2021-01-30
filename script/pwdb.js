@@ -174,7 +174,9 @@ class PWDB {
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
 
 		if (data == '[]') {
-			Loading.notify('Saved');
+			if (show_tag) {
+				notify('success', 'Saved');
+			}
 			return;
 		}
 
@@ -193,7 +195,7 @@ class PWDB {
 
 		db.new_generation();
 		if (show_tag) {
-			Loading.notify('Saved');
+			notify('success', 'Saved');
 		}
 	}
 
@@ -213,7 +215,7 @@ class PWDB {
 			return;
 		}
 
-		Loading.notify('Published');
+		notify('success', 'Published');
 		await sleep(2000);
 		window.location.href = '/forum/thread/' + project.thread_id;
 	}
@@ -226,6 +228,10 @@ class PWDB {
 		if (obj._db.type == 'npcs') {
 			const usages = [];
 			for (const mapid in PWMap.maps) {
+				if (mapid == 'none') {
+					continue;
+				}
+
 				const arr = db['spawners_' + mapid];
 				for (const i of arr) {
 					if (i && i.type == 'npc' && i.groups && i.groups.find(g => g.type == obj.id)) {
