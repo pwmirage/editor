@@ -37,6 +37,7 @@ class CreateProjectWindow extends Window {
 	}
 
 	async submit() {
+		this.shadow.querySelector('#submit').classList.add('disabled');
 		const name = this.shadow.querySelector('#name').value;
 		let req = await post(ROOT_URL + 'project/new', { is_json: 1, data: { name } });
 		if (!req.ok) {
@@ -47,29 +48,61 @@ class CreateProjectWindow extends Window {
 			this.err_fade_timeout = setTimeout(() => {
 				this.shadow.querySelector('#err').textContent = '';
 			}, 8000);
+			this.shadow.querySelector('#submit').classList.remove('disabled');
 			return;
 		}
 		const new_project = req.data[0];
 
-		const cur_project = db.metadata[1];
-		const data = db.dump_last(0);
-		localStorage.removeItem('pwdb_lchangeset_' + cur_project.pid);
+		if (this.shadow.querySelector('#transfer-changes').checked) {
+			const cur_project = db.metadata[1];
+			const data = db.dump_last(0);
+			localStorage.removeItem('pwdb_lchangeset_' + cur_project.pid);
 
-		if (data != '[]') {
-			req = await post(ROOT_URL + 'project/' + new_project.pid + '/save', {
-				is_json: 1, data: {
-					file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
+			if (data != '[]') {
+				const parsed_data = JSON.parse(data);
+				const fix_ids = (obj) => {
+					for (const f in obj) {
+						const v = obj[f];
+
+						/* 0, null, undefined, empty string... */
+						if (!v) {
+							continue;
+						}
+
+						if (typeof(v) == 'object') {
+							fix_ids(v);
+							continue;
+						}
+						if (typeof(v) == 'string') {
+							continue;
+						}
+
+						if (v < 0x80000000 || v > 0x80000000 + 0x100000) {
+							continue;
+						}
+
+						obj[f] += new_project.pid * 0x100000;
+					}
+				};
+				fix_ids(parsed_data);
+
+				const fixed_data = JSON.stringify(parsed_data);
+				req = await post(ROOT_URL + 'project/' + new_project.pid + '/save', {
+					is_json: 1, data: {
+						file: new File([new Blob([fixed_data])], 'project.json', { type: 'application/json' }),
+					}
+				});
+				if (!req.ok) {
+					Loading.notify('error', 'Project created, but failed to transfer the changes: ' + (req.data.err || 'Unknown error'));
+					const dump = db.dump_last(0);
+					localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 				}
-			});
-			if (!req.ok) {
-				Loading.notify('error', 'Project created, but failed to transfer the changes: ' + (req.data.err || 'Unknown error'));
-				const dump = db.dump_last(0);
-				localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
-				return;
 			}
 		}
 
-		notify('info', 'Project created');
+		if (req.ok) {
+			notify('success', 'Project created');
+		}
 		await sleep(2000);
 		Window.close_all();
 		await mg_open_editor({ pid: new_project.pid, name, last_edit: Math.floor(Date.now() / 1000) });
