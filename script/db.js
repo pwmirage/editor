@@ -385,9 +385,12 @@ class DB {
 
 	clone(obj, commit_cb) {
 		let copy = {};
-		DB.copy_obj_data(copy, obj);
 		copy.id = 0;
 		copy._db = { type: obj._db.type, is_allocated: true, commit_cb: commit_cb };
+		db.open(copy);
+		DB.copy_obj_data(copy, obj);
+		copy.id = 0;
+		db.commit(copy);
 		return copy;
 	}
 
