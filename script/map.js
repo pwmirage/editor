@@ -286,6 +286,10 @@ class PWMap {
 
 	reload_db() {
 		const changed_objects_el = this.shadow.querySelector('#changed-objects');
+		while (changed_objects_el.firstChild) {
+			changed_objects_el.firstChild.remove();
+		}
+
 		const changed_objects_last_el = changed_objects_el.firstChild;
 		const changed_objects_map = new Map();
 		const set_modified_obj = (obj) => {
