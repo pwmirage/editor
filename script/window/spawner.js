@@ -85,7 +85,7 @@ class SpawnerWindow extends Window {
 		entries: [
 			{ name: 'World: ' + this.spawner._db.type.replace('spawners_', '') },
 			{ id: 1, name: 'Remove', visible: !this.spawner._removed },
-			{ id: 2, name: 'Restore', visible: this.spawner._removed },
+			{ id: 2, name: 'Restore', visible: !!this.spawner._removed },
 		]});
 		const sel = await win.wait();
 		switch (sel) {
