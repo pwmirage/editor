@@ -286,11 +286,21 @@ class PWMap {
 
 	reload_db() {
 		const changed_objects_el = this.shadow.querySelector('#changed-objects');
+		const changed_objects_more_el = this.shadow.querySelector('#more-objects');
 		while (changed_objects_el.firstChild) {
 			changed_objects_el.firstChild.remove();
 		}
 
-		const changed_objects_last_el = changed_objects_el.firstChild;
+		changed_objects_more_el.onclick = () => HistoryWindow.open();
+
+		this.check_overflown_changed_objs = () => {
+			const last_button = changed_objects_el.lastChild;
+			const last_bounds = last_button.getBoundingClientRect();
+			const objects_bounds = changed_objects_el.getBoundingClientRect();
+
+			changed_objects_more_el.style.display = (last_bounds.y < objects_bounds.y) ? 'block' : 'none';
+		};
+
 		const changed_objects_map = new Map();
 		const set_modified_obj = (obj) => {
 			if (obj._db.type == 'metadata') {
@@ -370,8 +380,10 @@ class PWMap {
 				el.appendChild(span);
 				el.onclick = open_fn;
 
-				changed_objects_el.insertBefore(el, changed_objects_last_el);
+				changed_objects_el.append(el);
 				changed_objects_map.set(obj, el);
+
+				this.check_overflown_changed_objs();
 			}
 
 			this.modified_db_objs.add(obj);
@@ -742,6 +754,10 @@ class PWMap {
 	}
 
 	async onresize(e) {
+		if (this.check_overflown_changed_objs) {
+			this.check_overflown_changed_objs();
+		}
+
 		const q_canvas = this.q_canvas;
 		q_canvas.width = this.canvas.offsetWidth;
 		q_canvas.height = this.canvas.offsetHeight;

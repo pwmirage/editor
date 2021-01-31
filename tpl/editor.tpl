@@ -24,7 +24,13 @@
 					<div id="map-name"></div>
 				</div>
 			</div>
-			<div id="changed-objects"></div>
+			<div class="display: flex; flex-direction: column; row-gap: 6px;">
+				<div style="display: flex;">
+					<div style="flex: 1;"></div>
+					<div id="more-objects">+ more</div>
+				</div>
+				<div id="changed-objects"></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -158,6 +164,7 @@
 	overflow: hidden;
 }
 
+#more-objects,
 #changed-objects > div {
 	background-color: #dccfcf;
 	border-radius: 2px;
@@ -178,10 +185,18 @@
 	margin-top: 5px;
 }
 
+#more-objects:hover,
 #changed-objects > div:hover {
 	background-color: rgba(156, 120, 120, 1);
 	color: rgba(255, 255, 255, 1);
 	text-decoration: none;
+}
+
+#more-objects {
+	display: block;
+	line-height: 31px;
+	min-width: 75px;
+	text-align: center;
 }
 
 #changed-objects > div > img {
@@ -224,6 +239,7 @@
 
 #open-legend {
 	width: fit-content;
+	height: fit-content;
 	background-color: #dccfcf;
 	border-radius: 2px;
 	border-width: 0;

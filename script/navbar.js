@@ -93,7 +93,6 @@ class Navbar {
 			}
 		};
 
-		set_enabled(b['proj_summary'], has_proj);
 		set_enabled(b['proj_save'], has_proj);
 		set_enabled(b['proj_publish'], has_proj);
 		set_enabled(b['proj_rebase'], has_proj);
