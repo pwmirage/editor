@@ -96,7 +96,6 @@
 .window > .header > .menu > * {
 	display: block;
 	width: 18px; /* more than most FontAwesome icons */
-	height: 100%;
 	padding: 10px 8px 10px 8px;
 }
 
