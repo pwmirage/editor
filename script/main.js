@@ -60,6 +60,9 @@ const mg_open_editor = async (args) => {
 
 	try {
 		await g_mg_loaded;
+		try {
+			Window.close_all();
+		} catch (e) {}
 		await Loading.show_curtain(args.no_animation ?? false);
 
 		if (typeof(Editor) === 'undefined') {

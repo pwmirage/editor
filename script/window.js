@@ -148,6 +148,10 @@ class Window {
 	}
 
 	static close_all() {
+		if (!Window.container) {
+			return;
+		}
+
 		const arr = [...Window.container.children];
 		for (const win_dom of arr) {
 			if (!win_dom._win) {
