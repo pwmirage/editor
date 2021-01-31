@@ -82,7 +82,7 @@
 	top: 0;
 }
 
-.label {
+#pw-map-canvas > .label {
 	display: none;
 	position: absolute;
 	width: auto;
