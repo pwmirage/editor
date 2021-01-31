@@ -24,13 +24,18 @@ class Loading {
 		Loading.shadow = shadow;
 	}
 
-	static show_curtain() {
+	static show_curtain(no_animation = false) {
 		document.body.classList.remove('mge-background');
+		document.body.classList.remove('mge-startfullscreen');
 		document.body.classList.add('mge-fullscreen');
 		document.body.classList.add('mge-loading-fullscreen');
 		const curtains = Loading.shadow.querySelector('#curtain');
-		curtains.className = 'showCurtain';
-		return new Promise((resolve) => setTimeout(resolve, 500));
+		if (no_animation) {
+			curtains.className = 'forceShowCurtain showCurtain';
+		} else {
+			curtains.className = 'showCurtain';
+			return new Promise((resolve) => setTimeout(resolve, 650));
+		}
 	}
 
 	static hide_curtain() {

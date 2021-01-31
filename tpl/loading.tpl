@@ -128,6 +128,7 @@
 #curtain.showCurtain > #loader { animation: fadeIn 0.2s linear both; }
 #curtain.hideCurtain > #loader { animation: fadeOut 0.2s linear both; }
 #curtain.showCurtain > #loader > div { animation: stretchHeigh 0.8s infinite ease-in-out; }
+#curtain.forceShowCurtain > .curtain { animation: none !important; }
 #curtain.showCurtain > .curtain { animation: showCurtain 250ms ease-in-out both; }
 #curtain.hideCurtain > .curtain { animation: hideCurtain 250ms ease-in-out both; animation-delay: 0.2s; }
 
