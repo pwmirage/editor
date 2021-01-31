@@ -122,35 +122,37 @@ class PWDB {
 		}
 
 		if (!args.new) {
-			try {
-				const req = await get(ROOT_URL + 'project/' + project.pid + '/load', { is_json: 1 });
-				const changesets = req.data;
-				const removed_objs = new Set();
-				let i;
-				for (i = 0; i < changesets.length - 1; i++) {
-					db.load(changesets[i], { join_changesets: true });
-				}
-				PWDB.project_changelog_start_gen = db.changelog.length;
+			if (project.pid > 0) {
+				try {
+					const req = await get(ROOT_URL + 'project/' + project.pid + '/load', { is_json: 1 });
+					const changesets = req.data;
+					const removed_objs = new Set();
+					let i;
+					for (i = 0; i < changesets.length - 1; i++) {
+						db.load(changesets[i], { join_changesets: true });
+					}
+					PWDB.project_changelog_start_gen = db.changelog.length;
 
-				for (const changeset of db.changelog) {
-					for (const c of changeset) {
-						/* permanently clean up removed objects */
-						if (c._removed) {
-							const obj = c._db.obj;
-							if (removed_objs.has(obj)) {
-								continue;
+					for (const changeset of db.changelog) {
+						for (const c of changeset) {
+							/* permanently clean up removed objects */
+							if (c._removed) {
+								const obj = c._db.obj;
+								if (removed_objs.has(obj)) {
+									continue;
+								}
+
+								changeset.delete(c);
+								db[obj._db.type][obj.id] = undefined;
+								removed_objs.add(obj);
 							}
-
-							changeset.delete(c);
-							db[obj._db.type][obj.id] = undefined;
-							removed_objs.add(obj);
 						}
 					}
-				}
-				db.new_generation();
-				db.load(changesets[i]);
-				db.new_generation();
-			} catch (e) { }
+					db.new_generation();
+					db.load(changesets[i]);
+					db.new_generation();
+				} catch (e) { }
+			}
 
 			const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
 			if (changeset_str) {
