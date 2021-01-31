@@ -317,7 +317,7 @@ class PWMap {
 						name = 'Crafts';
 						open_fn = () => NPCCraftsWindow.open({ crafts: obj });
 						break;
-					case 'npc_goods':
+					case 'npc_sells':
 						name = 'Goods';
 						open_fn = () => NPCGoodsWindow.open({ goods: obj });
 						break;
