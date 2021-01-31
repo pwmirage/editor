@@ -21,7 +21,6 @@ const _fetch = async (url, { params, is_json }) => {
 			return resp;
 		} catch (e) {
 			console.error(e);
-			console.error(resp.data);
 			resp.data = {};
 		}
 	}
