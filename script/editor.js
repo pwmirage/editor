@@ -35,6 +35,7 @@ class Editor {
 		]);
 
 		await Promise.all([
+			load_script(ROOT_URL + 'script/window/welcome.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/npc.js?v=' + MG_VERSION),
@@ -142,11 +143,23 @@ class Editor {
 		await g_map.reload_db();
 
 		Editor.navbar.reload();
-		if (args.action == 'new') {
-			const win = await CreateProjectWindow.open();
-		} else {
-			const win = await MapChooserWindow.open({ });
-		}
+
+		new Promise(async (resolve) => {
+			if (localStorage.getItem('mg_welcome_closed')) {
+				resolve();
+			} else {
+				const win = await WelcomeWindow.open();
+				win.onclose = resolve;
+			}
+		}).then(async () => {
+			localStorage.setItem('mg_welcome_closed', 1);
+
+			if (args.action == 'new') {
+				const win = await CreateProjectWindow.open();
+			} else {
+				const win = await MapChooserWindow.open({ });
+			}
+		});
 	}
 
 	static close() {
