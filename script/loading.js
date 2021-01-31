@@ -25,6 +25,8 @@ class Loading {
 	}
 
 	static show_curtain() {
+		document.body.classList.remove('mge-background');
+		document.body.classList.add('mge-fullscreen');
 		document.body.classList.add('mge-loading-fullscreen');
 		const curtains = Loading.shadow.querySelector('#curtain');
 		curtains.className = 'showCurtain';

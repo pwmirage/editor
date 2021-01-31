@@ -6,6 +6,9 @@ console.log('Editor initializing');
 
 let g_map = null;
 let db;
+let PROJECT_NAME = ''
+let PROJECT_REVISION = 0;
+let PROJECT_LAST_EDIT = 0;
 
 class Editor {
 	static loaded = false;
@@ -100,6 +103,9 @@ class Editor {
 		if (g_map) {
 			g_map.close();
 		}
+
+		PROJECT_NAME = args.name;
+		PROJECT_LAST_EDIT = args.last_edit;
 
 		const date = new Date();
 		const version_str = 'Mirage Editor, Version: ' + date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });

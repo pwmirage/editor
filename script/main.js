@@ -8,10 +8,6 @@ const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
 let MG_VERSION = '0';
 
-let PROJECT_NAME = ''
-let PROJECT_REVISION = 0;
-let PROJECT_LAST_EDIT = 0;
-
 /* needs to be in / to fetch requests from origin /, .htaccess to the rescue */
 navigator.serviceWorker.register('/service-worker.js');
 
@@ -63,18 +59,9 @@ const mg_open_editor = async (args) => {
 	g_mg_editor_open = true;
 
 	try {
-
-		PROJECT_NAME = args.name;
-		PROJECT_LAST_EDIT = args.last_edit;
 		await g_mg_loaded;
-		/* pressing space inside the editor might trigger a click -> disable it */
-		document.querySelector('head link[rel="next"]')?.remove();
-		document.querySelector('head link[rel="prev"]')?.remove();
-
-		document.body.classList.remove('mge-background');
 		await Loading.show_curtain();
 
-		document.body.classList.add('mge-fullscreen');
 		if (typeof(Editor) === 'undefined') {
 			await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
 		}
