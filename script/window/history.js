@@ -50,11 +50,8 @@ class HistoryWindow extends Window {
 	}
 
 	used_by(obj) {
-		let usages = [];
+		let usages = PWDB.find_usages(db, obj);
 		let ret = '';
-		if (obj._db.type == 'npc_sells') {
-			usages = PWDB.find_usages(db, obj);
-		}
 
 		if (usages.length > 0) {
 			ret += '(used by ' + (usages[0].name || 'NPC') + serialize_db_id(usages[0].id);
