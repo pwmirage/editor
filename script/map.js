@@ -295,6 +295,10 @@ class PWMap {
 
 		this.check_overflown_changed_objs = () => {
 			const last_button = changed_objects_el.lastChild;
+			if (!last_button) {
+				changed_objects_more_el.style.display = 'none';
+				return;
+			}
 			const last_bounds = last_button.getBoundingClientRect();
 			const objects_bounds = changed_objects_el.getBoundingClientRect();
 

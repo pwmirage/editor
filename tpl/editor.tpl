@@ -193,7 +193,7 @@
 }
 
 #more-objects {
-	display: block;
+	display: none;
 	line-height: 31px;
 	min-width: 75px;
 	text-align: center;
