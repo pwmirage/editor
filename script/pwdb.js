@@ -226,7 +226,7 @@ class PWDB {
 		window.location.href = '/forum/thread/' + project.thread_id;
 	}
 
-	static async find_usages(db, obj) {
+	static find_usages(db, obj) {
 		if (!obj) {
 			return [];
 		}
