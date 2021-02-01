@@ -22,7 +22,9 @@ function get_obj_diff(obj, prev) {
 			}
 		} else {
 			/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-			if ((!obj[f] && prev && !!prev[f]) || (!!obj[f] && (!prev || !prev[f] || obj[f] != prev[f]))) {
+			const v = obj[f] || 0;
+			const p = prev ? (prev[f] || 0) : 0;
+			if (v != p) {
 				diff[f] = obj[f];
 			} else if (diff[f]) {
 				/* delete is super slow, just set to undefined */
@@ -36,41 +38,6 @@ function get_obj_diff(obj, prev) {
 		return diff;
 	}
 	return undefined;
-}
-
-/* Use diffB as a mask for diffA -> set undefined where diffA is set, but diffB is not */
-const join_diff = (diffA, diffB) => {
-	const diff = {};
-	let is_empty = true;
-	for (const f in diffA) {
-		if (!diffA[f] || !diffB[f]) {
-			diff[f] = undefined;
-		} else if (typeof(diffA[f]) === 'object') {
-			diff[f] = join_diff(diffA[f], diffB[f]);
-			if (diff[f]) {
-				is_empty = false;
-			}
-		} else {
-			diff[f] = diffA[f];
-			is_empty = false;
-		}
-
-	}
-
-	return is_empty ? undefined : diff;
-};
-
-function is_empty(obj) {
-	for (const f in obj) {
-		const v = obj[f];
-		if (v == 0 || v == '' || f == '_db') continue;
-		if (typeof(v) === 'object') {
-			return is_empty(v);
-		}
-		return false;
-	}
-
-	return true;
 }
 
 function dump(data, spacing = 1, custom_fn) {
@@ -104,8 +71,6 @@ function dump(data, spacing = 1, custom_fn) {
 					o[k] = v[k];
 				}
 				return o;
-			} else {
-				if (is_empty(v)) return undefined;
 			}
 		}
 		return v;
@@ -312,7 +277,7 @@ class DB {
 
 		/* gather modified fields */
 		const diff = get_obj_diff(obj, obj._db.latest_state);
-		let changeset_diff = null;
+		let changeset_empty = true;
 
 		if (diff) {
 			/* lazy initialization */
@@ -330,7 +295,8 @@ class DB {
 
 				obj._db.changesets.push(diff);
 				last_changelog.add(diff);
-				changeset = changeset_diff = diff;
+				changeset = diff;
+				changeset_empty = false;
 
 				/* if this a newly allocated object it will be now appended to the array */
 				if (obj._db.is_allocated && obj.id == 0) {
@@ -339,26 +305,52 @@ class DB {
 					diff.id = obj.id;
 					this[obj._db.type][obj.id] = obj;
 				}
+
+				/* add to global changelog */
+				last_changelog.add(changeset);
 			} else {
 				/* there were changes before */
 
 				/* fields might have been changed back and forth with no diff at the end,
 				 * in such case no changeset should be created - it would be empty otherwise */
+				DB.apply_diff(changeset, diff);
+				const diff_and_clean = (obj, org) => {
+					let is_diff = false;
+					for (const f in obj) {
+						if (f === '_db') continue;
+						if (typeof(obj[f]) === 'object') {
+							if (diff_and_clean(obj[f], org[f])) {
+								is_diff = true;
+							} else {
+								obj[f] = undefined;
+							}
+						} else {
+							/* check if there's a difference (excluding any mix
+							 * of 0s, empty strings, nulls, undefines) */
+							const v = obj[f] || 0;
+							const prev = org ? (org[f] || 0) : 0;
+							/* match (!org) as well -> there may be a value at
+							 * earlier changeset different than 0 and we do want
+							 * to diff it then */
+							if (!org || v != prev) {
+								is_diff = true;
+							} else {
+								obj[f] = undefined;
+							}
+						}
+					}
+
+					return is_diff;
+				}
+
 				const prev_state = obj._db.changesets[obj._db.changesets.length - 2];
-				const changeset_diff_abs = get_obj_diff(diff, prev_state) || {};
-				/* strip diff from fields with val == prev changeset */
-				changeset_diff = join_diff(diff, changeset_diff_abs);
-				if (changeset_diff) {
-					DB.apply_diff(changeset, changeset_diff);
-				} else {
+				changeset_empty = !diff_and_clean(changeset, prev_state);
+				changeset.id = obj.id;
+
+				if (changeset_empty) {
 					last_changelog.delete(changeset);
 					obj._db.changesets.pop();
 				}
-			}
-
-			if (changeset_diff) {
-				/* add to global changelog, duplicates will be ignored */
-				last_changelog.add(changeset);
 			}
 		}
 
@@ -372,7 +364,7 @@ class DB {
 			}
 		}
 
-		if ((!diff || !changeset_diff) && obj._db.changesets.length == 1) {
+		if ((!diff || changeset_empty) && obj._db.changesets.length == 1) {
 			/* no changes and no history, just delete the original copy */
 			obj._db.latest_state = undefined;
 			obj._db.changesets = undefined;
@@ -628,7 +620,9 @@ class DB {
 				}
 			} else {
 				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-				if ((!obj[f] && org && !!org[f]) || (!!obj[f] && (!org || !org[f] || obj[f] != org[f]))) {
+				const v = obj[f] || 0;
+				const prev = org ? (org[f] || 0) : 0;
+				if (v != prev) {
 					return true;
 				}
 			}
