@@ -54,7 +54,6 @@ class PWDB {
 			PWDB.has_unsaved_changes = false;
 			/* which idx from db.changelog[] points to the first change directly from this project
 			 * (and not its dependencies) */
-			PWDB.project_changelog_start_gen = 0;
 			PWDB.tag_categories = {};
 			PWDB.tags = {};
 		}
@@ -121,6 +120,7 @@ class PWDB {
 			}
 		}
 
+		db.project_changelog_start_gen = 0;
 		if (!args.new) {
 			if (project.pid > 0) {
 				try {
@@ -131,7 +131,7 @@ class PWDB {
 					for (i = 0; i < changesets.length - 1; i++) {
 						db.load(changesets[i], { join_changesets: true });
 					}
-					PWDB.project_changelog_start_gen = db.changelog.length;
+					db.project_changelog_start_gen = db.changelog.length;
 
 					for (const changeset of db.changelog) {
 						for (const c of changeset) {

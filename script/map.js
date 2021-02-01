@@ -399,7 +399,7 @@ class PWMap {
 						continue;
 					}
 
-					if (c._db.generation >= PWDB.project_changelog_start_gen) {
+					if (c._db.generation >= db.project_changelog_start_gen) {
 						break;
 					}
 
@@ -409,7 +409,7 @@ class PWMap {
 				obj._db.project_initial_state = state;
 			}
 
-			if ((obj._removed && obj._db.changesets[1].generation < PWDB.project_changelog_start_gen) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
+			if ((obj._removed && obj._db.changesets[1].generation < db.project_changelog_start_gen) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
 				this.modified_db_objs.delete(obj);
 				const el = changed_objects_map.get(obj);
 				el.remove();
@@ -417,7 +417,7 @@ class PWMap {
 			}
 		};
 
-		for (let i = PWDB.project_changelog_start_gen; i < db.changelog.length; i++) {
+		for (let i = db.project_changelog_start_gen; i < db.changelog.length; i++) {
 			for (const c of db.changelog[i]) {
 				set_modified_obj(c._db.obj);
 			}
