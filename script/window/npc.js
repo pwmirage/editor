@@ -97,7 +97,7 @@ class NPCCraftsWindow extends Window {
 							page.recipe_id = [];
 						}
 
-						page.recipe_id[recipe_idx] = new_obj?.id;
+						page.recipe_id[recipe_idx] = new_obj?.id || 0;
 
 						db.commit(s);
 						this.tpl.reload('#items');
@@ -145,7 +145,7 @@ class NPCCraftsWindow extends Window {
 					page.recipe_id = [];
 				}
 
-				page.recipe_id[this.selected_recipe] = new_obj?.id;
+				page.recipe_id[this.selected_recipe] = new_obj?.id || 0;
 
 				db.commit(s);
 				this.tpl.reload('#items');
@@ -266,7 +266,7 @@ class NPCGoodsWindow extends Window {
 							page.item_id = [];
 						}
 
-						page.item_id[item_idx] = new_obj?.id;
+						page.item_id[item_idx] = new_obj?.id || 0;
 
 						db.commit(s);
 						this.tpl.reload('#items');
