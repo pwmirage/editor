@@ -24,9 +24,18 @@ class Navbar {
 		this.org_menu_dom.parentNode.insertBefore(this.dom, this.org_menu_dom);
 
 		const b = this.buttons = {};
+		let p;
+		p = this.add_button(null, 'Project');
+
+		b['proj_summary'] = this.add_button(p, 'Show summary');
+		b['proj_new'] = this.add_button(p, 'Create');
+		b['proj_save'] = this.add_button(p, 'Save');
+		b['proj_publish'] = this.add_button(p, 'Publish');
+		b['proj_rebase'] = this.add_button(p, 'Rebase');
+		b['proj_share'] = this.add_button(p, 'Share');
+
 		b['editor'] = this.add_button(null, 'Editor');
 
-		let p;
 		p = this.add_button(b['editor'], 'Change Map');
 		p.onclick = async () => {
 			const win = await MapChooserWindow.open({ });
@@ -42,14 +51,6 @@ class Navbar {
 		b['resources'] = p = this.add_button(p, 'Resources');
 		b['triggers'] = p = this.add_button(p, 'Triggers');
 		b['quests'] = p = this.add_button(p, 'Quests');
-
-		p = this.add_button(null, 'Project');
-		b['proj_summary'] = this.add_button(p, 'Show summary');
-		b['proj_new'] = this.add_button(p, 'Create');
-		b['proj_save'] = this.add_button(p, 'Save');
-		b['proj_publish'] = this.add_button(p, 'Publish');
-		b['proj_rebase'] = this.add_button(p, 'Rebase');
-		b['proj_share'] = this.add_button(p, 'Share');
 
 		this.search = newElement('<div style="display: flex; align-items: center; padding-left: 15px;"><i class="fa fa-search" style="color: #fff;"></i><input type="text" style="margin-left: 5px;" placeholder="Quick search"></div>');
 		this.dom.append(this.search);
