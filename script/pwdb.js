@@ -33,10 +33,13 @@ class PWDB {
 			}
 
 			const changes = localStorage.getItem('pwdb_lchangeset_' + project.pid);
-			if (!changes) {
+			if (!changes || changes == '[]') {
 				return;
 			}
 
+			db.open(project);
+			project.edit_time = Math.floor(Date.now() / 1000);
+			db.commit(project);
 			await PWDB.save(db, false);
 		};
 		const save_fn2 = () => {
