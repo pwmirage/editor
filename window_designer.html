@@ -38,6 +38,7 @@
 			var WCF = { User: { userID: 0, username: "" } };
 
 			location.search.substr(1).split("&").forEach(function(item) {g_params[item.split("=")[0]] = item.split("=")[1]})
+			var SECURITY_TOKEN = g_params.token;
 
 
 			window.onload = async () => {
@@ -45,6 +46,7 @@
 				await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
 				await Editor.load();
 				db = await PWDB.new_db({});
+				db.metadata[1].pid = 274;
 
 				Template.debug = true;
 				Window.set_container(document.querySelector('#windows'));

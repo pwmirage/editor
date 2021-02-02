@@ -350,11 +350,11 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	float: right;
 }
 
-.active, .collapsible:hover {
+.collapsible.active, .collapsible:hover {
 	background-color: #e2e2e2;
 }
 
-.active:after {
+.collapsible.active:after {
 	content: '\00f077';
 }
 
@@ -374,6 +374,12 @@ i.fa {
 	line-height: 20px;
 }
 
+a {
+    color: rgba(230, 81, 0, 1);
+    cursor: pointer;
+    text-decoration: none;
+}
+
 a.button {
 	position: relative;
 	background-color: #dccfcf;
@@ -388,6 +394,17 @@ a.button {
 	line-height: 20px;
 	user-select: none;
 	display: inline-block;
+}
+
+a.externalURL:after {
+	content: '\f08e';
+	display: inline-block;
+	font-family: FontAwesome !important;
+	font-size: 14px !important;
+	font-weight: normal !important;
+	font-style: normal !important;
+	margin-left: 4px;
+	vertical-align: -1px;
 }
 
 a.button.disabled {

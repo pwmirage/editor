@@ -1,7 +1,8 @@
 <script id="tpl-history" type="text/x-dot-template">
-<div class="window resizable" style="width: 305px; height: 448px;">
+<div class="window resizable" style="width: 800px; height: 600px;">
+{assign project = db.metadata[1]}
 <div class="header">
-	<span>History</span>
+	<span>Project: XYZ #{@$project.pid}</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -9,22 +10,16 @@
 	</div>
 </div>
 <div class="content flex-rows" style="overflow: hidden;">
-	<div class="flex-columns" style="margin-bottom: 8px;">
-		<div class="v-centered">Search: </div>
-		<input type="text" id="search" class="flex-wide" size='' autocomplete="off">
+	<div class="flex-columns tabs" style="margin-bottom: 8px;">
+		<div class="tab" onclick="{serialize $win}.select_tab(0);">Base</div>
+		<div class="tab" onclick="{serialize $win}.select_tab(1);">History</div>
+		<div class="tab" onclick="{serialize $win}.select_tab(2);">Changes</div>
 	</div>
 
-	<div class="flex-rows child-padding-3">
-		<div class="child-padding-3">
-			<span style="vertical-align: text-bottom;">Spawned: </span>
-			<label><input type="checkbox" class="checkbox" id="npc-show-auto" checked><span>Auto</span></label>
-			<label><input type="checkbox" class="checkbox" id="npc-show-on-trigger" checked><span>On trigger</span></label>
-		</div>
-	</div>
-
-	<div class="changes">
-		{for gen of db.changelog}
-			{for diff of $gen}
+	<div class="tabcontents">
+		<div id="base"></div>
+		<div id="history" class="history">
+			{for gen of db.changelog}{for diff of $gen}
 				{assign obj = diff._db.obj}
 				{assign type = $obj._db.type}
 				{if $type == 'npc_sells'}
@@ -46,7 +41,7 @@
 							{assign pageid = $i}
 							{assign page = diff.pages[$i]}
 							<div class="block">
-								<span class="header">Tab {@$i}</span>
+								<span class="header">Tab "{@$page.title || '(unnamed)'}" #{@$i}</span>
 								{if $page.title}
 									<div class="block">
 										{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
@@ -89,15 +84,44 @@
 				{else}
 					<span>{@$diff._db.obj._db.type}</span>
 				{/if}
-			{/for}
-		{/for}
+			{/for}{/for}
+		</div>
+		<div id="changes" class="changes"></div>
 	</div>
 </div>
 </div>
 
 {@@
 <style>
-.changes {
+.tabs {
+	border-bottom: 1px solid #e0b0b0;
+	margin: 0 -6px;
+	padding: 0 6px;
+}
+
+.tabs > .tab {
+	background-color: #dddddd;
+	padding: 4px 10px;
+	vertical-align: baseline;
+	border: 1px solid #e0b0b0;
+	margin-bottom: -1px;
+	cursor: pointer;
+}
+
+.tabs > .tab.active {
+	background-color: #fafafa;
+	border-bottom: 1px solid #fafafa;
+}
+
+.tabcontents > * {
+	display: none;
+}
+
+.tabcontents > .active {
+	display: block;
+}
+
+.history {
 	overflow-y: auto;
 	overflow-x: hidden;
 	height: auto;

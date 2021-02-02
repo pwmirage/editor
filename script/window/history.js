@@ -20,6 +20,33 @@ class HistoryWindow extends Window {
 		await super.init();
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
+
+		this.select_tab(1);
+	}
+
+	tpl_compile_cb(dom) {
+		super.tpl_compile_cb(dom);
+		for (const c of dom.querySelectorAll('#base:not(.loaded)')) {
+			mg_init_page('rebase', { pid: db.metadata[1].pid }).then(
+				(content_el) => {
+					c.appendChild(content_el);
+					c.classList.add('loaded');
+				});
+
+		}
+	}
+
+	select_tab(idx) {
+		for (const c of this.shadow.querySelectorAll('.tabs > .active')) {
+			c.classList.remove('active');
+		}
+
+		this.shadow.querySelector('.tabs').children[idx].classList.add('active');
+
+		for (const c of this.shadow.querySelectorAll('.tabcontents > .active')) {
+			c.classList.remove('active');
+		}
+		this.shadow.querySelector('.tabcontents').children[idx].classList.add('active');
 	}
 
 	onmousemove(e) {
@@ -37,6 +64,7 @@ class HistoryWindow extends Window {
 		db.open(goods)
 		goods.name = "Better Goods";
 		goods.pages[0].title = "B Sword";
+		goods.pages[0].item_id[3] = 0;
 		goods.pages[0].item_id[6] = 40;
 		goods.pages[2].item_id[12] = 177;
 		db.commit(goods);
@@ -56,7 +84,7 @@ class HistoryWindow extends Window {
 		if (usages.length > 0) {
 			ret += '(used by ' + (usages[0].name || 'NPC') + serialize_db_id(usages[0].id);
 			if (usages.length > 1) {
-				ret += 'and ' + (usages.length - 1) + ' more';
+				ret += ' and ' + (usages.length - 1) + ' more';
 			}
 			ret += ')';
 		}
