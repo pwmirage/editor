@@ -20,6 +20,11 @@ class HistoryWindow extends Window {
 		await super.init();
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
+		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db, edit: false });
+		
+		const s = newStyle(ROOT_URL + 'css/preview.css');
+		const s_p = new Promise((resolve) => { s.onload = resolve; });
+		this.recipe_win.shadow.prepend(s);
 
 		this.select_tab(1);
 	}
@@ -50,19 +55,27 @@ class HistoryWindow extends Window {
 	}
 
 	onmousemove(e) {
-		const item = e.path?.find(el => el?.classList?.contains('item'));
+		if (!this.item_win || !this.recipe_win) {
+			/* not initialized yet */
+			return;
+		}
+
+		const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
+		const item = el?.classList.contains('item') ? el : null;
+		const recipe = el?.classList.contains('recipe') ? el : null;
 
 		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
+		HTMLSugar.show_recipe_tooltip(this.recipe_win, recipe, { db: db });
 	}
 
 	demo() {
 		let goods = db.npc_sells[2241];
-		if (goods.name == "Better Goods") {
+		if (goods.name == "First gen") {
 			return;
 		}
 
 		db.open(goods)
-		goods.name = "Better Goods";
+		goods.name = "First gen";
 		goods.pages[0].title = "B Sword";
 		goods.pages[0].item_id[3] = 0;
 		goods.pages[0].item_id[6] = 40;
@@ -75,6 +88,21 @@ class HistoryWindow extends Window {
 		db.commit(goods);
 
 		db.new_generation();
+
+		goods = db.npc_sells[2672];
+		db.open(goods)
+		goods.name = "Second gen";
+		db.commit(goods);
+
+		let crafts = db.npc_crafts[2902];
+		db.open(crafts)
+		crafts.name = "Crafts change";
+		crafts.pages[0].recipe_id[0] = 0;
+		crafts.pages[0].recipe_id[1] = 60;
+		db.commit(crafts);
+
+		let diff = JSON.parse('[{ "id": 2147483648, "pos": { "0": 1727.4746105389604, "2": 980.131307875321 }, "groups": { "0": { "type": 11608, "count": 1 } }, "type": "npc", "_db": { "type": "spawners_gs01" } }]');
+		db.load(diff);
 	}
 
 	used_by(obj) {
@@ -82,13 +110,22 @@ class HistoryWindow extends Window {
 		let ret = '';
 
 		if (usages.length > 0) {
-			ret += '(used by ' + (usages[0].name || 'NPC') + serialize_db_id(usages[0].id);
+			ret += '(used by ' + (usages[0].name || 'NPC') + ' ' + serialize_db_id(usages[0].id);
 			if (usages.length > 1) {
 				ret += ' and ' + (usages.length - 1) + ' more';
 			}
 			ret += ')';
 		}
 		return ret;
+	}
+
+	get_project(changeset) {
+		for (const c of changeset) {
+			if (c.id == 1 && c._db.type == 'metadata') {
+				return c;
+			}
+		}
+		return undefined;
 	}
 
 	find_previous(diff, fn) {
