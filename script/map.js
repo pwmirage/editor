@@ -130,6 +130,8 @@ class PWMap {
 		this.canvas = this.shadow.querySelector('#pw-map-canvas');
 		this.bg = this.canvas.querySelector('.bg');
 		this.pw_map = this.canvas.querySelector('#pw-map');
+		this.rotation_circle = this.shadow.querySelector('#rotate-circle');
+		this.rotation_circle_dot = this.rotation_circle.querySelector('.dot');
 		this.hover_lbl = this.shadow.querySelector('.label');
 		this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
 
@@ -474,6 +476,7 @@ class PWMap {
 				this.canvas.ondblclick = (e) => this.ondblclick(e);
 				this.canvas.oncontextmenu = (e) => false;
 				this.canvas.onwheel = (e) => this.onwheel(e);
+				this.rotation_circle_dot.onmousedown = (e) => this.oncirclemousedown(e);
 
 				const get_name = (spawner) => {
 					let name;
@@ -530,6 +533,13 @@ class PWMap {
 		e.preventDefault();
 		this.drag.clicked_el = e.path[0];
 
+		if (this.forced_map_focus && e.which != 2) {
+			if (this.forced_map_focus_cb) {
+				this.forced_map_focus_cb(e);
+			}
+			return;
+		}
+
 		if (this.drag.drag_button == -1) {
 			this.drag.mousedownorigin.x = e.clientX;
 			this.drag.mousedownorigin.y = e.clientY;
@@ -543,6 +553,23 @@ class PWMap {
 	onmousemove(e) {
 		if (!this.map_bounds) {
 			return;
+		}
+
+		if (this.drag.is_circle_drag) {
+			const spawner = this.rotation_circle_spawner;
+			const map_coords = this.mouse_coords_to_map(e.clientX, e.clientY);
+			const spawner_pos = this.map_coords_to_spawner(map_coords.x, map_coords.y);
+
+			const rad = Math.atan2(spawner_pos.y - spawner.pos[2], spawner_pos.x - spawner.pos[0]);
+			const shown_rad = -rad + Math.PI / 2;
+
+			this.rotation_circle_dot.style.transform = 'rotate(' + shown_rad + 'rad)';
+
+			if (this.rotation_circle_update_fn) {
+				this.rotation_circle_update_fn(rad + Math.PI / 2);
+			}
+
+			return true;
 		}
 
 		if (this.drag.drag_button) {
@@ -620,6 +647,44 @@ class PWMap {
 		}
 	}
 
+	oncirclemousedown(e) {
+		if (e.which != 1) {
+			return;
+		}
+
+		this.drag.is_circle_drag = true;
+		this.onmousedown(e);
+	}
+
+	force_map_focus(enable, cb) {
+		if (enable) {
+			Window.container.classList.add('force-map-focus');
+			this.canvas.style.cursor = 'crosshair';
+		} else {
+			Window.container.classList.remove('force-map-focus');
+			this.canvas.style.cursor = '';
+		}
+		this.forced_map_focus = enable;
+		this.forced_map_focus_cb = cb;
+	}
+
+	show_rotation_circle(spawner, update_fn) {
+		if (spawner) {
+			let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
+
+			this.rotation_circle.style.left = x + 'px';
+			this.rotation_circle.style.top = y + 'px';
+			this.rotation_circle.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px)';
+			const rad = Math.atan2(spawner.dir[2], spawner.dir[0]);
+			this.rotation_circle_dot.style.transform = 'rotate(' + (-rad + Math.PI / 2) + 'rad)';
+		}
+
+		this.canvas.style.cursor = '';
+		this.rotation_circle.style.display = spawner ? '' : 'none';
+		this.rotation_circle_update_fn = update_fn;
+		this.rotation_circle_spawner = spawner;
+	}
+
 	async open_spawner(spawner, e) {
 		const win = await SpawnerWindow.open({ x: e.clientX - Window.bounds.left + this.getmarkersize(),
 				y: e.clientY - Window.bounds.top - this.getmarkersize() / 2, spawner: spawner });
@@ -637,7 +702,12 @@ class PWMap {
 
 	onmouseup(e) {
 		const mouse_pos = { x: e.clientX, y: e.clientY };
-		if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
+		if (this.drag.is_circle_drag) {
+			this.drag.is_circle_drag = false;
+			if (this.rotation_circle_update_fn) {
+				this.rotation_circle_update_fn(null);
+			}
+		} else if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
 			const hovered_spawners = this.hovered_spawners;
 			(async () => {
 				const x = mouse_pos.x - Window.bounds.left;
@@ -858,6 +928,10 @@ class PWMap {
 		return new Promise((resolve) => {
 			window.requestAnimationFrame((t0) => {
 				this.pw_map.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px) scale(' + this.pos.scale + ')';
+				if (this.rotation_circle_spawner) {
+					this.rotation_circle.style.transform = 'translate(' + (-this.pos.offset.x) + 'px,' + (-this.pos.offset.y) + 'px)';
+
+				}
 				this.move_dyn_overlay();
 				setTimeout(async () => {
 					await this.redraw_dyn_overlay();
@@ -879,19 +953,26 @@ class PWMap {
 				      - (this.pos.offset.y + origin.y) / this.pos.scale) * this.pos.scale,
 		};
 		this.move_to(new_pos);
+		if (this.rotation_circle_spawner) {
+			const spawner = this.rotation_circle_spawner;
+			let { x, y } = this.spawner_coords_to_map(spawner.pos[0], spawner.pos[2]);
+
+			this.rotation_circle.style.left = x + 'px';
+			this.rotation_circle.style.top = y + 'px';
+		}
 	}
 
 	map_coords_to_spawner(x, y) {
 		return {
-			x: 2 * (x - 0) / this.bg_scale - this.maptype.size.x,
-			y: -2 * (y + 0)  / this.bg_scale + this.maptype.size.y,
+			x: 2 * x / this.bg_scale - this.maptype.size.x,
+			y: -2 * y  / this.bg_scale + this.maptype.size.y,
 		};
 	}
 
 	spawner_coords_to_map(x, y) {
 		return {
-			x: (0.5 * this.maptype.size.x + x / 2) * this.bg_scale + 0,
-			y: (0.5 * this.maptype.size.y - y / 2) * this.bg_scale - 0
+			x: (0.5 * this.maptype.size.x + x / 2) * this.bg_scale * this.pos.scale,
+			y: (0.5 * this.maptype.size.y - y / 2) * this.bg_scale * this.pos.scale
 		};
 	}
 

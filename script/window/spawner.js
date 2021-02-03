@@ -22,6 +22,101 @@ class SpawnerGroupWindow extends PopupWindow {
 	}
 }
 
+class SpawnerPositionWindow extends Window {
+	async init() {
+		this.spawner = this.args.spawner;
+
+		await g_spawner_tpl;
+		const shadow = this.dom.shadowRoot;
+		this.tpl = new Template('tpl-spawner-position');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+
+		const data = this.tpl.run({ win: this, spawner: this.spawner });
+		shadow.append(data);
+
+		this.dom.classList.add('unforce-map-focus');
+
+		await super.init();
+		this.move((Window.bounds.right - this.dom_win.offsetWidth - 4),
+				(Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 4));
+
+		this.select().then(() => {
+			this.close();
+		});
+	}
+
+	close() {
+		g_map.force_map_focus(false);
+		super.close();
+	}
+
+	async select() {
+		const click_ev = await new Promise((resolve) => g_map.force_map_focus(true, resolve));
+		const map_coords = g_map.mouse_coords_to_map(click_ev.clientX, click_ev.clientY);
+		const spawner_pos = this.mouse_spawner_pos = g_map.map_coords_to_spawner(map_coords.x, map_coords.y);
+
+		db.open(this.spawner);
+		this.spawner.pos[0] = spawner_pos.x;
+		this.spawner.pos[2] = spawner_pos.y;
+		db.commit(this.spawner);
+		this.tpl.reload('.pos-input');
+	}
+}
+
+class SpawnerRotationWindow extends Window {
+	async init() {
+		this.spawner = this.args.spawner;
+
+		await g_spawner_tpl;
+		const shadow = this.dom.shadowRoot;
+		this.tpl = new Template('tpl-spawner-rotation');
+		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+
+		const data = this.tpl.run({ win: this, spawner: this.spawner });
+		shadow.append(data);
+
+		this.dom.classList.add('unforce-map-focus');
+
+		await super.init();
+		this.move((Window.bounds.right - this.dom_win.offsetWidth - 4),
+				(Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 4));
+
+		g_map.force_map_focus(true);
+		g_map.show_rotation_circle(this.spawner, (rad) => {
+			if (rad === null) {
+				return;
+			}
+
+			this.try_update_rad(rad);
+		});
+	}
+
+	close() {
+		g_map.show_rotation_circle(null);
+		g_map.force_map_focus(false);
+		super.close();
+	}
+
+	try_update_rad(rad) {
+		this.shadow.querySelector('#input').value = Math.round((rad - Math.PI / 2) * 10000) / 10000;
+
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+		}
+		this.timeout = setTimeout(() => {
+			this.update_dir(rad);
+		}, 250);
+	}
+
+	update_dir(rad) {
+		db.open(this.spawner);
+		this.spawner.dir[0] = Math.sin(rad);
+		this.spawner.dir[2] = -Math.cos(rad);
+		db.commit(this.spawner);
+	}
+}
+
+
 class SpawnerWindow extends Window {
 	async init() {
 		this.spawner = this.args.spawner;

@@ -8,7 +8,7 @@
 		<canvas id="quick-canvas"></canvas>
 		<div class="label"></div>
 	</div>
-	<div id="pw-windows">
+	<div id="pw-overlay">
 		<span id="pw-version"></span>
 		<div id="pw-map-info">
 			<div style="display: flex; flex-direction: column; row-gap: 6px;">
@@ -32,7 +32,11 @@
 				<div id="changed-objects"></div>
 			</div>
 		</div>
+		<div id="rotate-circle" style="display: none;">
+			<div class="dot"></div>
+		</div>
 	</div>
+	<div id="pw-windows"></div>
 </div>
 
 <style>
@@ -40,7 +44,44 @@
 	position: relative;
 }
 
-#pw-map-canvas, #pw-windows {
+#rotate-circle {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 200px;
+	height: 200px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='white' stroke-width='4' stroke-dasharray='2%2c 8' stroke-dashoffset='3' stroke-linecap='round'/%3e%3c/svg%3e");
+	margin-left: -100px;
+	margin-top: -100px;
+	pointer-events: none !important;
+}
+
+#rotate-circle > .dot {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	border: 1px solid white;
+	background-color: #000;
+	margin-top: -10px;
+	margin-left: 88px;
+	pointer-events: all !important;
+	cursor: pointer;
+	transform-origin: 11px 109px;
+}
+
+#rotate-circle > .dot:after {
+	content: '';
+	position: absolute;
+	top: 20px;
+	left: 9px;
+	width: 0;
+	height: 85px;
+	border-left: 2px dotted white;
+}
+
+#pw-map-canvas, #pw-overlay, #pw-windows {
 	position: absolute;
 	width: 100vw;
 	height: calc(100vh - 50px);
@@ -61,6 +102,7 @@
 #pw-map {
 	position: absolute;
 	transform-origin: 0 0;
+	user-select: none;
 }
 
 #pw-map-canvas > .dyn-canvas {
@@ -99,12 +141,19 @@
 }
 
 
+#pw-overlay,
 #pw-windows {
 	pointer-events: none;
 }
 
+#pw-overlay > *,
 #pw-windows > * {
 	pointer-events: all;
+}
+
+#pw-windows.force-map-focus > *:not(.unforce-map-focus) {
+	opacity: 0.2;
+	pointer-events: none;
 }
 
 #pw-map-canvas {
@@ -151,6 +200,7 @@
 	font-weight: bold;
 	text-align: center;
 	line-height: 34px;
+	white-space: pre;
 }
 
 #changed-objects {

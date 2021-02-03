@@ -200,8 +200,8 @@ class Window {
 
 			const win = Window.resized_win;
 			const offset = win.resizeOffset;
-			let w = Math.max(250, Math.min(Window.bounds.width, (mousex - offset.x)));
-			let h = Math.max(250, Math.min(Window.bounds.height, (mousey - offset.y)));
+			let w = Math.max(win.min_height || 250, Math.min(Window.bounds.width, (mousex - offset.x)));
+			let h = Math.max(win.min_height || 250, Math.min(Window.bounds.height, (mousey - offset.y)));
 
 			win.dom_win.style.width = w + 'px';
 			win.dom_win.style.height = h + 'px';
@@ -240,6 +240,7 @@ class Window {
 			}
 
 			e.preventDefault();
+			this.min_height = parseInt(this.dom_win.style.minHeight || 0);
 			Window.resized_win = this;
 			const height = (this.dom_header?.offsetHeight || 0) + this.dom_content.offsetHeight - 2;
 			Window.resized_win.resizeOffset.x = e.clientX - bounds.width - Window.bounds.left;

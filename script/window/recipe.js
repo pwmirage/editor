@@ -10,7 +10,7 @@ class RecipeWindow extends Window {
 		await g_recipe_tpl;
 		this.recipe = this.args.recipe;
 		this.embedded = this.args.embedded;
-		if (!this.args.debug && g_open_recipes.has(this.recipe)) return false;
+		//if (!this.args.debug && g_open_recipes.has(this.recipe)) return false;
 		g_open_recipes.add(this.recipe);
 
 		const shadow = this.dom.shadowRoot;

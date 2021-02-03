@@ -83,9 +83,97 @@
 @@}
 </script>
 
+<script id="tpl-spawner-rotation" type="text/x-dot-template">
+
+<div class="window resizable" style="width: 432px; min-height: 100px; height: 170px;">
+<div class="header">
+	<span>
+		<span>Change rotation of spawner <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span></span>
+	</span>
+	<div class="menu">
+		<i class="minimize fa"></i>
+		<i class="close fa fa-close"></i>
+	</div>
+</div>
+<div class="content flex-rows">
+	<div class="flex-columns preview" style="align-items: center; margin-bottom: 2px;">
+		<span>Previous Dir:</span>
+		<span style="flex: 1;">{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000}</span>
+	</div>
+	<div class="flex-columns pos-input" style="align-items: center; margin-bottom: 8px;">
+		<span>Dir (radians):</span>
+
+		<input id="input" type="number" style="flex: 1;" value="{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000}">
+	</div>
+	<div style="display: flex; margin-right: 10px; column-gap: 8px;">
+		<div style="flex: 1"></div>
+		<a class="button" onclick="{serialize $win}.close()">Return</a>
+	</div>
+</div>
+</div>
+
+{@@
+<style>
+.preview > * {
+	display: inline-block;
+}
+</style>
+@@}
+</script>
+
+
+<script id="tpl-spawner-position" type="text/x-dot-template">
+
+<div class="window resizable" style="width: 432px; min-height: 100px; height: 170px;">
+<div class="header">
+	<span>
+		<span>Change position of spawner <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span></span>
+	</span>
+	<div class="menu">
+		<i class="minimize fa"></i>
+		<i class="close fa fa-close"></i>
+	</div>
+</div>
+<div class="content flex-rows">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
+		<span style="visibility: hidden;">Previous Pos:</span>
+		<span style="flex: 1;">X:</span>
+		<span style="flex: 1;">Y:</span>
+		<span style="flex: 1;">Z:</span>
+	</div>
+	<div class="flex-columns preview" style="align-items: center; margin-bottom: 2px;">
+		<span>Previous Pos:</span>
+		<span data-preview data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 0" data-placeholder="(0)"></span>
+		<span data-preview data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 1" data-placeholder="(auto)"></span>
+		<span data-preview data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 2" data-placeholder="(0)"></span>
+	</div>
+	<div class="flex-columns pos-input" style="align-items: center; margin-bottom: 8px;">
+		<span style="margin-left: 30px;">Position:</span>
+
+		<span data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 0" data-placeholder="(0)"></span>
+		<span data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 1" data-placeholder="(auto)"></span>
+		<span data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 2" data-placeholder="(0)"></span>
+	</div>
+	<div style="display: flex; margin-right: 10px; column-gap: 8px;">
+		<div style="flex: 1"></div>
+		<a class="button" onclick="{serialize $win}.close()">Return</a>
+	</div>
+</div>
+</div>
+
+{@@
+<style>
+.preview > * {
+	display: inline-block;
+}
+</style>
+@@}
+</script>
+
+
 <script id="tpl-spawner" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 305px;">
+<div class="window resizable" style="width: 340px;">
 <div class="header {if $spawner._removed}removed{/if}">
 	<span>
 		<span class="name">
@@ -110,13 +198,13 @@
 		<span data-input style="flex: 1;" data-link="{serialize $spawner} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns flex-all" style="align-items: center;">
-		<a class="button" style="visibility:hidden; max-height: 0;" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">Pos:</a>
+		<a class="button" style="visibility:hidden; max-height: 0;" onclick="">Pos:</a>
 		<span>X:</span>
 		<span>Y:</span>
 		<span>Z:</span>
 	</div>
-	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
-		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">Pos:</a>
+	<div id="position" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
+		<a class="button" onclick="SpawnerPositionWindow.open(\{ spawner: {serialize $spawner} \}).then((win) => \{ win.onclose = () => {serialize $win}.tpl.reload('#position'); \});">Pos:</a>
 		<span>{@Math.floor($spawner.pos[0] * 100) / 100}</span>
 		<span>{assign ypos = Math.floor($spawner.pos[1] * 100) / 100}{@$ypos}
 			 {if $ypos == 0}&nbsp; (auto){/if}</span>
@@ -127,6 +215,12 @@
 		<span>{@Math.floor($spawner.spread[0] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
+	</div>
+	<div id="rotation" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
+		<a class="button" onclick="SpawnerRotationWindow.open(\{ spawner: {serialize $spawner} \}).then((win) => \{ win.onclose = () => {serialize $win}.tpl.reload('#rotation'); \});">Direction:</a>
+		<span style="white-space: pre;">{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000} rad</span>
+		<span></span>
+		<span></span>
 	</div>
 	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}

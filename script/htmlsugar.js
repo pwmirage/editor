@@ -332,7 +332,7 @@ class HTMLSugar {
 			}
 
 			el.checked = !!val;
-			if (el.type == 'number' || (el.nodeName != 'INPUT' && el.classList.contains('input-number'))) {
+			if (el.type == 'number' || (el.nodeName != 'INPUT' && (el.classList.contains('input-number') || is_float))) {
 				if (is_float) {
 					el.value = (Math.round((val || 0) * 1000) / 1000);
 				} else {
