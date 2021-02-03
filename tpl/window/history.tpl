@@ -33,7 +33,7 @@
 					{if $project?.pid || $project?.edit_time}
 						<div>Project {if $project.pid}#{@$project.pid}{/if} {if $project.edit_time}{@(new Date($project.edit_time * 1000)).toLocaleString()}{/if}</div>
 					{else}
-						<div>New generation</div>
+						{* <div>New generation</div> *}
 					{/if}
 				{/if}
 				{if $type == 'npc_sells'}
@@ -46,16 +46,16 @@
 							<div class="block">
 								{assign prev = $win.find_previous(diff, (d) => d._name)}
 								<span class="header">Name</span>
-								<span class="minus">{@$prev._name}</span>
-								<span class="plus">{@$diff._name}</span>
+								<span class="minus">{@$prev._name || '(unnamed)'}</span>
+								<span class="plus">{@$diff._name || '(unnamed)'}</span>
 							</div>
 						{/if}
 						{if $diff.name}
 							<div class="block">
 								{assign prev = $win.find_previous(diff, (d) => d.name)}
 								<span class="header">NPC Option</span>
-								<span class="minus">{@$prev.name}</span>
-								<span class="plus">{@$diff.name}</span>
+								<span class="minus">{@$prev.name || '(unnamed)'}</span>
+								<span class="plus">{@$diff.name || '(unnamed)'}</span>
 							</div>
 						{/if}
 						{for i = 0; i < 8; i++}
@@ -115,16 +115,16 @@
 							<div class="block">
 								{assign prev = $win.find_previous(diff, (d) => d._name)}
 								<span class="header">Name</span>
-								<span class="minus">{@$prev._name}</span>
-								<span class="plus">{@$diff._name}</span>
+								<span class="minus">{@$prev._name || '(unnamed)'}</span>
+								<span class="plus">{@$diff._name || '(unnamed)'}</span>
 							</div>
 						{/if}
 						{if $diff.name}
 							<div class="block">
 								{assign prev = $win.find_previous(diff, (d) => d.name)}
 								<span class="header">NPC Option</span>
-								<span class="minus">{@$prev.name}</span>
-								<span class="plus">{@$diff.name}</span>
+								<span class="minus">{@$prev.name || '(unnamed)'}</span>
+								<span class="plus">{@$diff.name || '(unnamed)'}</span>
 							</div>
 						{/if}
 						{for i = 0; i < 8; i++}
@@ -187,8 +187,8 @@
 							<div class="block">
 								{assign prev = $win.find_previous(diff, (d) => d.name)}
 								<span class="header">Name</span>
-								<span class="minus">{@$prev.name}</span>
-								<span class="plus">{@$diff.name}</span>
+								<span class="minus">{@$prev.name || '(unnamed)'}</span>
+								<span class="plus">{@$diff.name || '(unnamed)'}</span>
 							</div>
 						{/if}
 
@@ -196,7 +196,7 @@
 							<div class="block">
 								{assign prev = []}
 								{for i = 0; i < 3; i++}
-									{$prev[$i] = $win.find_previous(diff, (d) => d.pos[$i]).pos?.[$i]}
+									{$prev[$i] = $win.find_previous(diff, (d) => d.pos?.[$i]).pos?.[$i]}
 								{/for}
 
 								<table style="width: 300px;">
@@ -216,6 +216,16 @@
 										{/for}
 									</tr>
 								</table>
+							</div>
+						{/if}
+
+						{if $diff.dir}
+							<div class="block">
+								{* assume one dir can't be changed without the other *}
+								{assign prev = $win.find_previous(diff, (d) => d.dir)}
+								<span class="header">Direction</span>
+								<span class="minus">{@Math.round(Math.atan2($prev.dir[2], $prev.dir[0]) * 10000) / 10000}</span>
+								<span class="plus">{@Math.round(Math.atan2($diff.dir[2], $diff.dir[0]) * 10000) / 10000}</span>
 							</div>
 						{/if}
 
@@ -240,8 +250,8 @@
 						{/for}
 					</div>
 					</div>
-				{else}
-					<span>{@$diff._db.obj._db.type}</span>
+				{else if $type != 'metadata'}
+					<span>{@$type}</span>
 				{/if}
 			{/for}{/for}
 		</div>

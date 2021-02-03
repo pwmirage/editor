@@ -132,9 +132,10 @@ class HistoryWindow extends Window {
 		const obj = diff._db.obj;
 		const changelog = obj._db.changesets;
 
+
 		for (let i = changelog.length - 1; i > 0; i--) {
 			const d = changelog[i];
-			if (d.generation < diff._db.generation && fn(d)) {
+			if (d._db.generation < diff._db.generation && fn(d)) {
 				return d;
 			}
 		}
@@ -149,7 +150,7 @@ class HistoryWindow extends Window {
 
 		for (let i = changelog.length - 1; i > 0; i--) {
 			const d = changelog[i];
-			if (d.generation < diff._db.generation && fn(d)) {
+			if (d._db.generation < diff._db.generation && fn(d)) {
 				ret.push(d);
 			}
 		}
