@@ -190,12 +190,7 @@ class PWMap {
 					}
 
 					const type = spawner.groups?.[0]?.type;
-					let obj;
-					if (spawner._db.type.startsWith('spawners_')) {
-						obj = db.npcs[type] || db.monsters[type];
-					} else {
-						obj = db.mines[type];
-					}
+					const obj = db.npcs[type] || db.monsters[type] ||  db.mines[type];
 					const name = spawner.name || obj?.name;
 
 					const div = document.createElement('div');
@@ -624,12 +619,7 @@ class PWMap {
 				let idx = 1;
 				const get_name = (spawner) => {
 					const type = spawner.groups?.[0]?.type;
-					let obj;
-					if (spawner._db.type.startsWith('spawners_')) {
-						obj = db.npcs[type] || db.monsters[type];
-					} else {
-						obj = db.mines[type];
-					}
+					const obj = db.npcs[type] || db.monsters[type] || db.mines[type];
 					return (spawner.name || obj?.name) + ' ' + serialize_db_id(spawner.id);
 				};
 				const entries = spawners.map(s => ({ name: get_name(s), id: idx++ }));

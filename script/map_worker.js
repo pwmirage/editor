@@ -85,13 +85,15 @@ self.onmessage = async (e) => {
 			const obj = e.data.obj;
 			let arr = null;
 			if (obj._db.type.startsWith('spawners_')) {
-				if (obj.type == 'resource') {
+				if (obj._db.type == 'resource') {
 					arr = g_objs.resources;
+				} else if (obj._db.type == 'monsters') {
+					arr = g_objs.monsters;
 				} else {
 					arr = g_objs.spawners;
 				}
-			} else if (obj._db.type == 'monsters') {
-				arr = g_objs.monsters;
+			} else {
+				break;
 			}
 
 			arr.set(obj.id, obj);
