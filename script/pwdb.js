@@ -51,14 +51,113 @@ class PWDB {
 		save_fn2();
 	}
 
+	static init() {
+		PWDB.g_db_promises = {};
+		PWDB.has_unsaved_changes = false;
+		/* which idx from db.changelog[] points to the first change directly from this project
+		 * (and not its dependencies) */
+		PWDB.tag_categories = {};
+		PWDB.tags = {};
+
+		PWDB.type_fields = {};
+		PWDB.type_names = {};
+		const init_type_arr = (type, typename, arr) => {
+			const fields = PWDB.type_fields[type] = {};
+			PWDB.type_names[type] = typename;
+
+			for (const fobj of arr) {
+				const id = fobj[0];
+				const name = fobj[1];
+				const linked_map_fn = fobj[2];
+
+				fields[id] = { id, name, linked_map_fn };
+			}
+		}
+
+		init_type_arr('spawners_', 'Spawner', [
+			[ 'name', 'Name', ],
+			[ 'auto_respawn', 'Auto Respawn', ],
+			[ 'auto_spawn', 'Auto Spawn', ],
+			[ 'lifetime', 'Time till despawn', ],
+			[ 'max_num', 'Max groups num', ],
+			[ 'mob_type', 'Boss type' ],
+			[ 'trigger', 'Trigger', /* TODO */ ],
+		]);
+
+		init_type_arr('npcs', 'NPC', [
+			[ 'name', 'Name', ],
+			[ 'file_model', 'Model' ],
+			[ 'greeting', 'Greeting' ],
+			[ 'base_monster_id', 'Base Monster', (db) => db.monsters ],
+			[ 'combined_services', 'Other services' ],
+			[ 'id_buy_service', 'Buy service' ],
+			[ 'id_decompose_service', 'Decompose service' ],
+			[ 'id_install_service', 'Install service' ],
+			[ 'id_make_service', 'Crafts' ],
+			[ 'id_repair_service', 'Repair service' ],
+			[ 'id_sell_service', 'Goods' ],
+			[ 'id_task_in_service', 'Task in ID' ],
+			[ 'id_task_out_service', 'Task out ID' ],
+			[ 'id_type', 'NPC Type' ],
+			[ 'id_uninstall_service', 'Uninstall type' ],
+		]);
+
+		init_type_arr('recipes', 'Recipe', [
+			[ 'name', 'Name', ],
+			[ 'duration', 'Craft time' ],
+			[ 'major_type', 'Major type' ],
+			[ 'minor_type', 'Minor type' ],
+			[ 'name', 'Name' ],
+			[ 'num_to_make', 'Crafted item count' ],
+			[ 'recipe_level', 'Recipe level' ],
+			[ 'skill_id', 'Req. Crafting Skill', () => RecipeTooltip.craft_types ],
+			[ 'skill_level', 'Req. Crafting Skill Level' ],
+			[ 'xp', 'XP' ],
+			[ 'sp', 'SP' ],
+		]);
+
+		init_type_arr('npc_sells', 'Goods', [
+			[ 'name', 'Name' ],
+			[ 'option', 'NPC Option' ],
+		]);
+
+		init_type_arr('npc_crafts', 'Crafts', [
+			[ 'name', 'Name' ],
+			[ 'option', 'NPC Option' ],
+		]);
+
+		init_type_arr('mines', 'Resources', [
+			[ 'exp', 'XP' ],
+			[ 'file_model', 'Model' ],
+			[ 'id_type', 'Type' /* TODO db.mine_type */ ],
+			[ 'item_required', 'Item required', (db) => db.items ],
+			[ 'level', 'Lv.' ],
+			[ 'level_required', 'Req. Lv.' ],
+			[ 'name', 'Name' ],
+			[ 'sp', 'SP' ],
+			[ 'time_max', 'Max pick time' ],
+			[ 'time_min', 'Min pick time' ],
+		]);
+
+	}
+
+	static get_type_fields(type) {
+		if (type.startsWith('spawners_')) {
+			type = 'spawners_';
+		}
+		return PWDB.type_fields[type];
+	}
+
+	static get_type_name(type) {
+		if (type.startsWith('spawners_')) {
+			type = 'spawners_';
+		}
+		return PWDB.type_names[type];
+	}
+
 	static async new_db(args) {
 		if (!PWDB.g_db_promises) {
-			PWDB.g_db_promises = {};
-			PWDB.has_unsaved_changes = false;
-			/* which idx from db.changelog[] points to the first change directly from this project
-			 * (and not its dependencies) */
-			PWDB.tag_categories = {};
-			PWDB.tags = {};
+			PWDB.init();
 		}
 
 		if (!args) {

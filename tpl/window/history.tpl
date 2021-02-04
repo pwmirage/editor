@@ -36,28 +36,35 @@
 						{* <div>New generation</div> *}
 					{/if}
 				{/if}
-				{if $type == 'npc_sells'}
-					<div>
+				{assign generic_fields = PWDB.get_type_fields($type) || \{\} }
+				{if $type == 'metadata'}{continue}{/if}
+
+				<div>
 					<div class="collapsible" onclick="{serialize $win}.collapse(this);">
-						<span>Goods: {@$obj._name || $obj.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
+						{if $type.startsWith('spawners_')}
+							{assign spawned_id = $obj.groups?.[0]?.type || 0}
+							{assign typename = $obj.type == 'npc' ? 'NPC' : ($obj.type == 'resource' ? 'Resource' : 'Monster')}
+							{assign spawned = db.npcs[$spawned_id] || db.monsters[$spawned_id] || db.mines[$spawned_id]}
+							<span>{@$typename} Spawner: {@$obj.name || $spawned.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
+						{else}
+							<span>{@PWDB.get_type_name($obj._db.type)}: {@$obj.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
+						{/if}
 					</div>
 					<div>
-						{if $diff._name}
-							<div class="block">
-								{assign prev = $win.find_previous(diff, (d) => d._name)}
-								<span class="header">Name</span>
-								<span class="minus">{@$prev._name || '(unnamed)'}</span>
-								<span class="plus">{@$diff._name || '(unnamed)'}</span>
-							</div>
-						{/if}
-						{if $diff.name}
-							<div class="block">
-								{assign prev = $win.find_previous(diff, (d) => d.name)}
-								<span class="header">NPC Option</span>
-								<span class="minus">{@$prev.name || '(unnamed)'}</span>
-								<span class="plus">{@$diff.name || '(unnamed)'}</span>
-							</div>
-						{/if}
+
+					{for fname in $diff}
+						{assign f = $generic_fields[$fname]}
+						{if !$f}{continue}{/if}
+
+						<div class="block">
+							{assign prev = $win.find_previous(diff, (d) => d[$fname])}
+							<span class="header">{@$f.name}</span>
+							<span class="minus">{@$prev.name || '(unnamed)'}</span>
+							<span class="plus">{@$diff[$fname] || '(unnamed)'}</span>
+						</div>
+					{/for}
+
+					{if $type == 'npc_sells'}
 						{for i = 0; i < 8; i++}
 							{if !$diff.pages}{break}{/if}
 							{if !$diff.pages[$i]}{continue}{/if}
@@ -103,30 +110,7 @@
 								{/for}
 							</div>
 						{/for}
-					</div>
-					</div>
-				{else if $type == 'npc_crafts'}
-					<div>
-					<div class="collapsible" onclick="{serialize $win}.collapse(this);">
-						<span>Crafts: {@$obj._name || $obj.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
-					</div>
-					<div>
-						{if $diff._name}
-							<div class="block">
-								{assign prev = $win.find_previous(diff, (d) => d._name)}
-								<span class="header">Name</span>
-								<span class="minus">{@$prev._name || '(unnamed)'}</span>
-								<span class="plus">{@$diff._name || '(unnamed)'}</span>
-							</div>
-						{/if}
-						{if $diff.name}
-							<div class="block">
-								{assign prev = $win.find_previous(diff, (d) => d.name)}
-								<span class="header">NPC Option</span>
-								<span class="minus">{@$prev.name || '(unnamed)'}</span>
-								<span class="plus">{@$diff.name || '(unnamed)'}</span>
-							</div>
-						{/if}
+					{else if $type == 'npc_crafts'}
 						{for i = 0; i < 8; i++}
 							{if !$diff.pages}{break}{/if}
 							{if !$diff.pages[$i]}{continue}{/if}
@@ -172,26 +156,7 @@
 								{/for}
 							</div>
 						{/for}
-					</div>
-					</div>
-				{else if $type.startsWith('spawners_')}
-					<div>
-					<div class="collapsible" onclick="{serialize $win}.collapse(this);">
-						{assign spawned_id = $obj.groups?.[0]?.type || 0}
-						{assign typename = $obj.type == 'npc' ? 'NPC' : ($obj.type == 'resource' ? 'Resource' : 'Monster')}
-						{assign spawned = db.npcs[$spawned_id] || db.monsters[$spawned_id] || db.mines[$spawned_id]}
-						<span>{@$typename} Spawner: {@$obj.name || $spawned.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
-					</div>
-					<div>
-						{if $diff.name}
-							<div class="block">
-								{assign prev = $win.find_previous(diff, (d) => d.name)}
-								<span class="header">Name</span>
-								<span class="minus">{@$prev.name || '(unnamed)'}</span>
-								<span class="plus">{@$diff.name || '(unnamed)'}</span>
-							</div>
-						{/if}
-
+					{else if $type.startsWith('spawners_')}
 						{if $diff.pos && ($diff.pos[0] || $diff.pos[1] || $diff.pos[2])}
 							<div class="block">
 								{assign prev = []}
@@ -248,11 +213,11 @@
 								{/if}
 							</div>
 						{/for}
-					</div>
-					</div>
-				{else if $type != 'metadata'}
+				{else}
 					<span>{@$type}</span>
 				{/if}
+				</div>
+				</div>
 			{/for}{/for}
 		</div>
 		<div id="changes" class="changes"></div>
