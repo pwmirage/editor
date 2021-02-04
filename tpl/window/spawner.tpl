@@ -17,6 +17,15 @@
 			<div style="flex: 1"></div>
 			{if $spawner.type == 'monster'}
 				<label><input type="checkbox" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'aggro'" class="checkbox"><span>Is Aggressive</span></label>
+			{else if $spawner.type == 'resource'}
+				<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
+					<span>Respawn time (sec):</span>
+					<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'respawn_time_sec'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
+				</div>
+				<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
+					<span>Y pos offset</span>
+					<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'height_offset'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
+				</div>
 			{/if}
 		</div>
 	{/if}
@@ -216,12 +225,14 @@
 		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
-	<div id="rotation" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
-		<a class="button" onclick="SpawnerRotationWindow.open(\{ spawner: {serialize $spawner} \}).then((win) => \{ win.onclose = () => {serialize $win}.tpl.reload('#rotation'); \});">Direction:</a>
-		<span style="white-space: pre;">{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000} rad</span>
-		<span></span>
-		<span></span>
-	</div>
+	{if $spawner.type != 'resource'}
+		<div id="rotation" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
+			<a class="button" onclick="SpawnerRotationWindow.open(\{ spawner: {serialize $spawner} \}).then((win) => \{ win.onclose = () => {serialize $win}.tpl.reload('#rotation'); \});">Direction:</a>
+			<span style="white-space: pre;">{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000} rad</span>
+			<span></span>
+			<span></span>
+		</div>
+	{/if}
 	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
 		{assign idx = 0}
 		{foreach group of ($spawner.groups || [])}
