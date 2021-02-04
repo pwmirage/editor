@@ -273,7 +273,7 @@ span.tabname.selected {
 		<div>
 			<span style="margin-right: 8px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'sells');" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" ) }</a>
+			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'sells');" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" }</a>
 		</div>
 		<div>
 			<span style="margin-right: 8px;">Craft:</span>
