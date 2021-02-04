@@ -2,7 +2,7 @@
 <div class="window" style="width: 316px;">
 <div class="header">
 	<span>
-		Crafts: {@$crafts._name || ""} #{@$crafts.id}
+		Crafts: {@$crafts.name || ""} #{@$crafts.id}
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -13,11 +13,11 @@
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 75px;">Name</span>
-		<span data-input style="flex: 1;" data-link="{serialize $crafts} => '_name'" data-placeholder="(unnamed)"></span>
+		<span data-input style="flex: 1;" data-link="{serialize $crafts} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 75px;">NPC option</span>
-		<span data-input style="flex: 1;" data-link="{serialize $crafts} => 'name'" data-placeholder="(unnamed)"></span>
+		<span data-input style="flex: 1;" data-link="{serialize $crafts} => 'option'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 75px;">Shown skill</span>
@@ -136,7 +136,7 @@ span.tabname.selected {
 <div class="window" style="width: 316px; height: 400px;">
 <div class="header">
 	<span>
-		Goods: {@$goods._name || ""} #{@$goods.id}
+		Goods: {@$goods.name || ""} #{@$goods.id}
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -147,11 +147,11 @@ span.tabname.selected {
 <div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name</span>
-		<span data-input style="flex: 1;" data-link="{serialize $goods} => '_name'" data-placeholder="(unnamed)"></span>
+		<span data-input style="flex: 1;" data-link="{serialize $goods} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">NPC option</span>
-		<span data-input style="flex: 1;" data-link="{serialize $goods} => 'name'" data-placeholder="(unnamed)"></span>
+		<span data-input style="flex: 1;" data-link="{serialize $goods} => 'option'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
 	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
@@ -273,12 +273,12 @@ span.tabname.selected {
 		<div>
 			<span style="margin-right: 8px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'sells');" style="text-align: center;">{@ $sells?._name ?? ($sells ? ($sells.name || "(unnamed)") : "(none)" ) }</a>
+			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'sells');" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" ) }</a>
 		</div>
 		<div>
 			<span style="margin-right: 8px;">Craft:</span>
 			{assign crafts = db.npc_crafts[$npc.id_make_service];}
-			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'crafts');" style="text-align: center;">{@ $crafts?._name ?? ($crafts ? ($crafts.name || "(unnamed)") : "(none)" ) }</a>
+			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'crafts');" style="text-align: center;">{@ $crafts ? ($crafts.name || "(unnamed)") : "(none)" }</a>
 		</div>
 	</div>
 	<div>Greeting:</div>
