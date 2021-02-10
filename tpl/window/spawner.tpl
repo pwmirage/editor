@@ -18,31 +18,32 @@
 			{if $spawner.type == 'monster'}
 				<label><input type="checkbox" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'aggro'" class="checkbox"><span>Is Aggressive</span></label>
 			{else if $spawner.type == 'resource'}
-				<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
-					<span>Respawn time (sec):</span>
-					<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'respawn_time_sec'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
-				</div>
-				<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
-					<span>Y pos offset</span>
-					<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'height_offset'" style="width: 20px; margin-bottom: 4px" placeholder="0" size="1">
-				</div>
+				<span>Y offset</span>
+				<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'height_offset'" style="width: 30px; margin-bottom: 4px" placeholder="0" size="1">
 			{/if}
 		</div>
 	{/if}
 
-	<div class="flex-columns" style="align-items: center; margin-bottom: 4px;">
-		<span>Path:</span>
-		<a class="button no-break flex-columns" style="flex: 1;" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">
-			<span style="flex: 1;">
-				{if $group.path_id}
-					(unnamed) #{@$group.path_id}
-				{else}
-					(none)
-				{/if}
-			</span>
-			<i class="fa fa-angle-right"></i>
-		</a>
-	</div>
+	{if $spawner.type == 'resource'}
+		<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
+			<span>Respawn time (sec):</span>
+			<input type="number" data-link="{serialize $spawner} => 'groups', {@$group_idx}, 'respawn_time_sec'" style="width: 40px; margin-bottom: 4px" placeholder="0" size="1">
+		</div>
+	{else}
+		<div class="flex-columns" style="align-items: center; margin-bottom: 4px;">
+			<span>Path:</span>
+			<a class="button no-break flex-columns" style="flex: 1;" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">
+				<span style="flex: 1;">
+					{if $group.path_id}
+						(unnamed) #{@$group.path_id}
+					{else}
+						(none)
+					{/if}
+				</span>
+				<i class="fa fa-angle-right"></i>
+			</a>
+		</div>
+	{/if}
 
 	{if $spawner.type == 'monster'}
 		<div class="flex-columns flex-all" style="align-items: center;">
