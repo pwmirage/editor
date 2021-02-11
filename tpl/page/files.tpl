@@ -48,7 +48,8 @@
 }
 
 .mgContent textarea {
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: visible;
 	min-height: 200px;
 	min-width: 95%;
 	max-width: 95%;
