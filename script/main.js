@@ -7,9 +7,14 @@ const g_db = {};
 const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
 let MG_VERSION = '0';
+let MG_UNSUPPORTED = false;
 
-/* needs to be in / to fetch requests from origin /, .htaccess to the rescue */
-navigator.serviceWorker.register('/service-worker.js');
+try {
+	/* needs to be in / to fetch requests from origin /, .htaccess to the rescue */
+	navigator.serviceWorker.register('/service-worker.js');
+} catch (e) {
+	console.error(e);
+}
 
 const mg_init = async () => {
 	/* check authentication first */
@@ -20,12 +25,17 @@ const mg_init = async () => {
 		}),
 	]);
 
-	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION)
-	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
-	await load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION),
-	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
+	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION);
 
-	await PWPreview.load_promise;
+	try {
+		eval("document?.window ?? true");
+		await PWPreview.load_promise;
+	} catch (e) {
+		MG_UNSUPPORTED = true;
+	}
 };
 
 const load_script = (src) => {
@@ -56,14 +66,21 @@ const load_tpl = async (src) => {
 let g_mg_editor_open = false;
 const mg_open_editor = async (args) => {
 	if (g_mg_editor_open) return;
+
 	g_mg_editor_open = true;
 
 	try {
 		await g_mg_loaded;
+
+		if (MG_UNSUPPORTED) {
+			confirm('Unknown error occured. Is your browser too old?', '<div style="margin-top: 16px;">Click either button to dismiss this dialogue.</div>');
+			return;
+		}
+
 		try {
 			Window.close_all();
 		} catch (e) {}
-		await Loading.show_curtain(args.no_animation ?? false);
+		await Loading.show_curtain(args.no_animation || false);
 
 		if (typeof(Editor) === 'undefined') {
 			await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
