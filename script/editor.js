@@ -163,6 +163,10 @@ class Editor {
 	}
 
 	static close() {
+		const page_main = document.querySelector('#main');
+		if (page_main) {
+			page_main.style.display = '';
+		}
 		document.body.classList.remove('mge-fullscreen');
 	}
 
