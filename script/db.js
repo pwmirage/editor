@@ -611,6 +611,16 @@ class DB {
 		}
 	}
 
+	static cmp(a, b) {
+		if (typeof(a) !== 'object' || typeof(b) !== 'object') {
+			a = a || 0;
+			b = b || 0;
+			return a != b ? 1 : 0;
+		}
+
+		return DB.is_obj_diff(a, b);
+	}
+
 	static is_obj_diff(obj, org) {
 		for (const f in obj) {
 			if (f === '_db') continue;

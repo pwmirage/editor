@@ -55,11 +55,13 @@
 					{for fname in $diff}
 						{assign f = $generic_fields[$fname]}
 						{if !$f}{continue}{/if}
+						{assign prev = $win.find_previous(diff, (d) => d[$fname])}
+						{* there might be no diff in the end (happens sometimes) *}
+						{if DB.cmp($diff[$fname], $prev[$fname]) == 0}{continue}{/if}
 
 						<div class="block">
-							{assign prev = $win.find_previous(diff, (d) => d[$fname])}
 							<span class="header">{@$f.name}</span>
-							<span class="minus">{@$prev.name || '(unnamed)'}</span>
+							<span class="minus">{@$prev[$fname] || '(unnamed)'}</span>
 							<span class="plus">{@$diff[$fname] || '(unnamed)'}</span>
 						</div>
 					{/for}
@@ -323,6 +325,7 @@
 table {
 	width: fit-content;
 	table-layout: fixed;
+	font-size: 13px;
 }
 
 .crafts,
