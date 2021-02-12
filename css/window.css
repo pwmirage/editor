@@ -54,6 +54,10 @@
 	cursor: nwse-resize;
 }
 
+table {
+	font-size: 14px;
+}
+
 .window > .header {
 	position: relative;
 	background-color: var(--header-color);
