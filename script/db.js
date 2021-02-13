@@ -319,7 +319,7 @@ class DB {
 					for (const f in obj) {
 						if (f === '_db') continue;
 						if (typeof(obj[f]) === 'object') {
-							if (diff_and_clean(obj[f], org[f])) {
+							if (diff_and_clean(obj[f], org ? org[f] : undefined)) {
 								is_diff = true;
 							} else {
 								obj[f] = undefined;
