@@ -243,7 +243,7 @@ class NPCGoodsWindow extends Window {
 		const item_idx = parseInt(this.hover_el.dataset.idx);
 
 		(async () => {
-			if (e.which == 1) {
+			if (e.which == 1 || e.which == 3) {
 				const itemid = page?.item_id ? page.item_id[item_idx] : 0;
 				const obj = db.items[itemid];
 				const coords = Window.get_el_coords(this.hover_el);
@@ -277,7 +277,10 @@ class NPCGoodsWindow extends Window {
 					},
 					usage_name_fn: (item) => {
 						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
-					}
+					},
+					undo_obj: this.goods,
+					undo_path: [ 'pages', this.selected_tab, 'item_id', item_idx ],
+					undo_fn: () => this.tpl.reload('#items'),
 				});
 				
 
