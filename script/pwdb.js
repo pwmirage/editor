@@ -367,6 +367,9 @@ class PWDB {
 
 		const get_val = (o) => {
 			for (const p of path) {
+				if (typeof(o) !== 'object') {
+					return undefined;
+				}
 				if (!(p in o)) {
 					return undefined;
 				}
@@ -378,29 +381,47 @@ class PWDB {
 		const set_val = (o, val) => {
 			for (let p_idx = 0; p_idx < path.length - 1; p_idx++) {
 				const p = path[p_idx];
-				if (!(p in o)) {
-					Loading.show_error_tag('Trying to undo a field which doesn\'t exist now');
-					return;
+					;
+				}
+				if (!(p in o) || typeof(o) !== 'object') {
+					o[p] = {};
 				}
 				o = o[p];
 			}
 			const f = path[path.length - 1];
-			o[f] = val;
+			if (typeof(o[f]) === 'object') {
+				DB.apply_diff(o[f], val);
+			} else {
+				o[f] = val;
+			}
 		};
 
-		let prev_val;
-		for (let i = obj._db.changesets.length - 2; i >= 0; i--) {
+		/* find the changeset with this field (it might not be the last one) */
+		let cur_gen = 0;
+		for (let i = obj._db.changesets.length - 1; i > db.project_changelog_start_gen; i--) {
 			const c = obj._db.changesets[i];
 
-			if (c._db.undone) {
+			const prev_val = get_val(c);
+			if (prev_val === undefined) {
+				/* no change in this changeset, continue looking */
+				continue;
+			}
+
+			cur_gen = i;
+		}
+
+		/* find an even earlier changeset to undo to */
+		let prev_val;
+		for (let i = cur_gen - 1; i >= db.project_changelog_start_gen; i--) {
+			const c = obj._db.changesets[i];
+
+			if (get_val(c._db.undone)) {
 				continue;
 			}
 
 			const prev_val = get_val(c);
-			if (prev_val == undefined && i > 0) {
+			if (prev_val === undefined && i > db.project_changelog_start_gen) {
 				/* no change in this changeset, continue looking */
-				/* TODO don't undo changes from other projects */
-				/* maybe save project id in changesets? */
 				continue;
 			}
 
@@ -409,14 +430,17 @@ class PWDB {
 			set_val(obj, prev_val);
 			db.commit(obj);
 
-			/* mark all subsequent changes as non undo-able, otherwise
-			 * undo will just always make a cycle */
-			for (let j = Math.max(1, i); j < obj._db.changesets.length - 1; j++) {
-				const c = obj._db.changesets[j];
-				c._db.undone = true;
+			if (obj._db.changesets?.length) {
+				/* mark all subsequent changes as non undo-able, otherwise
+				 * undo will just always make a cycle */
+				for (let j = Math.max(1, i); j < obj._db.changesets.length - 1; j++) {
+					const c = obj._db.changesets[j];
+					if (!c._db.undone) {
+						c._db.undone = {};
+					}
+					set_val(c._db.undone, true);
+				}
 			}
-
-			db.new_generation();
 			break;
 		}
 
