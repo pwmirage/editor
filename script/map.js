@@ -303,55 +303,25 @@ class PWMap {
 		};
 
 		const changed_objects_map = new Map();
-		const set_modified_obj = (obj) => {
+		const set_modified_obj = (obj, diff) => {
 			if (obj._db.type == 'metadata') {
 				return;
 			}
 
-			if (!this.modified_db_objs.has(obj)) {
+			const was_modified = this.modified_db_objs.has(obj);
+			if (diff.name && was_modified) {
+				const mod_el = changed_objects_map.get(obj)
+				mod_el.children[1].textContent =
+					(obj.name || mod_el.dataset.type_name) + ' ' + serialize_db_id(obj.id);
+			}
+
+
+			if (!was_modified) {
 				const el = document.createElement('div');
 				const img = document.createElement('img');
 				const span = document.createElement('span');
 
-				let name = obj._db.type;
-				let open_fn = () => {};
-				switch (obj._db.type) {
-					case 'npcs':
-						name = 'NPC';
-						open_fn = () => NPCWindow.open({ npc: obj });
-						break;
-					case 'monsters':
-						name = 'Monster';
-						open_fn; /* TODO */
-						break;
-					case 'npc_crafts':
-						name = 'Crafts';
-						open_fn = () => NPCCraftsWindow.open({ crafts: obj });
-						break;
-					case 'npc_sells':
-						name = 'Goods';
-						open_fn = () => NPCGoodsWindow.open({ goods: obj });
-						break;
-					case 'recipes':
-						name = 'Recipe';
-						open_fn = () => RecipeWindow.open({ recipe: obj });
-						break;
-					case 'items':
-						name = 'Item';
-						open_fn = () => ItemTooltipWindow.open({ item: obj, edit: true, db });
-						break;
-					case 'mines':
-						name = 'Resource';
-						open_fn; /* TODO */
-						break;
-					default:
-						break;
-				}
-
-				if (obj._db.type.startsWith('spawners_')) {
-					name = 'Spawner';
-					open_fn = () => SpawnerWindow.open({ spawner: obj });
-				}
+				let { name, open_fn } = PWPreview.get_obj_type(obj);
 
 				let file = 'item-unknown.png';
 				let src = null;
@@ -376,10 +346,11 @@ class PWMap {
 				} else {
 					img.src = ROOT_URL + '/img/' + file;
 				}
-				span.textContent = name + ' ' + serialize_db_id(obj.id);
+				span.textContent = (obj.name || name) + ' ' + serialize_db_id(obj.id);
 				el.appendChild(img);
 				el.appendChild(span);
 				el.onclick = open_fn;
+				el.dataset.type_name = name;
 
 				changed_objects_el.append(el);
 				changed_objects_map.set(obj, el);
@@ -416,12 +387,12 @@ class PWMap {
 
 		for (let i = db.project_changelog_start_gen; i < db.changelog.length; i++) {
 			for (const c of db.changelog[i]) {
-				set_modified_obj(c._db.obj);
+				set_modified_obj(c._db.obj, {});
 			}
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
-			set_modified_obj(obj);
+			set_modified_obj(obj, diff);
 
 			if (!obj._db.type.startsWith('spawners_')) {
 				return;

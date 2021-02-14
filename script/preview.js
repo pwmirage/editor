@@ -49,6 +49,51 @@ class PWPreview {
 		return !!d;
 	}
 
+	static get_obj_type(obj) {
+		let name = obj._db.type;
+		let open_fn = () => {};
+
+		switch (obj._db.type) {
+			case 'npcs':
+				name = 'NPC';
+				open_fn = () => NPCWindow.open({ npc: obj });
+				break;
+			case 'monsters':
+				name = 'Monster';
+				open_fn; /* TODO */
+				break;
+			case 'npc_crafts':
+				name = 'Crafts';
+				open_fn = () => NPCCraftsWindow.open({ crafts: obj });
+				break;
+			case 'npc_sells':
+				name = 'Goods';
+				open_fn = () => NPCGoodsWindow.open({ goods: obj });
+				break;
+			case 'recipes':
+				name = 'Recipe';
+				open_fn = () => RecipeWindow.open({ recipe: obj });
+				break;
+			case 'items':
+				name = 'Item';
+				open_fn = () => ItemTooltipWindow.open({ item: obj, edit: true, db });
+				break;
+			case 'mines':
+				name = 'Resource';
+				open_fn; /* TODO */
+				break;
+			default:
+				break;
+		}
+
+		if (obj._db.type.startsWith('spawners_')) {
+			name = 'Spawner';
+			open_fn = () => SpawnerWindow.open({ spawner: obj });
+		}
+
+		return { name, open_fn };
+	}
+
 	static load_promise;
 }
 

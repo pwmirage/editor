@@ -247,6 +247,7 @@
 	line-height: 31px;
 	min-width: 75px;
 	text-align: center;
+	overflow: hidden;
 }
 
 #changed-objects > div > img {
@@ -257,6 +258,8 @@
 #changed-objects > div > span {
 	align-self: center;
 	line-height: 16px;
+	overflow: hidden;
+	margin: auto;
 }
 
 #pw-version {
