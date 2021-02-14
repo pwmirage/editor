@@ -214,21 +214,21 @@
 		<span>Z:</span>
 	</div>
 	<div id="position" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
-		<a class="button" onclick="SpawnerPositionWindow.open(\{ spawner: {serialize $spawner} \}).then((win) => \{ win.onclose = () => {serialize $win}.tpl.reload('#position'); \});">Pos:</a>
+		<a class="button" onclick="{serialize $win}.pos_onclick(event);" oncontextmenu="event.preventDefault(); this.onclick(event);">Pos:</a>
 		<span>{@Math.floor($spawner.pos[0] * 100) / 100}</span>
 		<span>{assign ypos = Math.floor($spawner.pos[1] * 100) / 100}{@$ypos}
 			 {if $ypos == 0}&nbsp; (auto){/if}</span>
 		<span>{@Math.floor($spawner.pos[2] * 100) / 100}</span>
 	</div>
 	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
-		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">Spread:</a>
+		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})" oncontextmenu="event.preventDefault(); this.onclick(event);">Spread:</a>
 		<span>{@Math.floor($spawner.spread[0] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
 	{if $spawner.type != 'resource'}
 		<div id="rotation" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
-			<a class="button" onclick="SpawnerRotationWindow.open(\{ spawner: {serialize $spawner} \}).then((win) => \{ win.onclose = () => {serialize $win}.tpl.reload('#rotation'); \});">Direction:</a>
+			<a class="button" onclick="{serialize $win}.dir_onclick(event);" oncontextmenu="event.preventDefault(); this.onclick(event);">Direction:</a>
 			<span style="white-space: pre;">{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000} rad</span>
 			<span></span>
 			<span></span>

@@ -170,6 +170,66 @@ class SpawnerWindow extends Window {
 		}
 	}
 
+	async pos_onclick(e) {
+		if (e.which == 1) {
+			const win = await SpawnerPositionWindow.open({ spawner: this.spawner });
+			win.onclose = () => this.tpl.reload('#position');
+		} else if (e.which == 3) {
+			const x = e.clientX - Window.bounds.left;
+			const y = e.clientY - Window.bounds.top;
+
+			const win = await RMenuWindow.open({
+			x: x, y: y, bg: false,
+			entries: [
+				{ id: 1, name: 'Undo' },
+				{ id: 2, name: 'Restore org' },
+				{ id: 3, name: 'Set to base', visible: !!this.spawner._db.base },
+			]});
+			const sel = await win.wait();
+			switch (sel) {
+				case 1:
+					PWDB.undo(db, this.spawner, 'pos');
+					this.tpl.reload('#position');
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+			}
+		}
+		return false;
+	}
+
+	async dir_onclick(e) {
+		if (e.which == 1) {
+			const win = await SpawnerRotationWindow.open({ spawner: this.spawner });
+			win.onclose = () => this.tpl.reload('#rotation');
+		} else if (e.which == 3) {
+			const x = e.clientX - Window.bounds.left;
+			const y = e.clientY - Window.bounds.top;
+
+			const win = await RMenuWindow.open({
+			x: x, y: y, bg: false,
+			entries: [
+				{ id: 1, name: 'Undo' },
+				{ id: 2, name: 'Restore org' },
+				{ id: 3, name: 'Set to base', visible: !!this.spawner._db.base },
+			]});
+			const sel = await win.wait();
+			switch (sel) {
+				case 1:
+					PWDB.undo(db, this.spawner, 'dir');
+					this.tpl.reload('#rotation');
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+			}
+		}
+		return false;
+	}
+
 	async details(details_el, e) {
 		const coords = Window.get_el_coords(details_el);
 		const x = coords.left;
