@@ -273,12 +273,12 @@ span.tabname.selected {
 		<div>
 			<span style="margin-right: 8px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'sells');" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" }</a>
+			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'sells', event);" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" }</a>
 		</div>
 		<div>
 			<span style="margin-right: 8px;">Craft:</span>
 			{assign crafts = db.npc_crafts[$npc.id_make_service];}
-			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'crafts');" style="text-align: center;">{@ $crafts ? ($crafts.name || "(unnamed)") : "(none)" }</a>
+			<a class="button no-break menu-triangle" onmousedown="{serialize $win}.edit(this, 'crafts', event);" style="text-align: center;">{@ $crafts ? ($crafts.name || "(unnamed)") : "(none)" }</a>
 		</div>
 	</div>
 	<div>Greeting:</div>

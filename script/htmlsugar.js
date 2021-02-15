@@ -429,30 +429,19 @@ class HTMLSugar {
 
 		if (!el.hasAttribute('data-preview')) {
 			el.oncontextmenu = (e) => { e.preventDefault(); return (async () => {
-				const coords = Window.get_el_coords(el);
 				const x = e.clientX - Window.bounds.left;
 				const y = e.clientY - Window.bounds.top;
 
-				const { pval, fn } = PWDB.undo(db, obj, path);
-				const win = await RMenuWindow.open({
-				x: x, y: y, bg: false,
-				entries: [
-					{ id: 1, name: 'Undo: ' + (pval === undefined ? '(none)' : (pval || (is_number ? 0 : '(empty)'))) , disabled: pval === undefined },
-					{ id: 2, name: 'Restore org' },
-					{ id: 3, name: 'Set to base', visible: !!obj._db.base },
-				]});
-
-				const sel = await win.wait();
-				switch(sel) {
-					case 1: {
-						fn();
+				await HTMLSugar.open_undo_rmenu(x, y, obj, {
+					undo_path: path,
+					undo_fn: () => {
 						const o = get_val_obj();
 						set_el_val(o ? o[p] : "");
-						break;
-					}
-				}
-				})();
-			}
+					},
+					name_fn: el.mg_rmenu_name_fn
+				});
+
+			})(); }
 		}
 	}
 
@@ -604,14 +593,21 @@ class HTMLSugar {
 			hints_el.style.display = '';
 		};
 
-		const update_el = (link_val) => {
+		const get_linked_obj = (val) => {
 			let type;
+
 			if (field_name) {
 				/* escape all special characters */
-				type = [...select_arr.values()].find((a) => a[field_name] == link_val);
+				type = [...select_arr.values()].find((a) => a[field_name] == val);
 			} else {
-				type = select_arr[link_val];
+				type = select_arr[val];
 			}
+
+			return type;
+		}
+
+		const update_el = (link_val) => {
+			let type = get_linked_obj(link_val);
 
 			edit_el.dataset.text = edit_el.title = edit_el.textContent = type?.name || "";
 			if (type?.name) {
@@ -628,6 +624,7 @@ class HTMLSugar {
 		}
 
 		if (!el.hasAttribute('data-preview')) {
+			link_el.mg_rmenu_name_fn = (val) => get_linked_obj(val)?.name || "";
 			el.oncontextmenu = (e) => {
 				link_el.oncontextmenu(e).then(() => {
 					update_el(link_el.textContent);
@@ -636,14 +633,9 @@ class HTMLSugar {
 		}
 	}
 
-	static async open_edit_rmenu(x, y, obj, obj_type, { undo_obj, undo_path, undo_fn, pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
+	static async open_edit_rmenu(x, y, obj, obj_type, { pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
 		const usages = await PWDB.find_usages(db, obj);
-		let undo_res = {};
-
-		if (undo_path) {
-			undo_res = PWDB.undo(db, undo_obj, undo_path);
-		}
 
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
@@ -653,8 +645,6 @@ class HTMLSugar {
 			{ id: 3, name: obj ? 'Replace with new' : 'Create new' },
 			{ id: 4, name: 'Clone & Edit', disabled: !obj },
 			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
-			{ id: 6, name: 'Undo: ' + (undo_res.pval === undefined ? '(none)' : undo_res.pval) , visible: !!undo_path, disabled: undo_res.pval === undefined },
-			{ id: 7, name: 'Restore org', visible: false },
 			{ name: '...', children: [
 				{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
 				{ id: 21, name: 'Rebase', disabled: !obj },
@@ -713,11 +703,6 @@ class HTMLSugar {
 
 				break;
 			}
-			case 6: { /* undo */
-				undo_res.fn();
-				undo_fn();
-				break;
-			}
 			case 21: { /* rebase */
 				break;
 			}
@@ -745,56 +730,29 @@ class HTMLSugar {
 		}
 	}
 
-	static async open_details_rmenu(x, y, obj, obj_type, { update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
+	static async open_undo_rmenu(x, y, obj, { undo_path, undo_fn, name_fn }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
-		const usages = await PWDB.find_usages(db, obj);
+		let undo_res = {};
+
+		if (undo_path) {
+			undo_res = PWDB.undo(db, obj, undo_path);
+		}
+
+		if (!name_fn) {
+			name_fn = (val) => val;
+		}
+
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
-			{ id: 4, name: 'Clone & Edit', disabled: !obj },
-			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
-			{ name: '...', children: [
-				{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
-				{ id: 21, name: 'Rebase', disabled: !obj },
-				{ id: 22, name: 'Fork & Edit', disabled: !obj },
-				{ id: 23, name: 'Detach from base', disabled: !base },
-				{ id: 24, name: 'Apply to base', disabled: !base },
-			]},
+			{ id: 1, name: 'Undo: ' + (undo_res.pval === undefined ? '(none)' : name_fn(undo_res.pval)), visible: !!undo_path, disabled: undo_res.pval === undefined },
+			{ id: 7, name: 'Restore org', visible: false },
 		]});
 		const sel = await win.wait();
 		switch(sel) {
-			case 4: { /* clone & edit */
-				const clone = db.clone(obj);
-				db.open(clone);
-				clone.name += ' (clone)';
-				db.commit(clone);
-				update_obj_fn(clone);
-				edit_obj_fn(clone);
-				break;
-			}
-			case 5: { /* find usages */
-				const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + serialize_db_id(obj.id), items: usages, width: 176, name_fn: usage_name_fn });
-
-				break;
-			}
-			case 21: { /* rebase */
-				break;
-			}
-			case 22: { /* fork & edit */
-				const fork = db.new(obj_type);
-
-				db.open(fork);
-				db.rebase(fork, obj);
-				db.commit(fork);
-
-				update_obj_fn(fork);
-				edit_obj_fn(fork);
-				break;
-			}
-			case 23: { /* detach from base */
-				break;
-			}
-			case 24: { /* apply to base */
+			case 1: { /* undo */
+				undo_res.fn();
+				undo_fn();
 				break;
 			}
 		}

@@ -68,19 +68,21 @@ class NPCCraftsWindow extends Window {
 			return;
 		}
 
+		let was_selected = (recipe_el.dataset.idx == this.selected_recipe &&
+		 		this.selected_recipe_tab == this.selected_tab);
 		if (e.which == 1) {
-			this.select_recipe(recipe_el);
+			was_selected = !this.select_recipe(recipe_el);
 		}
 
 		const obj = db.recipes[recipe_id];
 		let page = this.crafts.pages[this.selected_tab];
 
 		(async () => {
-			if (e.which == 3) {
-				const coords = Window.get_el_coords(recipe_el);
-				const x = coords.left;
-				const y = coords.bottom;
+			const coords = Window.get_el_coords(recipe_el);
+			const x = coords.left;
+			const y = coords.bottom;
 
+			if (was_selected && e.which == 1) {
 				HTMLSugar.open_edit_rmenu(x, y,
 					obj, 'recipes', {
 					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + serialize_db_id(this.crafts.id),
@@ -109,11 +111,12 @@ class NPCCraftsWindow extends Window {
 					usage_name_fn: (recipe) => {
 						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
 					},
-					undo_obj: this.crafts,
-					undo_path: [ 'pages', this.selected_tab, 'recipe_id', recipe_idx ],
-					undo_fn: () => this.tpl.reload('#items'),
 				});
-
+			} else if (e.which == 3) {
+				HTMLSugar.open_undo_rmenu(x, y,	this.crafts, {
+					undo_path: [ 'pages', this.selected_tab, 'recipe_id', recipe_idx ],
+					undo_fn: () => this.tpl.reload('#items')
+				});
 			}
 		})();
 
@@ -129,7 +132,7 @@ class NPCCraftsWindow extends Window {
 		const x = coords.left;
 		const y = coords.bottom;
 
-		HTMLSugar.open_details_rmenu(x, y, 
+		HTMLSugar.open_edit_rmenu(x, y,
 			recipe, 'recipes', {
 			update_obj_fn: (new_obj) => {
 				const s = this.crafts;
@@ -156,7 +159,6 @@ class NPCCraftsWindow extends Window {
 			usage_name_fn: (recipe) => {
 				return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
 			},
-			undo_path: [ 'pages', this.selected_tab, 'recipe_id', this.selected_recipe ],
 		});
 	}
 
@@ -179,7 +181,7 @@ class NPCCraftsWindow extends Window {
 	select_recipe(recipe_el) {
 		if (recipe_el.dataset.idx == this.selected_recipe &&
 				this.selected_recipe_tab == this.selected_tab) {
-			return;
+			return false;
 		}
 
 		this.selected_recipe = recipe_el.dataset.idx;
@@ -202,6 +204,7 @@ class NPCCraftsWindow extends Window {
 		} else {
 			prev_recipe_el.replaceWith(container.firstChild);
 		}
+		return true;
 	}
 }
 
@@ -242,7 +245,7 @@ class NPCGoodsWindow extends Window {
 		const item_idx = parseInt(this.hover_el.dataset.idx);
 
 		(async () => {
-			if (e.which == 1 || e.which == 3) {
+			if (e.which == 1) {
 				const itemid = page?.item_id ? page.item_id[item_idx] : 0;
 				const obj = db.items[itemid];
 				const coords = Window.get_el_coords(this.hover_el);
@@ -277,9 +280,11 @@ class NPCGoodsWindow extends Window {
 					usage_name_fn: (item) => {
 						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
 					},
-					undo_obj: this.goods,
+				});
+			} else if (e.which == 3) {
+				HTMLSugar.open_undo_rmenu(x, y,	this.crafts, {
 					undo_path: [ 'pages', this.selected_tab, 'item_id', item_idx ],
-					undo_fn: () => this.tpl.reload('#items'),
+					undo_fn: () => this.tpl.reload('#items')
 				});
 			}
 		})();
@@ -362,7 +367,7 @@ class NPCWindow extends Window {
 		super.close();
 	}
 
-	async edit(el, what) {
+	async edit(el, what, e) {
 		const coords = Window.get_el_coords(el);
 		const x = coords.left;
 		const y = coords.bottom;
@@ -374,32 +379,36 @@ class NPCWindow extends Window {
 			obj = db.npc_crafts[this.npc.id_make_service || 0];
 		}
 
-		HTMLSugar.open_edit_rmenu(x, y,
-			obj, 'npc_' + what, {
-				pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
-			update_obj_fn: (new_obj) => {
-				const n = this.npc;
-				db.open(n);
-				if (is_craft) {
-					n.id_make_service = new_obj?.id || 0;
-				} else {
-					n.id_sell_service = new_obj?.id || 0;
-				}
-				db.commit(n);
-				this.tpl.reload('#goods');
+		if (e.which == 1) {
+			HTMLSugar.open_edit_rmenu(x, y,
+				obj, 'npc_' + what, {
+					pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
+				update_obj_fn: (new_obj) => {
+					const n = this.npc;
+					db.open(n);
+					if (is_craft) {
+						n.id_make_service = new_obj?.id || 0;
+					} else {
+						n.id_sell_service = new_obj?.id || 0;
+					}
+					db.commit(n);
+					this.tpl.reload('#goods');
 
-			},
-			edit_obj_fn: (new_obj) => {
-				if (is_craft) {
-					NPCCraftsWindow.open({ crafts: new_obj });
-				} else {
-					NPCGoodsWindow.open({ goods: new_obj });
-				}
-			},
-			undo_obj: this.npc,
-			undo_path: [ is_craft ? 'id_make_service' : 'id_sell_service' ],
-			undo_fn: () => this.tpl.reload('#goods'),
-		});
+				},
+				edit_obj_fn: (new_obj) => {
+					if (is_craft) {
+						NPCCraftsWindow.open({ crafts: new_obj });
+					} else {
+						NPCGoodsWindow.open({ goods: new_obj });
+					}
+				},
+			});
+		} else if (e.which == 3) {
+			HTMLSugar.open_undo_rmenu(x, y,	this.npc, {
+				undo_path: [ is_craft ? 'id_make_service' : 'id_sell_service' ],
+				undo_fn: () => this.tpl.reload('#goods'),
+			});
+		}
 
 
 	}

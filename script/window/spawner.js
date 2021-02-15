@@ -178,25 +178,15 @@ class SpawnerWindow extends Window {
 			const x = e.clientX - Window.bounds.left;
 			const y = e.clientY - Window.bounds.top;
 
-			const { pval, fn } = PWDB.undo(db, this.spawner, 'pos');
-			const win = await RMenuWindow.open({
-			x: x, y: y, bg: false,
-			entries: [
-				{ id: 1, name: 'Undo: ' + (pval === undefined ? '(none)' : pval) , disabled: pval === undefined },
-				{ id: 2, name: 'Restore org' },
-				{ id: 3, name: 'Set to base', visible: !!this.spawner._db.base },
-			]});
-			const sel = await win.wait();
-			switch (sel) {
-				case 1:
-					fn();
-					this.tpl.reload('#position');
-					break;
-				case 2:
-					break;
-				case 3:
-					break;
-			}
+			HTMLSugar.open_undo_rmenu(x, y,	this.spawner, {
+				undo_path: [ 'pos' ],
+				undo_fn: () => this.tpl.reload('#position'),
+				name_fn: (pos) => {
+					if (!pos) return '[ 0, 0, 0 ]';
+					const sanitize = (p) => p ? Math.round(p * 10000) / 10000 : '-';
+					return '[ ' + sanitize(pos[0]) + ', ' + sanitize(pos[1]) + ', ' + sanitize(pos[2]) + ' ]';
+				}
+			});
 		}
 		return false;
 	}
@@ -209,25 +199,14 @@ class SpawnerWindow extends Window {
 			const x = e.clientX - Window.bounds.left;
 			const y = e.clientY - Window.bounds.top;
 
-			const { pval, fn } = PWDB.undo(db, this.spawner, 'pos');
-			const win = await RMenuWindow.open({
-			x: x, y: y, bg: false,
-			entries: [
-				{ id: 1, name: 'Undo: ' + pval },
-				{ id: 2, name: 'Restore org' },
-				{ id: 3, name: 'Set to base', visible: !!this.spawner._db.base },
-			]});
-			const sel = await win.wait();
-			switch (sel) {
-				case 1:
-					fn();
-					this.tpl.reload('#rotation');
-					break;
-				case 2:
-					break;
-				case 3:
-					break;
-			}
+			HTMLSugar.open_undo_rmenu(x, y,	this.spawner, {
+				undo_path: [ 'dir' ],
+				undo_fn: () => this.tpl.reload('#rotation'),
+				name_fn: (dir) => {
+					if (!dir) return '0 rad';
+					return Math.round(Math.atan2(dir[2], dir[0]) * 10000) / 10000 + ' rad';
+				}
+			});
 		}
 		return false;
 	}
@@ -327,6 +306,10 @@ class SpawnerWindow extends Window {
 
 	async open_group(el, idx, e) {
 		const group = this.spawner.groups[idx];
+		const coords = Window.get_el_coords(el);
+		const x = coords.left;
+		const y = coords.bottom;
+
 		if (e.which == 1) {
 			let type;
 			let pretty_name;
@@ -342,10 +325,6 @@ class SpawnerWindow extends Window {
 			}
 
 			const obj = db[type][group.type];
-			const coords = Window.get_el_coords(el);
-			const x = coords.left;
-			const y = coords.bottom;
-
 			HTMLSugar.open_edit_rmenu(x, y, 
 				obj, type, {
 				pick_win_title: 'Pick new ' + pretty_name + ' for ' + (this.spawner.name || 'Spawner') + ' ' + serialize_db_id(this.spawner.id),
@@ -369,6 +348,12 @@ class SpawnerWindow extends Window {
 					const mapname = PWMap.maps[mapid]?.name || '(unknown?)';
 					return mapname + ': ' + (spawner.name ? (spawner.name + ' ') : '') + serialize_db_id(spawner.id);
 				}
+			});
+		} else if (e.which == 3) {
+			HTMLSugar.open_undo_rmenu(x, y,	this.spawner, {
+				undo_path: [ 'groups', idx, 'type' ],
+				undo_fn: () => { this.tpl.reload('#groups'); this.refresh_npc_window(); },
+				name_fn: (id) => id ? ((db.npcs[id]?.name || '(unnamed)') + ' ' + serialize_db_id(id)) : '(none)'
 			});
 		}
 	}

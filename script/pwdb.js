@@ -264,9 +264,10 @@ class PWDB {
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
-			if (obj._db.undone) {
+			const c = obj._db.changesets[obj._db.changesets.length - 1];
+			if (c._db.undone) {
 				for (const f in diff) {
-					obj._db.undone[f] = undefined;
+					c._db.undone[f] = undefined;
 				}
 			}
 			PWDB.has_unsaved_changes = true;
