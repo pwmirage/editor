@@ -233,6 +233,7 @@
 	max-width: 150px;
 	height: 32px;
 	margin-top: 5px;
+	overflow: hidden;
 }
 
 #more-objects:hover,
