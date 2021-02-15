@@ -309,7 +309,7 @@ class PWMap {
 			}
 
 			const was_modified = this.modified_db_objs.has(obj);
-			if (diff.name && was_modified) {
+			if (diff.name !== undefined && was_modified) {
 				const mod_el = changed_objects_map.get(obj)
 				mod_el.children[1].textContent =
 					(obj.name || mod_el.dataset.type_name) + ' ' + serialize_db_id(obj.id);

@@ -264,7 +264,11 @@ class PWDB {
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
-			obj._db.undo_idx = undefined;
+			if (obj._db.undone) {
+				for (const f in diff) {
+					obj._db.undone[f] = undefined;
+				}
+			}
 			PWDB.has_unsaved_changes = true;
 		});
 
@@ -362,7 +366,7 @@ class PWDB {
 
 		if (!obj._db.changesets || obj._db.changesets.length < 2) {
 			/* never opened or never committed */
-			return false;
+			return { pval: undefined, fn: () => {} };
 		}
 
 		const get_val = (o) => {
@@ -381,8 +385,6 @@ class PWDB {
 		const set_val = (o, val) => {
 			for (let p_idx = 0; p_idx < path.length - 1; p_idx++) {
 				const p = path[p_idx];
-					;
-				}
 				if (!(p in o) || typeof(o) !== 'object') {
 					o[p] = {};
 				}
@@ -392,14 +394,21 @@ class PWDB {
 			if (typeof(o[f]) === 'object') {
 				DB.apply_diff(o[f], val);
 			} else {
+				if (val === undefined || val === null) {
+					val = '';
+				}
 				o[f] = val;
 			}
 		};
 
 		/* find the changeset with this field (it might not be the last one) */
 		let cur_gen = 0;
-		for (let i = obj._db.changesets.length - 1; i > db.project_changelog_start_gen; i--) {
+		for (let i = obj._db.changesets.length - 1; i >= db.project_changelog_start_gen; i--) {
 			const c = obj._db.changesets[i];
+
+			if (get_val(c._db.undone)) {
+				continue;
+			}
 
 			const prev_val = get_val(c);
 			if (prev_val === undefined) {
@@ -408,23 +417,33 @@ class PWDB {
 			}
 
 			cur_gen = i;
+			break;
 		}
 
 		/* find an even earlier changeset to undo to */
-		let prev_val;
-		for (let i = cur_gen - 1; i >= db.project_changelog_start_gen; i--) {
+		let prev_val = undefined;
+		let i;
+		for (i = cur_gen - 1; i >= 0; i--) {
 			const c = obj._db.changesets[i];
 
 			if (get_val(c._db.undone)) {
 				continue;
 			}
 
-			const prev_val = get_val(c);
-			if (prev_val === undefined && i > db.project_changelog_start_gen) {
+			prev_val = get_val(c);
+			if (prev_val === undefined && i > 0) {
 				/* no change in this changeset, continue looking */
 				continue;
 			}
 
+			if (prev_val === undefined) {
+				/* undefined means un-undoable, and this was just unset before */
+				prev_val = null;
+			}
+			break;
+		}
+
+		const fn = () => {
 			db.open(obj);
 			/* update obj */
 			set_val(obj, prev_val);
@@ -433,7 +452,7 @@ class PWDB {
 			if (obj._db.changesets?.length) {
 				/* mark all subsequent changes as non undo-able, otherwise
 				 * undo will just always make a cycle */
-				for (let j = Math.max(1, i); j < obj._db.changesets.length - 1; j++) {
+				for (let j = Math.max(1, i + 1); j < obj._db.changesets.length; j++) {
 					const c = obj._db.changesets[j];
 					if (!c._db.undone) {
 						c._db.undone = {};
@@ -441,9 +460,14 @@ class PWDB {
 					set_val(c._db.undone, true);
 				}
 			}
-			break;
+
+		};
+
+		if (prev_val === undefined && cur_gen > 0) {
+			prev_val = null;
 		}
 
+		return { pval: prev_val, fn: fn };
 	}
 
 	static async load_db_file(type, url) {

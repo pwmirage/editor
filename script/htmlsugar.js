@@ -324,6 +324,7 @@ class HTMLSugar {
 		const val = val_obj[p] || "";
 
 		const is_float = el.classList.contains('is_float');
+		let is_number = false;
 		const set_el_val = (val) => {
 			if (obj._db.base && !val_obj.hasOwnProperty(p)) {
 				el.classList.add('forked');
@@ -333,6 +334,7 @@ class HTMLSugar {
 
 			el.checked = !!val;
 			if (el.type == 'number' || (el.nodeName != 'INPUT' && (el.classList.contains('input-number') || is_float))) {
+				is_number = true;
 				if (is_float) {
 					el.value = (Math.round((val || 0) * 1000) / 1000);
 				} else {
@@ -431,10 +433,11 @@ class HTMLSugar {
 				const x = e.clientX - Window.bounds.left;
 				const y = e.clientY - Window.bounds.top;
 
+				const { pval, fn } = PWDB.undo(db, obj, path);
 				const win = await RMenuWindow.open({
 				x: x, y: y, bg: false,
 				entries: [
-					{ id: 1, name: 'Undo' },
+					{ id: 1, name: 'Undo: ' + (pval === undefined ? '(none)' : (pval || (is_number ? 0 : '(empty)'))) , disabled: pval === undefined },
 					{ id: 2, name: 'Restore org' },
 					{ id: 3, name: 'Set to base', visible: !!obj._db.base },
 				]});
@@ -442,7 +445,7 @@ class HTMLSugar {
 				const sel = await win.wait();
 				switch(sel) {
 					case 1: {
-						PWDB.undo(db, obj, path);
+						fn();
 						const o = get_val_obj();
 						set_el_val(o ? o[p] : "");
 						break;
@@ -636,6 +639,12 @@ class HTMLSugar {
 	static async open_edit_rmenu(x, y, obj, obj_type, { undo_obj, undo_path, undo_fn, pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
 		const usages = await PWDB.find_usages(db, obj);
+		let undo_res = {};
+
+		if (undo_path) {
+			undo_res = PWDB.undo(db, undo_obj, undo_path);
+		}
+
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
@@ -644,7 +653,7 @@ class HTMLSugar {
 			{ id: 3, name: obj ? 'Replace with new' : 'Create new' },
 			{ id: 4, name: 'Clone & Edit', disabled: !obj },
 			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
-			{ id: 6, name: 'Undo', visible: !!undo_path },
+			{ id: 6, name: 'Undo: ' + (undo_res.pval === undefined ? '(none)' : undo_res.pval) , visible: !!undo_path, disabled: undo_res.pval === undefined },
 			{ id: 7, name: 'Restore org', visible: false },
 			{ name: '...', children: [
 				{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
@@ -705,7 +714,7 @@ class HTMLSugar {
 				break;
 			}
 			case 6: { /* undo */
-				PWDB.undo(db, undo_obj, undo_path);
+				undo_res.fn();
 				undo_fn();
 				break;
 			}

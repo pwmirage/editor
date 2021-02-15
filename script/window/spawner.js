@@ -178,17 +178,18 @@ class SpawnerWindow extends Window {
 			const x = e.clientX - Window.bounds.left;
 			const y = e.clientY - Window.bounds.top;
 
+			const { pval, fn } = PWDB.undo(db, this.spawner, 'pos');
 			const win = await RMenuWindow.open({
 			x: x, y: y, bg: false,
 			entries: [
-				{ id: 1, name: 'Undo' },
+				{ id: 1, name: 'Undo: ' + (pval === undefined ? '(none)' : pval) , disabled: pval === undefined },
 				{ id: 2, name: 'Restore org' },
 				{ id: 3, name: 'Set to base', visible: !!this.spawner._db.base },
 			]});
 			const sel = await win.wait();
 			switch (sel) {
 				case 1:
-					PWDB.undo(db, this.spawner, 'pos');
+					fn();
 					this.tpl.reload('#position');
 					break;
 				case 2:
@@ -208,17 +209,18 @@ class SpawnerWindow extends Window {
 			const x = e.clientX - Window.bounds.left;
 			const y = e.clientY - Window.bounds.top;
 
+			const { pval, fn } = PWDB.undo(db, this.spawner, 'pos');
 			const win = await RMenuWindow.open({
 			x: x, y: y, bg: false,
 			entries: [
-				{ id: 1, name: 'Undo' },
+				{ id: 1, name: 'Undo: ' + pval },
 				{ id: 2, name: 'Restore org' },
 				{ id: 3, name: 'Set to base', visible: !!this.spawner._db.base },
 			]});
 			const sel = await win.wait();
 			switch (sel) {
 				case 1:
-					PWDB.undo(db, this.spawner, 'dir');
+					fn();
 					this.tpl.reload('#rotation');
 					break;
 				case 2:

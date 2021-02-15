@@ -81,7 +81,7 @@ class NPCCraftsWindow extends Window {
 				const x = coords.left;
 				const y = coords.bottom;
 
-				HTMLSugar.open_edit_rmenu(x, y, 
+				HTMLSugar.open_edit_rmenu(x, y,
 					obj, 'recipes', {
 					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + serialize_db_id(this.crafts.id),
 					update_obj_fn: (new_obj) => {
@@ -113,7 +113,6 @@ class NPCCraftsWindow extends Window {
 					undo_path: [ 'pages', this.selected_tab, 'recipe_id', recipe_idx ],
 					undo_fn: () => this.tpl.reload('#items'),
 				});
-				
 
 			}
 		})();
@@ -250,7 +249,7 @@ class NPCGoodsWindow extends Window {
 				const x = coords.left;
 				const y = coords.bottom;
 
-				HTMLSugar.open_edit_rmenu(x, y, 
+				HTMLSugar.open_edit_rmenu(x, y,
 					obj, 'items', {
 					pick_win_title: 'Pick new item for ' + (this.goods.name || 'Goods') + ' ' + serialize_db_id(this.goods.id),
 					update_obj_fn: (new_obj) => {
@@ -282,8 +281,6 @@ class NPCGoodsWindow extends Window {
 					undo_path: [ 'pages', this.selected_tab, 'item_id', item_idx ],
 					undo_fn: () => this.tpl.reload('#items'),
 				});
-				
-
 			}
 		})();
 		e.preventDefault();
@@ -377,7 +374,7 @@ class NPCWindow extends Window {
 			obj = db.npc_crafts[this.npc.id_make_service || 0];
 		}
 
-		HTMLSugar.open_edit_rmenu(x, y, 
+		HTMLSugar.open_edit_rmenu(x, y,
 			obj, 'npc_' + what, {
 				pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
 			update_obj_fn: (new_obj) => {
@@ -399,6 +396,9 @@ class NPCWindow extends Window {
 					NPCGoodsWindow.open({ goods: new_obj });
 				}
 			},
+			undo_obj: this.npc,
+			undo_path: [ is_craft ? 'id_make_service' : 'id_sell_service' ],
+			undo_fn: () => this.tpl.reload('#goods'),
 		});
 
 
