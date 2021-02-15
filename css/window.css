@@ -26,6 +26,7 @@
 
 .child-dom > .content {
 	border: none !important;
+	overflow: inherit !important;
 }
 
 .window.maximized {
