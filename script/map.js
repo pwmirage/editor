@@ -315,37 +315,14 @@ class PWMap {
 					(obj.name || mod_el.dataset.type_name) + ' ' + serialize_db_id(obj.id);
 			}
 
-
 			if (!was_modified) {
 				const el = document.createElement('div');
 				const img = document.createElement('img');
 				const span = document.createElement('span');
 
 				let { name, open_fn } = PWPreview.get_obj_type(obj);
+				img.src = PWPreview.get_obj_img(db, obj);
 
-				let file = 'item-unknown.png';
-				let src = null;
-				if (['npc_crafts', 'npc_sells', 'monsters', 'npcs', 'mines'].includes(obj._db.type)) {
-					file = 'icon_' + obj._db.type + '.jpg';
-				} else if (obj._db.type.startsWith('spawners_')) {
-					if (obj.type == 'npc') {
-						file = 'icon_spawner_yellow.jpg';
-					} else if (obj.type == 'monster') {
-						file = 'icon_spawner_red.jpg';
-					} else {
-						file = 'icon_spawner_green.jpg';
-					}
-				} else if (obj._db.type == 'items') {
-					src = Item.get_icon(obj.icon);
-				} else if (obj._db.type == 'recipes') {
-					src = Item.get_icon_by_item(db, obj.targets?.[0]?.id || 0);
-				}
-
-				if (src) {
-					img.src = src;
-				} else {
-					img.src = ROOT_URL + '/img/' + file;
-				}
 				span.textContent = (obj.name || name) + ' ' + serialize_db_id(obj.id);
 				el.appendChild(img);
 				el.appendChild(span);
