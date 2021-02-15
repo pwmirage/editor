@@ -360,7 +360,7 @@ class PWMap {
 
 			this.modified_db_objs.add(obj);
 			if (!obj._db.project_initial_state) {
-				const state = obj._db.changesets[0];
+				const state = DB.clone_obj(obj._db.changesets[0]);
 				for (const c of obj._db.changesets) {
 					if (c._db.generation == 0) {
 						/* initial object state */
