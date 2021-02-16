@@ -83,9 +83,8 @@
 
 .entry.text {
 	background-color: #c5c3c3 !important;
-	color: #5a3838 !importat;
+	color: #5a3838 !important;
 	padding: 3px 8px;
-	align-self: flex-end;
 }
 
 .entry.text > span {
