@@ -1,4 +1,5 @@
 :host {
+	font-size: 14px;
 	transition: margin-top 0.2s ease-in-out;
 	--header-color: #822525;
 }
@@ -53,10 +54,6 @@
 	bottom: 2px;
 	color: #d1d1d1;
 	cursor: nwse-resize;
-}
-
-table {
-	font-size: 14px;
 }
 
 .window > .header {
