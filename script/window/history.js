@@ -26,7 +26,7 @@ class HistoryWindow extends Window {
 		const s_p = new Promise((resolve) => { s.onload = resolve; });
 		this.recipe_win.shadow.prepend(s);
 
-		this.select_tab(1);
+		this.select_tab(2);
 	}
 
 	tpl_compile_cb(dom) {
@@ -52,20 +52,6 @@ class HistoryWindow extends Window {
 			c.classList.remove('active');
 		}
 		this.shadow.querySelector('.tabcontents').children[idx].classList.add('active');
-	}
-
-	onmousemove(e) {
-		if (!this.item_win || !this.recipe_win) {
-			/* not initialized yet */
-			return;
-		}
-
-		const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
-		const item = el?.classList.contains('item') ? el : null;
-		const recipe = el?.classList.contains('recipe') ? el : null;
-
-		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
-		HTMLSugar.show_recipe_tooltip(this.recipe_win, recipe, { db: db });
 	}
 
 	demo() {
@@ -172,9 +158,4 @@ class HistoryWindow extends Window {
 		}
 	}
 
-	get_item(itemid) {
-		const item = db.items[itemid];
-		return item ? Item.get_icon(item.icon || 0) : (ROOT_URL + 'img/itemslot.png');
-
-	}
 }

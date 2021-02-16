@@ -71,12 +71,12 @@
 							{if !$diff.pages}{break}{/if}
 							{if !$diff.pages[$i]}{continue}{/if}
 							{assign pageid = $i}
-							{assign page = diff.pages[$i]}
+							{assign page = $diff.pages[$i]}
+							{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
 							<div class="block">
-								<span class="header">Tab "{@$page.title || '(unnamed)'}" #{@$i}</span>
+								<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
 								{if $page.title}
 									<div class="block">
-										{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
 										<span class="header">Name</span>
 										<span class="minus">{@$prev.pages[$i].title}</span>
 										<span class="plus">{@$page.title}</span>
@@ -103,8 +103,8 @@
 											{assign prev_id = $get_item_id($rowid * 8 + $i)}
 											{assign cur_id = $page.item_id[$rowid * 8 + $i] ?? $prev_id}
 											<div class="flex-rows" style="gap: 2px;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">
-												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}"><img{ } src="{@$win.get_item($prev_id)}" alt=""></span>
-												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}"><img{ } src="{@$win.get_item($cur_id)}" alt=""></span>
+												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}"><img{ } src="{@PWPreview.get_item_icon(db, $prev_id)}" alt=""></span>
+												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}"><img{ } src="{@PWPreview.get_item_icon(db, $cur_id)}" alt=""></span>
 											</div>
 										{/for}
 										</div>
@@ -117,12 +117,12 @@
 							{if !$diff.pages}{break}{/if}
 							{if !$diff.pages[$i]}{continue}{/if}
 							{assign pageid = $i}
-							{assign page = diff.pages[$i]}
+							{assign page = $diff.pages[$i]}
+							{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
 							<div class="block">
-								<span class="header">Tab "{@$page.title || '(unnamed)'}" #{@$i}</span>
+								<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
 								{if $page.title}
 									<div class="block">
-										{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
 										<span class="header">Name</span>
 										<span class="minus">{@$prev.pages[$i].title}</span>
 										<span class="plus">{@$page.title}</span>
@@ -222,7 +222,29 @@
 				</div>
 			{/for}{/for}
 		</div>
-		<div id="changes" class="changes"></div>
+		<div id="changes" class="changes">
+		<div id="changed-objects">
+			{assign cur_generation = 0}
+			{assign mod_objects = new Set()}
+			{for gen_idx = db.changelog.length - 1; gen_idx >= db.project_changelog_start_gen; gen_idx--}
+				{assign gen = db.changelog[$gen_idx]}
+				{for diff of $gen}
+					{$mod_objects.add($diff._db.obj)}
+				{/for}
+			{/for}
+			{for obj of $mod_objects}
+				{if !$obj._db.project_initial_state}
+					{continue}
+				{/if}
+				{assign diff = get_obj_diff($obj, $obj._db.project_initial_state)}
+				{if !$diff}
+					{continue}
+				{/if}
+				{if $type == 'metadata'}{continue}{/if}
+				{@PWPreview.diff(\{ db, obj: $obj, diff: $diff, prev: $obj._db.project_initial_state \})}
+			{/for}
+		</div>
+		</div>
 	</div>
 </div>
 </div>
@@ -370,6 +392,67 @@ table {
 	height: 100%;
 	background-color: #fff;
 	opacity: 0.45;
+}
+
+#changes.active {
+	display: flex;
+	overflow-y: auto;
+	overflow-x: hidden;
+	height: 100%;
+}
+
+#changed-objects {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 5px;
+}
+
+#changed-objects > div {
+	background-color: #dccfcf;
+	border-radius: 2px;
+	border-width: 0;
+	color: rgba(33, 33, 33, 1);
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	font-weight: 400;
+	margin: 0;
+	padding: 4px;
+	padding-right: 6px;
+	text-decoration: none;
+	line-height: 1.48;
+	user-select: none;
+	column-gap: 3px;
+	min-width: 250px;
+	min-height: 32px;
+	margin-top: 5px;
+	overflow: hidden;
+}
+
+#changed-objects > div:hover {
+	background-color: #d0c5c5;
+	text-decoration: none;
+}
+
+
+#changed-objects > div > .header {
+	display: flex;
+	column-gap: 3px;
+	margin-bottom: 5px;
+}
+
+#changed-objects > div > .header > img {
+	width: 32px;
+	height: 32px;
+}
+
+#changed-objects > div > .header > span {
+	align-self: center;
+	line-height: 16px;
+	overflow: hidden;
+	margin: auto;
+	margin-left: 0;
 }
 </style>
 @@}

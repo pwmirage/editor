@@ -135,6 +135,16 @@ class PWPreview {
 		HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: db });
 	};
 
+	static diff(args) {
+		if (!PWPreview.diff_tpl) {
+			PWPreview.diff_tpl = new Template('tpl-diff');
+			PWPreview.diff_tpl.compile();
+		}
+
+		PWPreview.diff_tpl.args = args;
+		return PWPreview.diff_tpl.func(PWPreview.diff_tpl, PWPreview.diff_tpl.args);
+	}
+
 	static get_item_icon(db, itemid) {
 		const item = db.items[itemid];
 		return item ? Item.get_icon(item.icon || 0) : (ROOT_URL + 'img/itemslot.png');
