@@ -28,7 +28,7 @@
 		{assign prev_page = $prev.pages[$i]}
 		<div class="block">
 			<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
-			{if $page.title}
+			{if $page.title !== undefined}
 				<div class="block">
 					<span class="header">Name</span>
 					<span class="minus">{@$prev.pages[$i].title}</span>
@@ -70,9 +70,8 @@
 		{assign prev_page = $prev.pages[$i]}
 		<div class="block">
 			<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
-			{if $page.title}
+			{if $page.title !== undefined}
 				<div class="block">
-					{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
 					<span class="header">Name</span>
 					<span class="minus">{@$prev.pages[$i].title}</span>
 					<span class="plus">{@$page.title}</span>

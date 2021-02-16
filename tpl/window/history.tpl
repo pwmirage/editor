@@ -55,7 +55,7 @@
 					{for fname in $diff}
 						{assign f = $generic_fields[$fname]}
 						{if !$f}{continue}{/if}
-						{assign prev = $win.find_previous(diff, (d) => d[$fname])}
+						{assign prev = $win.find_previous($diff, (d) => d[$fname])}
 						{* there might be no diff in the end (happens sometimes) *}
 						{if DB.cmp($diff[$fname], $prev[$fname]) == 0}{continue}{/if}
 
@@ -72,10 +72,10 @@
 							{if !$diff.pages[$i]}{continue}{/if}
 							{assign pageid = $i}
 							{assign page = $diff.pages[$i]}
-							{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
+							{assign prev = $win.find_previous($diff, (d) => d.pages && d.pages[$i]?.title)}
 							<div class="block">
 								<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
-								{if $page.title}
+								{if $page.title !== undefined}
 									<div class="block">
 										<span class="header">Name</span>
 										<span class="minus">{@$prev.pages[$i].title}</span>
@@ -118,10 +118,10 @@
 							{if !$diff.pages[$i]}{continue}{/if}
 							{assign pageid = $i}
 							{assign page = $diff.pages[$i]}
-							{assign prev = $win.find_previous(diff, (d) => d.pages && d.pages[$i]?.title)}
+							{assign prev = $win.find_previous($diff, (d) => d.pages && d.pages[$i]?.title)}
 							<div class="block">
 								<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
-								{if $page.title}
+								{if $page.title !== undefined}
 									<div class="block">
 										<span class="header">Name</span>
 										<span class="minus">{@$prev.pages[$i].title}</span>
@@ -163,7 +163,7 @@
 							<div class="block">
 								{assign prev = []}
 								{for i = 0; i < 3; i++}
-									{$prev[$i] = $win.find_previous(diff, (d) => d.pos?.[$i]).pos?.[$i]}
+									{$prev[$i] = $win.find_previous($diff, (d) => d.pos?.[$i]).pos?.[$i]}
 								{/for}
 
 								<table style="width: 300px;">
@@ -189,7 +189,7 @@
 						{if $diff.dir}
 							<div class="block">
 								{* assume one dir can't be changed without the other *}
-								{assign prev = $win.find_previous(diff, (d) => d.dir)}
+								{assign prev = $win.find_previous($diff, (d) => d.dir)}
 								<span class="header">Direction</span>
 								<span class="minus">{@Math.round(Math.atan2($prev.dir[2], $prev.dir[0]) * 10000) / 10000}</span>
 								<span class="plus">{@Math.round(Math.atan2($diff.dir[2], $diff.dir[0]) * 10000) / 10000}</span>
@@ -205,7 +205,7 @@
 								<span class="header">{if $obj.type == 'npc'}Type{else}Group {@$groupidx + 1}{/if}</span>
 								{if $dgroup.type}
 									<div class="block">
-										{assign prev = $win.find_previous(diff, (d) => d?.groups?.[$groupidx]?.type)}
+										{assign prev = $win.find_previous($diff, (d) => d?.groups?.[$groupidx]?.type)}
 										{assign pspawned_id = $prev.groups?.[$groupidx]?.type}
 										{assign pspawned = db.npcs[$pspawned_id] || db.monsters[$pspawned_id] || db.mines[$pspawned_id]}
 										{if $obj.type != 'npc'}<span class="header">Group {@(parseInt($groupidx) + 1)}.</span>{/if}
