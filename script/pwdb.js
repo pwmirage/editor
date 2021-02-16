@@ -223,6 +223,7 @@ class PWDB {
 		}
 
 		db.project_changelog_start_gen = 0;
+		let project_changeset = null;
 		if (!args.new) {
 			if (project.pid > 0) {
 				try {
@@ -251,19 +252,32 @@ class PWDB {
 						}
 					}
 					db.new_generation();
-					db.load(changesets[i]);
-					db.new_generation();
+
+					project_changeset = changesets[i];
 				} catch (e) { }
 			}
 
-			const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
-			if (changeset_str) {
-				const changeset = JSON.parse(changeset_str);
-				db.load(changeset);
-			}
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
+			if (obj._db.type != 'metadata' && !obj._db.project_initial_state) {
+				const state = DB.clone_obj(obj._db.changesets[0]);
+				for (const c of obj._db.changesets) {
+					if (c._db.generation == 0) {
+						/* initial object state */
+						continue;
+					}
+
+					if (c._db.generation >= db.project_changelog_start_gen) {
+						break;
+					}
+
+					DB.apply_diff(state, c);
+				}
+
+				obj._db.project_initial_state = state;
+			}
+
 			const c = obj._db.changesets[obj._db.changesets.length - 1];
 			if (c._db.undone) {
 				for (const f in diff) {
@@ -272,6 +286,21 @@ class PWDB {
 			}
 			PWDB.has_unsaved_changes = true;
 		});
+
+		try {
+			if (project_changeset) {
+				db.load(project_changeset);
+				db.new_generation();
+
+				const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
+				if (changeset_str) {
+					const changeset = JSON.parse(changeset_str);
+					db.load(changeset);
+				}
+			}
+		} catch (e) {
+			console.error(e);
+		}
 
 		return db;
 	}

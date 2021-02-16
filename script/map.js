@@ -336,24 +336,6 @@ class PWMap {
 			}
 
 			this.modified_db_objs.add(obj);
-			if (!obj._db.project_initial_state) {
-				const state = DB.clone_obj(obj._db.changesets[0]);
-				for (const c of obj._db.changesets) {
-					if (c._db.generation == 0) {
-						/* initial object state */
-						continue;
-					}
-
-					if (c._db.generation >= db.project_changelog_start_gen) {
-						break;
-					}
-
-					DB.apply_diff(state, c);
-				}
-
-				obj._db.project_initial_state = state;
-			}
-
 			if ((obj._removed && obj._db.changesets[1].generation < db.project_changelog_start_gen) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
 				this.modified_db_objs.delete(obj);
 				const el = changed_objects_map.get(obj);
