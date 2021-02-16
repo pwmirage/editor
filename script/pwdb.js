@@ -479,7 +479,7 @@ class PWDB {
 			set_val(obj, prev_val);
 			db.commit(obj);
 
-			if (obj._db.changesets?.length) {
+			if (obj._db.changesets && obj._db.changesets.length) {
 				/* mark all subsequent changes as non undo-able, otherwise
 				 * undo will just always make a cycle */
 				for (let j = Math.max(1, i + 1); j < obj._db.changesets.length; j++) {
