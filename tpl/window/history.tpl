@@ -215,8 +215,6 @@
 								{/if}
 							</div>
 						{/for}
-				{else}
-					<span>{@$type}</span>
 				{/if}
 				</div>
 				</div>

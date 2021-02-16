@@ -154,7 +154,5 @@
 			{/if}
 		</div>
 	{/for}
-{else}
-	<span>{@$type}</span>
 {/if}
 </script>
