@@ -27,7 +27,7 @@ g_mg_pages['rebase'] = new class {
 		this.branches = req.data;
 
 		req = await post(ROOT_URL + 'project/list', { is_json: 1, data: {name: 'test'}});
-		this.projects = req.data;
+		this.projects = req.ok ? req.data : [];
 
 		const data = await this.tpl.run({ page: this, project: this.project, branches: this.branches, projects: this.projects });
 		this.dom.append(data);
