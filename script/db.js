@@ -298,14 +298,6 @@ class DB {
 				changeset = diff;
 				changeset_empty = false;
 
-				/* if this a newly allocated object it will be now appended to the array */
-				if (obj._db.is_allocated && obj.id == 0) {
-					obj.id = this.new_id_start + this.new_id_offset;
-					this.new_id_offset++;
-					diff.id = obj.id;
-					this[obj._db.type][obj.id] = obj;
-				}
-
 				/* add to global changelog */
 				last_changelog.add(changeset);
 			} else {
@@ -376,14 +368,28 @@ class DB {
 	}
 
 	clone(obj, commit_cb) {
-		let copy = {};
-		copy.id = 0;
-		copy._db = { type: obj._db.type, is_allocated: true, commit_cb: commit_cb };
-		db.open(copy);
+		const copy = this._new(obj._db.type, obj, commit_cb);
+		const id = copy.id;
+
+		this.open(copy);
 		DB.copy_obj_data(copy, obj);
-		copy.id = 0;
-		db.commit(copy);
+		copy.id = id;
+		this.commit(copy);
+
 		return copy;
+	}
+
+	_new(type, base, commit_cb) {
+		const obj = {};
+
+		obj._db = { type, is_allocated: true, commit_cb: commit_cb };
+		const id = obj.id = this.new_id_start + this.new_id_offset;
+		this.new_id_offset++;
+		this[obj._db.type][obj.id] = obj;
+
+		DB.init_obj_data(obj, base);
+		obj.id = id;
+		return obj;
 	}
 
 	/**
@@ -398,13 +404,7 @@ class DB {
 		if (!arr) throw new Error(`Unknown db type (${type})`);
 
 		const base = arr.values().next().value;
-		const obj = { };
-		DB.init_obj_data(obj, base);
-
-		this.init(type, obj);
-		obj._db.is_allocated = true;
-		obj._db.commit_cb = commit_cb;
-		return obj;
+		return this._new(type, base, commit_cb);
 	}
 
 	rebase(obj, base) {
@@ -517,7 +517,7 @@ class DB {
 		for (const f in diff) {
 			if (f === '_db') continue;
 			if (typeof(diff[f]) === 'object') {
-				if (!obj.hasOwnProperty(f)) {
+				if (!obj.hasOwnProperty(f) || obj[f] === undefined) {
 					/* diff is always an object, so can't use Array.isArray() */
 					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
