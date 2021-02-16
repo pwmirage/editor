@@ -687,6 +687,9 @@ class HTMLSugar {
 				break;
 			}
 			case 3: { /* create new */
+				const obj = db.new(obj_type);
+				update_obj_fn(obj);
+				edit_obj_fn(obj);
 				break;
 			}
 			case 4: { /* clone & edit */
