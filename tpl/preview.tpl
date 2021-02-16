@@ -300,5 +300,70 @@
 			</div>
 		</div>
 	</div>
+
+{@@
+<style>
+#changed-objects {
+	display: flex;
+	flex: 1;
+	flex-wrap: wrap-reverse;
+	column-gap: 5px;
+	align-items: baseline;
+	margin-top: -3px;
+	max-height: 86px;
+	overflow: hidden;
+}
+
+#more-objects,
+#changed-objects > div {
+	background-color: #dccfcf;
+	border-radius: 2px;
+	border-width: 0;
+	color: rgba(33, 33, 33, 1);
+	cursor: pointer;
+	display: flex;
+	font-weight: 400;
+	margin: 0;
+	padding: 4px;
+	padding-right: 6px;
+	text-decoration: none;
+	line-height: 1.48;
+	user-select: none;
+	column-gap: 3px;
+	max-width: 150px;
+	height: 32px;
+	margin-top: 5px;
+	overflow: hidden;
+}
+
+#more-objects:hover,
+#changed-objects > div:hover {
+	background-color: rgba(156, 120, 120, 1);
+	color: rgba(255, 255, 255, 1);
+	text-decoration: none;
+}
+
+#more-objects {
+	display: none;
+	line-height: 31px;
+	min-width: 75px;
+	text-align: center;
+	overflow: hidden;
+}
+
+#changed-objects > div > img {
+	width: 32px;
+	height: 32px;
+}
+
+#changed-objects > div > span {
+	align-self: center;
+	line-height: 16px;
+	overflow: hidden;
+	margin: auto;
+}
+
+</style>
+@@}
 </script>
 

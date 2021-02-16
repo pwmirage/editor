@@ -3,27 +3,25 @@
 	<span style="font-weight: bold;">Has non-published changes</span>
 {/if}
 <div id="container">
-	<div id="menu">
-		{for i = 0; i < $preview.tabs.length; i++}
-			{assign tab = $preview.tabs[$i]}
-			<div onclick="{serialize $preview}.select_tab('{@$i}');">
-				{assign tabnames = \{
-					npcs: 'NPC',
-					npc_spawns: 'Spawner',
-					npc_recipes: 'NPC Recipes',
-					npc_sells: 'NPC Goods',
-					recipes: 'Recipes',
-					items: 'Items',
-				\}}
-				<p>{@$i + 1}. {@$tabnames[$tab.type] || $tab.type}</p>
+	{assign i = 0}
+	{assign max_items = parseInt($preview.dataset.maxItems)}
+	{for obj of $objects}
+		{if ++$i >= $max_items}
+			<div onclick="">
+				<img style="visibility: hidden; width: 0;">
+				<span>+ {@$max_items - $i} more</span>
 			</div>
-		{/for}
-		{if $preview.tabs.length == 0}
-			<div class="disabled"><p>No changes</p></div>
+			{break}
 		{/if}
-	</div>
-	<div id="element">
-	</div>
+
+		<div onclick="">
+			<img src="{@PWPreview.get_obj_img($db, $obj)}">
+			<span>{@$obj.name || PWPreview.get_obj_type(obj).name } {@serialize_db_id($obj.id)}</span>
+		</div>
+	{/for}
+	{if $objects.length == 0}
+		<span>No changes</span>
+	{/if}
 </div>
 
 {@@
@@ -37,52 +35,64 @@
 #container {
 	position: absolute;
 	display: flex;
+	flex-wrap: wrap;
+	column-gap: 5px;
+	align-items: baseline;
+	margin-top: -3px;
+	overflow: hidden;
+	font-size: 14px;
 }
 
-#menu {
-	overflow-y: auto;
-	overflow-x: hidden;
-	border: 1px solid #b47a63;
-	height: fit-content;
-}
-
-#menu div > p {
-	display: inline-block;
-	padding: 8px;
-	margin: 0;
-	width: 100px;
-	background-color: var(--color-button-bg);
-	color: var(--color-button-fg);
+#more-objects,
+#container > div {
+	background-color: #dccfcf;
+	border-radius: 2px;
+	border-width: 0;
+	color: rgba(33, 33, 33, 1);
 	cursor: pointer;
-	font-size: 12px;
-	font-weight: bold;
+	display: flex;
+	font-weight: 400;
+	margin: 0;
+	padding: 4px;
+	padding-right: 6px;
+	text-decoration: none;
+	line-height: 1.48;
+	user-select: none;
+	column-gap: 3px;
+	width: 187px;
+	height: 32px;
+	margin-top: 5px;
+	overflow: hidden;
 }
 
-#menu div.selected > p {
-	background-color: var(--color-button-bg-darker);
+#more-objects:hover,
+#container > div:hover {
+	background-color: rgba(156, 120, 120, 1);
+	color: rgba(255, 255, 255, 1);
+	text-decoration: none;
 }
 
-#menu div.disabled > p {
-	background-color: #d4d4d4;
-	color: #908484;
+#more-objects {
+	display: none;
+	line-height: 31px;
+	min-width: 75px;
 	text-align: center;
+	overflow: hidden;
 }
 
-#menu div.more {
-	position: absolute;
-	z-index: 2;
-	border: 1px solid #b47a63;
-	margin-left: -1px;
+#container > div > img {
+	width: 32px;
+	height: 32px;
 }
 
-#menu div.more > div {
-	max-height: 0;
-	transition: max-height 0.2s ease-in-out;
+#container > div > span {
+	align-self: center;
+	line-height: 16px;
+	overflow: hidden;
+	margin: auto;
+	margin-left: 0;
 }
 
-#menu div.more.expanded > div {
-	max-height: 30px;
-}
 </style>
 @@}
 </script>

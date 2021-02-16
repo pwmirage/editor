@@ -191,7 +191,6 @@ class PWPreviewElement extends HTMLElement {
 
 		this.db = {};
 
-		this.tabs = [];
 		let count = 0;
 		for (const arr_name in g_latest_db) {
 			this.db[arr_name] = init_id_array([], g_latest_db[arr_name]);
@@ -202,10 +201,9 @@ class PWPreviewElement extends HTMLElement {
 				continue;
 			}
 
-			/* XXX: don't just put everything to tabs -> smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
+			/* XXX add smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
 
 			this.db[obj._db.type][obj.id] = obj;
-			this.tabs.push({ obj: obj, type: obj._db.type });
 		}
 
 		await Promise.all([
@@ -214,10 +212,8 @@ class PWPreviewElement extends HTMLElement {
 		]);
 
 		const has_local_changes = !!this.dataset.hash && !!this.dataset.edits;
-		const data = await this.tpl.run({ preview: this, db: this.db, has_local_changes });
+		const data = await this.tpl.run({ preview: this, db: this.db, objects: preview_db, has_local_changes });
 		this.shadow.append(data);
-
-		await this.select_tab(0);
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
 		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db: this.db, edit: false });
