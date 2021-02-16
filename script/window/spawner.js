@@ -220,6 +220,7 @@ class SpawnerWindow extends Window {
 		x, y, bg: false,
 		entries: [
 			{ name: 'World: ' + this.spawner._db.type.replace('spawners_', '') },
+			{ id: 3, name: 'Show project diff', disabled: !this.spawner._db.project_initial_state },
 			{ id: 1, name: 'Remove', visible: !this.spawner._removed },
 			{ id: 2, name: 'Restore', visible: !!this.spawner._removed },
 		]});
@@ -238,6 +239,9 @@ class SpawnerWindow extends Window {
 				db.commit(this.spawner);
 				this.dom_header.classList.remove('removed');
 				break;
+			}
+			case 3: {
+				DiffWindow.open({ obj: this.spawner, prev: this.spawner._db.project_initial_state });
 			}
 		}
 	}

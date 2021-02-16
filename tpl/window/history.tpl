@@ -102,7 +102,7 @@
 										{for i = 0; i < 8; i++}
 											{assign prev_id = $get_item_id($rowid * 8 + $i)}
 											{assign cur_id = $page.item_id[$rowid * 8 + $i] ?? $prev_id}
-											<div class="flex-rows" style="gap: 2px;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">
+											<div class="flex-rows" style="gap: 2px;" onmousemove="PWPreview.try_show_obj_tooltip(db, event);" onmouseleave="this.onmousemove(event);">
 												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}"><img{ } src="{@PWPreview.get_item_icon(db, $prev_id)}" alt=""></span>
 												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}"><img{ } src="{@PWPreview.get_item_icon(db, $cur_id)}" alt=""></span>
 											</div>
@@ -148,7 +148,7 @@
 										{for i = 0; i < 8; i++}
 											{assign prev_id = $get_recipe_id($rowid * 8 + $i)}
 											{assign cur_id = $page.recipe_id[$rowid * 8 + $i] ?? $prev_id}
-											<div class="flex-rows" style="gap: 2px;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">
+											<div class="flex-rows" style="gap: 2px;" onmousemove="PWPreview.try_show_obj_tooltip(db, event);" onmouseleave="this.onmousemove(event);">
 												<span class="recipe {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($prev_id)}" alt=""></span>
 												<span class="recipe {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
 											</div>
@@ -240,8 +240,16 @@
 				{if !$diff}
 					{continue}
 				{/if}
-				{if $type == 'metadata'}{continue}{/if}
-				{@PWPreview.diff(\{ db, obj: $obj, diff: $diff, prev: $obj._db.project_initial_state \})}
+				{if $obj._db.type == 'metadata'}{continue}{/if}
+				{assign type = PWPreview.get_obj_type($obj)}
+				<div style="font-size: 13px;" onclick="{serialize $type}.open_fn();">
+					<div class="header">
+						<img src="{@PWPreview.get_obj_img(db, $obj)}">
+						<span>{@$obj.name || $type.name } {@serialize_db_id($obj.id)}</span>
+					</div>
+
+					{@PWPreview.diff(\{ db, obj: $obj, diff: $diff, prev: $obj._db.project_initial_state \})}
+				</div>
 			{/for}
 		</div>
 		</div>
