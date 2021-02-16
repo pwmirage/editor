@@ -477,6 +477,7 @@
 	align-content: flex-start;
 	flex-wrap: wrap;
 	margin-right: -4px;
+	text-align: left;
 }
 
 #item_info:not(.edit) {

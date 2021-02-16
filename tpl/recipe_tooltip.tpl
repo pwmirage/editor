@@ -147,6 +147,7 @@
 	align-content: flex-start;
 	flex-wrap: wrap;
 	margin-right: -4px;
+	text-align: left;
 }
 
 #recipe_info:not(.edit) {
