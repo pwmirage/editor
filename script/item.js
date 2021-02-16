@@ -259,8 +259,13 @@ class ItemTooltip {
 	}
 
 	static last_reloaded = null;
-	reload(item, bounds) {
+	reload(item, bounds, db) {
 		ItemTooltip.last_reloaded = this;
+
+		if (db) {
+			this.db = db;
+		}
+
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.item = item;
 		const old_tooltip = this.shadow.querySelector('#item_info');
@@ -313,8 +318,12 @@ class RecipeTooltip {
 	}
 
 	static last_reloaded = null;
-	reload(recipe, bounds) {
+	reload(recipe, bounds, db) {
 		RecipeTooltip.last_reloaded = this;
+
+		if (db) {
+			this.db = db;
+		}
 
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
@@ -336,6 +345,6 @@ document.addEventListener('scroll', (e) => {
 	}
 	if (RecipeTooltip.last_reloaded) {
 		RecipeTooltip.last_reloaded.dom.style.display = 'none';
-		ItemTooltip.last_reloaded.scroll_hidden = true;
+		RecipeTooltip.last_reloaded.scroll_hidden = true;
 	}
 }, { passive: false });

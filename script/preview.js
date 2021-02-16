@@ -17,10 +17,19 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
+			load_tpl(ROOT_URL + 'tpl/preview/diff.tpl'),
 		]);
 
 		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
 		customElements.define('pw-diff', PWPreviewElement);
+
+		const mgeArea = document.querySelector('#mgeArea');
+		PWPreview.item_win = new ItemTooltip({ parent_el: mgeArea, edit: false });
+		PWPreview.recipe_win = new RecipeTooltip({ parent_el: mgeArea, edit: false });
+		
+		const s = newStyle(ROOT_URL + 'css/preview.css');
+		await new Promise((resolve) => { s.onload = resolve; });
+		PWPreview.recipe_win.shadow.prepend(s);
 	}
 
 	static is_empty(obj) {
@@ -115,6 +124,21 @@ class PWPreview {
 		}
 
 		return src || (ROOT_URL + '/img/' + file);
+	}
+
+	static try_show_obj_tooltip(db, e) {
+		const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
+		const item = el?.classList.contains('item') ? el : null;
+		const recipe = el?.classList.contains('recipe') ? el : null;
+
+		HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db });
+		HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: db });
+	};
+
+	static get_item_icon(db, itemid) {
+		const item = db.items[itemid];
+		return item ? Item.get_icon(item.icon || 0) : (ROOT_URL + 'img/itemslot.png');
+
 	}
 
 	static load_promise;
@@ -212,7 +236,7 @@ class PWPreviewElement extends HTMLElement {
 		]);
 
 		const has_local_changes = !!this.dataset.hash && !!this.dataset.edits;
-		const data = await this.tpl.run({ preview: this, db: this.db, objects: preview_db, has_local_changes });
+		const data = this.tpl.run({ preview: this, db: this.db, objects: preview_db, has_local_changes });
 		this.shadow.append(data);
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
@@ -284,7 +308,7 @@ class PWPreviewNPCSells extends PWPreviewShadowElement {
 		this.selected_tab = 0;
 
 		await load_tpl(ROOT_URL + 'tpl/preview/sell.tpl');
-		const data = await this.tpl.run({ preview: this.root, win: this, db: this.db, goods: this.obj });
+		const data = this.tpl.run({ preview: this.root, win: this, db: this.db, goods: this.obj });
 		this.shadow.append(data);
 	}
 
@@ -349,7 +373,7 @@ class PWPreviewNPCCrafts extends PWPreviewShadowElement {
 		this.selected_tab = 0;
 
 		await load_tpl(ROOT_URL + 'tpl/preview/craft.tpl');
-		const data = await this.tpl.run({ preview: this.root, win: this, db: this.db, crafts: this.obj });
+		const data = this.tpl.run({ preview: this.root, win: this, db: this.db, crafts: this.obj });
 		this.shadow.append(data);
 	}
 

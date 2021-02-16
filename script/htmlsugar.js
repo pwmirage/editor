@@ -788,7 +788,7 @@ class HTMLSugar {
 		params.db = params.db || document.db;
 		const obj = params.db[type][id] || { id };
 		const bounds = el.getBoundingClientRect();
-		win.reload(obj, bounds);
+		win.reload(obj, bounds, params.db);
 	}
 
 	static show_item_tooltip(item_win, el, params) {
