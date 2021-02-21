@@ -112,7 +112,7 @@ finish_test('basic');
 	db.commit(obj);
 	/* no changes, so the object commit cb isn't called */
 	assert(called == 0);
-	assert(obj.id == 0);
+	assert(obj.id > 0);
 	assert(db.changelog.length == 2);
 	assert(db.changelog[1].size == 1);
 
@@ -121,18 +121,18 @@ finish_test('basic');
 	called = 0;
 	cb = obj_commit_cb = db.register_commit_cb((obj, diff, prev) => {
 		called++;
-		assert(obj.id == 84);
-		assert(prev.id == 0);
+		assert(obj.id == 42);
+		assert(prev.id == 42);
 		assert(diff.field == "new_value");
 		assert(!prev.field);
 		assert(!diff.field2);
 	});
 
 	db.new_id_start = 84;
-	assert(db.new_id_offset == 0);
+	assert(db.new_id_offset == 1);
 	db.open(obj);
 	obj.field = "new_value";
-	assert(db.new_id_offset == 0);
+	assert(db.new_id_offset == 1);
 	db.commit(obj);
 	assert(db.new_id_offset == 1);
 	assert(db.changelog.length == 2);
@@ -156,7 +156,7 @@ finish_test('basic');
 
 	assert(db2.changelog.length == 2);
 	assert(db2.changelog[1].size == 2);
-	assert(db2.new_id_offset == 1);
+	assert(db2.new_id_offset == 2);
 	finish_test('save/load');
 }
 
