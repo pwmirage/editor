@@ -9,7 +9,7 @@
 		{if ++$i >= $max_items}
 			<div onclick="">
 				<img style="visibility: hidden; width: 0;">
-				<span>+ {@$max_items - $i + 1} more</span>
+				<span>+ {@$max_items - $i + 3} more</span>
 			</div>
 			{break}
 		{/if}
