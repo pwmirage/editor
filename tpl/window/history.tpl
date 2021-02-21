@@ -36,7 +36,7 @@
 							{assign spawned_id = $obj.groups?.[0]?.type || 0}
 							{assign typename = $obj.type == 'npc' ? 'NPC' : ($obj.type == 'resource' ? 'Resource' : 'Monster')}
 							{assign spawned = db.npcs[$spawned_id] || db.monsters[$spawned_id] || db.mines[$spawned_id]}
-							<span>{@$typename} Spawner: {@$obj.name || $spawned.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
+							<span>{@$typename} Spawner: {@$obj.name || $spawned?.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
 						{else}
 							<span>{@PWDB.get_type_name($obj._db.type)}: {@$obj.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
 						{/if}
