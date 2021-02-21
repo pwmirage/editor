@@ -99,6 +99,13 @@ class Editor {
 		const page_main = document.querySelector('#main');
 		if (page_main) {
 			page_main.style.display = 'none';
+
+			/* put the fullscreen dialog container outside */
+			const dialog_overlay = document.querySelector('.dialogOverlay');
+			if (dialog_overlay) {
+				dialog_overlay.remove();
+				page_main.parentNode.insertBefore(dialog_overlay, page_main);
+			}
 		}
 
 		console.log('Editor open');
