@@ -27,11 +27,11 @@
 		{assign page = $diff.pages[$i]}
 		{assign prev_page = $prev.pages[$i]}
 		<div class="block">
-			<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
+			<span class="header">Tab "{@($page.title ?? $prev.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
 			{if $page.title !== undefined}
 				<div class="block">
 					<span class="header">Name</span>
-					<span class="minus">{@$prev.pages[$i].title}</span>
+					<span class="minus">{@$prev.pages?.[$i]?.title || '(unnamed)'}</span>
 					<span class="plus">{@$page.title}</span>
 				</div>
 			{/if}
@@ -69,11 +69,11 @@
 		{assign page = $diff.pages[$i]}
 		{assign prev_page = $prev.pages[$i]}
 		<div class="block">
-			<span class="header">Tab "{@($page.title ?? $prev.pages[$i].title) || '(unnamed)'}" #{@$i}</span>
+			<span class="header">Tab "{@($page.title ?? $prev.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
 			{if $page.title !== undefined}
 				<div class="block">
 					<span class="header">Name</span>
-					<span class="minus">{@$prev.pages[$i].title}</span>
+					<span class="minus">{@$prev.pages?.[$i]?.title || '(unnamed)'}</span>
 					<span class="plus">{@$page.title}</span>
 				</div>
 			{/if}
