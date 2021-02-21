@@ -19,23 +19,14 @@
 	<div class="tabcontents">
 		<div id="base"></div>
 		<div id="history" class="history">
+			{if $project.pid}
+				<div>Project #{@$project.pid} created on {@(new Date($project.create_time * 1000)).toLocaleString()}</div>
+			{/if}
 			{assign cur_generation = 0}
-			{for gen of db.changelog}{for diff of $gen}
+
+			{for gen_id = db.project_changelog_start_gen; gen_id < db.changelog.length; gen_id++}{for diff of db.changelog[$gen_id]}
 				{assign obj = $diff._db.obj}
 				{assign type = $obj._db.type}
-				{if $diff._db.generation > $cur_generation}
-					{assign cur_generation = $diff._db.generation}
-					{assign project = $win.get_project(gen)}
-					{if !$project_reached && $diff._db.generation == db.project_changelog_start_gen}
-						{assign project_reached = true}
-						<div>Your changes start here</div>
-					{/if}
-					{if $project?.pid || $project?.edit_time}
-						<div>Project {if $project.pid}#{@$project.pid}{/if} {if $project.edit_time}{@(new Date($project.edit_time * 1000)).toLocaleString()}{/if}</div>
-					{else}
-						{* <div>New generation</div> *}
-					{/if}
-				{/if}
 				{assign generic_fields = PWDB.get_type_fields($type) || \{\} }
 				{if $type == 'metadata'}{continue}{/if}
 
