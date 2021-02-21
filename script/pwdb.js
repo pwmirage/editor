@@ -179,7 +179,6 @@ class PWDB {
 			base: 0,
 			edit_time: 0,
 		};
-		db.new_id_start = 0x80000000 + project.pid * 0x100000;
 
 		let spawner_arrs = null;
 
@@ -232,6 +231,10 @@ class PWDB {
 					const removed_objs = new Set();
 					let i;
 					for (i = 0; i < changesets.length - 1; i++) {
+						const changeset = changesets[i];
+						const proj_change = changeset[0];
+						const pid = proj_change.pid;
+						db.new_id_start = 0x80000000 + pid * 0x100000;
 						db.load(changesets[i], { join_changesets: true });
 					}
 					db.project_changelog_start_gen = db.changelog.length;
@@ -287,6 +290,7 @@ class PWDB {
 			PWDB.has_unsaved_changes = true;
 		});
 
+		db.new_id_start = 0x80000000 + project.pid * 0x100000;
 		try {
 			if (project_changeset) {
 				db.load(project_changeset);

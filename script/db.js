@@ -393,6 +393,29 @@ class DB {
 		return obj;
 	}
 
+	/* Create a new object with a specific ID */
+	_new_by_id(type, id) {
+		const obj = {};
+
+		if (this[type][id]) {
+			throw new Error(`Can't create a new object. ID already occupied! (${type})`);
+		}
+
+		obj._db = { type, is_allocated: true };
+		obj.id = id;
+
+		if (obj.id > this.new_id_start + this.new_id_offset) {
+			this.new_id_offset = obj.id - this.new_id_start + 1;
+		}
+
+		this[obj._db.type][obj.id] = obj;
+
+		const base = this[type].values().next().value;
+		DB.init_obj_data(obj, base);
+		obj.id = id;
+		return obj;
+	}
+
 	/**
 	 * Create a new object of given type. The object won't have any id
 	 * assigned so far (it will be visible as 0) - it will be assigned
@@ -462,16 +485,11 @@ class DB {
 		const load_change = (change) => {
 			let org = this[change._db.type][change.id];
 			if (!org) {
-				org = this.new(change._db.type);
-				this.new_id_offset++;
+				org = this._new_by_id(change._db.type, change.id);
 			}
 
 			this.open(org);
 			DB.copy_obj_data(org, change);
-			if (org.id !== undefined) {
-				/* we've copied the id over, now it's time to fill the db entry */
-				this[org._db.type][org.id] = org;
-			}
 			this.commit(org);
 
 			/* call the init_cb again */
