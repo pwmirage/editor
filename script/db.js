@@ -383,10 +383,11 @@ class DB {
 		const obj = {};
 
 		obj._db = { type, is_allocated: true, commit_cb: commit_cb };
-		const id = obj.id = this.new_id_start + this.new_id_offset;
+		obj.id = this.new_id_start + this.new_id_offset;
 		this.new_id_offset++;
 		this[obj._db.type][obj.id] = obj;
 
+		const id = obj.id;
 		DB.init_obj_data(obj, base);
 		obj.id = id;
 		return obj;
