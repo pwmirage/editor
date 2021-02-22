@@ -270,7 +270,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	display: block;
 }
 
-.input-select > .hints > *:hover {
+.input-select > .hints > span:hover {
 	background-color: rgba(251, 241, 241, 1);
 	border: solid 1px rgba(224, 176, 176, 1);
 }
