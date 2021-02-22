@@ -235,7 +235,7 @@ class Window {
 		} else if (this.dom_win.classList.contains('resizable') &&
 				e.clientX - bounds.left >= bounds.width - 18 &&
 				e.clientY - bounds.top >= bounds.height - 18) {
-			if (this.dom_win.classList.contains('minimized')) {
+			if (this.parent_win || this.dom_win.classList.contains('minimized')) {
 				return;
 			}
 
