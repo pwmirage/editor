@@ -295,14 +295,18 @@ class HTMLSugar {
 	}
 
 	static link_el(el) {
-		const f_str = el.dataset.link.split('=>');
+		const f_str = el.dataset.link?.split('=>');
 		el.removeAttribute('data-link');
 
-		const obj = new Function('return ' + f_str[0])();
-		let path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
+		let obj;
+		let path;
 
-		if (typeof path === 'string') {
-			path = [ path ];
+		if (f_str) {
+			obj = new Function('return ' + f_str[0])();
+			path = f_str[1].split(',').map((s) => s.trim().replace(/['"]/g, ""));
+		} else {
+			obj = {};
+			path = [];
 		}
 
 		const get_val_obj = (populate = false) => {
@@ -326,7 +330,7 @@ class HTMLSugar {
 		const is_float = el.classList.contains('is_float');
 		let is_number = false;
 		const set_el_val = (val) => {
-			if (obj._db.base && !val_obj.hasOwnProperty(p)) {
+			if (f_str && obj._db.base && !val_obj.hasOwnProperty(p)) {
 				el.classList.add('forked');
 			} else {
 				el.classList.remove('forked');
@@ -374,6 +378,10 @@ class HTMLSugar {
 		}
 
 		el._mg_set_val = (val) => {
+			if (!f_str) {
+				return;
+			}
+
 			db.open(obj);
 			const val_obj = get_val_obj(true);
 			val_obj[p] = val;
@@ -445,30 +453,87 @@ class HTMLSugar {
 		}
 	}
 
+	static show_select({x, y, container, obj, path}) {
+		return new Promise((resolve) => {
+			const el = newElement('<span></span>');
+			el._mg_select = container;
+
+			el.style.position = 'fixed';
+			el.style.left = x + 'px';
+			el.style.top = y + 'px';
+			el.style.zIndex = Window.focus_win_index;
+
+			Window.focus_win.shadow.append(el);
+			HTMLSugar._init_select(el);
+			const edit_el = el.querySelector('.edit');
+			const hints_el = el.querySelector('.hints');
+			const link_el = el.querySelector('.link');
+			
+			let hidden = false;
+			const try_hide = () => setTimeout(() => {
+				if (hidden) {
+					return;
+				}
+
+				if (hints_el.style.display !== 'none') {
+					try_hide();
+					return;
+				}
+
+				console.log(link_el.textContent);
+				el.remove();
+				resolve(link_el.textContent);
+				hidden = true;
+			}, 10);
+
+			const prev_select_fn = el._mg_select;
+			el._mg_select = (id, text) => {
+				try_hide();
+				prev_select_fn(id, text);
+			};
+
+			const prev_onblur = edit_el.onblur;
+			edit_el.onblur = (e) => {
+				prev_onblur(e);
+				try_hide();
+			}
+			edit_el.focus();
+			edit_el.oninput();
+		});
+	}
+
 	static init_select(el) {
 		const f_str = el.dataset.select;
 		el.removeAttribute('data-select');
+
+		el._mg_select = new Function('return ' + f_str)();
+		HTMLSugar._init_select(el);
+	}
+
+
+	static _init_select(el) {
 		const link_str = el.dataset.link;
 		el.removeAttribute('data-link');
 		const field_name = el.dataset.selectField;
 		el.removeAttribute('data-select-field');
 		const title_str = el.dataset.title;
 
-		const select_arr = new Function('return ' + f_str)();
-		el._mg_select = select_arr;
+		const select_arr = el._mg_select;
 
 		const edit_el = newElement('<span class="edit"></span>');
 		edit_el.classList.add('input-text');
 		edit_el.contentEditable = "true";
 		el.append(edit_el);
 
-		const link_el = newElement('<span></span>');
+		const link_el = newElement('<span class="link"></span>');
 		if (!field_name) {
 			link_el.classList.add('input-number');
 		} else {
 			link_el.classList.add('input-text');
 		}
-		link_el.dataset.link = link_str;
+		if (link_str) {
+			link_el.dataset.link = link_str;
+		}
 		link_el.style.display = 'none';
 		el.append(link_el);
 		HTMLSugar.link_el(link_el);
@@ -489,7 +554,7 @@ class HTMLSugar {
 		const close_el = newElement('<div class="close"></div>');
 		el.append(close_el);
 
-		const select = (id, text) => {
+		el._mg_select = (id, text) => {
 			if (!id) {
 				el.classList.remove('selected');
 				edit_el.title = '';
@@ -509,7 +574,10 @@ class HTMLSugar {
 			} else {
 				el.classList.remove('forked');
 			}
+			hints_el.style.display = 'none';
 		}
+
+		const select = (id, text) => el._mg_select(id, text);
 
 		close_el.onclick = () => {
 			select(0, "");
