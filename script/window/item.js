@@ -67,30 +67,26 @@ class ItemChooserWindow extends ChooserWindow {
 		HTMLSugar.show_item_tooltip(this.item_win, el, { db });
 	}
 
-	_filter(f) {
-		this.items = db.items.filter(f).sort((a, b) => {
-			if (!a.name) {
-				return 1;
-			} else if (!b.name) {
-				return -1;
-			} else {
-				return a.name.localeCompare(b.name);
-			}
-		});
+	filter(str) {
+		let items;
+
+		if (!str) {
+			const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+			this.items = this.all_items.sort((a, b) => collator.compare(a.name, b.name));
+		} else {
+			items = fuzzysort.go(str, this.all_items, { key: 'name', allowTypo: true });
+			this.items = items.map(i => i.obj);
+		}
 		this.pager_offset = 0;
 		this.move_pager(0);
-	}
-
-	filter(str) {
-		const lstr = str?.toLowerCase() || '';
-		return this._filter((i) => i && i.name.toLowerCase().includes(lstr));
 	}
 
 	select_tab(idx) {
 		const tab = this.tabs[idx];
 		this.selected_tab = idx;
 		this.tpl.reload('#search');
-		return this._filter(tab.filter);
+		this.all_items = db.items.filter(tab.filter);
+		this.filter(this.filter_str || '');
 	}
 }
 

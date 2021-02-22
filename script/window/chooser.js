@@ -161,6 +161,7 @@ class SimpleChooserWindow extends ChooserWindow {
 
 		let items;
 		if (!str) {
+			const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 			this.items = this.all_items.sort((a, b) => collator.compare(a.name, b.name));
 		} else {
 			items = fuzzysort.go(str, this.all_items, { key: 'name', allowTypo: true });
