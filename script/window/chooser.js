@@ -156,26 +156,14 @@ class SimpleChooserWindow extends ChooserWindow {
 		super.reload_items();
 	}
 
-	_filter(f) {
-		this.items = this.args.items.filter(f).sort((a, b) => {
-			if (!a.name) {
-				return 1;
-			} else if (!b.name) {
-				return -1;
-			} else {
-				return a.name.localeCompare(b.name);
-			}
-		});
-		this.pager_offset = 0;
-		this.move_pager(0);
-	}
-
 	filter(str) {
+		this.filter_str = str;
+
 		let items;
 		if (!str) {
-			this.items = [...this.args.items];
+			this.items = this.all_items.sort((a, b) => collator.compare(a.name, b.name));
 		} else {
-			items = fuzzysort.go(str, [...this.args.items], { key: 'name', allowTypo: true });
+			items = fuzzysort.go(str, this.all_items, { key: 'name', allowTypo: true });
 			this.items = items.map(i => i.obj);
 		}
 		this.pager_offset = 0;
@@ -186,7 +174,8 @@ class SimpleChooserWindow extends ChooserWindow {
 		const tab = this.tabs[idx];
 		this.selected_tab = idx;
 		this.tpl.reload('#search');
-		return this._filter(tab.filter);
+		this.all_items = this.args.items.filter(tab.filter);
+		this.filter(this.filter_str || '');
 	}
 
 	item_hover(idx, is_hover) {
