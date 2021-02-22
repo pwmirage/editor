@@ -254,7 +254,7 @@ span.tabname.selected {
 		<i class="close fa fa-close"></i>
 	</div>
 </div>
-<div class="content flex-rows" style="overflow: hidden;">
+<div class="content flex-rows">
 	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
 		<span style="width: 45px;">Name:</span>
 		<span data-input style="flex: 1;" data-link="{serialize $npc} => 'name'" data-placeholder="(unnamed)"></span>
