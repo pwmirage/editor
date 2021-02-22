@@ -171,8 +171,15 @@ class SimpleChooserWindow extends ChooserWindow {
 	}
 
 	filter(str) {
-		const lstr = str?.toLowerCase() || '';
-		return this._filter((i) => i && i.name.toLowerCase().includes(lstr));
+		let items;
+		if (!str) {
+			this.items = [...this.args.items];
+		} else {
+			items = fuzzysort.go(str, [...this.args.items], { key: 'name', allowTypo: true });
+			this.items = items.map(i => i.obj);
+		}
+		this.pager_offset = 0;
+		this.move_pager(0);
 	}
 
 	select_tab(idx) {
