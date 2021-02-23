@@ -413,22 +413,30 @@ class PWDB {
 				}
 				o = o[p];
 			}
-			return o ? o : null;
+			return o;
 		};
 
 		const set_val = (o, val) => {
 			for (let p_idx = 0; p_idx < path.length - 1; p_idx++) {
 				const p = path[p_idx];
-				if (!(p in o) || typeof(o) !== 'object') {
+				if (typeof(o[p]) !== 'object') {
+					o[p] = {};
+				} else if (!(p in o)) {
 					o[p] = {};
 				}
 				o = o[p];
 			}
 			const f = path[path.length - 1];
 			if (typeof(o[f]) === 'object') {
-				DB.apply_diff(o[f], val);
+				if (val) {
+					DB.apply_diff(o[f], val);
+				} else {
+					o[f] = null;
+				}
 			} else {
-				if (val === undefined || val === null) {
+				if (val === null && Number.isInteger(o[f])) {
+					val = 0;
+				} else if (val === null) {
 					val = '';
 				}
 				o[f] = val;
@@ -437,6 +445,7 @@ class PWDB {
 
 		/* find the changeset with this field (it might not be the last one) */
 		let cur_gen = 0;
+		let cur_val = undefined;
 		for (let i = obj._db.changesets.length - 1; i >= db.project_changelog_start_gen; i--) {
 			const c = obj._db.changesets[i];
 
@@ -444,12 +453,13 @@ class PWDB {
 				continue;
 			}
 
-			const prev_val = get_val(c);
-			if (prev_val === undefined) {
+			const val = get_val(c);
+			if (val === undefined) {
 				/* no change in this changeset, continue looking */
 				continue;
 			}
 
+			cur_val = val;
 			cur_gen = i;
 			break;
 		}
@@ -465,7 +475,7 @@ class PWDB {
 			}
 
 			prev_val = get_val(c);
-			if (prev_val === undefined && i > 0) {
+			if ((prev_val === undefined || prev_val == cur_val) && i > 0) {
 				/* no change in this changeset, continue looking */
 				continue;
 			}
@@ -496,10 +506,6 @@ class PWDB {
 			}
 
 		};
-
-		if (prev_val === undefined && cur_gen > 0) {
-			prev_val = null;
-		}
 
 		return { pval: prev_val, fn: fn };
 	}
