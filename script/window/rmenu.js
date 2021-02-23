@@ -5,8 +5,15 @@
 const g_rmenu_tpl = load_tpl(ROOT_URL + 'tpl/window/rmenu.tpl');
 class RMenuWindow extends Window {
 	static tpl = new Template('tpl-rmenu');
+	static last_rmenu = null;
 	async init() {
 		await g_rmenu_tpl;
+
+		if (RMenuWindow.last_rmenu) {
+			RMenuWindow.last_rmenu.close();
+		}
+		RMenuWindow.last_rmenu = this;
+
 		/* keep one cached copy to speed things up. There can be only one RMenu open
 		 * at a time */
 		this.tpl = RMenuWindow.tpl;
@@ -29,6 +36,11 @@ class RMenuWindow extends Window {
 		super.init();
 
 		setTimeout(() => this.activate(), 750);
+	}
+
+	close() {
+		super.close();
+		RMenuWindow.last_rmenu = null;
 	}
 
 	activate() {
