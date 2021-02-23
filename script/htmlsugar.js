@@ -436,11 +436,9 @@ class HTMLSugar {
 		};
 
 		if (f_str && !el.hasAttribute('data-preview')) {
-			el.oncontextmenu = (e) => { e.preventDefault(); return (async () => {
-				const x = e.clientX - Window.bounds.left;
-				const y = e.clientY - Window.bounds.top;
-
-				await HTMLSugar.open_undo_rmenu(x, y, obj, {
+			el.oncontextmenu = (e) => {
+				e.preventDefault();
+				return HTMLSugar.open_undo_rmenu(el.mg_rmenu_around_el || el, obj, {
 					undo_path: path,
 					undo_fn: () => {
 						const o = get_val_obj();
@@ -449,7 +447,7 @@ class HTMLSugar {
 					name_fn: el.mg_rmenu_name_fn
 				});
 
-			})(); }
+			};
 		}
 	}
 
@@ -703,8 +701,9 @@ class HTMLSugar {
 		}
 
 		if (!el.hasAttribute('data-preview')) {
-			if (el.oncontextmenu) {
+			if (link_el.oncontextmenu) {
 				link_el.mg_rmenu_name_fn = (val) => get_linked_obj(val)?.name || "";
+				link_el.mg_rmenu_around_el = el;
 				el.oncontextmenu = (e) => {
 					link_el.oncontextmenu(e).then(() => {
 						update_el(link_el.textContent);
@@ -718,12 +717,12 @@ class HTMLSugar {
 		}
 	}
 
-	static async open_edit_rmenu(x, y, obj, obj_type, { pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
+	static async open_edit_rmenu(around_el, obj, obj_type, { pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
 		const usages = await PWDB.find_usages(db, obj);
 
 		const win = await RMenuWindow.open({
-		x, y, bg: false,
+		around_el, bg: false,
 		entries: [
 			{ id: 1, name: 'Edit directly', disabled: !obj },
 			{ id: 2, name: 'Pick' },
@@ -818,7 +817,7 @@ class HTMLSugar {
 		}
 	}
 
-	static async open_undo_rmenu(x, y, obj, { undo_path, undo_fn, name_fn }) {
+	static async open_undo_rmenu(around_el, obj, { undo_path, undo_fn, name_fn }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
 		let undo_res = {};
 
@@ -831,7 +830,7 @@ class HTMLSugar {
 		}
 
 		const win = await RMenuWindow.open({
-		x, y, bg: false,
+		around_el, bg: false,
 		entries: [
 			{ id: 1, name: 'Undo: ' + (undo_res.pval === undefined ? '(none)' : name_fn(undo_res.pval)), visible: !!undo_path, disabled: undo_res.pval === undefined },
 			{ id: 7, name: 'Restore org', visible: false },

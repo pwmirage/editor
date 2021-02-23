@@ -170,15 +170,12 @@ class SpawnerWindow extends Window {
 		}
 	}
 
-	async pos_onclick(e) {
+	async pos_onclick(el, e) {
 		if (e.which == 1) {
 			const win = await SpawnerPositionWindow.open({ spawner: this.spawner });
 			win.onclose = () => this.tpl.reload('#position');
 		} else if (e.which == 3) {
-			const x = e.clientX - Window.bounds.left;
-			const y = e.clientY - Window.bounds.top;
-
-			HTMLSugar.open_undo_rmenu(x, y,	this.spawner, {
+			HTMLSugar.open_undo_rmenu(el, this.spawner, {
 				undo_path: [ 'pos' ],
 				undo_fn: () => this.tpl.reload('#position'),
 				name_fn: (pos) => {
@@ -191,15 +188,12 @@ class SpawnerWindow extends Window {
 		return false;
 	}
 
-	async dir_onclick(e) {
+	async dir_onclick(el, e) {
 		if (e.which == 1) {
 			const win = await SpawnerRotationWindow.open({ spawner: this.spawner });
 			win.onclose = () => this.tpl.reload('#rotation');
 		} else if (e.which == 3) {
-			const x = e.clientX - Window.bounds.left;
-			const y = e.clientY - Window.bounds.top;
-
-			HTMLSugar.open_undo_rmenu(x, y,	this.spawner, {
+			HTMLSugar.open_undo_rmenu(el, this.spawner, {
 				undo_path: [ 'dir' ],
 				undo_fn: () => this.tpl.reload('#rotation'),
 				name_fn: (dir) => {
@@ -310,9 +304,6 @@ class SpawnerWindow extends Window {
 
 	async open_group(el, idx, e) {
 		const group = this.spawner.groups[idx];
-		const coords = Window.get_el_coords(el);
-		const x = coords.left;
-		const y = coords.bottom;
 
 		if (e.which == 1) {
 			let type;
@@ -329,7 +320,7 @@ class SpawnerWindow extends Window {
 			}
 
 			const obj = db[type][group.type];
-			HTMLSugar.open_edit_rmenu(x, y, 
+			HTMLSugar.open_edit_rmenu(el,
 				obj, type, {
 				pick_win_title: 'Pick new ' + pretty_name + ' for ' + (this.spawner.name || 'Spawner') + ' ' + serialize_db_id(this.spawner.id),
 				update_obj_fn: (new_obj) => {
@@ -354,7 +345,7 @@ class SpawnerWindow extends Window {
 				}
 			});
 		} else if (e.which == 3) {
-			HTMLSugar.open_undo_rmenu(x, y,	this.spawner, {
+			HTMLSugar.open_undo_rmenu(el, this.spawner, {
 				undo_path: [ 'groups', idx, 'type' ],
 				undo_fn: () => { this.tpl.reload('#groups'); this.refresh_npc_window(); },
 				name_fn: (id) => id ? ((db.npcs[id]?.name || '(unnamed)') + ' ' + serialize_db_id(id)) : '(none)'

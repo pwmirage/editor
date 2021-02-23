@@ -21,19 +21,31 @@ class RMenuWindow extends Window {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const tpl_args = {
-			win: this,
-			x: this.args.x,
-			y: this.args.y,
-			bg: this.args.bg ?? true,
+			win: this, bg: this.args.bg ?? true,
 			entries: this.args.entries,
 		};
 
 		const data = this.tpl.run(tpl_args);
 
+		let x, y;
+		x = this.args.x;
+		y = this.args.y;
 		shadow.append(data);
 		this.args.x = 0;
 		this.args.y = 0;
 		super.init();
+
+		const menu_el = this.shadow.querySelector('.menu');
+		if (this.args.around_el) {
+			const menu_bounds = menu_el.getBoundingClientRect();
+			const around_el = this.args.around_el;
+			const bounds = Window.get_el_coords(around_el);
+			x = bounds.left + 1;
+			y = bounds.bottom + (this.args.around_margin || 0);
+		}
+
+		menu_el.style.left = x + 'px';
+		menu_el.style.top = y + 'px';
 
 		setTimeout(() => this.activate(), 750);
 	}

@@ -86,12 +86,8 @@ class NPCCraftsWindow extends Window {
 		let page = this.crafts.pages[this.selected_tab];
 
 		(async () => {
-			const coords = Window.get_el_coords(recipe_el);
-			const x = coords.left;
-			const y = coords.bottom;
-
 			if (was_selected && e.which == 1) {
-				HTMLSugar.open_edit_rmenu(x, y,
+				HTMLSugar.open_edit_rmenu(recipe_el,
 					obj, 'recipes', {
 					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + serialize_db_id(this.crafts.id),
 					update_obj_fn: (new_obj) => {
@@ -121,7 +117,7 @@ class NPCCraftsWindow extends Window {
 					},
 				});
 			} else if (e.which == 3) {
-				HTMLSugar.open_undo_rmenu(x, y,	this.crafts, {
+				HTMLSugar.open_undo_rmenu(recipe_el, this.crafts, {
 					undo_path: [ 'pages', this.selected_tab, 'recipe_id', recipe_idx ],
 					undo_fn: () => this.tpl.reload('#items')
 				});
@@ -136,11 +132,7 @@ class NPCCraftsWindow extends Window {
 		const recipe_id = page.recipe_id[this.selected_recipe];
 		const recipe = db.recipes[recipe_id];
 
-		const coords = Window.get_el_coords(el);
-		const x = coords.left;
-		const y = coords.bottom;
-
-		HTMLSugar.open_edit_rmenu(x, y,
+		HTMLSugar.open_edit_rmenu(el,
 			recipe, 'recipes', {
 			update_obj_fn: (new_obj) => {
 				const s = this.crafts;
@@ -256,11 +248,8 @@ class NPCGoodsWindow extends Window {
 			if (e.which == 1) {
 				const itemid = page?.item_id ? page.item_id[item_idx] : 0;
 				const obj = db.items[itemid];
-				const coords = Window.get_el_coords(this.hover_el);
-				const x = coords.left;
-				const y = coords.bottom;
 
-				HTMLSugar.open_edit_rmenu(x, y,
+				HTMLSugar.open_edit_rmenu(this.hover_el,
 					obj, 'items', {
 					pick_win_title: 'Pick new item for ' + (this.goods.name || 'Goods') + ' ' + serialize_db_id(this.goods.id),
 					update_obj_fn: (new_obj) => {
@@ -290,7 +279,7 @@ class NPCGoodsWindow extends Window {
 					},
 				});
 			} else if (e.which == 3) {
-				HTMLSugar.open_undo_rmenu(x, y,	this.crafts, {
+				HTMLSugar.open_undo_rmenu(this.hover_el, this.crafts, {
 					undo_path: [ 'pages', this.selected_tab, 'item_id', item_idx ],
 					undo_fn: () => this.tpl.reload('#items')
 				});
@@ -376,9 +365,6 @@ class NPCWindow extends Window {
 	}
 
 	async edit(el, what, e) {
-		const coords = Window.get_el_coords(el);
-		const x = coords.left;
-		const y = coords.bottom;
 		let obj;
 		const is_craft = what == 'crafts';
 		if (!is_craft) {
@@ -388,7 +374,7 @@ class NPCWindow extends Window {
 		}
 
 		if (e.which == 1) {
-			HTMLSugar.open_edit_rmenu(x, y,
+			HTMLSugar.open_edit_rmenu(el,
 				obj, 'npc_' + what, {
 					pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
 				update_obj_fn: (new_obj) => {
@@ -412,7 +398,7 @@ class NPCWindow extends Window {
 				},
 			});
 		} else if (e.which == 3) {
-			HTMLSugar.open_undo_rmenu(x, y,	this.npc, {
+			HTMLSugar.open_undo_rmenu(el, this.npc, {
 				undo_path: [ is_craft ? 'id_make_service' : 'id_sell_service' ],
 				undo_fn: () => this.tpl.reload('#goods'),
 			});

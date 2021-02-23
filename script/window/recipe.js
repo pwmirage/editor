@@ -67,16 +67,12 @@ class RecipeWindow extends Window {
 			e.preventDefault();
 		}
 
-		const coords = Window.get_el_coords(el);
-		const x = coords.left;
-		const y = coords.bottom;
-
 		if (e.which == 1) {
 			const recipe = this.recipe;
 			const itemid = recipe[type][idx]?.id || 0;
 			const obj = db.items[itemid];
 
-			HTMLSugar.open_edit_rmenu(x, y,
+			HTMLSugar.open_edit_rmenu(el,
 				obj, 'items', {
 				pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + serialize_db_id(recipe.id),
 				update_obj_fn: (new_obj) => {
@@ -104,7 +100,7 @@ class RecipeWindow extends Window {
 				}
 			});
 		} else if (e.which == 3) {
-			HTMLSugar.open_undo_rmenu(x, y,	this.recipe, {
+			HTMLSugar.open_undo_rmenu(el, this.recipe, {
 				undo_path: [ type, idx, 'id' ],
 				undo_fn: () => this.tpl.reload('#' + type)
 			});
