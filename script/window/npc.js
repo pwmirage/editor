@@ -25,6 +25,14 @@ class NPCCraftsWindow extends Window {
 		const recipe_edit_el = this.shadow.querySelector('#recipe');
 		this.recipe_win = await RecipeWindow.open({ recipe: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
 
+		const prev_compile_cb = this.recipe_win.tpl_compile_cb;
+		this.recipe_win.tpl_compile_cb = (dom) => {
+			prev_compile_cb(dom);
+			if (dom.id == 'targets') {
+				this.tpl.reload('#items');
+			}
+		}
+
 		this.select_tab(0);
 		this.shadow.querySelector('#items .recipe').click();
 
