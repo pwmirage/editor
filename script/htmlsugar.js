@@ -435,7 +435,7 @@ class HTMLSugar {
 			}
 		};
 
-		if (!el.hasAttribute('data-preview')) {
+		if (f_str && !el.hasAttribute('data-preview')) {
 			el.oncontextmenu = (e) => { e.preventDefault(); return (async () => {
 				const x = e.clientX - Window.bounds.left;
 				const y = e.clientY - Window.bounds.top;
@@ -453,14 +453,15 @@ class HTMLSugar {
 		}
 	}
 
-	static show_select({x, y, container, obj, path}) {
+	static show_select({ x, y, container }) {
 		return new Promise((resolve) => {
 			const el = newElement('<span></span>');
 			el._mg_select = container;
 
+			el.className = 'absolute';
 			el.style.position = 'fixed';
 			el.style.left = x + 'px';
-			el.style.top = y + 'px';
+			el.style.top = (y + Window.bounds.top) + 'px';
 			el.style.zIndex = Window.focus_win_index;
 
 			Window.focus_win.shadow.append(el);
@@ -480,16 +481,15 @@ class HTMLSugar {
 					return;
 				}
 
-				console.log(link_el.textContent);
 				el.remove();
-				resolve(link_el.textContent);
+				resolve(parseInt(link_el.textContent));
 				hidden = true;
 			}, 10);
 
 			const prev_select_fn = el._mg_select;
 			el._mg_select = (id, text) => {
-				try_hide();
 				prev_select_fn(id, text);
+				try_hide();
 			};
 
 			const prev_onblur = edit_el.onblur;
@@ -645,7 +645,18 @@ class HTMLSugar {
 				const id = t.id;
 				div._mg_id = id;
 				const pos = t.name.toLowerCase().indexOf(search);
-				div.innerHTML = t.name.substring(0, pos) + '<b>' + t.name.substring(pos, pos + search.length) + '</b>' + t.name.substring(pos + search.length);
+				const name_html = t.name.substring(0, pos) + '<b>' + t.name.substring(pos, pos + search.length) + '</b>' + t.name.substring(pos + search.length);
+				if (t.icon) {
+					const img = document.createElement('img');
+					img.src = Item.get_icon(t.icon);
+
+					const span = document.createElement('span');
+					span.innerHTML = name_html;
+
+					div.append(img, span);
+				} else {
+					div.innerHTML = name_html;
+				}
 				div.onclick = () => {
 
 					select(id, div.textContent);
@@ -692,11 +703,17 @@ class HTMLSugar {
 		}
 
 		if (!el.hasAttribute('data-preview')) {
-			link_el.mg_rmenu_name_fn = (val) => get_linked_obj(val)?.name || "";
-			el.oncontextmenu = (e) => {
-				link_el.oncontextmenu(e).then(() => {
-					update_el(link_el.textContent);
-				});
+			if (el.oncontextmenu) {
+				link_el.mg_rmenu_name_fn = (val) => get_linked_obj(val)?.name || "";
+				el.oncontextmenu = (e) => {
+					link_el.oncontextmenu(e).then(() => {
+						update_el(link_el.textContent);
+					});
+				};
+			} else {
+				el.oncontextmenu = (e) => {
+					e.preventDefault();
+				};
 			}
 		}
 	}

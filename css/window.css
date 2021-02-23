@@ -255,6 +255,20 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	width: 118px;
 }
 
+.input-select.absolute:before {
+	content: '';
+	margin: -150vh -150vw;
+	padding: 150vh 150vw;
+}
+
+.input-select.absolute {
+	width: 200px;
+}
+
+.input-select.absolute.selected {
+	display: none;
+}
+
 .input-select > .hints {
 	position: absolute;
 	z-index: 2;
@@ -268,6 +282,12 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	padding: 2px 5px;
 	white-space: pre !important;
 	display: block;
+}
+
+.input-select > .hints > span > img {
+	width: 22px;
+	height: 22px;
+	margin-bottom: -5px;
 }
 
 .input-select > .hints > span:hover {
