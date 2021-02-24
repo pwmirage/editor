@@ -599,6 +599,7 @@ class HTMLSugar {
 		const hints_el = newElement('<div class="hints" style="display: none;"></div>');
 		el.append(hints_el);
 
+		let select_arr_cp = null;
 		edit_el.onclick = () => {
 			select(0, "");
 			edit_el.focus();
@@ -612,22 +613,29 @@ class HTMLSugar {
 					select(hints_el.children[0]._mg_id, hints_el.children[0].textContent);
 				}
 			}
+			select_arr_cp = null;
 		}
 
 		edit_el.oninput = () => {
-			const search = edit_el.textContent.toLowerCase();
-			let n = 0;
-			const hints = [];
-			for (const o of select_arr) {
-				if (o.name?.toLowerCase()?.includes(search)) {
-					hints[n++] = o;
-					if (n > 9) {
-						break;
-					}
-				}
+			const search = edit_el.textContent;
+			let hints;
+
+			if (!select_arr_cp) {
+				select_arr_cp = select_arr.filter(i => i.name);
 			}
 
-			n = 0;
+			if (!search) {
+				const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+				hints = [...select_arr_cp].sort((a, b) => collator.compare(a.name, b.name));
+			} else {
+				hints = fuzzysort.go(search.trim(), select_arr_cp, { key: 'name', allowTypo: true });
+				hints = hints.map(i => i.obj);
+			}
+			if (hints.length > 10) {
+				hints.length = 10;
+			}
+
+			let n = 0;
 			const hint_els = [];
 			for (const t of hints) {
 				if (n > 8) {
@@ -661,21 +669,18 @@ class HTMLSugar {
 				n++;
 				const id = t.id;
 				div._mg_id = id;
-				const pos = t.name.toLowerCase().indexOf(search);
-				const name_html = t.name.substring(0, pos) + '<b>' + t.name.substring(pos, pos + search.length) + '</b>' + t.name.substring(pos + search.length);
 				if (t.icon) {
 					const img = document.createElement('img');
 					img.src = Item.get_icon(t.icon);
 
 					const span = document.createElement('span');
-					span.innerHTML = name_html;
+					span.innerHTML = t.name;
 
 					div.append(img, span);
 				} else {
-					div.innerHTML = name_html;
+					div.innerHTML = t.name;
 				}
 				div.onclick = () => {
-
 					select(id, div.textContent);
 				};
 				hint_els.push(div);
