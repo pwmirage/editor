@@ -64,12 +64,22 @@ class Window {
 
 			this.full_bounds = this.dom_win.getBoundingClientRect();
 		} else {
-			this.focus();
-			this.move(this.args.x ?? 10, this.args.y ?? 10);
-
 			Window.container.append(this.dom);
 
+			this.focus();
 			this.full_bounds = this.dom_win.getBoundingClientRect();
+
+			let x, y;
+			if (this.args.x !== undefined || this.args.y !== undefined) {
+				x = this.args.x ?? 10;
+				y = this.args.y ?? 10;
+			} else {
+				const newpos = Window.find_pos_for(this, this.full_bounds, this.args.around_bounds);
+				x = newpos.x;
+				y = newpos.y;
+			}
+			this.move(x, y);
+
 			if (this.full_bounds.height > Window.bounds.height) {
 				this.dom_win.style.height = Window.bounds.height - 40 + 'px';
 				this.move(20, 20);
@@ -178,6 +188,82 @@ class Window {
 		bounds.top = rbounds.top - Window.bounds.top;
 		bounds.bottom = rbounds.bottom - Window.bounds.top;
 		return bounds;
+	}
+
+	static find_pos_for(owner_win, bounds, around_bounds, prefer_right) {
+		if (!around_bounds) {
+			around_bounds = { left: 0, right: 0, top: 5 + Window.bounds.top, bottom: 5 + Window.bounds.top };
+		}
+		const ar_b = around_bounds;
+		const b = bounds;
+
+		const get_collide = (col_b) => {
+			for (let idx = Window.container.children.length - 1; idx >= 0; idx--) {
+				const win_dom = Window.container.children[idx];
+				const win = win_dom._win;
+				if (!win || win == owner_win) {
+					continue;
+				}
+
+				const win_b = win.full_bounds;
+				if (win_b.left < col_b.right && win_b.right > col_b.left &&
+					win_b.top < col_b.bottom && win_b.bottom > col_b.top) {
+					return win;
+				}
+			}
+
+			return null;
+		};
+
+		/* we'll try to find a place on the screen that's not covered by windows */
+
+		let x, y;
+		do {
+			/* try to place on the right side */
+			x = ar_b.right + 5;
+			y = ar_b.top - Window.bounds.top;
+			let win_l, win_r;
+			if ((prefer_right === undefined || prefer_right) &&
+					ar_b.right + b.width < Window.bounds.right) {
+				const collision_b = { left: ar_b.right + 72, top: bounds.top };
+				collision_b.bottom = bounds.top + (bounds.bottom - bounds.top) / 2;
+				collision_b.right = collision_b.left;
+
+				win_r = get_collide(collision_b)
+				if (!win_r) {
+					break;
+				}
+			}
+
+			/* try to place on the left side */
+			x = ar_b.left - b.width - 5;
+			y = ar_b.top - Window.bounds.top;
+			if ((prefer_right === undefined || !prefer_right) &&
+					ar_b.left - b.width > Window.bounds.left) {
+				const collision_b = { left: ar_b.left - 72, top: bounds.top };
+				collision_b.bottom = bounds.top + (bounds.bottom - bounds.top) / 2;
+				collision_b.right = collision_b.left;
+
+				win_l = get_collide(collision_b)
+				if (!win_l) {
+					break;
+				}
+			}
+
+			/* neither side works? try recursively further */
+			if (win_r && ar_b.right + b.width < Window.bounds.right) {
+				return Window.find_pos_for(owner_win, bounds, win_r.full_bounds, true);
+			} else if (win_l) {
+				return Window.find_pos_for(owner_win, bounds, win_l.full_bounds, false);
+			} else {
+				/* no side anywhere? force-place on the right side of the screen */
+				x = Window.bounds.right - b.width - 5;
+				y = 5;
+			}
+
+		} while(0);
+
+		return { x, y };
 	}
 
 	static onmouseup(e) {
