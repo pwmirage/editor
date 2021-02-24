@@ -434,9 +434,7 @@ class PWDB {
 					o[f] = null;
 				}
 			} else {
-				if (val === null && Number.isInteger(o[f])) {
-					val = 0;
-				} else if (val === null) {
+				if (val === null) {
 					val = '';
 				}
 				o[f] = val;
@@ -506,6 +504,10 @@ class PWDB {
 			}
 
 		};
+
+		if (prev_val === null && typeof(cur_val) === 'number') {
+			prev_val = 0;
+		}
 
 		return { pval: prev_val, fn: fn };
 	}
