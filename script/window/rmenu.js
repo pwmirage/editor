@@ -65,6 +65,10 @@ class RMenuWindow extends Window {
 		setTimeout(() => this.activate(), 400);
 	}
 
+	onblur() {
+		this.close();
+	}
+
 	static enable_all(do_enable) {
 		RMenuWindow.enabled = !!do_enable;
 		if (!do_enable && RMenuWindow.last_rmenu) {

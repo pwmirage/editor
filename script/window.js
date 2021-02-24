@@ -219,6 +219,9 @@ class Window {
 		const bounds = this.dom_win.getBoundingClientRect();
 
 		if (Window.focus_win != this) {
+			if (Window.focus_win?.onblur) {
+				Window.focus_win.onblur();
+			}
 			this.focus();
 		}
 
