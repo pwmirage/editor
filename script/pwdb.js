@@ -232,7 +232,7 @@ class PWDB {
 					let i;
 					for (i = 0; i < changesets.length - 1; i++) {
 						const changeset = changesets[i];
-						const proj_change = changeset[0];
+						const proj_change = changeset[0][0];
 						const pid = proj_change.pid;
 						db.new_id_start = 0x80000000 + pid * 0x100000;
 						db.load(changesets[i], { join_changesets: true });
