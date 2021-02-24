@@ -95,15 +95,11 @@ class RecipeWindow extends Window {
 	}
 
 	async item_ondblclick(e, el, type, idx) {
-		const coords = Window.get_el_coords(el);
-		const x = coords.right + 5;
-		const y = coords.top + 2;
-
 		Item.hide_tooltips();
 		RMenuWindow.enable_all(false);
 		/* delay to not let the rmenu steal the focus - for some reason we can't get it back programatically */
 		await sleep(100);
-		const sel_id = await HTMLSugar.show_select({ win: this.parent_win || this, x, y, container: db.items });
+		const sel_id = await HTMLSugar.show_select({ win: this.parent_win || this, around_el: el, around_margin: 5, container: db.items });
 		RMenuWindow.enable_all(true);
 		if (!sel_id) {
 			return;

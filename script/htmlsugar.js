@@ -451,10 +451,19 @@ class HTMLSugar {
 		}
 	}
 
-	static show_select({ win, x, y, container }) {
+	static show_select({ win, around_el, around_margin, container }) {
 		return new Promise((resolve) => {
 			const el = newElement('<span></span>');
 			el._mg_select = container;
+
+			const coords = Window.get_el_coords(around_el);
+			let x, y;
+			y = coords.top + 2;
+			if (coords.right + 215 > Window.bounds.right) {
+				x = coords.left - 200 - (around_margin || 0);
+			} else {
+				x = coords.right + (around_margin || 0);
+			}
 
 			el.className = 'absolute';
 			el.style.position = 'fixed';
