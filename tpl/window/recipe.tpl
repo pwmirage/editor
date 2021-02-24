@@ -29,7 +29,7 @@
 		{for i = 0; i < 4; i++}
 			<div class="target">
 				{assign target = $recipe?.targets?.[$i] || \{ \} }
-				<span class="item menu-triangle" onclick="{serialize $win}.item_onclick(event, this, 'targets', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'targets', {@$i});" data-id="{@$target.id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $target.id)}" alt=""></span>
+				<span class="item menu-triangle" oncontextmenu="this.onclick(event);" onclick="{serialize $win}.item_onclick(event, this, 'targets', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'targets', {@$i});" data-id="{@$target.id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $target.id)}" alt=""></span>
 				<span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $recipe} => 'targets', {@$i}, prob" data-placeholder="(unnamed)"></span>
 			</div>
 		{/for}
@@ -47,7 +47,7 @@
 			{/if}
 			{$count++}
 			<div class="target">
-				<span class="item menu-triangle" onclick="{serialize $win}.item_onclick(event, this, 'mats', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'mats', {@$i});" data-id="{@$mat.id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $mat.id)}" alt=""></span>
+				<span class="item menu-triangle" oncontextmenu="this.onclick(event);" onclick="{serialize $win}.item_onclick(event, this, 'mats', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'mats', {@$i});" data-id="{@$mat.id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $mat.id)}" alt=""></span>
 				<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $recipe} => 'mats', {@$i}, num" data-placeholder="(unnamed)"></span>
 			</div>
 			{$i++}
@@ -55,7 +55,7 @@
 		{for j = $count; j < 8; j++}
 			{assign i = $slots_to_take.shift()}
 			<div class="target">
-				<span class="item menu-triangle" onclick="{serialize $win}.item_onclick(event, this, 'mats', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'mats', {@$i});" data-id="0" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, 0)}" alt=""></span>
+				<span class="item menu-triangle" oncontextmenu="this.onclick(event);" onclick="{serialize $win}.item_onclick(event, this, 'mats', {@$i});" ondblclick="{serialize $win}.item_ondblclick(event, this, 'mats', {@$i});" data-id="0" data-idx="{@$i}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, 0)}" alt=""></span>
 				<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $recipe} => 'mats', {@$i}, num" data-placeholder="(unnamed)"></span>
 			</div>
 		{/for}
