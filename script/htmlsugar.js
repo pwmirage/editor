@@ -637,7 +637,14 @@ class HTMLSugar {
 					hint_els.push(div);
 
 					div.onclick = async () => {
-						const win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
+						let win;
+						if (select_arr.values()?.next()?.value?.icon) {
+							/* assume it's an item */
+							win = await ItemChooserWindow.open({ });
+						} else {
+							win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
+						}
+
 						win.onchoose = (type) => {
 							if (type) {
 								select(type.id, type.name);
