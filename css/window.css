@@ -277,6 +277,14 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	margin-top: -1px;
 	background-color: rgb(255 230 230);
 	color: rgba(80, 44, 44, 1);
+	display: flex;
+	flex-direction: column;
+}
+
+.input-select.hints-on-top > .hints {
+	transform: translateY(-100%);
+	margin-top: -29px;
+	flex-direction: column-reverse;
 }
 
 .input-select > .hints > span {

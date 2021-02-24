@@ -587,7 +587,7 @@ class HTMLSugar {
 			edit_el.oninput();
 		}
 
-		const hints_el = newElement('<div class="hints"></div>');
+		const hints_el = newElement('<div class="hints" style="display: none;"></div>');
 		el.append(hints_el);
 
 		edit_el.onclick = () => {
@@ -670,7 +670,20 @@ class HTMLSugar {
 				c.remove();
 			}
 			hints_el.append(...hint_els);
-			hints_el.style.display = '';
+
+			if (hints_el.style.display === 'none') {
+				hints_el.style.visibility = 'hidden';
+				hints_el.style.display = '';
+				const bounds = hints_el.getBoundingClientRect();
+
+				if (bounds.bottom + 15 > Window.bounds.bottom) {
+					el.classList.add('hints-on-top');
+				} else {
+					el.classList.remove('hints-on-top');
+				}
+
+				hints_el.style.visibility = '';
+			}
 		};
 
 		const get_linked_obj = (val) => {
