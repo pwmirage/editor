@@ -171,9 +171,9 @@ class DB {
 				if (id_parts.length == 1) {
 					id = parseInt(id_parts[0]);
 				} else {
-					const pid = parseInt(id_parts[0]) - 1;
+					const pid = parseInt(id_parts[0]);
 					const off = parseInt(id_parts[1]);
-					id = (pid >= 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
+					id = (pid > 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
 				}
 
 				let obj = map.get(id);

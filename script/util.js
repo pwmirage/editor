@@ -157,7 +157,7 @@ const align_dom = (elements, interval) => {
 }
 
 const serialize_db_id = (id) => {
-	const p = id < 0x80000000 ? 0 : (Math.floor((id - 0x80000000) / 0x100000) + 1);
+	const p = id < 0x80000000 ? 0 : Math.floor((id - 0x80000000) / 0x100000);
 	const i = id % 0x100000;
 
 	return '#' + p + ':' + i;
