@@ -19,11 +19,11 @@
 	</div>
 	<div class="flex-columns" style="align-items: center; margin-top: -2px; margin-bottom: 4px; column-gap: 3px;">
 		<span>x</span>
-		<span data-input class="input-number" style="width: 20px;" data-link="{serialize $recipe} => 'num_to_make'" data-placeholder="(unnamed)"></span>
-		<span>of: (by % chance)</span>
+		<span data-input class="input-number" style="width: 20px;" data-link="{serialize $recipe} => 'num_to_make'" data-placeholder="(0)"></span>
+		<span>of one of the following:</span>
 		<span style="flex: 1;"></span>
-		<span>Or fail %:</span>
-		<span data-input class="is_float input-number" style="width: 30px;" data-link="{serialize $recipe} => 'fail_prob'" data-placeholder="(unnamed)"></span>
+		<span style="white-space: pre;">Or fail %:</span>
+		<span data-input class="is_float input-number" style="width: 30px;" data-link="{serialize $recipe} => 'fail_prob'" data-placeholder="(0)"></span>
 	</div>
 	<div id="targets" class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
 		{for i = 0; i < 4; i++}
@@ -61,7 +61,7 @@
 		{/for}
 	</div>
 
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 8px; margin-top: 8px;">
 		<span style="">Req. Skill:</span>
 		<span data-select="RecipeTooltip.craft_types" style="flex: 1;" data-link="{serialize $recipe} => 'skill_id'"></span>
 		<span>Lv.</span>
