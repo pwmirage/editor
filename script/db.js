@@ -404,7 +404,7 @@ class DB {
 		obj._db = { type, is_allocated: true };
 		obj.id = id;
 
-		if (obj.id > this.new_id_start + this.new_id_offset) {
+		if (obj.id >= this.new_id_start + this.new_id_offset) {
 			this.new_id_offset = obj.id - this.new_id_start + 1;
 		}
 
