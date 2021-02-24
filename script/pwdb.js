@@ -241,9 +241,9 @@ class PWDB {
 
 					for (const changeset of db.changelog) {
 						for (const c of changeset) {
+							const obj = c._db.obj;
 							/* permanently clean up removed objects */
-							if (c._removed) {
-								const obj = c._db.obj;
+							if (obj._removed) {
 								if (removed_objs.has(obj)) {
 									continue;
 								}
