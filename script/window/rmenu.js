@@ -6,8 +6,13 @@ const g_rmenu_tpl = load_tpl(ROOT_URL + 'tpl/window/rmenu.tpl');
 class RMenuWindow extends Window {
 	static tpl = new Template('tpl-rmenu');
 	static last_rmenu = null;
+	static enabled = true;
 	async init() {
 		await g_rmenu_tpl;
+
+		if (!RMenuWindow.enabled) {
+			return false;
+		}
 
 		if (RMenuWindow.last_rmenu) {
 			RMenuWindow.last_rmenu.close();
@@ -33,7 +38,12 @@ class RMenuWindow extends Window {
 		shadow.append(data);
 		this.args.x = 0;
 		this.args.y = 0;
-		super.init();
+		await super.init();
+
+		if (!RMenuWindow.enabled) {
+			this.close();
+			return false;
+		}
 
 		const menu_el = this.shadow.querySelector('.menu');
 		if (this.args.around_el) {
@@ -47,7 +57,19 @@ class RMenuWindow extends Window {
 		menu_el.style.left = x + 'px';
 		menu_el.style.top = y + 'px';
 
-		setTimeout(() => this.activate(), 750);
+		menu_el.onmouseenter = () => {
+			this.activate();
+			menu_el.onmouseenter = null;
+		};
+
+		setTimeout(() => this.activate(), 400);
+	}
+
+	static enable_all(do_enable) {
+		RMenuWindow.enabled = !!do_enable;
+		if (!do_enable && RMenuWindow.last_rmenu) {
+			RMenuWindow.last_rmenu.close();
+		}
 	}
 
 	close() {
@@ -57,6 +79,7 @@ class RMenuWindow extends Window {
 
 	activate() {
 		this.activated = true;
+		this.shadow.querySelector('#background').classList.add('activated');
 	}
 
 	tryclose() {

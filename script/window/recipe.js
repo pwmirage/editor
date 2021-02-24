@@ -47,21 +47,6 @@ class RecipeWindow extends Window {
 		}, 1));
 	}
 
-	item_clickhandler(e, el, type, idx) {
-		if (el._mg_click_timer) {
-			el._mg_click_timer = null;
-			return this.item_ondblclick(e, el, type, idx);
-		}
-
-		el._mg_click_timer = setTimeout(() => {
-			if (!el._mg_click_timer) {
-				return;
-			}
-			this.item_onclick(e, el, type, idx);
-			el._mg_click_timer = null;
-		}, 150);
-	}
-
 	item_onclick(e, el, type, idx) {
 		if (e.which == 3) {
 			e.preventDefault();
@@ -72,32 +57,34 @@ class RecipeWindow extends Window {
 			const itemid = recipe[type][idx]?.id || 0;
 			const obj = db.items[itemid];
 
-			HTMLSugar.open_edit_rmenu(el,
-				obj, 'items', {
-				pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + serialize_db_id(recipe.id),
-				update_obj_fn: (new_obj) => {
-					db.open(recipe);
+			sleep(150).then(() => {
+				HTMLSugar.open_edit_rmenu(el,
+					obj, 'items', {
+					pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + serialize_db_id(recipe.id),
+					update_obj_fn: (new_obj) => {
+						db.open(recipe);
 
-					if (!recipe[type]) {
-						recipe[type] = [];
+						if (!recipe[type]) {
+							recipe[type] = [];
+						}
+
+						if (!recipe[type][idx]) {
+							recipe[type][idx] = {};
+						}
+
+						recipe[type][idx].id = new_obj?.id;
+
+						db.commit(recipe);
+						this.tpl.reload('#' + type);
+
+					},
+					edit_obj_fn: (new_obj) => {
+						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+					},
+					usage_name_fn: (item) => {
+						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
 					}
-
-					if (!recipe[type][idx]) {
-						recipe[type][idx] = {};
-					}
-
-					recipe[type][idx].id = new_obj?.id;
-
-					db.commit(recipe);
-					this.tpl.reload('#' + type);
-
-				},
-				edit_obj_fn: (new_obj) => {
-					ItemTooltipWindow.open({ item: new_obj, edit: true, db });
-				},
-				usage_name_fn: (item) => {
-					return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
-				}
+				});
 			});
 		} else if (e.which == 3) {
 			HTMLSugar.open_undo_rmenu(el, this.recipe, {
@@ -110,8 +97,14 @@ class RecipeWindow extends Window {
 	async item_ondblclick(e, el, type, idx) {
 		const coords = Window.get_el_coords(el);
 		const x = coords.right + 5;
-		const y = coords.top;
-		const sel_id = await HTMLSugar.show_select({ x, y, container: db.items });
+		const y = coords.top + 2;
+
+		Item.hide_tooltips();
+		RMenuWindow.enable_all(false);
+		/* delay to not let the rmenu steal the focus - for some reason we can't get it back programatically */
+		await sleep(100);
+		const sel_id = await HTMLSugar.show_select({ win: this.parent_win || this, x, y, container: db.items });
+		RMenuWindow.enable_all(true);
 		if (!sel_id) {
 			return;
 		}

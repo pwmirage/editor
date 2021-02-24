@@ -451,7 +451,7 @@ class HTMLSugar {
 		}
 	}
 
-	static show_select({ x, y, container }) {
+	static show_select({ win, x, y, container }) {
 		return new Promise((resolve) => {
 			const el = newElement('<span></span>');
 			el._mg_select = container;
@@ -459,11 +459,14 @@ class HTMLSugar {
 			el.className = 'absolute';
 			el.style.position = 'fixed';
 			el.style.left = x + 'px';
-			el.style.top = (y + Window.bounds.top) + 'px';
+			el.style.top = (y + 28) + 'px';
 			el.style.zIndex = Window.focus_win_index;
 
-			Window.focus_win.shadow.append(el);
-			HTMLSugar._init_select(el);
+			if (!win) {
+				win = Window.focus_win;
+			}
+			win.shadow.append(el);
+			HTMLSugar._init_select(el, win);
 			const edit_el = el.querySelector('.edit');
 			const hints_el = el.querySelector('.hints');
 			const link_el = el.querySelector('.link');
@@ -495,8 +498,8 @@ class HTMLSugar {
 				prev_onblur(e);
 				try_hide();
 			}
-			edit_el.focus();
 			edit_el.oninput();
+			edit_el.focus();
 		});
 	}
 
@@ -518,7 +521,7 @@ class HTMLSugar {
 
 		const select_arr = el._mg_select;
 
-		const edit_el = newElement('<span class="edit"></span>');
+		const edit_el = newElement('<span class="edit" tabindex="0"></span>');
 		edit_el.classList.add('input-text');
 		edit_el.contentEditable = "true";
 		el.append(edit_el);
@@ -561,8 +564,8 @@ class HTMLSugar {
 				return;
 			}
 
-			edit_el.focus();
 			edit_el.dataset.text = edit_el.title = edit_el.textContent = text;
+			edit_el.focus();
 			el.classList.add('selected');
 			link_el.textContent = field_name ? select_arr[id][field_name] : id;
 			link_el.oninput();

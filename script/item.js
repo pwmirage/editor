@@ -217,6 +217,17 @@ class Item {
 			return 'blue';
 		}
 	}
+
+	static hide_tooltips() {
+		if (ItemTooltip.last_reloaded) {
+			ItemTooltip.last_reloaded.dom.style.display = 'none';
+			ItemTooltip.last_reloaded.scroll_hidden = true;
+		}
+		if (RecipeTooltip.last_reloaded) {
+			RecipeTooltip.last_reloaded.dom.style.display = 'none';
+			RecipeTooltip.last_reloaded.scroll_hidden = true;
+		}
+	}
 }
 
 class ItemTooltip {
@@ -334,17 +345,9 @@ class RecipeTooltip {
 		this.dom.style.left = bounds.right + 3 + 'px';
 		this.dom.style.top = bounds.top + 'px';
 	}
-
 }
 
 document.addEventListener('scroll', (e) => {
 	/* hide all tooltips (they're position: fixed) */
-	if (ItemTooltip.last_reloaded) {
-		ItemTooltip.last_reloaded.dom.style.display = 'none';
-		ItemTooltip.last_reloaded.scroll_hidden = true;
-	}
-	if (RecipeTooltip.last_reloaded) {
-		RecipeTooltip.last_reloaded.dom.style.display = 'none';
-		RecipeTooltip.last_reloaded.scroll_hidden = true;
-	}
+	Item.hide_tooltips();
 }, { passive: false });

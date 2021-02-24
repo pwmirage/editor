@@ -259,6 +259,8 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	content: '';
 	margin: -150vh -150vw;
 	padding: 150vh 150vw;
+	opacity: 0.3;
+	background-color: #000;
 }
 
 .input-select.absolute {
