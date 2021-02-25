@@ -766,7 +766,8 @@ class HTMLSugar {
 			{ id: 3, name: obj ? 'Replace with new' : 'Create new' },
 			{ id: 4, name: 'Clone & Edit', disabled: !obj },
 			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
-			{ name: '...', children: [
+			{ id: 25, name: 'Clear', disabled: !obj},
+			{ name: '...', visible: false, children: [
 				{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
 				{ id: 21, name: 'Rebase', disabled: !obj },
 				{ id: 22, name: 'Fork & Edit', disabled: !obj },
