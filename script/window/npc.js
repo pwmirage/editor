@@ -46,10 +46,6 @@ class NPCCraftsWindow extends Window {
 		const recipe = db.recipes[recipe_id];
 		const tgt_id = recipe?.targets?.[0]?.id || 0;
 
-		if (!tgt_id) {
-			return (ROOT_URL + 'img/itemslot.png');
-		}
-
 		return Item.get_icon(db.items[tgt_id]?.icon || 0);
 	}
 
