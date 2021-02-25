@@ -390,6 +390,12 @@ class DB {
 		const id = obj.id;
 		DB.init_obj_data(obj, base);
 		obj.id = id;
+		/* create a dummy change to have this object stored in changelog.
+		 * Otherwise it could be lost if there are no changes to it - even
+		 * if it's referenced somewhere */
+		this.open(obj);
+		obj._allocated = true;
+		this.commit(obj);
 		return obj;
 	}
 
@@ -413,6 +419,10 @@ class DB {
 		const base = this[type].values().next().value;
 		DB.init_obj_data(obj, base);
 		obj.id = id;
+		/* create a dummy change to have this object stored in changelog */
+		this.open(obj);
+		obj._allocated = true;
+		this.commit(obj);
 		return obj;
 	}
 
