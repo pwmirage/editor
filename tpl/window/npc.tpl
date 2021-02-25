@@ -2,7 +2,7 @@
 <div class="window" style="width: 316px;">
 <div class="header">
 	<span>
-		Crafts: {@$crafts.name || ""} #{@$crafts.id}
+		Crafts: {@$crafts.name || ""} {@serialize_db_id($crafts.id)}
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
