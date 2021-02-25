@@ -106,7 +106,10 @@ class NPCCraftsWindow extends Window {
 
 					},
 					edit_obj_fn: (new_obj) => {
-						RecipeWindow.open({ recipe: new_obj, debug: this.args.debug });
+						this.tpl.reload('#items');
+						this.selected_recipe = -1;
+						const recipe_el = this.shadow.querySelector('#items').children[recipe_idx];
+						this.select_recipe(recipe_el);
 					},
 					usage_name_fn: (recipe) => {
 						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
