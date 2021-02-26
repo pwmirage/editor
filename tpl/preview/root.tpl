@@ -4,7 +4,7 @@
 {/if}
 <div id="container">
 	{assign i = 0}
-	{assign max_items = parseInt($preview.dataset.maxItems)}
+	{assign max_items = parseInt($preview.dataset.maxItems || 12)}
 	{for obj of $objects}
 		{if ++$i >= $max_items}
 			<div onclick="">
