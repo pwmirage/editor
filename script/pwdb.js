@@ -65,6 +65,7 @@ class PWDB {
 			const fields = PWDB.type_fields[type] = {};
 			PWDB.type_names[type] = typename;
 
+			fields._removed = { id: '_removed', name: 'Is Removed', linked_map_fn: null };
 			for (const fobj of arr) {
 				const id = fobj[0];
 				const name = fobj[1];
