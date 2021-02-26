@@ -120,7 +120,7 @@ class PWPreview {
 		} else if (obj._db.type == 'items') {
 			src = Item.get_icon(obj.icon);
 		} else if (obj._db.type == 'recipes') {
-			src = Item.get_icon_by_item(db, obj.targets?.[0]?.id || 0);
+			src = Item.get_icon_by_item(db, obj.targets?.[0]?.id || -1);
 		}
 
 		return src || (ROOT_URL + '/img/' + file);
