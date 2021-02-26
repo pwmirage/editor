@@ -230,14 +230,33 @@ class PWPreviewElement extends HTMLElement {
 			this.db[arr_name] = init_id_array([], g_latest_db[arr_name]);
 		}
 
-		for (const obj of preview_db) {
-			if (!obj) {
+		const fill_in = (obj, base) => {
+			for (const f in base) {
+				if (!base[f]) continue;
+				if (f === '_db') continue;
+				if (typeof(base[f]) === 'object') {
+					if (!obj[f] || typeof(obj[f]) !== 'object') {
+						obj[f] = Array.isArray(base[f]) ? [] : {};
+					}
+					fill_in(obj[f], base[f]);
+				} else if (!(f in obj)) {
+					obj[f] = base[f];
+				}
+			}
+
+		};
+
+		for (const diff of preview_db) {
+			if (!diff) {
 				continue;
 			}
 
 			/* XXX add smarter filtering, spawners/npcs first, then crafts/goods, then recipes and items */
 
-			this.db[obj._db.type][obj.id] = obj;
+			/* fill diff obj with unchanged fields from org */
+			const org = diff._db.org;
+			fill_in(diff, org);
+			this.db[diff._db.type][diff.id] = diff;
 		}
 
 		await Promise.all([
