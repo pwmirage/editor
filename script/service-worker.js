@@ -101,18 +101,13 @@ const gen_proj_preview = async (url, pid, edit_time) => {
 
 	const preview_data = [];
 	for (const diff of db.changelog[db.changelog.length - 1]) {
-		const obj = diff._db.obj._db.diff_original;
-		if (!obj) continue;
-		obj._db = { type: diff._db.obj._db.type, diff: diff };
-		diff._db = undefined;
-		preview_data.push(obj);
+		const org = diff._db.obj._db.diff_original;
+		if (!org) continue;
+		diff._db = { type: diff._db.obj._db.type, org: org };
+		preview_data.push(diff);
 	}
 
-	const dump_str = JSON.stringify(preview_data, function(k, v) {
-		/* dont include any nulls, undefined results in no output at all */
-		if (v === null) return undefined;
-		return v;
-	}, 0);
+	const dump_str = JSON.stringify(preview_data, 0);
 
 	const date = new Date();
 	const resp = new Response(dump_str, { status: 200, statusText: 'OK', headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString(), 'Last-Modified': edit_time } });
