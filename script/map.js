@@ -315,6 +315,11 @@ class PWMap {
 					(obj.name || mod_el.dataset.type_name) + ' ' + serialize_db_id(obj.id);
 			}
 
+			if ((diff.targets !== undefined || diff.icon !== undefined) && was_modified) {
+				const mod_el = changed_objects_map.get(obj)
+				mod_el.children[0].src = PWPreview.get_obj_img(db, obj);
+			}
+
 			if (!was_modified) {
 				const el = document.createElement('div');
 				const img = document.createElement('img');
