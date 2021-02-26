@@ -6,6 +6,9 @@
 	{assign i = 0}
 	{assign max_items = parseInt($preview.dataset.maxItems || 12)}
 	{for obj of $objects}
+		{if $obj._db.type == 'metadata'}
+			{continue}
+		{/if}
 		{if ++$i >= $max_items}
 			<div onclick="">
 				<img style="visibility: hidden; width: 0;">
