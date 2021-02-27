@@ -11,19 +11,19 @@
 	</div>
 </div>
 <div class="content flex-rows">
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 75px;">Name</span>
 		<span data-input style="flex: 1;" data-link="{serialize $crafts} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 75px;">NPC option</span>
 		<span data-input style="flex: 1;" data-link="{serialize $crafts} => 'option'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 75px;">Shown skill</span>
 		<span data-select="RecipeTooltip.craft_types" style="flex: 1;" data-link="{serialize $crafts} => 'make_skill_id'"></span>
 	</div>
-	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
+	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 5px;">
 	{for i = 0; i < 8; i++}
 		<span class="tabname" data-input onfocus="{serialize $win}.select_tab({@$i});" data-link="{serialize $crafts} => 'pages', {@$i}, 'title'" data-placeholder="(none)"></span>
 	{/for}
@@ -39,7 +39,7 @@
 		{if $win.selected_recipe != undefined}
 			{assign recipe_id = $crafts.pages[$win.selected_tab]?.recipe_id?.[$win.selected_recipe]}
 			{assign recipe = db.recipes[$recipe_id || -1] || \{ id: $recipe_id \}}
-			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 8px;">
+			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 4px; margin: 0 -12px; margin-bottom: 5px;">
 				{if $recipe_id}
 					<span style="align-self: center;">Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}</span>
 				{else}
@@ -116,13 +116,13 @@ span.tabname.selected {
 }
 
 #recipe {
-	margin-top: 8px;
-	min-height: 400px;
+	margin-top: 5px;
+	min-height: 336px;
 }
 
 #recipe-details {
-	padding: 10px 14px;
-	font-size: 12px;
+	padding: 2px 9px;
+	font-size: 14px;
 	word-break: break-word;
 }
 
@@ -134,7 +134,7 @@ span.tabname.selected {
 </script>
 
 <script id="tpl-npc-goods" type="text/x-dot-template">
-<div class="window" style="width: 316px; height: 400px;">
+<div class="window" style="width: 316px; height: 352px;">
 <div class="header">
 	<span>
 		Goods: {@$goods.name || ""} #{@$goods.id}
@@ -146,16 +146,16 @@ span.tabname.selected {
 	</div>
 </div>
 <div class="content flex-rows">
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 45px;">Name</span>
 		<span data-input style="flex: 1;" data-link="{serialize $goods} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 45px;">NPC option</span>
 		<span data-input style="flex: 1;" data-link="{serialize $goods} => 'option'" data-placeholder="(unnamed)"></span>
 	</div>
 	<div style="font-size: 12px; background-color: var(--header-color); color: white; padding: 2px 8px; margin: 0 -12px; margin-bottom: 4px;">Tabs:</div>
-	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 6px;">
+	<div id="tabs" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 4px;">
 	{for i = 0; i < 8; i++}
 		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'title'" data-placeholder="(none)"></span>
 	{/for}
@@ -257,30 +257,30 @@ span.tabname.selected {
 	</div>
 </div>
 <div class="content flex-rows">
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center;">
 		<span style="width: 45px;">Name:</span>
 		<span data-input style="flex: 1;" data-link="{serialize $npc} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: -8px">
-		<div class="flex-columns" style="align-items: center; margin-top: 8px;">
+	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+		<div class="flex-columns" style="align-items: center; margin-top: 5px;">
 			<span style="width: 45px;">Type:</span>
 			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'" style="width: auto; min-width: 75px; flex: 1;"></span>
 		</div>
-		<div id="model" class="flex-columns" style="align-items: center; margin-top: 8px;">
+		<div id="model" class="flex-columns" style="align-items: center; margin-top: 5px;">
 			<span style="width: 45px;">Model:</span>
 			<span data-select="NPCWindow.models" data-select-field="file" data-link="{serialize $npc} => 'file_model'" style="width: auto; min-width: 100px; flex: 1;"></span>
 		</div>
 	</div>
-	<div id="goods" class="flex-columns" style="margin-bottom: 8px; align-items: center; justify-content: space-between;">
+	<div id="goods" class="flex-columns" style="margin-bottom: 5px; align-items: center; justify-content: space-between;">
 		<div>
-			<span style="margin-right: 8px;">Sell:</span>
+			<span style="margin-right: 5px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
-			<a class="button no-break menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.edit(this, 'sells', event);" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" }</a>
+			<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.edit(this, 'sells', event);" style="text-align: center;">{@ $sells ? ($sells.name || "(unnamed)") : "(none)" }</a>
 		</div>
 		<div>
-			<span style="margin-right: 8px;">Craft:</span>
+			<span style="margin-right: 5px;">Craft:</span>
 			{assign crafts = db.npc_crafts[$npc.id_make_service];}
-			<a class="button no-break menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.edit(this, 'crafts', event);" style="text-align: center;">{@ $crafts ? ($crafts.name || "(unnamed)") : "(none)" }</a>
+			<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.edit(this, 'crafts', event);" style="text-align: center;">{@ $crafts ? ($crafts.name || "(unnamed)") : "(none)" }</a>
 		</div>
 	</div>
 	<div>Greeting:</div>

@@ -1,6 +1,6 @@
 <script id="tpl-map-chooser" type="text/x-dot-template">
 
-<div class="window" style="width: 405px; height: 448px;">
+<div class="window" style="width: 305px; height: 448px;">
 <div class="header">
 	<span>
 		Map Chooser
@@ -14,8 +14,8 @@
 </div>
 
 <div class="content flex-rows">
-	<span style="margin-bottom: 8px;">Choose a map to edit</span>
-	<div class="flex-columns" style="align-items: center; margin-bottom: 2px;">
+	<span style="margin-bottom: 4px;">Choose a map to edit</span>
+	<div class="flex-columns" style="align-items: baseline; margin-bottom: 2px;">
 		<span>Search</span>
 		<input type="text" id="search" style="flex: 1; width: 100%; margin-bottom: 4px;" autocomplete="off"></input>
 	</div>
@@ -52,7 +52,7 @@
 }
 
 .maps > .map {
-	padding: 3px 4px;
+	padding: 1px 4px;
 	margin: 0 -4px;
 	border: 1px dashed transparent;
 }

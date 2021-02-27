@@ -237,7 +237,7 @@ class PWMap {
 			const b = this.select_menu.getBoundingClientRect();
 
 			const win = await RMenuWindow.open({
-			x: b.left - Window.bounds.left, y: b.top - 165 - Window.bounds.top, bg: false,
+			x: b.left - Window.bounds.left, y: b.top - 160 - Window.bounds.top, bg: false,
 			entries: [
 				{ id: 20, name: 'Edit' },
 				{ id: 21, name: 'Move' },

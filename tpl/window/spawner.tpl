@@ -1,6 +1,6 @@
 <script id="tpl-spawner-group-info" type="text/x-dot-template">
 
-<div class="window popup square-left" style="position: absolute; width: 340px;">
+<div class="window popup square-left" style="position: absolute; width: 240px;">
 <div class="content flex-rows" style="padding: 25px;">
 	<span>
 		{if $spawner.type == 'resource'}
@@ -95,7 +95,7 @@
 
 <script id="tpl-spawner-rotation" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 432px; min-height: 100px; height: 170px;">
+<div class="window resizable" style="width: 300px; min-height: 100px; height: 170px;">
 <div class="header">
 	<span>
 		<span>Change rotation of spawner <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span></span>
@@ -134,7 +134,7 @@
 
 <script id="tpl-spawner-position" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 432px; min-height: 100px; height: 170px;">
+<div class="window resizable" style="width: 300px; min-height: 100px; height: 170px;">
 <div class="header">
 	<span>
 		<span>Change position of spawner <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span></span>
@@ -157,7 +157,7 @@
 		<span data-preview data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 1" data-placeholder="(auto)"></span>
 		<span data-preview data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 2" data-placeholder="(0)"></span>
 	</div>
-	<div class="flex-columns pos-input" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns pos-input" style="align-items: center; margin-bottom: 5px;">
 		<span style="margin-left: 30px;">Position:</span>
 
 		<span data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $spawner} => 'pos', 0" data-placeholder="(0)"></span>
@@ -183,7 +183,7 @@
 
 <script id="tpl-spawner" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 340px;">
+<div class="window resizable" style="width: 300px;">
 <div class="header {if $spawner._removed}removed{/if}">
 	<span>
 		<span class="name">
@@ -213,28 +213,28 @@
 		<span>Y:</span>
 		<span>Z:</span>
 	</div>
-	<div id="position" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
+	<div id="position" class="flex-columns flex-all" style="margin-bottom: 5px; align-items: center;">
 		<a class="button" onclick="{serialize $win}.pos_onclick(this, event);" oncontextmenu="event.preventDefault(); this.onclick(event);">Pos:</a>
 		<span>{@Math.floor($spawner.pos[0] * 100) / 100}</span>
 		<span>{assign ypos = Math.floor($spawner.pos[1] * 100) / 100}{@$ypos}
 			 {if $ypos == 0}&nbsp; (auto){/if}</span>
 		<span>{@Math.floor($spawner.pos[2] * 100) / 100}</span>
 	</div>
-	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
+	<div class="flex-columns flex-all" style="margin-bottom: 5px; align-items: center;">
 		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})" oncontextmenu="event.preventDefault(); this.onclick(event);">Spread:</a>
 		<span>{@Math.floor($spawner.spread[0] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[1] * 100) / 100}</span>
 		<span>{@Math.floor($spawner.spread[2] * 100) / 100}</span>
 	</div>
 	{if $spawner.type != 'resource'}
-		<div id="rotation" class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center;">
+		<div id="rotation" class="flex-columns flex-all" style="margin-bottom: 5px; align-items: center;">
 			<a class="button" onclick="{serialize $win}.dir_onclick(this, event);" oncontextmenu="event.preventDefault(); this.onclick(event);">Direction:</a>
 			<span style="white-space: pre;">{@Math.round(Math.atan2($spawner.dir[2], $spawner.dir[0]) * 10000) / 10000} rad</span>
 			<span></span>
 			<span></span>
 		</div>
 	{/if}
-	<div id="groups" class="flex-rows" style="margin-bottom: 4px;">
+	<div id="groups" class="flex-rows" style="margin-bottom: 5px;">
 		{assign idx = 0}
 		{foreach group of ($spawner.groups || [])}
 			{if $spawner.type == 'resource'}
@@ -252,21 +252,21 @@
 		{/foreach}
 	</div>
 	{if $spawner.type != 'npc'}
-		<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
+		<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
 			<div style="flex: 1;"></div>
 			<a class="button no-break" onclick="{serialize $win}.add_group()">(add) &nbsp;<i class="fa fa-plus" aria-hidden="true"></i></a>
 		</div>
-		<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
+		<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
 			<div class="no-break">Max groups:</div>
 			<input type="number" style="flex: 1;" data-link="{serialize $win.spawner} => 'max_num'">
 		</div>
 	{/if}
-	<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
+	<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
 		<div>Trigger:</div>
 		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">(none) &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
 	</div>
 	{if $spawner.type != 'npc'}
-		<div class="flex-columns" style="margin-bottom: 8px; align-items: center;">
+		<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
 			<div class="no-break">Lifetime: (sec) </div>
 			<input type="number" style="flex: 1;" data-link="{serialize $win.spawner} => 'lifetime'">
 		</div>

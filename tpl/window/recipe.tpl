@@ -13,7 +13,7 @@
 	</div>
 </div>
 <div class="content" style="">
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 45px;">Name:</span>
 		<span data-input style="flex: 1;" data-link="{serialize $recipe} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
@@ -25,7 +25,7 @@
 		<span style="white-space: pre;">Or fail %:</span>
 		<span data-input class="is_float input-number" style="width: 30px;" data-link="{serialize $recipe} => 'fail_prob'" data-placeholder="(0)"></span>
 	</div>
-	<div id="targets" class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
+	<div id="targets" class="flex-columns" style="flex-wrap: wrap; column-gap: 5px; margin-bottom: 5px;">
 		{for i = 0; i < 4; i++}
 			<div class="target">
 				{assign target = $recipe?.targets?.[$i] || \{ \} }
@@ -35,7 +35,7 @@
 		{/for}
 	</div>
 	<div>Materials:</div>
-	<div id="mats" class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
+	<div id="mats" class="flex-columns" style="flex-wrap: wrap; column-gap: 5px; row-gap: 3px;">
 		{assign count = 0}
 		{assign i = 0}
 		{assign slots_to_take = []}
@@ -61,35 +61,35 @@
 		{/for}
 	</div>
 
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px; margin-top: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px; margin-top: 5px;">
 		<span style="">Req. Skill:</span>
 		<span data-select="RecipeTooltip.craft_types" style="flex: 1;" data-link="{serialize $recipe} => 'skill_id'"></span>
 		<span>Lv.</span>
 		<span data-input class="input-number" style="" data-link="{serialize $recipe} => 'skill_level'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="flex: 1"></span>
 		<span>Recipe Lv.</span>
 		<span data-input class="input-number" style="" data-link="{serialize $recipe} => 'recipe_level'" data-placeholder="(unnamed)"></span>
 	</div>
 
 	<div class="flex-columns flex-all">
-		<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 			<span style="">XP:</span>
 			<span data-input class="input-number" style="flex: 1;" data-link="{serialize $recipe} => 'xp'" data-placeholder="(unnamed)"></span>
 		</div>
-		<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 			<span style="">SP:</span>
 			<span data-input class="input-number" style="flex: 1;" data-link="{serialize $recipe} => 'sp'" data-placeholder="(unnamed)"></span>
 		</div>
 	</div>
 
 	<div class="flex-columns flex-all">
-		<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 			<span style="">Coins:</span>
 			<span data-input class="input-number" style="flex: 1;" data-link="{serialize $recipe} => 'coins'" data-placeholder="(unnamed)"></span>
 		</div>
-		<div class="flex-columns" style="align-items: center; margin-bottom: 8px;">
+		<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 			<span style="">Duration: (s)</span>
 			<span data-input class="input-number is_float" style="flex: 1;" data-link="{serialize $recipe} => 'duration'" data-placeholder="(unnamed)"></span>
 		</div>

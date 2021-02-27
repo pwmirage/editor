@@ -1,10 +1,17 @@
 :host {
-	font-family: Verdana;
-	font-size: 12px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 10pt;
+	letter-spacing: -0.2px;
 	transition: margin-top 0.2s ease-in-out;
 	--header-color: #822525;
 
 }
+
+table {
+	all: inherit;
+	display: inline-table;
+}
+
 .window {
 	position: absolute;
 	display: flex;
@@ -46,7 +53,7 @@
 
 .window.resizable:not(.minimized) > .content:after {
 	font-family: FontAwesome;
-	font-size: 12px;
+	font-size: 10pt;
 	content: '\00f065';
 	transform: rotate(90deg);
 	position: absolute;
@@ -65,7 +72,7 @@
 
 .window > .header > span {
 	display: inline-block;
-	padding: 8px 12px;
+	padding: 6px 10px;
 	word-break: break-word;
 }
 
@@ -74,7 +81,7 @@
 }
 
 .window.child-dom > .header > span {
-	padding: 3px 12px;
+	padding: 3px 10px;
 }
 
 .window > .header > .menu {
@@ -83,11 +90,16 @@
 
 .window.child-dom > .header > .menu > * {
 	line-height: initial;
-	padding: 8px;
+	padding: 6px;
 }
 
 .window.child-dom > .header > .menu:last-child {
 	display: none;
+}
+
+.window > .header > .menu > .details {
+	font-size: 14px;
+	margin-top: -1px;
 }
 
 .window > .header > .menu:last-child {
@@ -98,7 +110,7 @@
 .window > .header > .menu > * {
 	display: block;
 	width: 18px; /* more than most FontAwesome icons */
-	padding: 10px 8px 10px 8px;
+	padding: 6px 8px;
 }
 
 .window > .header > .menu > *:active {
@@ -187,7 +199,6 @@
 .input-text,
 input[type=text] {
 	width: 100%;
-	padding: 4px 6px;
 	box-sizing: content-box;
 	border: 1px solid #555;
 	outline: none;
@@ -235,7 +246,6 @@ input[type=text]:focus {
 input[type="text"].supershort,
 input[type="number"].supershort {
 	width: 32px;
-	height: 20px;
 	padding: 2px;
 }
 
@@ -308,15 +318,14 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 
 .input-select.selected > .close {
 	position: absolute;
-	top: 7px;
-	right: 7px;
+	top: 3px;
+	right: 3px;
 	background-color: #dcb7b7;
-	border-radius: 4px;
-	width: 18px;
-	height: 16px;
+	width: 16px;
+	height: 17px;
 	color: rgba(80, 44, 44, 1);
-	font-size: 12px;
-	padding: 0px 4px;
+	font-size: 9pt;
+	padding: 0px 3px;
 	box-sizing: border-box;
 }
 
@@ -324,7 +333,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	content: '\00f00d';
 	font-family: FontAwesome;
 	position: absolute;
-	font-size: 12px;
+	font-size: 10pt;
 	margin-right: -1px;
 	margin-top: -2px;
 }
@@ -360,7 +369,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	background-color: #f5dbdb;
 	border: solid 1px #e0b0b0;
 	color: rgba(80, 44, 44, 1);
-	font-size: 12px;
+	font-size: 10pt;
 	padding: 1px 5px;
 	box-sizing: border-box;
 }
@@ -421,7 +430,7 @@ a.button {
 	cursor: pointer;
 	font-weight: 400;
 	margin: 0;
-	padding: 5px 10px;
+	padding: 2px 6px;
 	text-decoration: none;
 	line-height: 20px;
 	user-select: none;
@@ -432,7 +441,7 @@ a.externalURL:after {
 	content: '\f08e';
 	display: inline-block;
 	font-family: FontAwesome !important;
-	font-size: 12px !important;
+	font-size: 10pt !important;
 	font-weight: normal !important;
 	font-style: normal !important;
 	margin-left: 4px;
@@ -492,7 +501,7 @@ select {
 	font-weight: 400;
 	outline: none;
 	padding: 4px 8px;
-	line-height: 1.48;
+	line-height: 1;
 	max-width: 100%;
 }
 
@@ -514,21 +523,16 @@ input[type="number"] {
 	color: rgba(80, 44, 44, 1);
 	font-weight: 400;
 	outline: none;
-	padding: 4px 8px;
-	line-height: 1.48;
+	padding: 4px 6px;
+	line-height: 1;
 }
 
 .input-text,
 .input-number {
 	display: inline-block;
-	height: 20px;
 	white-space: nowrap;
 	overflow: hidden;
 	width: 100px;
-}
-
-input[type="number"] {
-	width: 100%;
 }
 
 .input-text:hover,

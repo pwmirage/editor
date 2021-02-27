@@ -11,7 +11,7 @@
 	<div id="pw-overlay">
 		<span id="pw-version"></span>
 		<div id="pw-map-info">
-			<div id="map-static-info" style="display: flex; flex-direction: column; row-gap: 6px; font-size: 13px;">
+			<div id="map-static-info" style="display: flex; flex-direction: column; row-gap: 6px; font-size: 10.5pt;">
 				<div id="select-menu" style="display: none;">
 					<span class="count"></span> spawners
 				</div>
@@ -46,7 +46,7 @@
 
 #pw-overlay {
 	font-family: Verdana;
-	font-size: 12px;
+	font-size: 10pt;
 }
 
 #map-static-info > *,
@@ -278,6 +278,7 @@
 	right: 6px;
 	bottom: 6px;
 	display: block;
+	font-size: 10.5pt;
 	line-height: 36px;
 	align-self: flex-start;
 	margin-bottom: -10px;
@@ -340,6 +341,7 @@
 	padding: 8px 18px;
 	user-select: none;
 	border-radius: 2px;
+	font-size: 10pt;
 }
 
 #select-menu:hover {

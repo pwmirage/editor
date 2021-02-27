@@ -42,7 +42,7 @@
 	align-items: baseline;
 	margin-top: -3px;
 	overflow: hidden;
-	font-size: 12px;
+	font-size: 10pt;
 }
 
 #more-objects,
