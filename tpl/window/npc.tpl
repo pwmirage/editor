@@ -79,6 +79,7 @@ span.tabname.selected {
 	background-color: #000;
 	gap: 4px;
 	padding: 4px;
+	padding-right: 3px;
 }
 
 #items > * {
@@ -195,6 +196,7 @@ span.tabname.selected {
 	background-color: #000;
 	gap: 4px;
 	padding: 4px;
+	padding-right: 3px;
 }
 
 #items > * {
