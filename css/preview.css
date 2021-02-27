@@ -234,7 +234,7 @@ pw-item > img {
 	content: '-';
 	color: red;
 	font-family: "Courier New", Courier, monospace;
-	font-size: 14px;
+	font-size: 12px;
 	position: absolute;
 	left: -10px;
 	top: calc(50% - 8px);

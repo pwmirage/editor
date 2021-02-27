@@ -122,7 +122,7 @@ span.tabname.selected {
 
 #recipe-details {
 	padding: 10px 14px;
-	font-size: 14px;
+	font-size: 12px;
 	word-break: break-word;
 }
 

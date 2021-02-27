@@ -151,7 +151,7 @@
 {@@
 <style>
 .mgContent h2 {
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: bold;
 }
 

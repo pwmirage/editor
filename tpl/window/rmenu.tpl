@@ -55,7 +55,7 @@
 	display: flex;
 	flex-direction: column;
 	user-select: none;
-	font-size: 12px;
+	font-size: 11px;
 	border-radius: 2px;
 	border-top-left-radius: 0;
 	z-index: 2;

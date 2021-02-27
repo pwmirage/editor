@@ -1,9 +1,10 @@
 :host {
-	font-size: 14px;
+	font-family: Verdana;
+	font-size: 12px;
 	transition: margin-top 0.2s ease-in-out;
 	--header-color: #822525;
-}
 
+}
 .window {
 	position: absolute;
 	display: flex;
@@ -45,7 +46,7 @@
 
 .window.resizable:not(.minimized) > .content:after {
 	font-family: FontAwesome;
-	font-size: 14px;
+	font-size: 12px;
 	content: '\00f065';
 	transform: rotate(90deg);
 	position: absolute;
@@ -359,7 +360,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	background-color: #f5dbdb;
 	border: solid 1px #e0b0b0;
 	color: rgba(80, 44, 44, 1);
-	font-size: 13px;
+	font-size: 12px;
 	padding: 1px 5px;
 	box-sizing: border-box;
 }
@@ -431,7 +432,7 @@ a.externalURL:after {
 	content: '\f08e';
 	display: inline-block;
 	font-family: FontAwesome !important;
-	font-size: 14px !important;
+	font-size: 12px !important;
 	font-weight: normal !important;
 	font-style: normal !important;
 	margin-left: 4px;
