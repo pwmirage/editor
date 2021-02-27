@@ -11,7 +11,7 @@
 	<div id="pw-overlay">
 		<span id="pw-version"></span>
 		<div id="pw-map-info">
-			<div style="display: flex; flex-direction: column; row-gap: 6px;">
+			<div id="map-static-info" style="display: flex; flex-direction: column; row-gap: 6px;">
 				<div id="select-menu" style="display: none;">
 					<span class="count"></span> spawners
 				</div>
@@ -42,6 +42,12 @@
 <style>
 :host {
 	position: relative;
+}
+
+#map-static-info > *,
+#changed-objects > *,
+#more-objects {
+	pointer-events: all;
 }
 
 #rotate-circle {
@@ -146,7 +152,6 @@
 	pointer-events: none;
 }
 
-#pw-overlay > *,
 #pw-windows > * {
 	pointer-events: all;
 }
