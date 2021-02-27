@@ -36,7 +36,6 @@
 }
 
 #container {
-	position: absolute;
 	display: flex;
 	flex-wrap: wrap;
 	column-gap: 5px;
