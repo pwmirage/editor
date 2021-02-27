@@ -209,6 +209,9 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'quiver_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'armor_sets', 'object_types'),
 			PWDB.register_data_type(db, args, 'equipment_addons'),
+			PWDB.register_data_type(db, args, 'npc_tasks_in'),
+			PWDB.register_data_type(db, args, 'npc_tasks_out'),
+			PWDB.register_data_type(db, args, 'tasks'),
 		]);
 
 		if (args.preinit) {

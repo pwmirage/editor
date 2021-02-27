@@ -45,6 +45,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/unsupported.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/history.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/project.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/task.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/diff.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/fuzzysort.js?v=' + MG_VERSION),
 		]);

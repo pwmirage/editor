@@ -405,4 +405,8 @@ class NPCWindow extends Window {
 
 
 	}
+
+	find_related_quests() {
+		TasksByNPCWindow.open({ npc: this.npc });
+	}
 }
