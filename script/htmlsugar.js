@@ -565,7 +565,7 @@ class HTMLSugar {
 		el.append(close_el);
 
 		el._mg_select = (id, text) => {
-			if (!id) {
+			if (id == -1) {
 				el.classList.remove('selected');
 				edit_el.title = '';
 				link_el.textContent = '';
@@ -590,7 +590,7 @@ class HTMLSugar {
 		const select = (id, text) => el._mg_select(id, text);
 
 		close_el.onclick = () => {
-			select(0, "");
+			select(-1, "");
 			edit_el.textContent = '';
 			edit_el.focus();
 			edit_el.oninput();
@@ -601,7 +601,7 @@ class HTMLSugar {
 
 		let select_arr_cp = null;
 		edit_el.onclick = () => {
-			select(0, "");
+			select(-1, "");
 			edit_el.focus();
 			edit_el.oninput();
 		}
@@ -731,6 +731,8 @@ class HTMLSugar {
 
 		if (link_el.textContent && link_el.textContent != '0') {
 			update_el(link_el.textContent);
+		} else if (select_arr[0]) {
+			update_el('0');
 		}
 
 		if (link_el.classList.contains('forked')) {
