@@ -17,7 +17,7 @@
 	<span style="margin-bottom: 4px;">Choose a map to edit</span>
 	<div class="flex-columns" style="align-items: baseline; margin-bottom: 2px;">
 		<span>Search</span>
-		<input type="text" id="search" style="flex: 1; width: 100%; margin-bottom: 4px;" autocomplete="off"></input>
+		<input type="text" id="search" style="flex: 1; margin-bottom: 4px;" autocomplete="off"></input>
 	</div>
 	<div class="maps">
 		{foreach map_id in $maps}

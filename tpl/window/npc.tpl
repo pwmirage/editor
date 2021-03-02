@@ -257,21 +257,21 @@ span.tabname.selected {
 	</div>
 </div>
 <div class="content flex-rows">
-	<div class="flex-columns" style="align-items: center;">
+	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
 		<span style="width: 45px;">Name:</span>
 		<span data-input style="flex: 1;" data-link="{serialize $npc} => 'name'" data-placeholder="(unnamed)"></span>
 	</div>
-	<div class="flex-columns flex-all" style="margin-bottom: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-		<div class="flex-columns" style="align-items: center; margin-top: 5px;">
+	<div class="flex-columns flex-all" style="margin-bottom: 5px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+		<div class="flex-columns" style="align-items: center;">
 			<span style="width: 45px;">Type:</span>
 			<span data-select="NPCWindow.types" data-link="{serialize $npc} => 'id_type'" style="width: auto; min-width: 75px; flex: 1;"></span>
 		</div>
-		<div id="model" class="flex-columns" style="align-items: center; margin-top: 5px;">
+		<div id="model" class="flex-columns" style="align-items: center;">
 			<span style="width: 45px;">Model:</span>
 			<span data-select="NPCWindow.models" data-select-field="file" data-link="{serialize $npc} => 'file_model'" style="width: auto; min-width: 100px; flex: 1;"></span>
 		</div>
 	</div>
-	<div id="goods" class="flex-columns" style="margin-bottom: 5px; align-items: center; justify-content: space-between;">
+	<div id="goods" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 5px; align-items: center; justify-content: space-between;">
 		<div>
 			<span style="margin-right: 5px;">Sell:</span>
 			{assign sells = db.npc_sells[$npc.id_sell_service];}
@@ -282,9 +282,12 @@ span.tabname.selected {
 			{assign crafts = db.npc_crafts[$npc.id_make_service];}
 			<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.edit(this, 'crafts', event);" style="text-align: center;">{@ $crafts ? ($crafts.name || "(unnamed)") : "(none)" }</a>
 		</div>
+		<div>
+			<a class="button" oncontextmenu="return false;" onclick="{serialize $win}.find_related_quests();" style="text-align: center;">Related quests</a>
+		</div>
 	</div>
 	<div>Greeting:</div>
-	<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $npc} => 'greeting'"></div>
+	<div class="pw-editable-color-text" style="margin-bottom: 18px;" data-editable-color-text data-link="{serialize $npc} => 'greeting'"></div>
 </div>
 </div>
 
