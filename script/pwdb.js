@@ -182,6 +182,10 @@ class PWDB {
 		};
 
 		let spawner_arrs = null;
+		let tasks_arr = null;
+
+		const spawners_tag = args.no_tag ? null : Loading.show_tag('Loading spawners');
+		const tasks_tag = args.no_tag ? null : Loading.show_tag('Loading tasks');
 
 		await Promise.all([
 			db.register_type('metadata', init_id_array([project])),
@@ -192,9 +196,7 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'npcs'),
 			PWDB.register_data_type(db, args, 'monsters'),
 			PWDB.register_data_type(db, args, 'items'),
-			get(ROOT_URL + 'data/base/spawners.json', { is_json: 1 }).then((req) => {
-				spawner_arrs = req.data;
-			}),
+			PWDB.load_db_file('spawners'),
 			PWDB.register_data_type(db, args, 'weapon_major_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'weapon_minor_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'armor_major_types', 'object_types'),
@@ -211,18 +213,45 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 			PWDB.register_data_type(db, args, 'npc_tasks_in'),
 			PWDB.register_data_type(db, args, 'npc_tasks_out'),
-			PWDB.register_data_type(db, args, 'tasks'),
+			PWDB.load_db_file('tasks'),
 		]);
 
 		if (args.preinit) {
 			db.metadata.init();
 		}
 
-		for (const arr of spawner_arrs) {
+		for (const arr of g_db.spawners) {
 			db.register_type('spawners_' + arr.tag, init_id_array(arr.entries));
 			if (args.preinit) {
 				db['spawners_' + arr.tag].init();
 			}
+		}
+
+		if (spawners_tag) {
+			Loading.hide_tag(spawners_tag);
+		}
+
+		if (args.preinit) {
+			db.tasks.init();
+			
+			const init_subtasks = (task) => {
+				if (!task.sub_tasks) {
+					return;
+				}
+
+				for (const c of task.sub_tasks) {
+					db.tasks[c.id] = c;
+					init_subtasks(c);
+				}
+			};
+
+			for (const task of db.tasks) {
+				init_subtasks(task);
+			}
+		}
+
+		if (tasks_tag) {
+			Loading.hide_tag(tasks_tag);
 		}
 
 		db.project_changelog_start_gen = 0;
