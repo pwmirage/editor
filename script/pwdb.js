@@ -213,7 +213,7 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 			PWDB.register_data_type(db, args, 'npc_tasks_in'),
 			PWDB.register_data_type(db, args, 'npc_tasks_out'),
-			PWDB.load_db_file('tasks'),
+			PWDB.register_data_type(db, args, 'tasks'),
 		]);
 
 		if (args.preinit) {
