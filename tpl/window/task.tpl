@@ -202,12 +202,16 @@
 				</div>
 				<div id="premise_items" class="data-field" style="align-items: unset;">
 					<span>Items: </span>
-					{assign idx = 0}
+					{assign idx = -1}
 					{for item of ($task.premise_items || [])}
 						{$idx++}
-						<span class="item" ondblclick="{serialize $win}.select_decomp();" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item($item?.id || -1)}"></span>
+						{if !$item?.id}{continue}{/if}
+						<div class="item-w-cnt">
+							<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('premise', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('premise', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'premise_items', {@$idx}, num" data-placeholder="(0)"></span>
+						</div>
 					{/for}
-					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.add_premise_item();"></span>
+					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('premise');"></span>
 				</div>
 			</div>
 			{/if}

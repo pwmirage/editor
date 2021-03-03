@@ -167,6 +167,7 @@ class TaskWindow extends Window {
 
 
 		this.shadow.querySelector('#subtasks .task.root').click();
+		this.select_tab('start_by', this.task._start_by || 0);
 
 		await super.init();
 	}
@@ -191,9 +192,11 @@ class TaskWindow extends Window {
 
 		for (const active of this.shadow.querySelectorAll('.tab_menu.' + tab_type + ' > .active')) {
 			active.classList.remove('active');
+			(active.querySelector('input[type="radio"]') || {}).checked = false;
 		}
 
 		el.classList.add('active');
+		(el.querySelector('input[type="radio"]') || {}).checked = true;
 		this.sel_opts[tab_type] = id;
 		if (tab_type == 'start_by') {
 			const btn = this.shadow.querySelector('#start_by_btn');
@@ -276,6 +279,91 @@ class TaskWindow extends Window {
 		ret += '</ul>';
 
 		return ret;
+	}
+
+	item_onclick(type, idx, e) {
+		const item = this.task.premise_items?.[idx];
+		const el = e.path[0];
+
+		if (e.which == 1) {
+			const obj = db.items[item?.id || 0];
+
+			HTMLSugar.open_edit_rmenu(el,
+				obj, 'items', {
+				pick_win_title: 'Pick new item for ' + (this.task.name || 'Task') + ' ' + serialize_db_id(this.task.id),
+				update_obj_fn: (new_obj) => {
+					const t = this.task;
+					db.open(t);
+
+					if (!t.premise_items) {
+						t.premise_items = [];
+					}
+
+					if (!t.premise_items[idx]) {
+						t.premise_items[idx] = {};
+					}
+
+					t.premise_items[idx].id = new_obj?.id || 0;
+
+					db.commit(t);
+					this.tpl.reload('#premise_items');
+				},
+				edit_obj_fn: (new_obj) => {
+					ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+				},
+				usage_name_fn: (item) => {
+					return (item.name || '') + ' ' + serialize_db_id(item.id);
+				},
+			});
+		} else if (e.which == 3) {
+			HTMLSugar.open_undo_rmenu(el, this.task, {
+				undo_path: [ 'premise_items', idx, 'id' ],
+				undo_fn: () => this.tpl.reload('#premise_items')
+			});
+		}
+	}
+
+	async item_ondblclick(type, idx, e) {
+		const el = e.path[0];
+
+		Item.hide_tooltips();
+		RMenuWindow.enable_all(false);
+		/* delay to not let the rmenu steal the focus - for some reason we can't get it back programatically */
+		await sleep(100);
+		const sel_id = await HTMLSugar.show_select({ win: this, around_el: el, around_margin: 5, container: db.items });
+		RMenuWindow.enable_all(true);
+		if (!sel_id) {
+			return;
+		}
+
+		const t = this.task;
+		db.open(t);
+		if (!t.premise_items) {
+			t.premise_items = [];
+		}
+
+		if (!t.premise_items[idx]) {
+			t.premise_items[idx] = {};
+		}
+
+		t.premise_items[idx].id = sel_id;
+
+		db.commit(t);
+		this.tpl.reload('#premise_items');
+	}
+
+	item_add_onclick(type, idx) {
+		const item_arr = this.task.premise_items;
+
+		let f_idx;
+		for (f_idx = 0; f_idx < item_arr.length; f_idx++) {
+			if (!item_arr[f_idx]?.id) {
+				break;
+			}
+		}
+
+		item_arr[f_idx] = { id: 13188 };
+		this.tpl.reload('#premise_items');
 	}
 
 	close() {
