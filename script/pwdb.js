@@ -182,10 +182,7 @@ class PWDB {
 		};
 
 		let spawner_arrs = null;
-		let tasks_arr = null;
-
 		const spawners_tag = args.no_tag ? null : Loading.show_tag('Loading spawners');
-		const tasks_tag = args.no_tag ? null : Loading.show_tag('Loading tasks');
 
 		await Promise.all([
 			db.register_type('metadata', init_id_array([project])),
@@ -229,29 +226,6 @@ class PWDB {
 
 		if (spawners_tag) {
 			Loading.hide_tag(spawners_tag);
-		}
-
-		if (args.preinit) {
-			db.tasks.init();
-			
-			const init_subtasks = (task) => {
-				if (!task.sub_tasks) {
-					return;
-				}
-
-				for (const c of task.sub_tasks) {
-					db.tasks[c.id] = c;
-					init_subtasks(c);
-				}
-			};
-
-			for (const task of db.tasks) {
-				init_subtasks(task);
-			}
-		}
-
-		if (tasks_tag) {
-			Loading.hide_tag(tasks_tag);
 		}
 
 		db.project_changelog_start_gen = 0;
