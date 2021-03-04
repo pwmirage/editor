@@ -173,6 +173,19 @@ class TaskWindow extends Window {
 		await super.init();
 	}
 
+	tpl_compile_cb(dom) {
+		super.tpl_compile_cb(dom);
+		for (const task of dom.querySelectorAll('.task')) {
+			const id = parseInt(task.dataset.id);
+			if (id == this.task.id) {
+				task.classList.add('focused');
+				/* XXX: for some reason the above CSS rule doesn't apply to child */
+				task.firstChild.classList.add('focused');
+				break;
+			}
+		}
+	}
+
 	static print_task_name(name) {
 		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">');
 	}
@@ -261,7 +274,6 @@ class TaskWindow extends Window {
 		}
 
 		let el = e.path.find(el => el.classList.contains('task'));
-		el.classList.add('active');
 
 		let t = this.root_task;
 		let indices = [];
@@ -294,7 +306,7 @@ class TaskWindow extends Window {
 		let idx = 0;
 		for (const sub_id of (parent.sub_quests || [])) {
 			const sub = db.tasks[sub_id];
-			ret += '<li class="task" data-idx="' + idx + '">';
+			ret += '<li class="task" data-id="' + sub_id + '" data-idx="' + idx + '">';
 			ret += '<a>' + TaskWindow.print_task_name(sub.name) + ' ' + serialize_db_id(sub.id) + '</a>'
 			ret += TaskWindow.print_subquests(sub);
 			ret += '</li>';

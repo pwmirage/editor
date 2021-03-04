@@ -114,7 +114,7 @@
 	<div id="subquests" style="flex: 1; display: flex; margin-top: 5px; column-gap: 5px;">
 		<div class="left tasks" style="padding: 3px; min-width: 200px;">
 			<ul class="tree">
-				<li id="root_task" class="task root" onclick="{serialize $win}.select_subquest(event)">
+				<li id="root_task" data-id="{@$root_task.id}" class="task root" onclick="{serialize $win}.select_subquest(event)">
 					<a>{@TaskWindow.print_task_name($root_task.name)} {@serialize_db_id($root_task.id)}</a>
 					{@TaskWindow.print_subquests($root_task)}
 				</li>
@@ -297,6 +297,10 @@ ul, li {
 	margin-top: 0;
 }
 
+.tree li.root:before {
+	content: unset;
+}
+
 .tree li:before {
 	content: "";
 	position: absolute;
@@ -342,8 +346,8 @@ ul.tree>li:first-child:before {
 	border: 1px solid black;
 }
 
-.tree li.active > a {
-	background: #4e4e4e;
+.tree a.focused {
+	background: #4e4e4e !important;
 }
 
 .tree li a:hover+ul li:after, .tree li a:focus+ul li:after,
