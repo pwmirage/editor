@@ -111,12 +111,12 @@
 		</div>
 	</div>
 
-	<div id="subtasks" style="flex: 1; display: flex; margin-top: 5px; column-gap: 5px;">
+	<div id="subquests" style="flex: 1; display: flex; margin-top: 5px; column-gap: 5px;">
 		<div class="left tasks" style="padding: 3px; min-width: 200px;">
 			<ul class="tree">
-				<li class="task root" onclick="{serialize $win}.select_subtask(event)">
-					<a>{@TaskWindow.print_task_name($task.name)} {@serialize_db_id($task.id)}</a>
-					{@TaskWindow.print_subtasks($task)}
+				<li id="root_task" class="task root" onclick="{serialize $win}.select_subquest(event)">
+					<a>{@TaskWindow.print_task_name($root_task.name)} {@serialize_db_id($root_task.id)}</a>
+					{@TaskWindow.print_subquests($root_task)}
 				</li>
 			</ul>
 			<div style="flex: 1;"></div>

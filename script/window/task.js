@@ -150,9 +150,11 @@ class TaskWindow extends Window {
 			throw new Error('Task without a valid parent: ' + task.id);
 		}
 
-		if (!this.args.debug && g_open_tasks.has(task)) return false;
-		g_open_tasks.add(task);
-		this.task = task;
+		this.root_task = task;
+		this.task = this.args.task;
+		if (!this.args.debug && g_open_tasks.has(this.root_task)) return false;
+		g_open_tasks.add(this.root_task);
+
 		this.selected_task = this.args.task;
 		this.next_tasks = db.tasks.filter(t => t.premise_quests?.includes(this.task.id));
 		this.sel_opts = {};
@@ -162,11 +164,10 @@ class TaskWindow extends Window {
 		this.tpl = new Template('tpl-tasks');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
-		const data = await this.tpl.run({ win: this, task });
+		const data = await this.tpl.run({ win: this, task, root_task: this.root_task });
 		shadow.append(data);
 
-
-		this.shadow.querySelector('#subtasks .task.root').click();
+		this.shadow.querySelector('#subquests .task.root').click();
 		this.select_tab('start_by', this.task._start_by || 0);
 
 		await super.init();
@@ -254,27 +255,50 @@ class TaskWindow extends Window {
 		}
 	}
 
-	select_subtask(e) {
-		for (const active of this.shadow.querySelectorAll('#subtasks .active')) {
+	select_subquest(e) {
+		for (const active of this.shadow.querySelectorAll('#subquests .active')) {
 			active.classList.remove('active');
 		}
 
-		const el = e.path.find(el => el.classList.contains('task'));
+		let el = e.path.find(el => el.classList.contains('task'));
 		el.classList.add('active');
+
+		let t = this.root_task;
+		let indices = [];
+
+		while (el.id != 'root_task') {
+			indices.push(parseInt(el.dataset.idx));
+
+			el = el.parentNode; /* ul */
+			el = el.parentNode; /* task */
+		}
+
+		for (const idx of indices.reverse()) {
+			const t_id = t.sub_quests[idx];
+			t = db.tasks[t_id];
+		}
+
+		this.task = t;
+		this.tpl.reload('.header > span', { task: t });
+		this.tpl.reload('.content', { task: t });
+
 		e.stopPropagation();
 	}
 
-	static print_subtasks(parent) {
-		if (!parent.sub_tasks?.length) {
+	static print_subquests(parent) {
+		if (!parent.sub_quests?.length) {
 			return '';
 		}
 
 		let ret = '<ul>';
-		for (const sub of parent.sub_tasks) {
-			ret += '<li class="task">'; /* TODO add data-id and implement the rest of onclick */
+		let idx = 0;
+		for (const sub_id of (parent.sub_quests || [])) {
+			const sub = db.tasks[sub_id];
+			ret += '<li class="task" data-idx="' + idx + '">';
 			ret += '<a>' + TaskWindow.print_task_name(sub.name) + ' ' + serialize_db_id(sub.id) + '</a>'
-			ret += TaskWindow.print_subtasks(sub);
+			ret += TaskWindow.print_subquests(sub);
 			ret += '</li>';
+			idx++;
 		}
 		ret += '</ul>';
 
@@ -367,7 +391,7 @@ class TaskWindow extends Window {
 	}
 
 	close() {
-		g_open_tasks.delete(this.task);
+		g_open_tasks.delete(this.root_task);
 		super.close();
 	}
 }
