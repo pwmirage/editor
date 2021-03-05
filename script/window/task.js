@@ -128,15 +128,19 @@ class TaskWindow extends Window {
 		{ id: 4, name: "By Death" },
 	]);
 
-	static tabs_qtypes = init_id_array([
-		{ id: 0, name: "None" },
-		{ id: 1, name: "Talk" },
-		{ id: 2, name: "Sub quests" },
-		{ id: 3, name: "Auto complete" },
-		{ id: 4, name: "Wait" },
-		{ id: 5, name: "Obtain Items" },
-		{ id: 6, name: "Kill Monsters" },
-		{ id: 7, name: "Reach Location" },
+	static tabs_goals = init_id_array([
+		{ id: 3, name: "None" },
+		{ id: 5, name: "Wait" },
+		{ id: 2, name: "Obtain Regular Items" },
+		{ id: 1, name: "Kill Monsters" },
+		{ id: 4, name: "Reach Location" },
+	]);
+
+	static tabs_sub_quest_activation = init_id_array([
+		{ id: 0, name: "All at once" },
+		{ id: 1, name: "As specified" },
+		{ id: 2, name: "Randomly" },
+		{ id: 3, name: "One by one, first to last" },
 	]);
 
 	async init() {
@@ -167,8 +171,7 @@ class TaskWindow extends Window {
 		const data = await this.tpl.run({ win: this, task, root_task: this.root_task });
 		shadow.append(data);
 
-		this.shadow.querySelector('#subquests .task.root').click();
-		this.select_tab('start_by', this.task._start_by || 0);
+		this.shadow.querySelector('#container .task.root > a').click();
 
 		await super.init();
 	}
@@ -201,7 +204,12 @@ class TaskWindow extends Window {
 	}
 
 	select_tab(tab_type, id) {
-		const el = this.shadow.querySelector('.tab_menu.' + tab_type).children[id];
+		const tabs = this.shadow.querySelector('.tab_menu.' + tab_type);
+		if (!tabs) {
+			return;
+		}
+
+		const el = [...tabs.children].find(el => el.dataset.id == id);
 		const t = this.task;
 
 		for (const active of this.shadow.querySelectorAll('.tab_menu.' + tab_type + ' > .active')) {
@@ -212,6 +220,7 @@ class TaskWindow extends Window {
 		el.classList.add('active');
 		(el.querySelector('input[type="radio"]') || {}).checked = true;
 		this.sel_opts[tab_type] = id;
+
 		if (tab_type == 'start_by') {
 			const btn = this.shadow.querySelector('#start_by_btn');
 			if (id == 0 || id == 1) {
@@ -227,6 +236,16 @@ class TaskWindow extends Window {
 			}
 			db.open(t);
 			t._start_by = id;
+			db.commit(t);
+		} else if (tab_type == 'goal') {
+			const tabs = this.shadow.querySelector('.tabs.goal');
+			for (const c of tabs.children) {
+				c.classList.remove('active');
+			}
+			tabs.children[id].classList.add('active');
+
+			db.open(t);
+			t.success_method = id;
 			db.commit(t);
 		}
 	}
@@ -269,11 +288,17 @@ class TaskWindow extends Window {
 	}
 
 	select_subquest(e) {
-		for (const active of this.shadow.querySelectorAll('#subquests .active')) {
+		for (const active of this.shadow.querySelectorAll('#container .active')) {
 			active.classList.remove('active');
 		}
 
-		let el = e.path.find(el => el.classList.contains('task'));
+		let el = e.path.find(el => el.classList?.contains('taskbtn'));
+		if (!el) {
+			/* no particular quest clicked, just the list background */
+			return;
+		}
+		/* navigate back to .task */
+		el = el.parentNode;
 
 		let t = this.root_task;
 		let indices = [];
@@ -292,7 +317,11 @@ class TaskWindow extends Window {
 
 		this.task = t;
 		this.tpl.reload('.header > span', { task: t });
-		this.tpl.reload('.content', { task: t });
+		this.tpl.reload('#container', { task: t });
+
+		this.select_tab('start_by', this.task._start_by || 0);
+		this.select_tab('goal', this.task.success_method || 0);
+		this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
 
 		e.stopPropagation();
 	}
@@ -307,7 +336,7 @@ class TaskWindow extends Window {
 		for (const sub_id of (parent.sub_quests || [])) {
 			const sub = db.tasks[sub_id];
 			ret += '<li class="task" data-id="' + sub_id + '" data-idx="' + idx + '">';
-			ret += '<a>' + TaskWindow.print_task_name(sub.name) + ' ' + serialize_db_id(sub.id) + '</a>'
+			ret += '<a class="taskbtn">' + TaskWindow.print_task_name(sub.name) + ' ' + serialize_db_id(sub.id) + '</a>'
 			ret += TaskWindow.print_subquests(sub);
 			ret += '</li>';
 			idx++;

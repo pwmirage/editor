@@ -77,7 +77,7 @@
 
 <script id="tpl-tasks" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 800px; min-height: 400px; height: 400px;">
+<div class="window resizable" style="width: 1033px; min-height: 800px; height: 800px;">
 <div class="header">
 	<span>Task: {@($task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@serialize_db_id($task.id)}</span>
 	<div class="menu">
@@ -111,11 +111,11 @@
 		</div>
 	</div>
 
-	<div id="subquests" style="flex: 1; display: flex; margin-top: 5px; column-gap: 5px;">
+	<div id="container" style="flex: 1; display: flex; margin-top: 5px; column-gap: 5px;">
 		<div class="left tasks" style="padding: 3px; min-width: 200px;">
 			<ul class="tree">
 				<li id="root_task" data-id="{@$root_task.id}" class="task root" onclick="{serialize $win}.select_subquest(event)">
-					<a>{@TaskWindow.print_task_name($root_task.name)} {@serialize_db_id($root_task.id)}</a>
+					<a class="taskbtn">{@TaskWindow.print_task_name($root_task.name)} {@serialize_db_id($root_task.id)}</a>
 					{@TaskWindow.print_subquests($root_task)}
 				</li>
 			</ul>
@@ -143,7 +143,7 @@
 				{/if}
 			</div>
 
-			<div>Requirements: {if $task.parent_quest}Copied from the root quest{/if}</div>
+			<div>Requirements: {if $task.parent_quest}Inherited from the root quest{/if}</div>
 			{if !$task.parent_quest}
 			<div class="requirements" style="display: flex; flex-wrap: wrap; column-gap: 15px; row-gap: 5px;">
 				<div class="data-field">
@@ -213,6 +213,8 @@
 					{/for}
 					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('premise');"></span>
 				</div>
+
+				<label><input type="checkbox" class="checkbox" data-link="{serialize $task} => 'remove_premise_items'"><span>Remove Items/Coins from EQ</span></label>
 			</div>
 			{/if}
 
@@ -220,42 +222,56 @@
 				<span class="header">Start by:</span>
 				<div class="tab_menu start_by">
 					{for tab of TaskWindow.tabs_obtain_ways}
-						<label onclick="{serialize $win}.select_tab('start_by', {@$tab.id});"><input type="radio" name="tab_start_by">{@$tab.name}</label>
+						<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('start_by', {@$tab.id});"><input type="radio" name="tab_start_by">{@$tab.name}</label>
 					{/for}
 				</div>
 				<a class="button menu-triangle" id="start_by_btn" style="margin-top: 1px; margin-bottom: 2px; margin-left: 10px;" oncontextmenu="return false;" onmousedown="{serialize $win}.onclick_start_by(this, event);">Text</a>
 			</div>
-
-
 			<div class="tab_menu_container" style="display: flex;">
-				<span class="header">Type:</span>
-				<div class="tab_menu type">
-					{for tab of TaskWindow.tabs_qtypes}
-						<label onclick="{serialize $win}.select_tab('type', {@$tab.id});"><input type="radio" name="tab_type">{@$tab.name}</label>
-					{/for}
+				<span class="header">Goal: {if $task.sub_quests}completed by subquest{/if}</span>
+				{if !$task.sub_quests?.length}
+					<div class="tab_menu goal">
+						{for tab of TaskWindow.tabs_goals}
+							<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('goal', {@$tab.id});"><input type="radio" name="tab_type">{@$tab.name}</label>
+						{/for}
+					</div>
+				{/if}
+
+			</div>
+
+			{if $task.sub_quests?.length}
+				<div class="tab_menu_container" style="margin-top: 4px; display: flex;">
+					<span class="header">Activate subquests:</span>
+					<div class="tab_menu sub_quest_activation">
+						{for tab of TaskWindow.tabs_sub_quest_activation}
+							<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('sub_quest_activation', {@$tab.id});"><input type="radio" name="tab_type">{@$tab.name}</label>
+						{/for}
+					</div>
 				</div>
-			</div>
+			{else}
+				<div class="tabs goal">
+					<div>{* None *}</div>
+					<div>
+						Kill Monsters
+					</div>
 
-			<div>
-			<div>
-				If type == talk, then finish_npc
-			</div>
+					<div>
+						Obtain Regular Items
+					</div>
 
-			<div>
-				If type == get items, then req_items and req_coins
-			</div>
+					<div>
+						None
+					</div>
 
-			<div>
-				Parent quest (if any): fail parent on give up, fail parent on fail, success parent on success
-			</div>
-
-			<div>
-				Sub quests: choose subquest, activate all subquests at once, activate subquests in order, activate random subquest
-			</div>
+					<div>
+						Wait
+					</div>
+				</div>
+			{/if}
 
 			<div>Dialogue</div>
 			<div>Awards</div>
-			<div>Easy extras - can give up, can retake, can retake after failure, time limit, remove requirement items</div>
+			<div>Easy extras - can give up, can retake, can retake after failure, time limit</div>
 			<div>Extras -> fail on death, marriage quest, inv expansion, date spans, ai trigger, instant teleport, simultaneous player limit, recommended level, show_quest_title, show_as_gold_quest, is_craft_skill_quest, can_be_found, show_direction, special award type</div>
 		</div>
 	</div>
@@ -355,6 +371,10 @@ ul.tree>li:first-child:before {
 .tree li a:hover+ul:before, .tree li a:focus+ul:before,
 .tree li a:hover+ul ul:before, .tree li a:focus+ul ul:before{
 	border-color: #000;
+}
+
+.tabs > *:not(.active) {
+	display: none;
 }
 
 .task {
