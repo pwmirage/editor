@@ -77,7 +77,7 @@
 
 <script id="tpl-tasks" type="text/x-dot-template">
 
-<div class="window resizable" style="width: 1033px; min-height: 800px; height: 800px;">
+<div class="window resizable" style="width: 1050px; min-height: 800px; height: 800px;">
 <div class="header">
 	<span>Task: {@($task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@serialize_db_id($task.id)}</span>
 	<div class="menu">
@@ -119,8 +119,6 @@
 					{@TaskWindow.print_subquests($root_task)}
 				</li>
 			</ul>
-			<div style="flex: 1;"></div>
-			<div class="add-container"><div style="flex: 1;"></div><a class="button add">(add) <i class="fa fa-plus"></i></a></div>
 		</div>
 
 		<div id="body" class="right">
@@ -269,7 +267,23 @@
 				</div>
 			{/if}
 
-			<div>Dialogue</div>
+			<div style="margin-top: 5px;">Dialogue:</div>
+			<div class="tab_menu dialogue dialogue_tabs">
+				<div data-id="initial" onclick="{serialize $win}.select_tab('dialogue', 'initial');" style="{if $task.parent_quest}display: none;{/if}">Initial</div>
+				<div data-id="notqualified" onclick="{serialize $win}.select_tab('dialogue', 'notqualified');" style="{if $task.parent_quest}display: none;{/if}">Requirements not met</div>
+				<div data-id="unfinished" onclick="{serialize $win}.select_tab('dialogue', 'unfinished');">In progress</div>
+				<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length || !$task.parent_quest}display: none;{/if}">Ready to finish</div>
+			</div>
+			<div id="dialogue">
+				<ul class="diagram" style="margin-bottom: -5px;">
+					<li class="start"><span>NPC</span><ul>
+						{if $win.sel_opts.dialogue}
+							{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
+						{/if}
+					</ul></li>
+				</ul>
+			</div>
+
 			<div>Awards</div>
 			<div>Easy extras - can give up, can retake, can retake after failure, time limit</div>
 			<div>Extras -> fail on death, marriage quest, inv expansion, date spans, ai trigger, instant teleport, simultaneous player limit, recommended level, show_quest_title, show_as_gold_quest, is_craft_skill_quest, can_be_found, show_direction, special award type</div>
@@ -279,11 +293,140 @@
 
 {@@
 <style>
+#dialogue {
+	background-color: #737373;
+	border: 2px solid #2b2b2b;
+	padding: 5px;
+	position: relative;
+}
+
+#dialogue:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	opacity: 0.15;
+	pointer-events: none;
+}
+
+.dialogue_tabs {
+	display: flex;
+	column-gap: 4px;
+}
+
+.dialogue_tabs > * {
+	background-color: #313131;
+	border: 2px solid #2b2b2b;
+	border-bottom: none;
+	padding: 4px 6px;
+	margin-bottom: -2px;
+	color: #adada5;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.dialogue_tabs > .active {
+	color: #d9d9be;
+	background-color: #626262;
+	z-index: 1;
+}
+
 .data-field {
 	display: flex;
 	align-items: baseline;
 	column-gap: 4px;
 	row-gap: 4px;
+}
+
+.diagram, .diagram ul, .diagram li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+.diagram {
+	margin: 0 0 1em;
+	text-align: center;
+}
+.diagram, .diagram ul {
+}
+.diagram ul {
+	width: 100%;
+}
+
+.diagram li {
+	display: table-cell;
+	padding: .5em 0;
+	vertical-align: top;
+	max-width: 400px;
+	min-width: 200px;
+}
+
+.diagram li:before {
+	outline: solid 1px #333;
+	content: "";
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.diagram li:first-child:before { left: 50%; }
+.diagram li:last-child:before { right: 50%; }
+
+.diagram span {
+	border: solid .1em #333;
+	border-radius: .2em;
+	display: inline-block;
+	margin: 0 .2em .5em;
+	padding: .2em .5em;
+	position: relative;
+	font-size: 10pt;
+	font-weight: bold;
+	background-color: #3a3a3a;
+	color: white;
+	text-align: left;
+	min-width: 15px;
+	min-height: 18px;
+}
+
+.diagram li.start > span {
+	background: #bdbdbd;
+	color: black;
+}
+
+.diagram li.choice > span {
+	background-color: #561010;
+}
+
+/* | */
+.diagram ul:before,
+.diagram span:before {
+	outline: solid 1px #333;
+	content: "";
+	height: .4em;
+	left: 50%;
+	position: absolute;
+}
+
+.diagram ul:before {
+	top: -.5em;
+}
+
+.diagram span:before {
+	top: -.55em;
+}
+
+/* The root node doesn't connect upwards */
+.diagram > li { margin-top: 0; }
+.diagram > li:before,
+.diagram > li:after,
+.diagram > li > span:before {
+outline: none;
 }
 
 ul, li {
@@ -427,6 +570,11 @@ ul.tree>li:first-child:before {
 .window > .content {
 	overflow: hidden;
 	background-color: #f7f9fa;
+}
+
+#container {
+	overflow-x: hidden;
+	overflow-y: scroll;
 }
 
 #body {

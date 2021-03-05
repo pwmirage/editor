@@ -139,8 +139,41 @@ class TaskWindow extends Window {
 	static tabs_sub_quest_activation = init_id_array([
 		{ id: 0, name: "All at once" },
 		{ id: 1, name: "As specified" },
-		{ id: 2, name: "Randomly" },
+		{ id: 2, name: "A random one" },
 		{ id: 3, name: "One by one, first to last" },
+	]);
+
+	static dialogue_choice_opts = init_id_array([
+		{ id: 0x80000000, "name": "Exit talk" },
+		{ id: 0x80000001, "name": "NPC_SELL" },
+		{ id: 0x80000002, "name": "NPC_BUY" },
+		{ id: 0x80000003, "name": "NPC_REPAIR" },
+		{ id: 0x80000004, "name": "NPC_INSTALL" },
+		{ id: 0x80000005, "name": "NPC_UNINSTALL" },
+		{ id: 0x80000006, "name": "Start quest" },
+		{ id: 0x80000007, "name": "Finish quest" },
+		/* { id: 0x80000008, "name": "NPC_GIVE_TASK_MATTER" }, unused */
+		{ id: 0x80000009, "name": "NPC_SKILL" },
+		{ id: 0x8000000a, "name": "NPC_HEAL" },
+		{ id: 0x8000000b, "name": "NPC_TRANSMIT" },
+		{ id: 0x8000000c, "name": "NPC_TRANSPORT" },
+		{ id: 0x8000000d, "name": "NPC_PROXY" },
+		{ id: 0x8000000e, "name": "NPC_STORAGE" },
+		{ id: 0x8000000f, "name": "NPC_MAKE" },
+		{ id: 0x80000010, "name": "NPC_DECOMPOSE" },
+		{ id: 0x80000011, "name": "Previous question" },
+		{ id: 0x80000012, "name": "Exit talk" },
+		{ id: 0x80000013, "name": "NPC_STORAGE_PASSWORD" },
+		{ id: 0x80000014, "name": "NPC_IDENTIFY" },
+		{ id: 0x80000015, "name": "Give up quest" },
+		{ id: 0x80000016, "name": "NPC_WAR_TOWERBUILD" },
+		{ id: 0x80000017, "name": "NPC_RESETPROP" },
+		{ id: 0x80000018, "name": "NPC_PETNAME" },
+		{ id: 0x80000019, "name": "NPC_PETLEARNSKILL" },
+		{ id: 0x8000001a, "name": "NPC_PETFORGETSKILL" },
+		{ id: 0x8000001b, "name": "NPC_EQUIPBIND" },
+		{ id: 0x8000001c, "name": "NPC_EQUIPDESTROY" },
+		{ id: 0x8000001d, "name": "NPC_EQUIPUNDESTROY" },
 	]);
 
 	async init() {
@@ -247,6 +280,11 @@ class TaskWindow extends Window {
 			db.open(t);
 			t.success_method = id;
 			db.commit(t);
+		} else if (tab_type == 'dialogue') {
+			this.tpl.reload('#dialogue');
+			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
+			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
+			this.shadow.querySelector('#dialogue li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(invalid, set it above)';
 		}
 	}
 
@@ -322,6 +360,7 @@ class TaskWindow extends Window {
 		this.select_tab('start_by', this.task._start_by || 0);
 		this.select_tab('goal', this.task.success_method || 0);
 		this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
+		this.select_tab('dialogue', !this.task.parent_quest ? 'initial' : (this.task.sub_quests?.length ? 'unfinished' : 'ready'));
 
 		e.stopPropagation();
 	}
@@ -342,6 +381,35 @@ class TaskWindow extends Window {
 			idx++;
 		}
 		ret += '</ul>';
+
+		return ret;
+	}
+
+	static print_question(d, q_id) {
+		/* TODO add + buttons */
+		let q = d?.questions?.find(q => q.id == q_id);
+		if (!q) {
+			return '';
+		}
+
+		/* FIXME encode all HTML tags */
+
+		let ret = '<li class="question"><span>' + q.text + '</span>';
+		if (q.choices?.length) {
+			ret += '<ul>';
+			for (const c of q.choices) {
+				if (c.id < 0x80000000) {
+					ret += '<li class="choice"><span>' + c.text + '</span><ul>';
+					ret += TaskWindow.print_question(d, c.id);
+					ret += '</ul></li>';
+				} else {
+					const ctype = TaskWindow.dialogue_choice_opts[c.id];
+					ret += '<li class="choice"><span>' + c.text + '<br>' + ctype.name + ': ' + serialize_db_id(c.param) + '</span></li>';
+				}
+			}
+			ret += '</ul>';
+		}
+		ret += '</li>';
 
 		return ret;
 	}
