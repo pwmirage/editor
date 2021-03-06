@@ -407,6 +407,7 @@ class TaskWindow extends Window {
 					ret += '<li class="choice"><span>' + c.text + '<br>' + ctype.name + ': ' + serialize_db_id(c.param) + '</span></li>';
 				}
 			}
+			ret += '<li class="add"><span><i class="fa fa-plus"></i></span></li>';
 			ret += '</ul>';
 		}
 		ret += '</li>';

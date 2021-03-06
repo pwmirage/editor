@@ -274,14 +274,16 @@
 				<div data-id="unfinished" onclick="{serialize $win}.select_tab('dialogue', 'unfinished');">In progress</div>
 				<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length || !$task.parent_quest}display: none;{/if}">Ready to finish</div>
 			</div>
-			<div id="dialogue">
-				<ul class="diagram" style="margin-bottom: -5px;">
-					<li class="start"><span>NPC</span><ul>
-						{if $win.sel_opts.dialogue}
-							{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
-						{/if}
-					</ul></li>
-				</ul>
+			<div class="dialogue_container">
+				<div id="dialogue">
+					<ul class="diagram" style="margin-bottom: -5px;">
+						<li class="start"><span>NPC</span><ul>
+							{if $win.sel_opts.dialogue}
+								{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
+							{/if}
+						</ul></li>
+					</ul>
+				</div>
 			</div>
 
 			<div>Awards</div>
@@ -298,9 +300,14 @@
 	border: 2px solid #2b2b2b;
 	padding: 5px;
 	position: relative;
+	overflow: auto;
 }
 
-#dialogue:after {
+.dialogue_container {
+	position: relative;
+}
+
+.dialogue_container:after {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -401,6 +408,13 @@
 
 .diagram li.choice > span {
 	background-color: #561010;
+}
+
+.diagram li.add > span {
+	background-color: #561010;
+	min-width: 13px;
+	padding-left: 8px;
+	min-height: 18px;
 }
 
 /* | */
