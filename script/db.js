@@ -166,16 +166,7 @@ class DB {
 					};
 				}
 
-				let id;
-				const id_parts = k.split(':');
-				if (id_parts.length == 1) {
-					id = parseInt(id_parts[0]);
-				} else {
-					const pid = parseInt(id_parts[0]);
-					const off = parseInt(id_parts[1]);
-					id = (pid > 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
-				}
-
+				const id = parse_db_id(k);
 				let obj = map.get(id);
 				if (obj) {
 					return obj;
