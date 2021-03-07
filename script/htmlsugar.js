@@ -469,7 +469,7 @@ class HTMLSugar {
 			el.style.position = 'fixed';
 			el.style.left = x + 'px';
 			el.style.top = (y + 28) + 'px';
-			el.style.zIndex = Window.focus_win_index;
+			el.style.zIndex = 11 + Window.focus_win_index;
 
 			if (!win) {
 				win = Window.focus_win;
