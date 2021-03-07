@@ -275,13 +275,15 @@
 				<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length || !$task.parent_quest}display: none;{/if}">Ready to finish</div>
 			</div>
 			<div class="dialogue_container">
-				<div id="dialogue">
+				<div class="dialogue-diagram">
 					<ul class="diagram" style="margin-bottom: -5px;">
-						<li class="start"><span>NPC</span><ul>
-							{if $win.sel_opts.dialogue}
-								{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
+						<li class="start"><span>NPC</span>
+							{if $win.sel_opts.dialogue && $task.dialogue[$win.sel_opts.dialogue]?.questions?.filter(q => q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
+								<ul>
+									{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
+								</ul>
 							{/if}
-						</ul></li>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -295,12 +297,22 @@
 
 {@@
 <style>
-#dialogue {
+#body {
+	overflow-x: hidden;
+}
+
+.dialogue-diagram {
 	background-color: #737373;
 	border: 2px solid #2b2b2b;
 	padding: 5px;
 	position: relative;
-	overflow: auto;
+	overflow-x: auto;
+	overflow-y: hidden;
+	cursor: all-scroll;
+}
+
+.dialogue-diagram span {
+	cursor: text;
 }
 
 .dialogue_container {
@@ -317,6 +329,7 @@
 	background: #000;
 	opacity: 0.15;
 	pointer-events: none;
+	z-index: 10;
 }
 
 .dialogue_tabs {
@@ -360,17 +373,19 @@
 	text-align: center;
 }
 .diagram, .diagram ul {
+	display: table;
 }
 .diagram ul {
+	max-width: 9999px;
 	width: 100%;
+	overflow: visible;
 }
 
 .diagram li {
 	display: table-cell;
 	padding: .5em 0;
 	vertical-align: top;
-	max-width: 400px;
-	min-width: 200px;
+	min-width: 50px;
 }
 
 .diagram li:before {
@@ -385,7 +400,12 @@
 .diagram li:first-child:before { left: 50%; }
 .diagram li:last-child:before { right: 50%; }
 
-.diagram span {
+.diagram li {
+	pointer-events: none;
+}
+
+.diagram li span {
+	pointer-events: all;
 	border: solid .1em #333;
 	border-radius: .2em;
 	display: inline-block;
@@ -399,22 +419,62 @@
 	text-align: left;
 	min-width: 15px;
 	min-height: 18px;
+	max-width: 350px;
 }
 
 .diagram li.start > span {
 	background: #bdbdbd;
 	color: black;
+	cursor: default;
 }
 
 .diagram li.choice > span {
 	background-color: #561010;
 }
 
-.diagram li.add > span {
-	background-color: #561010;
-	min-width: 13px;
-	padding-left: 8px;
-	min-height: 18px;
+.diagram li.choice > span[data-option="true"] {
+	padding-bottom: 33px;
+	margin-bottom: -27px;
+	border-bottom: none;
+	min-width: 180px;
+}
+
+.diagram li.choice > span[data-option="true"]:after {
+	content: '';
+	position: absolute;
+	bottom: 28px;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: #d9d9b9;
+}
+
+.diagram li.choice > br {
+	user-select: none;
+}
+
+.diagram li.choice > span ~ span {
+	border: none;
+	border-radius: 0;
+	padding: 2px;
+	margin: 0;
+	background-color: none;
+	width: 180px;
+	text-align: center;
+	color: #ddd;
+	user-select: none;
+}
+
+.diagram li.choice > span ~ span > input {
+	display: inline-block;
+	font-size: 9pt;
+	font-weight: bold;
+	padding: 2px 4px;
+	width: 62px;
+}
+
+.diagram li.choice > span ~ span:before {
+	content: none;
 }
 
 /* | */

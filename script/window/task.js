@@ -150,8 +150,8 @@ class TaskWindow extends Window {
 		{ id: 0x80000003, "name": "NPC_REPAIR" },
 		{ id: 0x80000004, "name": "NPC_INSTALL" },
 		{ id: 0x80000005, "name": "NPC_UNINSTALL" },
-		{ id: 0x80000006, "name": "Start quest" },
-		{ id: 0x80000007, "name": "Finish quest" },
+		{ id: 0x80000006, "name": "Start quest", param: true },
+		{ id: 0x80000007, "name": "Finish quest", param: true },
 		/* { id: 0x80000008, "name": "NPC_GIVE_TASK_MATTER" }, unused */
 		{ id: 0x80000009, "name": "NPC_SKILL" },
 		{ id: 0x8000000a, "name": "NPC_HEAL" },
@@ -161,11 +161,11 @@ class TaskWindow extends Window {
 		{ id: 0x8000000e, "name": "NPC_STORAGE" },
 		{ id: 0x8000000f, "name": "NPC_MAKE" },
 		{ id: 0x80000010, "name": "NPC_DECOMPOSE" },
-		{ id: 0x80000011, "name": "Previous question" },
+		{ id: 0x80000011, "name": "Prev. dialogue" },
 		{ id: 0x80000012, "name": "Exit talk" },
 		{ id: 0x80000013, "name": "NPC_STORAGE_PASSWORD" },
 		{ id: 0x80000014, "name": "NPC_IDENTIFY" },
-		{ id: 0x80000015, "name": "Give up quest" },
+		{ id: 0x80000015, "name": "Give up quest", param: true },
 		{ id: 0x80000016, "name": "NPC_WAR_TOWERBUILD" },
 		{ id: 0x80000017, "name": "NPC_RESETPROP" },
 		{ id: 0x80000018, "name": "NPC_PETNAME" },
@@ -204,9 +204,15 @@ class TaskWindow extends Window {
 		const data = await this.tpl.run({ win: this, task, root_task: this.root_task });
 		shadow.append(data);
 
+		await super.init();
+
 		this.shadow.querySelector('#container .task.root > a').click();
 
-		await super.init();
+		this.scroll_ctx = { el: null, top: 0, left: 0, x: 0, y: 0 };
+		this.mousemove_fn = (e) => this.onmousemove(e);
+		this.mouseup_fn = (e) => this.onmouseup(e);
+		document.addEventListener('mousemove', this.mousemove_fn);
+		document.addEventListener('mouseup', this.mouseup_fn);
 	}
 
 	tpl_compile_cb(dom) {
@@ -220,6 +226,265 @@ class TaskWindow extends Window {
 				break;
 			}
 		}
+
+		const dialogue = dom.className == 'dialogue-diagram' ? dom : dom.querySelector('.dialogue-diagram');
+		if (dialogue) {
+			dialogue.onmousedown = (e) => {
+				this.scroll_ctx.el = dialogue;
+				this.scroll_ctx.left = dialogue.scrollLeft;
+				this.scroll_ctx.top = dialogue.scrollTop;
+				this.scroll_ctx.x = e.clientX;
+				this.scroll_ctx.y = e.clientY;
+
+				window.getSelection().empty();
+				e.preventDefault();
+			};
+
+			for (const span of dialogue.querySelectorAll('li > span')) {
+				const node = span.parentNode;
+				const type = node.className;
+				const id = parseInt(node.dataset.id || 0);
+				let d = this.task.dialogue[this.sel_opts.dialogue || 'unfinished'];
+
+				span.onmousedown = (e) => e.stopPropagation();
+
+				if (type == 'start') {
+					span.onclick = async (e) => {
+						if (e.which != 3) {
+							return;
+						}
+
+						const win = await RMenuWindow.open({
+						x: e.clientX - Window.bounds.left, y: e.clientY - Window.bounds.top, bg: false,
+						entries: [
+							{ id: 1, name: 'Add dialogue', disabled: d?.questions?.filter(q => q.text || q.choices?.filter(c => c.id != 0)?.length)?.length },
+						]});
+						const sel = await win.wait();
+						switch(sel) {
+							case 1:
+								db.open(this.task);
+
+								if (!d) {
+									d = this.task.dialogue[this.sel_opts.dialogue] = {};
+								}
+
+								if (!d.questions) {
+									d.questions = [];
+								}
+
+								let newq = d.questions[0];
+								if (!newq) {
+									newq = { id: 0, text: "" };
+									d.questions.push(newq);
+								}
+								newq.id = 1;
+								newq.text = ' ';
+								newq.parent_id = -1;
+
+								db.commit(this.task);
+								this.select_tab('dialogue', this.sel_opts.dialogue);
+								break;
+						}
+					};
+					span.oncontextmenu = (e) => { span.onclick(e); return false; };
+				} else if (type == 'question') {
+					const q = d.questions.find(q => q?.id == id);
+					span.oninput = (e) => {
+						db.open(this.task);
+						q.text = span.innerText;
+						db.commit(this.task);
+					};
+					span.onclick = async (e) => {
+						if (e.which != 3) {
+							return;
+						}
+
+						const win = await RMenuWindow.open({
+						x: e.clientX - Window.bounds.left, y: e.clientY - Window.bounds.top, bg: false,
+						entries: [
+							{ id: 1, name: 'Add choice' },
+							{ id: 2, name: 'Remove', disabled: q.choices?.filter(c => c.id != 0)?.length },
+						]});
+						const sel = await win.wait();
+						switch(sel) {
+							case 1:
+								db.open(this.task);
+
+								if (!q.choices) {
+									q.choices = [];
+								}
+								let c = q.choices.find(c => c.id == 0);
+								if (!c) {
+									c = { id: 0, text: "", param: 0 };
+									q.choices.push(c);
+								}
+								c.id = -1;
+
+								db.commit(this.task);
+								this.select_tab('dialogue', this.sel_opts.dialogue);
+								break;
+							case 2:
+								db.open(this.task);
+								if (q.parent_id != -1) {
+									const parent_q = d.questions.find(tmpq => tmpq.id == q.parent_id);
+									const parent_c = parent_q.choices.find(c => c.id == q.id);
+									parent_c.id = 0;
+								}
+								q.id = 0;
+								q.text = "";
+								db.commit(this.task);
+								this.select_tab('dialogue', this.sel_opts.dialogue);
+								break;
+
+						}
+					};
+					span.oncontextmenu = (e) => { span.onclick(e); return false; };
+				} else if (type == 'choice') {
+					const q_node = node.parentNode.parentNode; /* li.choice -> ul -> li.question */
+					const q_id = parseInt(q_node.dataset.id || 0);
+					const q = d.questions.find(q => q?.id == q_id);
+					const q_idx = d.questions.findIndex((_q) => _q == q);
+
+					const c_idx = id;
+					const c = q.choices[c_idx];
+
+					span.oninput = (e) => {
+						db.open(this.task);
+						c.text = span.innerText;
+						db.commit(this.task);
+					};
+
+					span.onclick = async (e) => {
+						if (e.which != 3) {
+							return;
+						}
+
+						if (e.path[0].tagName == 'INPUT') {
+							e.path[0].onclick(e);
+							return;
+						}
+
+						const win = await RMenuWindow.open({
+						x: e.clientX - Window.bounds.left, y: e.clientY - Window.bounds.top, bg: false,
+						entries: [
+							{ id: 1, name: 'Add dialogue', disabled: c.id > 0 && c.id < 0x80000000 },
+							{ id: 3, name: 'Set function', disabled: c.id > 0 && c.id < 0x80000000 },
+							{ id: 2, name: 'Remove', disabled: c.id > 0 && c.id < 0x80000000 },
+						]});
+						const b = win.full_bounds;
+						const sel = await win.wait();
+						switch(sel) {
+							case 1:
+								db.open(this.task);
+								let newq = d.questions.find(q => q.id == 0);
+								if (!newq) {
+									newq = { id: 0, text: "" };
+									d.questions.push(newq);
+								}
+								newq.id = Math.max(... (d.questions.map(q => q.id) || [0])) + 1;
+
+								/* link the dialogue to the choice (and it's parent dialogue) */
+								newq.parent_id = q_id;
+								c.id = newq.id;
+
+								db.commit(this.task);
+								this.select_tab('dialogue', this.sel_opts.dialogue);
+								break;
+							case 3:
+								let functions;
+								if (this.sel_opts.dialogue == 'initial') {
+									functions = init_id_array([
+										TaskWindow.dialogue_choice_opts[0x80000006], /* start q */
+										TaskWindow.dialogue_choice_opts[0x80000011], /* previous dialogue */
+										TaskWindow.dialogue_choice_opts[0x80000012], /* exit dialogue */
+									]);
+								} else if (this.sel_opts.dialogue == 'notqualified' || this.sel_opts.dialogue == 'unfinished') {
+									functions = init_id_array([
+										TaskWindow.dialogue_choice_opts[0x80000006], /* start q */
+										TaskWindow.dialogue_choice_opts[0x80000007], /* finish q */
+										TaskWindow.dialogue_choice_opts[0x80000011], /* previous dialogue */
+										TaskWindow.dialogue_choice_opts[0x80000000], /* exit dialogue */
+									]);
+								} else if (this.sel_opts.dialogue == 'ready') {
+									functions = init_id_array([
+										TaskWindow.dialogue_choice_opts[0x80000006], /* start q */
+										TaskWindow.dialogue_choice_opts[0x80000007], /* finish q */
+										TaskWindow.dialogue_choice_opts[0x80000011], /* previous dialogue */
+										TaskWindow.dialogue_choice_opts[0x80000000], /* exit dialogue */
+										TaskWindow.dialogue_choice_opts[0x80000015], /* give up q */
+									]);
+								}
+
+								const sel_id = await HTMLSugar.show_select({ win: this, around_el: span, around_margin: 5, container: functions });
+								c.id = sel_id;
+								c.param = this.task.id;
+								this.select_tab('dialogue', this.sel_opts.dialogue);
+								break;
+							case 2:
+								db.open(this.task);
+								c.id = 0;
+								c.text = "";
+								db.commit(this.task);
+								this.select_tab('dialogue', this.sel_opts.dialogue);
+								break;
+
+						}
+					};
+					span.oncontextmenu = (e) => { span.onclick(e); return false; };
+
+					let input = span.nextSibling?.nextSibling?.firstElementChild;
+					if (input?.tagName == 'INPUT') {
+						input.oninput = (e) => {
+							let id = input.value;
+							const parsed_id = parse_db_id(id);
+							if (parsed_id != NaN) {
+								id = parsed_id;
+							}
+
+							/* put either the integer, or an int */
+							db.open(this.task);
+							c.param = id;
+							db.commit(this.task);
+						}
+
+						input.onclick = (e) => {
+							if (e.which != 3) {
+								return;
+							}
+
+							HTMLSugar.open_undo_rmenu(e.path[0], this.task, {
+								undo_path: [ 'dialogue', this.sel_opts.dialogue, 'questions', q_idx, 'choices', c_idx, 'param' ],
+								undo_fn: () => this.select_tab('dialogue', this.sel_opts.dialogue)
+
+							});
+							e.stopPropagation();
+						}
+					}
+				}
+			}
+
+			const start_b = dialogue.querySelector('.start > span').getBoundingClientRect();
+			const dialogue_b = dialogue.getBoundingClientRect();
+
+			dialogue.scrollLeft = (start_b.left - dialogue_b.left) - dialogue_b.width / 2;
+		}
+	}
+
+	onmousemove(e) {
+		if (!this.scroll_ctx.el) {
+			return;
+		}
+
+		const c = this.scroll_ctx;
+		const dx = e.clientX - c.x;
+		const dy = e.clientY - c.y;
+
+		c.el.scrollTop = c.top - (e.clientY - c.y);
+		c.el.scrollLeft = c.left - (e.clientX - c.x);
+	}
+
+	onmouseup(e) {
+		this.scroll_ctx.el = null;
 	}
 
 	static print_task_name(name) {
@@ -281,10 +546,10 @@ class TaskWindow extends Window {
 			t.success_method = id;
 			db.commit(t);
 		} else if (tab_type == 'dialogue') {
-			this.tpl.reload('#dialogue');
+			this.tpl.reload('.dialogue-diagram');
 			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
 			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
-			this.shadow.querySelector('#dialogue li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(invalid, set it above)';
+			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(invalid, set it above)';
 		}
 	}
 
@@ -386,28 +651,41 @@ class TaskWindow extends Window {
 	}
 
 	static print_question(d, q_id) {
-		/* TODO add + buttons */
-		let q = d?.questions?.find(q => q.id == q_id);
+		let q = d?.questions?.find(q => q?.id == q_id);
 		if (!q) {
 			return '';
 		}
 
 		/* FIXME encode all HTML tags */
 
-		let ret = '<li class="question"><span>' + q.text + '</span>';
-		if (q.choices?.length) {
+		let ret = '<li class="question" data-id="' + q_id + '"><span contentEditable="true">' + q.text + '</span>';
+		if (q.choices?.filter(c => c.id != 0)?.length) {
 			ret += '<ul>';
+			let idx = 0;
 			for (const c of q.choices) {
+				if (c.id == 0) {
+					idx++;
+					continue;
+				}
+
 				if (c.id < 0x80000000) {
-					ret += '<li class="choice"><span>' + c.text + '</span><ul>';
-					ret += TaskWindow.print_question(d, c.id);
-					ret += '</ul></li>';
+					ret += '<li class="choice" data-id="' + idx + '"><span contentEditable="true">' + c.text + '</span>';
+					if (c.id > 0) {
+						ret += '<ul>'
+						ret += TaskWindow.print_question(d, c.id);
+						ret += '</ul>';
+					}
+					ret += '</li>';
 				} else {
 					const ctype = TaskWindow.dialogue_choice_opts[c.id];
-					ret += '<li class="choice"><span>' + c.text + '<br>' + ctype.name + ': ' + serialize_db_id(c.param) + '</span></li>';
+					ret += '<li class="choice" data-id="' + idx + '"><span data-option="true" contentEditable="true">' + c.text + '</span><br><span>' + ctype.name;
+					if (ctype.param) {
+						ret += ': &nbsp;<input type="text" value="' + (serialize_db_id(c.param) || c.param) + '">';
+					}
+					ret += '</span></li>';
 				}
+				idx++;
 			}
-			ret += '<li class="add"><span><i class="fa fa-plus"></i></span></li>';
 			ret += '</ul>';
 		}
 		ret += '</li>';
@@ -502,6 +780,8 @@ class TaskWindow extends Window {
 
 	close() {
 		g_open_tasks.delete(this.root_task);
+		document.removeEventListener('mousemove', this.mousemove_fn);
+		document.removeEventListener('mouseup', this.mouseup_fn);
 		super.close();
 	}
 }
