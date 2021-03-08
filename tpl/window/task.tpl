@@ -87,7 +87,6 @@
 	</div>
 </div>
 <div class="content flex-rows">
-
 	<div id="toptasks" class="flex-columns flex-all">
 		<div class="tasks flex-rows">
 			<div class="header">Required quests:</div>
@@ -121,7 +120,7 @@
 			</ul>
 		</div>
 
-		<div id="body" class="right">
+		<div id="body" class="right" onscroll="HTMLSugar.onscroll(event);">
 			<div class="base-info" style="display: flex; align-items: baseline; column-gap: 5px;">
 				<div class="data-field" style="flex: 1;">
 					<span style="width: 45px;">Name:</span>
@@ -141,7 +140,7 @@
 				{/if}
 			</div>
 
-			<div>Requirements: {if $task.parent_quest}Inherited from the root quest{/if}</div>
+			<div><span style="font-weight: bold;">Requirements:</span> {if $task.parent_quest}Inherited from the root quest{/if}</div>
 			{if !$task.parent_quest}
 			<div class="requirements" style="display: flex; flex-wrap: wrap; column-gap: 15px; row-gap: 5px;">
 				<div class="data-field">
@@ -180,7 +179,7 @@
 						{if !$item?.id}{continue}{/if}
 						<div class="item-w-cnt">
 							<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('premise', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('premise', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
-							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'premise_items', {@$idx}, num" data-placeholder="(0)"></span>
+							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'premise_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
 						</div>
 					{/for}
 					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('premise');"></span>
@@ -191,7 +190,7 @@
 			{/if}
 
 			<div class="tab_menu_container" style="margin-top: 4px; display: flex;">
-				<span class="header">Start by:</span>
+				<span class="header" style="font-weight: bold;">Start by:</span>
 				<div class="tab_menu start_by">
 					{for tab of TaskWindow.tabs_obtain_ways}
 						<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('start_by', {@$tab.id});"><input type="radio" name="tab_start_by">{@$tab.name}</label>
@@ -200,7 +199,7 @@
 				<a class="button menu-triangle" id="start_by_btn" style="margin-top: 1px; margin-bottom: 2px; margin-left: 10px;" oncontextmenu="return false;" onmousedown="{serialize $win}.onclick_start_by(this, event);">Text</a>
 			</div>
 			<div class="tab_menu_container" style="display: flex;">
-				<span class="header">Goal: {if $task.sub_quests}completed by subquest{/if}</span>
+				<span class="header"><span style="font-weight: bold;">Goal:</span> {if $task.sub_quests}completed by subquest{/if}</span>
 				{if !$task.sub_quests?.length}
 					<div class="tab_menu goal">
 						{for tab of TaskWindow.tabs_goals}
@@ -213,7 +212,7 @@
 
 			{if $task.sub_quests?.length}
 				<div class="tab_menu_container" style="margin-top: 4px; display: flex;">
-					<span class="header">Activate subquests:</span>
+					<span class="header" style="font-weight: bold;">Activate subquests:</span>
 					<div class="tab_menu sub_quest_activation">
 						{for tab of TaskWindow.tabs_sub_quest_activation}
 							<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('sub_quest_activation', {@$tab.id});"><input type="radio" name="tab_type">{@$tab.name}</label>
@@ -241,7 +240,7 @@
 				</div>
 			{/if}
 
-			<div style="margin-top: 5px;">Dialogue:</div>
+			<div style="margin-top: 5px; font-weight: bold;">Dialogue:</div>
 			<div class="tab_menu dialogue dialogue_tabs">
 				<div data-id="initial" onclick="{serialize $win}.select_tab('dialogue', 'initial');" style="{if $task.parent_quest}display: none;{/if}">Initial</div>
 				<div data-id="notqualified" onclick="{serialize $win}.select_tab('dialogue', 'notqualified');" style="{if $task.parent_quest}display: none;{/if}">Requirements not met</div>
@@ -262,7 +261,20 @@
 				</div>
 			</div>
 
-			<div class="flex-columns" style="flex-wrap: wrap; margin-top: 5px;">
+			<div class="flex-columns" style="flex-wrap: wrap; margin-top: 5px; align-items: baseline;">
+				<div id="free_given_items" class="data-field" style="align-items: unset;">
+					<span>Give Items on start: </span>
+					{assign idx = -1}
+					{for item of ($task.free_given_items || [])}
+						{$idx++}
+						{if !$item?.id}{continue}{/if}
+						<div class="item-w-cnt">
+							<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('free_given', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('free_given', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'free_given_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+						</div>
+					{/for}
+					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('free_given');"></span>
+				</div>
 				{if $task.parent_quest}
 					<label><input type="checkbox" data-link="{serialize $task} => 'on_fail_parent_fail'" class="checkbox"><span>Fail parent on fail</label>
 					<label><input type="checkbox" data-link="{serialize $task} => 'on_success_parent_success'" class="checkbox"><span>Succeed the parent on success</label>
@@ -283,34 +295,68 @@
 			<div class="flex-columns" style="flex-wrap: wrap; align-items: baseline;">
 				<span data-select="TaskWindow.award_types" data-link="{serialize $task} => 'award_type'" style="width: auto; min-width: 100px;"></span>
 				<div class="flex-columns">
-					<span>XP</span>
+					<span>XP:</span>
 					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'xp'"></span>
 				</div>
 				<div class="flex-columns">
-					<span>SP</span>
+					<span>SP:</span>
 					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'sp'"></span>
 				</div>
 				<div class="flex-columns">
-					<span>Rep.</span>
+					<span>Rep:</span>
 					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'rep'"></span>
 				</div>
 				<div class="flex-columns">
-					<span>New quest</span>
+					<span>New quest:</span>
 					<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.TODO(this, 'sells', event);" style="text-align: center;">TODO</a>
 				</div>
 
-				<div id="award_items" class="data-field" style="align-items: unset;">
+				<div class="data-field" style="align-items: unset;">
 					<span>Items: </span>
-					{assign idx = -1}
-					{for item of ($task.award?.item_groups?.[0]?.items || [])}
-						{$idx++}
-						{if !$item?.id}{continue}{/if}
-						<div class="item-w-cnt">
-							<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('premise', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('premise', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
-							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'premise_items', {@$idx}, num" data-placeholder="(0)"></span>
-						</div>
-					{/for}
-					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('premise');"></span>
+					<span data-select="TaskWindow.award_item_types" data-onselect="{serialize $win}.select_award_item_type(id);" style="width: auto; min-width: 130px;"></span>
+					<div id="award_items">
+						{if $win.award_item_type == 0}
+							{assign idx = -1}
+							{for item of ($task.award?.item_groups?.[0]?.items || [])}
+								{$idx++}
+								{if !$item?.id}{continue}{/if}
+								<div class="item-w-cnt">
+									<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+									<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
+								</div>
+							{/for}
+							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('award');"></span>
+
+						{else if $win.award_item_type == 1}
+							{assign idx = -1}
+							{for item of ($task.award?.item_groups?.[0]?.items || [])}
+								{$idx++}
+								{if !$item?.id}{continue}{/if}
+								<div class="item-w-cnt">
+									<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+									<div>
+										Num.: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
+										%: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
+									</div>
+								</div>
+							{/for}
+							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('award');"></span>
+
+						{else if $win.award_item_type == 2}
+							{assign group_idx = -1}
+							{for group of ($task.award?.item_groups || [])}
+								{$group_idx++}
+								<div class="item-w-cnt">
+									<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+									<div>
+										Num.: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
+										%: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
+									</div>
+								</div>
+							{/for}
+							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('award');"></span>
+						{/if}
+					</div>
 				</div>
 			</div>
 
@@ -347,11 +393,24 @@
 					<label><input type="checkbox" data-link="{serialize $task} => 'premise_be_gm'" class="checkbox"><span>Must be a GM</span></label>
 				</div>
 
-				<div class="flex-columns" style="flex-wrap: wrap; margin-top: 8px;">
+				<div class="flex-columns" style="flex-wrap: wrap; margin-top: 8px; align-items: baseline;">
 					<div style="font-weight: bold;">Extra options:</div>
 					<div class="flex-columns">
 						<span>Auto-start quest on failure:</span>
 						<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.TODO(this, 'sells', event);" style="text-align: center;">TODO</a>
+					</div>
+					<div id="failure_award_items" class="data-field" style="align-items: unset;">
+						<span>Give Items on failure: </span>
+						{assign idx = -1}
+						{for item of ($task.failure_award?.item_groups?.[0]?.items || [])}
+							{$idx++}
+							{if !$item?.id}{continue}{/if}
+							<div class="item-w-cnt">
+								<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('failure_award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('failure_award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+								<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+							</div>
+						{/for}
+						<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('failure_award');"></span>
 					</div>
 					<div class="flex-columns">
 						<span>Simultaneous player limit:</span>
@@ -409,7 +468,8 @@
 	padding: 5px;
 	position: relative;
 	overflow-x: auto;
-	overflow-y: hidden;
+	overflow-y: auto;
+	max-height: 70vh;
 	cursor: all-scroll;
 }
 

@@ -182,6 +182,11 @@ class TaskWindow extends Window {
 		{ id: 2, name: "Dep. on time spent" },
 	]);
 
+	static award_item_types = init_id_array([
+		{ id: 0, name: "Fixed Items" },
+		{ id: 1, name: "Random Items" },
+		{ id: 2, name: "Chooser" },
+	]);
 
 	async init() {
 		let task = this.args.task;
@@ -634,6 +639,14 @@ class TaskWindow extends Window {
 		this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
 		this.select_tab('dialogue', !this.task.parent_quest ? 'initial' : (this.task.sub_quests?.length ? 'unfinished' : 'ready'));
 
+		if (this.task.award?.item_groups?.length > 1) {
+			this.select_award_item_type(2);
+		} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
+			this.select_award_item_type(1);
+		} else {
+			this.select_award_item_type(0);
+		}
+
 		e.stopPropagation();
 	}
 
@@ -783,6 +796,15 @@ class TaskWindow extends Window {
 
 		item_arr[f_idx] = { id: 13188 };
 		this.tpl.reload('#premise_items');
+	}
+
+	select_award_item_type(id) {
+		if (id < 0) {
+			return;
+		}
+
+		this.award_item_type = id;
+		this.tpl.reload('#award_items');
 	}
 
 	close() {
