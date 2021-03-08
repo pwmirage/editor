@@ -564,7 +564,9 @@ class HTMLSugar {
 		const close_el = newElement('<div class="close"></div>');
 		el.append(close_el);
 
+		const onselect_fn = new Function('id', el.dataset.onselect);
 		el._mg_select = (id, text) => {
+			onselect_fn(id);
 			if (id == -1) {
 				el.classList.remove('selected');
 				edit_el.title = '';
@@ -585,6 +587,7 @@ class HTMLSugar {
 				el.classList.remove('forked');
 			}
 			hints_el.style.display = 'none';
+			HTMLSugar.open_hints_el = null;
 		}
 
 		const select = (id, text) => el._mg_select(id, text);
@@ -609,6 +612,7 @@ class HTMLSugar {
 		edit_el.onblur = () => {
 			if (!hints_el.matches('div:hover') && hints_el.style.display != 'none') {
 				hints_el.style.display = 'none';
+				HTMLSugar.open_hints_el = null;
 				if (hints_el.children.length == 1 && edit_el.dataset.text == hints_el.children[0].textContent) {
 					select(hints_el.children[0]._mg_id, hints_el.children[0].textContent);
 				}
@@ -694,16 +698,22 @@ class HTMLSugar {
 
 			if (hints_el.style.display === 'none') {
 				hints_el.style.visibility = 'hidden';
+				hints_el.style.position = 'absolute';
+				hints_el.style.left = '';
+				hints_el.style.top = '';
+				el.classList.remove('hints-on-top');
 				hints_el.style.display = '';
 				const bounds = hints_el.getBoundingClientRect();
 
 				if (bounds.bottom + 15 > Window.bounds.bottom) {
 					el.classList.add('hints-on-top');
-				} else {
-					el.classList.remove('hints-on-top');
 				}
 
+				hints_el.style.left = bounds.left + 'px';
+				hints_el.style.top = bounds.top - 1 + 'px';
+				hints_el.style.position = 'fixed';
 				hints_el.style.visibility = '';
+				HTMLSugar.open_hints_el = hints_el;
 			}
 		};
 
@@ -936,4 +946,12 @@ class HTMLSugar {
 		}
 	}
 
+	static onscroll(e) {
+		/* hide all selects (they're position: fixed) */
+		if (HTMLSugar.open_hints_el) {
+			HTMLSugar.open_hints_el.style.display = 'none';
+			HTMLSugar.open_hints_el = null;
+
+		}
+	}
 }

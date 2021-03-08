@@ -287,8 +287,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 
 .input-select > .hints {
 	position: absolute;
-	z-index: 2;
-	margin-top: -1px;
+	z-index: 100;
 	background-color: rgb(255 230 230);
 	color: rgba(80, 44, 44, 1);
 	display: flex;
@@ -297,7 +296,7 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 
 .input-select.hints-on-top > .hints {
 	transform: translateY(-100%);
-	margin-top: -29px;
+	margin-top: -21px;
 	flex-direction: column-reverse;
 }
 
