@@ -410,6 +410,15 @@ input[type="checkbox"].radio:checked+span:before { content: '\00f111 '; }
 	background-color: #f1f1f1;
 }
 
+.collapsible + * > *:first-child {
+	margin-top: 5px;
+}
+
+.collapsible + * > *:last-child {
+	padding-bottom: 10px;
+	margin-bottom: 5px;
+}
+
 .child-padding-3 > * {
 	padding: 3px;
 }
