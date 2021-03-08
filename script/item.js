@@ -350,4 +350,4 @@ class RecipeTooltip {
 document.addEventListener('scroll', (e) => {
 	/* hide all tooltips (they're position: fixed) */
 	Item.hide_tooltips();
-}, { passive: false });
+}, { passive: true });
