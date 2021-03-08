@@ -68,13 +68,13 @@ class TaskWindow extends Window {
 	]);
 
 	static avail_frequency_types = init_id_array([
-		{ id: 0, name: 'Once' }, /* XXX: only when "need record" is 1 */
+		{ id: 0, name: 'Never' },
+		{ id: 6, name: 'Always' },
 		{ id: 1, name: 'Once a Day' },
 		{ id: 2, name: 'Once a Week' },
 		{ id: 3, name: 'Once a Month' },
 		{ id: 4, name: 'Once a Minute' },
 		{ id: 5, name: 'Once an Hour' },
-		{ id: 6, name: 'Always' }, /* XXX set to 0, then set "need record" to 0 */
 	]);
 
 	static cultivation_levels = init_id_array([
@@ -175,6 +175,13 @@ class TaskWindow extends Window {
 		{ id: 0x8000001c, "name": "NPC_EQUIPDESTROY" },
 		{ id: 0x8000001d, "name": "NPC_EQUIPUNDESTROY" },
 	]);
+
+	static award_types = init_id_array([
+		{ id: 0, name: "Normal" },
+		{ id: 1, name: "Dep. on mob/item count" },
+		{ id: 2, name: "Dep. on time spent" },
+	]);
+
 
 	async init() {
 		let task = this.args.task;

@@ -160,16 +160,6 @@
 					<span>Min. cultivation:</span>
 					<span data-select="TaskWindow.cultivation_levels" data-link="{serialize $task} => 'premise_cultivation'" style="width: auto; min-width: 150px;"></span>
 				</div>
-				<div class="data-field">
-					<span>Min. faction rank</span>
-					<span data-select="TaskWindow.faction_ranks" data-link="{serialize $task} => 'premise_faction_role'" style="width: auto; min-width: 75px;"></span>
-				</div>
-				<div class="data-field">
-					<span>Gender</span>
-					<span data-select="TaskWindow.genders" data-link="{serialize $task} => 'premise_gender'" style="width: auto; min-width: 75px;"></span>
-				</div>
-				<label><input type="checkbox" data-link="{serialize $task} => 'premise_be_married'" class="checkbox"><span>Must be Married</span></label>
-				<label><input type="checkbox" data-link="{serialize $task} => 'premise_be_gm'" class="checkbox"><span>Must be a GM</span></label>
 
 				<div style="display: flex; flex-wrap: wrap; column-gap: 5px;">
 					<span>Class: </span>
@@ -178,22 +168,6 @@
 					{/for}
 				</div>
 
-				<div class="data-field">
-					<span>Blacksmith Lv.: </span>
-					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_blacksmith_level'"></span>
-				</div>
-				<div class="data-field">
-					<span>Tailor Lv.: </span>
-					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_tailor_level'"></span>
-				</div>
-				<div class="data-field">
-					<span>Craftsman Lv.: </span>
-					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_craftsman_level'"></span>
-				</div>
-				<div class="data-field">
-					<span>Apothecary Lv.: </span>
-					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_apothecary_level'"></span>
-				</div>
 				<div class="data-field">
 					<span>Coins:</span>
 					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'coins'"></span>
@@ -288,9 +262,137 @@
 				</div>
 			</div>
 
+			<div class="flex-columns" style="flex-wrap: wrap; margin-top: 5px;">
+				{if $task.parent_quest}
+					<label><input type="checkbox" data-link="{serialize $task} => 'on_fail_parent_fail'" class="checkbox"><span>Fail parent on fail</label>
+					<label><input type="checkbox" data-link="{serialize $task} => 'on_success_parent_success'" class="checkbox"><span>Succeed the parent on success</label>
+				{/if}
+				<label><input type="checkbox" data-link="{serialize $task} => 'can_give_up'" class="checkbox"><span>Can give up</label>
+				<label><input type="checkbox" data-link="{serialize $task} => 'can_retake'" class="checkbox"><span>Can be re-taken after giving up</label>
+				{if $task.parent_quest}
+					<label><input type="checkbox" data-link="{serialize $task} => 'on_give_up_parent_fail'" class="checkbox"><span>Fail parent on give up</label>
+				{/if}
+				<div class="flex-columns">
+					<span>Time limit (sec): </span>
+					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'time_limit_sec'"></span>
+				</div>
+				<label><input type="checkbox" data-link="{serialize $task} => 'can_retake_after_failure'" class="checkbox"><span>Can be re-taken after failure</label>
+			</div>
+
 			<div>Awards</div>
-			<div>Easy extras - can give up, can retake, can retake after failure, time limit</div>
-			<div>Extras -> fail on death, marriage quest, inv expansion, date spans, ai trigger, instant teleport, simultaneous player limit, recommended level, show_quest_title, show_as_gold_quest, is_craft_skill_quest, can_be_found, show_direction, special award type</div>
+			<div class="flex-columns" style="flex-wrap: wrap; align-items: baseline;">
+				<span data-select="TaskWindow.award_types" data-link="{serialize $task} => 'award_type'" style="width: auto; min-width: 100px;"></span>
+				<div class="flex-columns">
+					<span>XP</span>
+					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'xp'"></span>
+				</div>
+				<div class="flex-columns">
+					<span>SP</span>
+					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'sp'"></span>
+				</div>
+				<div class="flex-columns">
+					<span>Rep.</span>
+					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'rep'"></span>
+				</div>
+				<div class="flex-columns">
+					<span>New quest</span>
+					<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.TODO(this, 'sells', event);" style="text-align: center;">TODO</a>
+				</div>
+
+				<div id="award_items" class="data-field" style="align-items: unset;">
+					<span>Items: </span>
+					{assign idx = -1}
+					{for item of ($task.award?.item_groups?.[0]?.items || [])}
+						{$idx++}
+						{if !$item?.id}{continue}{/if}
+						<div class="item-w-cnt">
+							<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('premise', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('premise', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'premise_items', {@$idx}, num" data-placeholder="(0)"></span>
+						</div>
+					{/for}
+					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('premise');"></span>
+				</div>
+			</div>
+
+			<div class="collapsible" style="margin-top: 5px;" onclick="HTMLSugar.collapse_el(this);">Extras:</div>
+			<div class="flex-rows" style="">
+				<div style="font-weight: bold;">Extra requirements:</div>
+				<div class="flex-columns" style="flex-wrap: wrap;">
+					<div class="data-field">
+						<span>Blacksmith Lv.: </span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_blacksmith_level'"></span>
+					</div>
+					<div class="data-field">
+						<span>Tailor Lv.: </span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_tailor_level'"></span>
+					</div>
+					<div class="data-field">
+						<span>Craftsman Lv.: </span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_craftsman_level'"></span>
+					</div>
+					<div class="data-field">
+						<span>Apothecary Lv.: </span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_apothecary_level'"></span>
+					</div>
+
+					<div class="data-field">
+						<span>Min. faction rank</span>
+						<span data-select="TaskWindow.faction_ranks" data-link="{serialize $task} => 'premise_faction_role'" style="width: auto; min-width: 75px;"></span>
+					</div>
+					<div class="data-field">
+						<span>Gender</span>
+						<span data-select="TaskWindow.genders" data-link="{serialize $task} => 'premise_gender'" style="width: auto; min-width: 75px;"></span>
+					</div>
+					<label><input type="checkbox" data-link="{serialize $task} => 'premise_be_married'" class="checkbox"><span>Must be Married</span></label>
+					<label><input type="checkbox" data-link="{serialize $task} => 'premise_be_gm'" class="checkbox"><span>Must be a GM</span></label>
+				</div>
+
+				<div class="flex-columns" style="flex-wrap: wrap; margin-top: 8px;">
+					<div style="font-weight: bold;">Extra options:</div>
+					<div class="flex-columns">
+						<span>Auto-start quest on failure:</span>
+						<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.TODO(this, 'sells', event);" style="text-align: center;">TODO</a>
+					</div>
+					<div class="flex-columns">
+						<span>Simultaneous player limit:</span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'simultaneous_player_limit'"></span>
+					</div>
+
+					<label><input type="checkbox" data-link="{serialize $task} => 'display_quest_title'" class="checkbox"><span>Notify when quest received</label>
+					<label><input type="checkbox" data-link="{serialize $task} => 'is_gold_quest'" class="checkbox"><span>Show as gold quest<span></label>
+					<label><input type="checkbox" data-link="{serialize $task} => 'can_be_found'" class="checkbox"><span>Show in "Find quest"</label>
+					<label><input type="checkbox" data-link="{serialize $task} => 'show_direction'" class="checkbox"><span>Show navigation arrow</label>
+				</div>
+
+				<div class="flex-columns" style="flex-wrap: wrap; margin-top: 8px;">
+					<div style="font-weight: bold;">Extra awards:</div>
+					<div class="flex-columns">
+						<span>Expand inventory slots to:</span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'inventory_slots'"></span>
+					</div>
+
+					<div class="flex-columns">
+						<span>Expand bank slots to:</span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'storage_slots'"></span>
+					</div>
+
+					<div class="flex-columns">
+						<span>Expand pet bag slots to:</span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'petbag_slots'"></span>
+					</div>
+
+					<div class="flex-columns">
+						<span>Teleport to (W:X:Y:Z):</span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'world'"></span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'x'"></span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'y'"></span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'z'"></span>
+					</div>
+				</div>
+				<div>
+					<div>TODO: date spans, ai trigger, instant tp</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
