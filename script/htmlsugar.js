@@ -925,4 +925,15 @@ class HTMLSugar {
 	static show_recipe_tooltip(recipe_win, el, params) {
 		return HTMLSugar.show_tooltip(recipe_win, 'recipes', el, params);
 	}
+
+	static collapse_el(el) {
+		el.classList.toggle("active");
+		const content = el.nextElementSibling;
+		if (content.style.maxHeight){
+			content.style.maxHeight = null;
+		} else {
+			content.style.maxHeight = content.scrollHeight - 10 + "px";
+		}
+	}
+
 }
