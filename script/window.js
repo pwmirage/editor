@@ -96,6 +96,7 @@ class Window {
 
 		/* remove all text selection */
 		window.getSelection().removeAllRanges();
+
 	}
 
 	tpl_compile_cb(dom) {
@@ -316,7 +317,7 @@ class Window {
 				return;
 			}
 
-			e.preventDefault();
+			e.stopPropagation();
 			Window.dragged_win = this;
 			Window.dragged_win.dragOffset.x = e.clientX - bounds.left;
 			Window.dragged_win.dragOffset.y = e.clientY - bounds.top;
@@ -328,7 +329,7 @@ class Window {
 				return;
 			}
 
-			e.preventDefault();
+			e.stopPropagation();
 			this.min_height = parseInt(this.dom_win.style.minHeight || 0);
 			Window.resized_win = this;
 			const height = (this.dom_header?.offsetHeight || 0) + this.dom_content.offsetHeight - 2;
