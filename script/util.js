@@ -223,3 +223,39 @@ const init_id_array = (arr, fallback) => {
 
 	return ret;
 }
+
+const get_obj_field = (o, path) => {
+	for (const p of path) {
+		if (typeof(o) !== 'object') {
+			return undefined;
+		}
+		if (!(p in o)) {
+			return undefined;
+		}
+		o = o[p];
+	}
+	return o;
+}
+
+const set_obj_field = (o, path, val) => {
+	for (let p_idx = 0; p_idx < path.length - 1; p_idx++) {
+		const p = path[p_idx];
+		if (typeof(o[p]) !== 'object') {
+			o[p] = isNaN(path[p_idx + 1]) ? {} : [];
+		}
+		o = o[p];
+	}
+	const f = path[path.length - 1];
+	if (typeof(o[f]) === 'object') {
+		if (val) {
+			DB.apply_diff(o[f], val);
+		} else {
+			o[f] = null;
+		}
+	} else {
+		if (val === null) {
+			val = '';
+		}
+		o[f] = val;
+	}
+}

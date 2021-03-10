@@ -245,6 +245,10 @@ class HTMLSugar {
 			f.call(el);
 		}
 
+		for (const el of dom.querySelectorAll('[data-link-button]')) {
+			HTMLSugar.init_link_button(el);
+		}
+
 		for (const el of dom.querySelectorAll('[data-select]')) {
 			HTMLSugar.init_select(el);
 		}
@@ -273,6 +277,10 @@ class HTMLSugar {
 			} else {
 				el.classList.add('input-text');
 			}
+		}
+
+		for (const el of dom.querySelectorAll('[data-link-button]')) {
+			HTMLSugar.init_link_button(el);
 		}
 
 		for (const el of dom.querySelectorAll('[data-link]')) {
@@ -449,6 +457,8 @@ class HTMLSugar {
 
 			};
 		}
+
+		return { obj, path };
 	}
 
 	static show_select({ win, around_el, around_margin, container }) {
@@ -762,6 +772,78 @@ class HTMLSugar {
 				el.oncontextmenu = (e) => {
 					e.preventDefault();
 				};
+			}
+		}
+
+		if (el.dataset.selected) {
+			const id = parseInt(el.dataset.selected) || 0;
+			el.removeAttribute('data-selected');
+
+			el._mg_select(id, select_arr[id].name);
+		}
+	}
+
+
+	static init_link_button(el) {
+		const link_str = el.dataset.linkButton;
+		el.removeAttribute('data-link-button');
+
+		const f_str = el.dataset.select;
+		el.removeAttribute('data-select');
+
+		el._mg_select = new Function('return ' + f_str)();
+
+		const link_el = newElement('<span class="link input-number"></span>');
+		if (link_str) {
+			link_el.dataset.link = link_str;
+		}
+
+		link_el.style.display = 'none';
+		el.append(link_el);
+		const link = HTMLSugar.link_el(link_el);
+
+		const dummy_obj = el._mg_select.values().next().value;
+		const type = dummy_obj._db.type;
+		const obj_details = PWPreview.get_obj_type(dummy_obj);
+
+		const update_label = () => {
+			const id = get_obj_field(link.obj, link.path);
+			const obj = db[type][id];
+			if (obj) {
+				el.textContent = (obj.name || '') + ' ' + serialize_db_id(obj.id);
+			} else {
+				el.textContent = '(none)';
+			}
+		};
+		update_label();
+
+		el.oncontextmenu = (e) => { el.onclick(e); return false; };
+		el.onclick = (e) => {
+			if (e.which == 1) {
+				const id = get_obj_field(link.obj, link.path);
+				const obj = db[type][id || 0];
+				HTMLSugar.open_edit_rmenu(el,
+					obj, type, {
+					pick_win_title: 'Pick new ' + obj_details.name + 'for ' + (link.obj.name || link.obj._db.type) + ' ' + serialize_db_id(link.obj.id),
+					update_obj_fn: (new_obj) => {
+						const s = this.task;
+						db.open(link.obj);
+						set_obj_field(link.obj, link.path, new_obj.id || 0);
+						db.commit(link.obj);
+						update_label();
+					},
+					edit_obj_fn: (new_obj) => {
+						obj_details.open_fn();
+					},
+					usage_name_fn: (obj) => {
+						return (obj.name || '') + ' ' + serialize_db_id(obj.id);
+					}
+				});
+			} else if (e.which == 3) {
+				HTMLSugar.open_undo_rmenu(el, link.obj, {
+					undo_path: link.path,
+					undo_fn: () => update_label
+				});
 			}
 		}
 	}
