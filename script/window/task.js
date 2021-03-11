@@ -514,12 +514,12 @@ class TaskWindow extends Window {
 	}
 
 	select_tab(tab_type, id) {
-		const tabs = this.shadow.querySelector('.tab_menu.' + tab_type);
-		if (!tabs) {
+		const tab_headers = this.shadow.querySelector('.tab_menu.' + tab_type);
+		if (!tab_headers) {
 			return;
 		}
 
-		const el = [...tabs.children].find(el => el.dataset.id == id);
+		const el = [...tab_headers.children].find(el => el.dataset.id == id);
 		const t = this.task;
 
 		for (const active of this.shadow.querySelectorAll('.tab_menu.' + tab_type + ' > .active')) {
@@ -531,29 +531,20 @@ class TaskWindow extends Window {
 		(el.querySelector('input[type="radio"]') || {}).checked = true;
 		this.sel_opts[tab_type] = id;
 
-		if (tab_type == 'start_by') {
-			const btn = this.shadow.querySelector('#start_by_btn');
-			if (id == 0 || id == 1) {
-				btn.style.visibility = 'hidden';
-			} else if (id == 2) {
-				btn.style.visibility = 'visible';
-				btn.textContent = 'NPC: ' + (db.npcs[this.task.start_npc || 0]?.name || '(none)');
-			} else if (id == 3) {
-				btn.style.visibility = 'visible';
-				btn.textContent = 'Reach: (not implemented yet!)'
-			} else if (id == 4) {
-				btn.style.visibility = 'hidden';
-			}
-			db.open(t);
-			t._start_by = id;
-			db.commit(t);
-		} else if (tab_type == 'goal') {
-			const tabs = this.shadow.querySelector('.tabs.goal');
+		const tabs = this.shadow.querySelector('.tabs.' + tab_type);
+		if (tabs) {
 			for (const c of tabs.children) {
 				c.classList.remove('active');
 			}
 			tabs.children[id].classList.add('active');
+			tabs.style.display = tabs.children[id].innerText.trim() ? '' : 'none';
+		}
 
+		if (tab_type == 'start_by') {
+			db.open(t);
+			t.start_by = id;
+			db.commit(t);
+		} else if (tab_type == 'goal') {
 			db.open(t);
 			t.success_method = id;
 			db.commit(t);
@@ -562,43 +553,6 @@ class TaskWindow extends Window {
 			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
 			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
 			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(invalid, set it above)';
-		}
-	}
-
-	onclick_start_by(el, e) {
-		const opt = this.sel_opts.start_by || 0;
-
-		if (opt == 2) {
-			if (e.which == 1) {
-				const npc = db.npcs[this.task.start_npc];
-				HTMLSugar.open_edit_rmenu(el,
-					npc, 'npcs', {
-					pick_win_title: 'Pick new start NPC for quest ' + (this.task.name || '') + ' ' + serialize_db_id(this.task.id),
-					update_obj_fn: (new_obj) => {
-						const s = this.task;
-						db.open(s);
-
-						s.start_npc = new_obj?.id || 0;
-
-						db.commit(s);
-						this.select_tab('start_by', opt);
-
-					},
-					edit_obj_fn: (new_obj) => {
-						NPCWindow.open({ npc: new_obj });
-					},
-					usage_name_fn: (spawner) => {
-						const mapid = spawner._db.type.substring('spawners_'.length);
-						const mapname = PWMap.maps[mapid]?.name || '(unknown?)';
-						return mapname + ': ' + (spawner.name ? (spawner.name + ' ') : '') + serialize_db_id(spawner.id);
-					}
-				});
-			} else if (e.which == 3) {
-				HTMLSugar.open_undo_rmenu(el, this.task, {
-					undo_path: [ 'start_npc' ],
-					undo_fn: () => this.select_tab('start_by', opt)
-				});
-			}
 		}
 	}
 
@@ -631,21 +585,22 @@ class TaskWindow extends Window {
 		}
 
 		this.task = t;
+
+		if (this.task.award?.item_groups?.length > 1) {
+			this.award_item_type = 2;
+		} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
+			this.award_item_type = 1;
+		} else {
+			this.award_item_type = 0;
+		}
+
 		this.tpl.reload('.header > span', { task: t });
 		this.tpl.reload('#container', { task: t });
 
-		this.select_tab('start_by', this.task._start_by || 0);
+		this.select_tab('start_by', this.task.start_by || 0);
 		this.select_tab('goal', this.task.success_method || 0);
 		this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
 		this.select_tab('dialogue', !this.task.parent_quest ? 'initial' : (this.task.sub_quests?.length ? 'unfinished' : 'ready'));
-
-		if (this.task.award?.item_groups?.length > 1) {
-			this.select_award_item_type(2);
-		} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
-			this.select_award_item_type(1);
-		} else {
-			this.select_award_item_type(0);
-		}
 
 		e.stopPropagation();
 	}
@@ -714,7 +669,17 @@ class TaskWindow extends Window {
 	}
 
 	item_onclick(type, idx, e) {
-		const item = this.task.premise_items?.[idx];
+		let item;
+
+		if (type == 'premise') {
+			item = this.task.premise_items?.[idx];
+		} else if (type == 'free_given') {
+			item = this.task.free_given_items?.[idx];
+		} else if (type == 'award') {
+			item = this.task?.award?.item_groups?.[0]?.items?.[idx];
+		} else if (type == 'failure_award') {
+			item = this.task?.failure_award?.item_groups?.[0]?.items?.[idx];
+		}
 		const el = e.path[0];
 
 		if (e.which == 1) {
@@ -727,18 +692,75 @@ class TaskWindow extends Window {
 					const t = this.task;
 					db.open(t);
 
-					if (!t.premise_items) {
-						t.premise_items = [];
-					}
+					if (type == 'premise') {
+						if (!t.premise_items) {
+							t.premise_items = [];
+						}
 
-					if (!t.premise_items[idx]) {
-						t.premise_items[idx] = {};
-					}
+						if (!t.premise_items[idx]) {
+							t.premise_items[idx] = {};
+						}
 
-					t.premise_items[idx].id = new_obj?.id || 0;
+						t.premise_items[idx].id = new_obj?.id || 0;
+					} else if (type == 'free_given') {
+						if (!t.free_given_items) {
+							t.free_given_items = [];
+						}
+
+						if (!t.free_given_items[idx]) {
+							t.free_given_items[idx] = {};
+						}
+
+						t.free_given_items[idx].id = new_obj?.id || 0;
+					} else if (type == 'award') {
+						if (!t.award) {
+							t.award = {};
+						}
+						if (!t.award.item_groups) {
+							t.award.item_groups = [];
+						}
+						if (t.award.item_groups.length == 0) {
+							t.award.item_groups.push({});
+						}
+						if (!t.award.item_groups[0].items) {
+							item_arr = t.award.item_groups[0].items = [];
+						}
+						if (!t.award.item_groups[0].items[idx]) {
+							t.award.item_groups[0].items[idx] = {};
+						}
+
+						t.award.item_groups[0].items[idx].id = new_obj?.id || 0;
+					} else if (type == 'failure_award') {
+						if (!t.failure_award) {
+							t.failure_award= {};
+						}
+						if (!t.failure_award.item_groups) {
+							t.failure_award.item_groups = [];
+						}
+						if (t.failure_award.item_groups.length == 0) {
+							t.failure_award.item_groups.push({});
+						}
+						if (!t.failure_award.item_groups[0].items) {
+							item_arr = t.failure_award.item_groups[0].items = [];
+						}
+						if (!t.failure_award.item_groups[0].items[idx]) {
+							t.failure_award.item_groups[0].items[idx] = {};
+						}
+
+						t.failure_award.item_groups[0].items[idx].id = new_obj?.id || 0;
+					}
 
 					db.commit(t);
-					this.tpl.reload('#premise_items');
+
+					if (type == 'premise') {
+						this.tpl.reload('#premise_items');
+					} else if (type == 'free_given') {
+						this.tpl.reload('#free_given_items');
+					} else if (type == 'award') {
+						this.tpl.reload('#award_items');
+					} else if (type == 'failure_award') {
+						this.tpl.reload('#failure_award_items');
+					}
 				},
 				edit_obj_fn: (new_obj) => {
 					ItemTooltipWindow.open({ item: new_obj, edit: true, db });
@@ -748,10 +770,27 @@ class TaskWindow extends Window {
 				},
 			});
 		} else if (e.which == 3) {
-			HTMLSugar.open_undo_rmenu(el, this.task, {
-				undo_path: [ 'premise_items', idx, 'id' ],
-				undo_fn: () => this.tpl.reload('#premise_items')
-			});
+			if (type == 'premise') {
+				HTMLSugar.open_undo_rmenu(el, this.task, {
+					undo_path: [ 'premise_items', idx, 'id' ],
+					undo_fn: () => this.tpl.reload('#premise_items')
+				});
+			} else if (type == 'free_given') {
+				HTMLSugar.open_undo_rmenu(el, this.task, {
+					undo_path: [ 'free_given_items', idx, 'id' ],
+					undo_fn: () => this.tpl.reload('#free_given_items')
+				});
+			} else if (type == 'award') {
+				HTMLSugar.open_undo_rmenu(el, this.task, {
+					undo_path: [ 'award', 'item_groups', 0, 'items', idx, 'id' ],
+					undo_fn: () => this.tpl.reload('#award_items')
+				});
+			} else if (type == 'failure_award') {
+				HTMLSugar.open_undo_rmenu(el, this.task, {
+					undo_path: [ 'failure_award', 'item_groups', 0, 'items', idx, 'id' ],
+					undo_fn: () => this.tpl.reload('#failure_award_items')
+				});
+			}
 		}
 	}
 
@@ -770,22 +809,121 @@ class TaskWindow extends Window {
 
 		const t = this.task;
 		db.open(t);
-		if (!t.premise_items) {
-			t.premise_items = [];
-		}
+		if (type == 'premise') {
+			if (!t.premise_items) {
+				t.premise_items = [];
+			}
 
-		if (!t.premise_items[idx]) {
-			t.premise_items[idx] = {};
-		}
+			if (!t.premise_items[idx]) {
+				t.premise_items[idx] = {};
+			}
 
-		t.premise_items[idx].id = sel_id;
+			t.premise_items[idx].id = sel_id;
+		} else if (type == 'free_given') {
+			if (!t.free_given_items) {
+				t.free_given_items = [];
+			}
+
+			if (!t.free_given_items[idx]) {
+				t.free_given_items[idx] = {};
+			}
+
+			t.free_given_items[idx].id = sel_id;
+		} else if (type == 'award') {
+			if (!t.award) {
+				t.award = {};
+			}
+			if (!t.award.item_groups) {
+				t.award.item_groups = [];
+			}
+			if (t.award.item_groups.length == 0) {
+				t.award.item_groups.push({});
+			}
+			if (!t.award.item_groups[0].items) {
+				item_arr = t.award.item_groups[0].items = [];
+			}
+			if (!t.award.item_groups[0].items[idx]) {
+				t.award.item_groups[0].items[idx] = {};
+			}
+
+			t.award.item_groups[0].items[idx].id = sel_id;
+		} else if (type == 'failure_award') {
+			if (!t.failure_award) {
+				t.failure_award = {};
+			}
+			if (!t.failure_award.item_groups) {
+				t.failure_award.item_groups = [];
+			}
+			if (t.failure_award.item_groups.length == 0) {
+				t.failure_award.item_groups.push({});
+			}
+			if (!t.failure_award.item_groups[0].items) {
+				item_arr = t.failure_award.item_groups[0].items = [];
+			}
+			if (!t.failure_award.item_groups[0].items[idx]) {
+				t.failure_award.item_groups[0].items[idx] = {};
+			}
+
+			t.failure_award.item_groups[0].items[idx].id = sel_id;
+		}
 
 		db.commit(t);
-		this.tpl.reload('#premise_items');
+		if (type == 'premise') {
+			this.tpl.reload('#premise_items');
+		} else if (type == 'free_given') {
+			this.tpl.reload('#free_given_items');
+		} else if (type == 'award') {
+			this.tpl.reload('#award_items');
+		} else if (type == 'failure_award') {
+			this.tpl.reload('#failure_award_items');
+		}
 	}
 
 	item_add_onclick(type, idx) {
-		const item_arr = this.task.premise_items;
+		let item_arr;
+
+		db.open(this.task);
+		if (type == 'premise') {
+			item_arr = this.task.premise_items;
+			if (!item_arr) {
+				item_arr = this.task.premise_items = [];
+			}
+		} else if (type == 'free_given') {
+			item_arr = this.task.free_given_items;
+			if (!item_arr) {
+				item_arr = this.task.free_given_items = [];
+			}
+		} else if (type == 'award') {
+			if (!this.task.award) {
+				this.task.award = {};
+			}
+			if (!this.task.award.item_groups) {
+				this.task.award.item_groups = [];
+			}
+			if (this.task.award.item_groups.length == 0) {
+				this.task.award.item_groups.push({});
+			}
+
+			item_arr = this.task.award.item_groups[0].items;
+			if (!item_arr) {
+				item_arr = this.task.award.item_groups[0].items = [];
+			}
+		} else if (type == 'failure_award') {
+			if (!this.task.failure_award) {
+				this.task.failure_award = {};
+			}
+			if (!this.task.failure_award.item_groups) {
+				this.task.failure_award.item_groups = [];
+			}
+			if (this.task.failure_award.item_groups.length == 0) {
+				this.task.failure_award.item_groups.push({});
+			}
+
+			item_arr = this.task.failure_award.item_groups[0].items;
+			if (!item_arr) {
+				item_arr = this.task.failure_award.item_groups[0].items = [];
+			}
+		}
 
 		let f_idx;
 		for (f_idx = 0; f_idx < item_arr.length; f_idx++) {
@@ -793,15 +931,40 @@ class TaskWindow extends Window {
 				break;
 			}
 		}
-
 		item_arr[f_idx] = { id: 13188 };
-		this.tpl.reload('#premise_items');
+		db.commit(this.task);
+
+		if (type == 'premise') {
+			this.tpl.reload('#premise_items');
+		} else if (type == 'free_given') {
+			this.tpl.reload('#free_given_items');
+		} else if (type == 'award') {
+			this.tpl.reload('#award_items');
+		} else if (type == 'failure_award') {
+			this.tpl.reload('#failure_award_items');
+		}
 	}
 
-	select_award_item_type(id) {
+	select_award_item_type(id, auto) {
 		if (id < 0) {
 			return;
 		}
+
+		const t = this.task;
+		db.open(t);
+
+		if (!this.task.award) {
+			this.task.award = {};
+		}
+		if (!this.task.award.item_groups) {
+			this.task.award.item_groups = [];
+		}
+		if (this.task.award.item_groups.length == 0) {
+			this.task.award.item_groups.push({});
+		}
+
+		this.task.award.item_groups[0].chosen_randomly = id == 1;
+		db.commit(t);
 
 		this.award_item_type = id;
 		this.tpl.reload('#award_items');
