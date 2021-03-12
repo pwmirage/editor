@@ -691,6 +691,8 @@ class TaskWindow extends Window {
 			item_arr = set_obj_field(this.task, [ 'premise_items' ], []);
 		} else if (type == 'free_given') {
 			item_arr = set_obj_field(this.task, [ 'free_given_items' ], []);
+		} else if (type == 'req') {
+			item_arr = set_obj_field(this.task, [ 'req_items' ], []);
 		} else if (type == 'award') {
 			item_arr = set_obj_field(this.task, [ 'award', 'item_groups', 0, 'items' ], []);
 		} else if (type == 'failure_award') {
@@ -710,6 +712,8 @@ class TaskWindow extends Window {
 			this.tpl.reload('#premise_items');
 		} else if (type == 'free_given') {
 			this.tpl.reload('#free_given_items');
+		} else if (type == 'req') {
+			this.tpl.reload('#req_items');
 		} else if (type == 'award') {
 			this.tpl.reload('#award_items');
 		} else if (type == 'failure_award') {
@@ -725,6 +729,8 @@ class TaskWindow extends Window {
 			item_arr = set_obj_field(this.task, [ 'premise_items' ], []);
 		} else if (type == 'free_given') {
 			item_arr = set_obj_field(this.task, [ 'free_given_items' ], []);
+		} else if (type == 'req') {
+			item_arr = set_obj_field(this.task, [ 'req_items' ], []);
 		} else if (type == 'award') {
 			item_arr = set_obj_field(this.task, [ 'award', 'item_groups', 0, 'items' ], []);
 		} else if (type == 'failure_award') {
@@ -737,6 +743,8 @@ class TaskWindow extends Window {
 			this.tpl.reload('#premise_items');
 		} else if (type == 'free_given') {
 			this.tpl.reload('#free_given_items');
+		} else if (type == 'req') {
+			this.tpl.reload('#req_items');
 		} else if (type == 'award') {
 			this.tpl.reload('#award_items');
 		} else if (type == 'failure_award') {

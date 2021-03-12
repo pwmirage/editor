@@ -235,7 +235,7 @@
 						<div id="kill_monsters" >
 							Kill monsters:
 							{assign idx = -1}
-							{for monster of $task.req_monsters}
+							{for monster of ($task.req_monsters || [])}
 								<div class="{if $monster.drop_item_id || $monster.drop_item_cnt}collect{/if}">
 									{$idx++}
 									<span class="always">{@$idx + 1}.</span>
@@ -247,6 +247,7 @@
 									<span class="item collect" data-link-item="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_id'" data-default-id="-1" tabindex="0"></span>
 									<span class="collect">x</span>
 									<span data-input class="collect input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_cnt'" data-placeholder="(0)"></span>
+									<div style="flex: 1;"></div>
 									<a class="remove-btn always" onclick="{serialize $win}.remove_req_monster({@$idx});"><i class="close fa fa-minus-circle"></i></a>
 								</div>
 							{/for}
@@ -254,21 +255,40 @@
 								<div style="flex: 1;"></div>
 								<a class="button add" onclick="{serialize $win}.add_req_monster();">(add) <i class="fa fa-plus"></i></a>
 							</div>
+							<div>Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
 						</div>
 					</div>
 
 					<div>
-						Obtain Regular Items
+						<div id="req_items" class="data-field">
+							<span style="font-weight: bold;">Obtain Regular Items: </span>
+							{assign idx = -1}
+							{for item of ($task.req_items || [])}
+								{$idx++}
+								<div class="item-w-cnt">
+									<span class="item" data-link-item="{serialize $task} => 'req_items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('req');" tabindex="0"></span>
+									<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+								</div>
+							{/for}
+							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('req');"></span>
+						</div>
+
+						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
 					</div>
 
-					<div>{* No goal *}</div>
+					<div>
+						<div>Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
+					</div>
 
 					<div>
 						Reach Location: (TODO)
 					</div>
 
-					<div style="display: flex; column-gap: 5px; padding-top: 4px;">
-						Wait: <span data-input class="input-number" style="width: 38px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_wait_time'" data-placeholder="(0)"></span> (s)
+					<div>
+						<div style="display: flex; column-gap: 5px; padding-top: 4px;">
+							Wait (sec): <span data-input class="input-number" style="width: 38px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_wait_time'" data-placeholder="(0)"></span>
+						</div>
+						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
 					</div>
 				</div>
 			{/if}
@@ -348,7 +368,7 @@
 					</div>
 					<div class="flex-columns">
 						<span>New quest:</span>
-						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 2px; margin-left: 10px;"></a>
+						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-select="db.tasks"></a>
 					</div>
 
 					<div class="data-field" style="align-items: unset;">
@@ -446,7 +466,7 @@
 						<div style="font-weight: bold;">Extra options:</div>
 						<div class="flex-columns">
 							<span>Auto-start quest on failure:</span>
-							<a class="button menu-triangle" oncontextmenu="return false;" onmousedown="{serialize $win}.TODO(this, 'sells', event);" style="text-align: center;">TODO</a>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'item_groups', 0, 'new_quest'" data-select="db.tasks"></a>
 						</div>
 						<div id="failure_award_items" class="data-field" style="align-items: unset;">
 							<span>Give Items on failure: </span>
@@ -924,6 +944,11 @@ ul.tree>li:first-child:before {
 #kill_monsters > div.collect > :not(.collect):not(.always),
 #kill_monsters > div:not(.collect) > .collect:not(.always) {
 	display: none;
+}
+
+.item-w-cnt {
+	font-size: 0;
+	line-height: 0;
 }
 
 .item {
