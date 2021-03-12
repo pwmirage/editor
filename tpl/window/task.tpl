@@ -370,11 +370,11 @@
 					<span data-select="TaskWindow.award_types" data-link="{serialize $task} => 'award_type'" style="width: auto; min-width: 100px;"></span>
 					<div class="flex-columns">
 						<span>XP:</span>
-						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'xp'"></span>
+						<span data-input class="input-number" style="width: 42px;" data-link="{serialize $task} => 'award', 'xp'"></span>
 					</div>
 					<div class="flex-columns">
 						<span>SP:</span>
-						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'sp'"></span>
+						<span data-input class="input-number" style="width: 42px;" data-link="{serialize $task} => 'award', 'sp'"></span>
 					</div>
 					<div class="flex-columns">
 						<span>Rep:</span>
@@ -423,17 +423,20 @@
 
 							{else if $win.award_item_type == 2}
 								{assign group_idx = -1}
-								{for group of ($task.award?.item_groups || [])}
-									{$group_idx++}
-									<div class="item-w-cnt">
-										<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" tabindex="0"></span>
-										<div>
-											Num.: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
-											%: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
+								<div class="award_item_rows">
+									{for group of ($task.award?.item_groups || [])}
+										<div class="data-field">
+											{$group_idx++}
+											<span>{@$group_idx + 1}.</span>
+											{for idx = 0; idx < 4; idx++}
+												<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', {@$group_idx}, 'items', {@$idx}, 'id'" data-default-id="0" tabindex="0"></span>
+											{/for}
+											<div style="flex: 1;"></div>
+											<a class="remove-btn" onclick="{serialize $win}.remove_award_item_row({@$group_idx});"><i class="close fa fa-minus-circle"></i></a>
 										</div>
-									</div>
-								{/for}
-								<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('award');"></span>
+									{/for}
+								</div>
+								<div class="add-container"><div style="flex: 1;"></div><a class="button add" style="margin-top: auto; margin-left: 8px;" onclick="{serialize $win}.add_award_item_row();">(add) <i class="fa fa-plus"></i></a></div>
 							{/if}
 						</div>
 					</div>
@@ -983,6 +986,12 @@ ul.tree>li:first-child:before {
 
 .remove-btn:hover > i {
 	color: #a51a1a;
+}
+
+.award_item_rows {
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
 }
 
 label {

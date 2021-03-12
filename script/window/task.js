@@ -726,6 +726,26 @@ class TaskWindow extends Window {
 		this.tpl.reload('#kill_monsters');
 	}
 
+	add_award_item_row() {
+		if (this.task.award.item_groups?.length == 5) {
+			return;
+		}
+
+		db.open(this.task);
+		const item_arr = set_obj_field(this.task, [ 'award', 'item_groups' ], []);
+		this.task.award.item_groups.push({});
+		db.commit(this.task);
+		this.tpl.reload('#award_items');
+	}
+
+	remove_award_item_row(idx) {
+		db.open(this.task);
+		this.task.award.item_groups[idx] = null;
+		cleanup_arr(this.task.award.item_groups);
+		db.commit(this.task);
+		this.tpl.reload('#award_items');
+	}
+
 	item_add_onclick(type, idx) {
 		let item_arr;
 
