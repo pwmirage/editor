@@ -584,11 +584,7 @@ class TaskWindow extends Window {
 		}
 	}
 
-	select_subquest(e) {
-		for (const active of this.shadow.querySelectorAll('#container .active')) {
-			active.classList.remove('active');
-		}
-
+	async select_subquest(e) {
 		let el = e.path.find(el => el.classList?.contains('taskbtn'));
 		if (!el) {
 			/* no particular quest clicked, just the list background */
@@ -597,40 +593,128 @@ class TaskWindow extends Window {
 		/* navigate back to .task */
 		el = el.parentNode;
 
-		let t = this.root_task;
-		let indices = [];
+		const t_id = parseInt(el.dataset.id);
+		const t = db.tasks[t_id];
 
-		while (el.id != 'root_task') {
-			indices.push(parseInt(el.dataset.idx));
+		const sel_active_q = (t) => {
+			this.task = t;
+			if (this.task.award?.item_groups?.length > 1) {
+				this.award_item_type = 2;
+			} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
+				this.award_item_type = 1;
+			} else {
+				this.award_item_type = 0;
+			}
 
-			el = el.parentNode; /* ul */
-			el = el.parentNode; /* task */
+			this.tpl.reload('.header > span', { task: t });
+			this.tpl.reload('#container', { task: t });
+
+			this.select_tab('start_by', this.task.start_by || 0);
+			this.select_tab('goal', this.task.success_method || 3);
+			this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
+			this.select_tab('dialogue', !this.task.parent_quest ? 'initial' : (this.task.sub_quests?.length ? 'unfinished' : 'ready'));
+		};
+
+		if (e.which == 1) {
+			sel_active_q(t);
+			e.stopPropagation();
+		} else if (e.which == 3) {
+			const can_move_up = () => {
+				const pt = db.tasks[t.parent_quest];
+				if (!pt) {
+					return false;
+				}
+
+				const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+				return t_idx > 0;
+			};
+
+			const can_move_down = () => {
+				const pt = db.tasks[t.parent_quest];
+				if (!pt) {
+					return false;
+				}
+
+				const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+				return t_idx != pt.sub_quests.length - 1;
+			};
+
+			const win = await RMenuWindow.open({
+			around_el: el.firstChild, bg: false,
+			entries: [
+				{ id: 1, name: 'Add next', disabled: !t.parent_quest },
+				{ id: 2, name: 'Add child' },
+				{ id: 3, name: 'Move up', disabled: !can_move_up() },
+				{ id: 4, name: 'Move down', disabled: !can_move_down() },
+				{ id: 5, name: 'Change parent', disabled: !t.parent_quest },
+				{ id: 6, name: 'Remove', disabled: !t.parent_quest },
+			]});
+			const sel = await win.wait();
+
+			if (sel > 0) {
+				db.open(t);
+				const pt = db.tasks[t.parent_quest];
+				if (pt) {
+					db.open(pt);
+				}
+			}
+
+			switch(sel) {
+				case 1: { /* add next */
+					const nt = db.new('tasks');
+					nt.parent_quest = t.parent_quest;
+
+					const pt = db.tasks[t.parent_quest];
+					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+					pt.sub_quests.splice(t_idx + 1, 0, nt.id);
+					break;
+				}
+				case 2: { /* add child */
+					const nt = db.new('tasks');
+					nt.parent_quest = t.id;
+
+					set_obj_field(t, [ 'sub_quests' ], []).push(nt.id);
+					break;
+				}
+				case 3: { /* move up */
+					const pt = db.tasks[t.parent_quest];
+
+					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+					const prev_id = pt.sub_quests[t_idx - 1];
+					pt.sub_quests[t_idx - 1] = t.id;
+					pt.sub_quests[t_idx] = prev_id;
+					break;
+				}
+				case 4: { /* move down */
+					const pt = db.tasks[t.parent_quest];
+
+					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+					const next_id = pt.sub_quests[t_idx + 1];
+					pt.sub_quests[t_idx + 1] = t.id;
+					pt.sub_quests[t_idx] = next_id;
+					break;
+				}
+				case 5: { /* change parent */
+					notify('warning', 'Not implemented yed');
+					break;
+				}
+				case 6: { /* remove */
+					const pt = db.tasks[t.parent_quest];
+					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+					pt.sub_quests.splice(t_id, 1);
+					break;
+				}
+			}
+
+			if (sel > 0) {
+				db.commit(t);
+				const pt = db.tasks[t.parent_quest];
+				if (pt) {
+					db.commit(pt);
+				}
+				sel_active_q(this.task);
+			}
 		}
-
-		for (const idx of indices.reverse()) {
-			const t_id = t.sub_quests[idx];
-			t = db.tasks[t_id];
-		}
-
-		this.task = t;
-
-		if (this.task.award?.item_groups?.length > 1) {
-			this.award_item_type = 2;
-		} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
-			this.award_item_type = 1;
-		} else {
-			this.award_item_type = 0;
-		}
-
-		this.tpl.reload('.header > span', { task: t });
-		this.tpl.reload('#container', { task: t });
-
-		this.select_tab('start_by', this.task.start_by || 0);
-		this.select_tab('goal', this.task.success_method || 0);
-		this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
-		this.select_tab('dialogue', !this.task.parent_quest ? 'initial' : (this.task.sub_quests?.length ? 'unfinished' : 'ready'));
-
-		e.stopPropagation();
 	}
 
 	static print_subquests(parent) {
@@ -640,12 +724,15 @@ class TaskWindow extends Window {
 
 		let ret = '<ul>';
 		let idx = 0;
+
 		for (const sub_id of (parent.sub_quests || [])) {
 			const sub = db.tasks[sub_id];
+
 			ret += '<li class="task" data-id="' + sub_id + '" data-idx="' + idx + '">';
 			ret += '<a class="taskbtn">' + TaskWindow.print_task_name(sub.name) + ' ' + serialize_db_id(sub.id) + '</a>'
 			ret += TaskWindow.print_subquests(sub);
 			ret += '</li>';
+
 			idx++;
 		}
 		ret += '</ul>';
