@@ -322,7 +322,7 @@
 						<div class="dialogue-diagram">
 							<ul class="diagram" style="margin-bottom: -5px;">
 								<li class="start"><span>NPC</span>
-									{if $win.sel_opts.dialogue && $task.dialogue[$win.sel_opts.dialogue]?.questions?.filter(q => q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
+									{if $win.sel_opts.dialogue && $task.dialogue?.[$win.sel_opts.dialogue]?.questions?.filter(q => q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
 										<ul>
 											{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
 										</ul>

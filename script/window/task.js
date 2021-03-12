@@ -256,7 +256,7 @@ class TaskWindow extends Window {
 				const node = span.parentNode;
 				const type = node.className;
 				const id = parseInt(node.dataset.id || 0);
-				let d = this.task.dialogue[this.sel_opts.dialogue || 'unfinished'];
+				let d = this.task.dialogue?.[this.sel_opts.dialogue || 'unfinished'];
 
 				span.onmousedown = (e) => e.stopPropagation();
 
@@ -276,19 +276,7 @@ class TaskWindow extends Window {
 							case 1:
 								db.open(this.task);
 
-								if (!d) {
-									d = this.task.dialogue[this.sel_opts.dialogue] = {};
-								}
-
-								if (!d.questions) {
-									d.questions = [];
-								}
-
-								let newq = d.questions[0];
-								if (!newq) {
-									newq = { id: 0, text: "" };
-									d.questions.push(newq);
-								}
+								const newq = set_obj_field(this.task, [ 'dialogue', this.sel_opts.dialogue, 'questions', 0 ], { });
 								newq.id = 1;
 								newq.text = ' ';
 								newq.parent_id = -1;
