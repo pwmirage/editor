@@ -144,7 +144,7 @@
 			<div>
 				<div><span style="font-weight: bold;">Prerequisites:</span> {if $task.parent_quest}Inherited from the root quest{/if}</div>
 				{if !$task.parent_quest}
-				<div class="requirements" style="display: flex; flex-wrap: wrap; column-gap: 15px; row-gap: 5px;">
+				<div class="requirements" style="display: flex; flex-wrap: wrap; column-gap: 15px; row-gap: 5px; align-items: center; ">
 					<div class="data-field">
 						<span>Level:</span>
 						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_level_min'"></span>
@@ -173,14 +173,13 @@
 						<span>Coins:</span>
 						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'coins'"></span>
 					</div>
-					<div id="premise_items" class="data-field" style="align-items: unset;">
+					<div id="premise_items" class="data-field">
 						<span>Items: </span>
 						{assign idx = -1}
 						{for item of ($task.premise_items || [])}
 							{$idx++}
-							{if !$item?.id}{continue}{/if}
 							<div class="item-w-cnt">
-								<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('premise', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('premise', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+								<span class="item" data-link-item="{serialize $task} => 'premise_items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('premise');" tabindex="0"></span>
 								<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'premise_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
 							</div>
 						{/for}
@@ -232,16 +231,30 @@
 			{else}
 				<div class="tabs goal">
 					<div>{* None *}</div>
-					<div class="kill_monsters">
-						Kill monsters:
-						{assign idx = -1}
-						{for monster of $task.req_monsters}
-							<div>
-								{$idx++}
-								<span>{@$idx + 1}.</span>
-								<a class="button menu-triangle" data-link-button="{serialize $task} => 'req_monsters', {@$idx}, 'id'" data-select="db.monsters" style="margin-top: 1px; margin-bottom: 2px; margin-left: 10px;"></a>
+					<div style="width: fit-content;">
+						<div id="kill_monsters" >
+							Kill monsters:
+							{assign idx = -1}
+							{for monster of $task.req_monsters}
+								<div class="{if $monster.drop_item_id || $monster.drop_item_cnt}collect{/if}">
+									{$idx++}
+									<span class="always">{@$idx + 1}.</span>
+									<a class="always button menu-triangle" data-link-button="{serialize $task} => 'req_monsters', {@$idx}, 'id'" data-select="db.monsters" style="margin-top: 1px; margin-bottom: 2px; margin-left: 10px;"></a>
+									<label class="always" onclick="this.parentNode.classList.remove('collect');"><input type="radio" name="req_monster_type_{@$idx}" {if !$monster.drop_item_id && !$monster.drop_item_cnt}checked{/if}>Kill</label>
+									<label class="always" style="margin-right: 8px;" onclick="this.parentNode.classList.add('collect');"><input type="radio" name="req_monster_type_{@$idx}" {if $monster.drop_item_id || $monster.drop_item_cnt}checked{/if}>Collect Item</label>
+									<span>Count:</span>
+									<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'count'" data-placeholder="(0)"></span>
+									<span class="item collect" data-link-item="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_id'" data-default-id="-1" tabindex="0"></span>
+									<span class="collect">x</span>
+									<span data-input class="collect input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_cnt'" data-placeholder="(0)"></span>
+									<a class="remove-btn always" onclick="{serialize $win}.remove_req_monster({@$idx});"><i class="close fa fa-minus-circle"></i></a>
+								</div>
+							{/for}
+							<div class="add-container">
+								<div style="flex: 1;"></div>
+								<a class="button add" onclick="{serialize $win}.add_req_monster();">(add) <i class="fa fa-plus"></i></a>
 							</div>
-						{/for}
+						</div>
 					</div>
 
 					<div>
@@ -295,7 +308,7 @@
 						{$idx++}
 						{if !$item?.id}{continue}{/if}
 						<div class="item-w-cnt">
-							<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('free_given', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('free_given', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+							<span class="item" data-link-item="{serialize $task} => 'free_given_items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('free_given');" tabindex="0"></span>
 							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'free_given_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
 						</div>
 					{/for}
@@ -348,7 +361,7 @@
 									{$idx++}
 									{if !$item?.id}{continue}{/if}
 									<div class="item-w-cnt">
-										<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+										<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('award');" tabindex="0"></span>
 										<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
 									</div>
 								{/for}
@@ -365,7 +378,7 @@
 									{$idx++}
 									{if !$item?.id}{continue}{/if}
 									<div class="item-w-cnt" style="display: flex;">
-										<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+										<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('award');" tabindex="0"></span>
 										<div style="display: flex; flex-direction: column; row-gap: 5px; padding: 0 4px;">
 											<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
 											<span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
@@ -379,7 +392,7 @@
 								{for group of ($task.award?.item_groups || [])}
 									{$group_idx++}
 									<div class="item-w-cnt">
-										<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+										<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" tabindex="0"></span>
 										<div>
 											Num.: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
 											%: <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
@@ -442,7 +455,7 @@
 								{$idx++}
 								{if !$item?.id}{continue}{/if}
 								<div class="item-w-cnt">
-									<span class="item" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.item_onclick('failure_award', {@$idx}, event);" ondblclick="{serialize $win}.item_ondblclick('failure_award', {@$idx}, event);" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(db, $item?.id || -1)}"></span>
+									<span class="item" data-link-item="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('failure_award');" tabindex="0"></span>
 									<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
 								</div>
 							{/for}
@@ -552,7 +565,7 @@
 
 .data-field {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	column-gap: 4px;
 	row-gap: 4px;
 }
@@ -901,8 +914,34 @@ ul.tree>li:first-child:before {
 	overflow-x: hidden;
 }
 
+#kill_monsters > div {
+	display: flex;
+	column-gap: 5px;
+	align-items: center;
+	height: 32px;
+}
+
+#kill_monsters > div.collect > :not(.collect):not(.always),
+#kill_monsters > div:not(.collect) > .collect:not(.always) {
+	display: none;
+}
+
 .item {
 	cursor: pointer;
+}
+
+.remove-btn > i {
+	color: #cc2020;
+	font-size: 13pt;
+	margin-left: 5px;
+}
+
+.remove-btn:hover > i {
+	color: #a51a1a;
+}
+
+label {
+	height: auto;
 }
 </style>
 @@}

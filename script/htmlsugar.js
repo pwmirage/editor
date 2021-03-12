@@ -245,6 +245,10 @@ class HTMLSugar {
 			f.call(el);
 		}
 
+		for (const el of dom.querySelectorAll('[data-link-item]')) {
+			HTMLSugar.init_link_item(el);
+		}
+
 		for (const el of dom.querySelectorAll('[data-link-button]')) {
 			HTMLSugar.init_link_button(el);
 		}
@@ -277,10 +281,6 @@ class HTMLSugar {
 			} else {
 				el.classList.add('input-text');
 			}
-		}
-
-		for (const el of dom.querySelectorAll('[data-link-button]')) {
-			HTMLSugar.init_link_button(el);
 		}
 
 		for (const el of dom.querySelectorAll('[data-link]')) {
@@ -783,6 +783,73 @@ class HTMLSugar {
 		}
 	}
 
+	static init_link_item(el) {
+		const link_str = el.dataset.linkItem;
+		el.removeAttribute('data-link-item');
+
+		const f_str = el.dataset.filter;
+		el.removeAttribute('data-filter');
+
+		const default_id = parseInt(el.dataset.defaultId);
+		el.removeAttribute('data-default-id');
+
+		const img = newElement('<img>');
+		el.append(img);
+
+		const link_el = newElement('<span class="link input-number"></span>');
+		if (link_str) {
+			link_el.dataset.link = link_str;
+		}
+
+		link_el.style.display = 'none';
+		el.append(link_el);
+		const link = HTMLSugar.link_el(link_el);
+
+		const update_icon = (auto = false) => {
+			const id = get_obj_field(link.obj, link.path);
+
+			if (default_id) {
+				img.src = Item.get_icon_by_item(db, id || default_id);
+			} else {
+				img.src = Item.get_icon_by_item(db, id);
+			}
+
+			if (!auto && el.oninput) {
+				el._mg_value = id;
+				el.oninput();
+			}
+		};
+		update_icon(true);
+
+		el.oncontextmenu = (e) => { el.onclick(e); return false; };
+		el.onclick = (e) => {
+			if (e.which == 1) {
+				const id = get_obj_field(link.obj, link.path);
+				const obj = db.items[id || 0];
+				HTMLSugar.open_edit_rmenu(el,
+					obj, 'items', {
+					pick_win_title: 'Pick new Item for ' + (link.obj.name || link.obj._db.type) + ' ' + serialize_db_id(link.obj.id),
+					update_obj_fn: (new_obj) => {
+						db.open(link.obj);
+						set_obj_field(link.obj, link.path, new_obj?.id || 0);
+						db.commit(link.obj);
+						update_icon();
+					},
+					edit_obj_fn: (new_obj) => {
+						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+					},
+					usage_name_fn: (obj) => {
+						return (obj.name || '') + ' ' + serialize_db_id(obj.id);
+					}
+				});
+			} else if (e.which == 3) {
+				HTMLSugar.open_undo_rmenu(el, link.obj, {
+					undo_path: link.path,
+					undo_fn: () => update_icon()
+				});
+			}
+		}
+	}
 
 	static init_link_button(el) {
 		const link_str = el.dataset.linkButton;
@@ -826,9 +893,8 @@ class HTMLSugar {
 					obj, type, {
 					pick_win_title: 'Pick new ' + obj_details.name + 'for ' + (link.obj.name || link.obj._db.type) + ' ' + serialize_db_id(link.obj.id),
 					update_obj_fn: (new_obj) => {
-						const s = this.task;
 						db.open(link.obj);
-						set_obj_field(link.obj, link.path, new_obj.id || 0);
+						set_obj_field(link.obj, link.path, new_obj?.id || 0);
 						db.commit(link.obj);
 						update_label();
 					},

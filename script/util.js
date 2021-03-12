@@ -258,4 +258,24 @@ const set_obj_field = (o, path, val) => {
 		}
 		o[f] = val;
 	}
+
+	return o[f];
+}
+
+const cleanup_arr = (arr) => {
+	for (let i = arr.length - 1; i >= 0; i--) {
+		if (!arr[i]) {
+			arr.splice(i, 1);
+		}
+
+	}
+}
+
+const cleanup_id_arr = (arr) => {
+	for (let i = arr.length - 1; i >= 0; i--) {
+		if (!arr[i]?.id) {
+			arr.splice(i, 1);
+		}
+
+	}
 }

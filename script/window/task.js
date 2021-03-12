@@ -668,206 +668,44 @@ class TaskWindow extends Window {
 		return ret;
 	}
 
-	item_onclick(type, idx, e) {
-		let item;
-
-		if (type == 'premise') {
-			item = this.task.premise_items?.[idx];
-		} else if (type == 'free_given') {
-			item = this.task.free_given_items?.[idx];
-		} else if (type == 'award') {
-			item = this.task?.award?.item_groups?.[0]?.items?.[idx];
-		} else if (type == 'failure_award') {
-			item = this.task?.failure_award?.item_groups?.[0]?.items?.[idx];
-		}
-		const el = e.path[0];
-
-		if (e.which == 1) {
-			const obj = db.items[item?.id || 0];
-
-			HTMLSugar.open_edit_rmenu(el,
-				obj, 'items', {
-				pick_win_title: 'Pick new item for ' + (this.task.name || 'Task') + ' ' + serialize_db_id(this.task.id),
-				update_obj_fn: (new_obj) => {
-					const t = this.task;
-					db.open(t);
-
-					if (type == 'premise') {
-						if (!t.premise_items) {
-							t.premise_items = [];
-						}
-
-						if (!t.premise_items[idx]) {
-							t.premise_items[idx] = {};
-						}
-
-						t.premise_items[idx].id = new_obj?.id || 0;
-					} else if (type == 'free_given') {
-						if (!t.free_given_items) {
-							t.free_given_items = [];
-						}
-
-						if (!t.free_given_items[idx]) {
-							t.free_given_items[idx] = {};
-						}
-
-						t.free_given_items[idx].id = new_obj?.id || 0;
-					} else if (type == 'award') {
-						if (!t.award) {
-							t.award = {};
-						}
-						if (!t.award.item_groups) {
-							t.award.item_groups = [];
-						}
-						if (t.award.item_groups.length == 0) {
-							t.award.item_groups.push({});
-						}
-						if (!t.award.item_groups[0].items) {
-							item_arr = t.award.item_groups[0].items = [];
-						}
-						if (!t.award.item_groups[0].items[idx]) {
-							t.award.item_groups[0].items[idx] = {};
-						}
-
-						t.award.item_groups[0].items[idx].id = new_obj?.id || 0;
-					} else if (type == 'failure_award') {
-						if (!t.failure_award) {
-							t.failure_award= {};
-						}
-						if (!t.failure_award.item_groups) {
-							t.failure_award.item_groups = [];
-						}
-						if (t.failure_award.item_groups.length == 0) {
-							t.failure_award.item_groups.push({});
-						}
-						if (!t.failure_award.item_groups[0].items) {
-							item_arr = t.failure_award.item_groups[0].items = [];
-						}
-						if (!t.failure_award.item_groups[0].items[idx]) {
-							t.failure_award.item_groups[0].items[idx] = {};
-						}
-
-						t.failure_award.item_groups[0].items[idx].id = new_obj?.id || 0;
-					}
-
-					db.commit(t);
-
-					if (type == 'premise') {
-						this.tpl.reload('#premise_items');
-					} else if (type == 'free_given') {
-						this.tpl.reload('#free_given_items');
-					} else if (type == 'award') {
-						this.tpl.reload('#award_items');
-					} else if (type == 'failure_award') {
-						this.tpl.reload('#failure_award_items');
-					}
-				},
-				edit_obj_fn: (new_obj) => {
-					ItemTooltipWindow.open({ item: new_obj, edit: true, db });
-				},
-				usage_name_fn: (item) => {
-					return (item.name || '') + ' ' + serialize_db_id(item.id);
-				},
-			});
-		} else if (e.which == 3) {
-			if (type == 'premise') {
-				HTMLSugar.open_undo_rmenu(el, this.task, {
-					undo_path: [ 'premise_items', idx, 'id' ],
-					undo_fn: () => this.tpl.reload('#premise_items')
-				});
-			} else if (type == 'free_given') {
-				HTMLSugar.open_undo_rmenu(el, this.task, {
-					undo_path: [ 'free_given_items', idx, 'id' ],
-					undo_fn: () => this.tpl.reload('#free_given_items')
-				});
-			} else if (type == 'award') {
-				HTMLSugar.open_undo_rmenu(el, this.task, {
-					undo_path: [ 'award', 'item_groups', 0, 'items', idx, 'id' ],
-					undo_fn: () => this.tpl.reload('#award_items')
-				});
-			} else if (type == 'failure_award') {
-				HTMLSugar.open_undo_rmenu(el, this.task, {
-					undo_path: [ 'failure_award', 'item_groups', 0, 'items', idx, 'id' ],
-					undo_fn: () => this.tpl.reload('#failure_award_items')
-				});
-			}
-		}
+	add_req_monster() {
+		db.open(this.task);
+		this.task.req_monsters.push({});
+		db.commit(this.task);
+		this.tpl.reload('#kill_monsters');
 	}
 
-	async item_ondblclick(type, idx, e) {
-		const el = e.path[0];
+	remove_req_monster(idx) {
+		db.open(this.task);
+		this.task.req_monsters[idx] = null;
+		cleanup_arr(this.task.req_monsters);
+		db.commit(this.task);
+		this.tpl.reload('#kill_monsters');
+	}
 
-		Item.hide_tooltips();
-		RMenuWindow.enable_all(false);
-		/* delay to not let the rmenu steal the focus - for some reason we can't get it back programatically */
-		await sleep(100);
-		const sel_id = await HTMLSugar.show_select({ win: this, around_el: el, around_margin: 5, container: db.items });
-		RMenuWindow.enable_all(true);
-		if (!sel_id) {
-			return;
-		}
+	item_add_onclick(type, idx) {
+		let item_arr;
 
-		const t = this.task;
-		db.open(t);
+		db.open(this.task);
 		if (type == 'premise') {
-			if (!t.premise_items) {
-				t.premise_items = [];
-			}
-
-			if (!t.premise_items[idx]) {
-				t.premise_items[idx] = {};
-			}
-
-			t.premise_items[idx].id = sel_id;
+			item_arr = set_obj_field(this.task, [ 'premise_items' ], []);
 		} else if (type == 'free_given') {
-			if (!t.free_given_items) {
-				t.free_given_items = [];
-			}
-
-			if (!t.free_given_items[idx]) {
-				t.free_given_items[idx] = {};
-			}
-
-			t.free_given_items[idx].id = sel_id;
+			item_arr = set_obj_field(this.task, [ 'free_given_items' ], []);
 		} else if (type == 'award') {
-			if (!t.award) {
-				t.award = {};
-			}
-			if (!t.award.item_groups) {
-				t.award.item_groups = [];
-			}
-			if (t.award.item_groups.length == 0) {
-				t.award.item_groups.push({});
-			}
-			if (!t.award.item_groups[0].items) {
-				item_arr = t.award.item_groups[0].items = [];
-			}
-			if (!t.award.item_groups[0].items[idx]) {
-				t.award.item_groups[0].items[idx] = {};
-			}
-
-			t.award.item_groups[0].items[idx].id = sel_id;
+			item_arr = set_obj_field(this.task, [ 'award', 'item_groups', 0, 'items' ], []);
 		} else if (type == 'failure_award') {
-			if (!t.failure_award) {
-				t.failure_award = {};
-			}
-			if (!t.failure_award.item_groups) {
-				t.failure_award.item_groups = [];
-			}
-			if (t.failure_award.item_groups.length == 0) {
-				t.failure_award.item_groups.push({});
-			}
-			if (!t.failure_award.item_groups[0].items) {
-				item_arr = t.failure_award.item_groups[0].items = [];
-			}
-			if (!t.failure_award.item_groups[0].items[idx]) {
-				t.failure_award.item_groups[0].items[idx] = {};
-			}
-
-			t.failure_award.item_groups[0].items[idx].id = sel_id;
+			item_arr = set_obj_field(this.task, [ 'failure_award', 'item_groups', 0, 'items' ], []);
 		}
 
-		db.commit(t);
+		let f_idx;
+		for (f_idx = 0; f_idx < item_arr.length; f_idx++) {
+			if (!item_arr[f_idx]?.id) {
+				break;
+			}
+		}
+		item_arr[f_idx] = { id: 13188 };
+		db.commit(this.task);
+
 		if (type == 'premise') {
 			this.tpl.reload('#premise_items');
 		} else if (type == 'free_given') {
@@ -879,59 +717,20 @@ class TaskWindow extends Window {
 		}
 	}
 
-	item_add_onclick(type, idx) {
+	cleanup_items(type) {
 		let item_arr;
 
 		db.open(this.task);
 		if (type == 'premise') {
-			item_arr = this.task.premise_items;
-			if (!item_arr) {
-				item_arr = this.task.premise_items = [];
-			}
+			item_arr = set_obj_field(this.task, [ 'premise_items' ], []);
 		} else if (type == 'free_given') {
-			item_arr = this.task.free_given_items;
-			if (!item_arr) {
-				item_arr = this.task.free_given_items = [];
-			}
+			item_arr = set_obj_field(this.task, [ 'free_given_items' ], []);
 		} else if (type == 'award') {
-			if (!this.task.award) {
-				this.task.award = {};
-			}
-			if (!this.task.award.item_groups) {
-				this.task.award.item_groups = [];
-			}
-			if (this.task.award.item_groups.length == 0) {
-				this.task.award.item_groups.push({});
-			}
-
-			item_arr = this.task.award.item_groups[0].items;
-			if (!item_arr) {
-				item_arr = this.task.award.item_groups[0].items = [];
-			}
+			item_arr = set_obj_field(this.task, [ 'award', 'item_groups', 0, 'items' ], []);
 		} else if (type == 'failure_award') {
-			if (!this.task.failure_award) {
-				this.task.failure_award = {};
-			}
-			if (!this.task.failure_award.item_groups) {
-				this.task.failure_award.item_groups = [];
-			}
-			if (this.task.failure_award.item_groups.length == 0) {
-				this.task.failure_award.item_groups.push({});
-			}
-
-			item_arr = this.task.failure_award.item_groups[0].items;
-			if (!item_arr) {
-				item_arr = this.task.failure_award.item_groups[0].items = [];
-			}
+			item_arr = set_obj_field(this.task, [ 'failure_award', 'item_groups', 0, 'items' ], []);
 		}
-
-		let f_idx;
-		for (f_idx = 0; f_idx < item_arr.length; f_idx++) {
-			if (!item_arr[f_idx]?.id) {
-				break;
-			}
-		}
-		item_arr[f_idx] = { id: 13188 };
+		cleanup_id_arr(item_arr);
 		db.commit(this.task);
 
 		if (type == 'premise') {

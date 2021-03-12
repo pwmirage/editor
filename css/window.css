@@ -479,6 +479,7 @@ a.button:hover:not(.disabled) {
 	height: 32px;
 	outline: none;
 	user-select: none;
+	font-size: 0;
 }
 
 .menu-triangle {
