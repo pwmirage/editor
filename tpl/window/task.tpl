@@ -88,19 +88,33 @@
 </div>
 <div class="content flex-rows">
 	<div id="toptasks" class="flex-columns flex-all">
-		<div class="tasks flex-rows">
+		<div id="premise_quests" class="tasks flex-rows">
 			<div class="header">Required quests:</div>
+			{assign idx = -1}
 			{for req_tid of ($task.premise_quests || [])}
-				<div class="task">{@TaskWindow.print_task_by_id($req_tid)}</div>
+				<div>
+					{$idx++}
+					<span>{@$idx + 1}.</span>
+					<a class="button menu-triangle" data-link-button="{serialize $task} => 'premise_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
+					<div style="flex: 1;"></div>
+					<a class="remove-btn" onclick="{serialize $win}.remove_quest('premise', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
+				</div>
 			{/for}
-			<div class="add-container"><div style="flex: 1;"></div><a class="button add">(add) <i class="fa fa-plus"></i></a></div>
+			<div class="add-container"><div style="flex: 1;"></div><a class="button add" onclick="{serialize $win}.add_quest('premise');">(add) <i class="fa fa-plus"></i></a></div>
 		</div>
-		<div class="tasks flex-rows">
+		<div id="mutex_quests" class="tasks flex-rows">
 			<div class="header">Mutually exclusive quests:</div>
-			{for mutex_tid of ($task.mutex_quests || [])}
-				<div class="task">{@TaskWindow.print_task_by_id($mutex_tid)}</div>
+			{assign idx = -1}
+			{for req_tid of ($task.mutex_quests || [])}
+				<div>
+					{$idx++}
+					<span>{@$idx + 1}.</span>
+					<a class="button menu-triangle" data-link-button="{serialize $task} => 'mutex_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
+					<div style="flex: 1;"></div>
+					<a class="remove-btn" onclick="{serialize $win}.remove_quest('mutex', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
+				</div>
 			{/for}
-			<div class="add-container"><div style="flex: 1;"></div><a class="button add">(add) <i class="fa fa-plus"></i></a></div>
+			<div class="add-container"><div style="flex: 1;"></div><a class="button add" onclick="{serialize $win}.add_quest('mutex');">(add) <i class="fa fa-plus"></i></a></div>
 		</div>
 		<div class="tasks flex-rows">
 			<div class="header">Next quests:</div>
@@ -932,6 +946,12 @@ ul.tree>li:first-child:before {
 	max-height: 107px;
 	overflow-y: auto;
 	overflow-x: hidden;
+	padding: 4px 6px;
+}
+
+#toptasks > .tasks > div {
+	display: flex;
+	column-gap: 5px;
 }
 
 #kill_monsters > div {

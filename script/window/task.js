@@ -513,6 +513,46 @@ class TaskWindow extends Window {
 		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + serialize_db_id(tid);
 	}
 
+	add_quest(type) {
+		db.open(this.task);
+		if (type == 'premise') {
+			if (!this.task.premise_quests) {
+				this.task.premise_quests = [];
+			}
+			this.task.premise_quests.push(0);
+		} else {
+			if (!this.task.mutex_quests) {
+				this.task.mutex_quests = [];
+			}
+			this.task.mutex_quests.push(0);
+		}
+		db.commit(this.task);
+
+		if (type == 'premise') {
+			this.tpl.reload('#premise_quests');
+		} else {
+			this.tpl.reload('#mutex_quests');
+		}
+	}
+
+	remove_quest(type, idx) {
+		db.open(this.task);
+		if (type == 'premise') {
+			this.task.premise_quests[idx] = 0;
+			cleanup_arr(this.task.premise_quests);
+		} else {
+			this.task.mutex_quests[idx] = 0;
+			cleanup_arr(this.task.mutex_quests);
+		}
+		db.commit(this.task);
+
+		if (type == 'premise') {
+			this.tpl.reload('#premise_quests');
+		} else {
+			this.tpl.reload('#mutex_quests');
+		}
+	}
+
 	select_tab(tab_type, id) {
 		const tab_headers = this.shadow.querySelector('.tab_menu.' + tab_type);
 		if (!tab_headers) {
@@ -552,7 +592,7 @@ class TaskWindow extends Window {
 			this.tpl.reload('.dialogue-diagram');
 			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
 			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
-			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(invalid, set it above)';
+			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(no npc)';
 		}
 	}
 
@@ -670,6 +710,9 @@ class TaskWindow extends Window {
 
 	add_req_monster() {
 		db.open(this.task);
+		if (!this.task.req_monsters) {
+			this.task.req_monsters = [];
+		}
 		this.task.req_monsters.push({});
 		db.commit(this.task);
 		this.tpl.reload('#kill_monsters');
