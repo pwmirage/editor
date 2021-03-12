@@ -915,6 +915,145 @@ class TaskWindow extends Window {
 		this.tpl.reload('#award_items');
 	}
 
+	update_npc(type, el) {
+		const prev_id = el._mg_prev_value;
+		const new_id = el._mg_value;
+
+		if (type == 'start_npc') {
+			/* first validate the new npc can give any more quests */
+			const npc = db.npcs[new_id];
+			if (npc) {
+				let quests_out = db.npc_tasks_out[npc.id_task_out_service];
+				if (!quests_out) {
+					/* init the quests out list if it's the first quest for that npc */
+					quests_out = db.new('npc_tasks_out');
+					db.open(npc);
+					npc.id_task_out_service = quests_out.id;
+					db.commit(npc);
+				}
+
+				if (!quests_out.tasks) {
+					/* ^ */
+					db.open(quests_out);
+					quests_out.tasks = [];
+					db.commit(quests_out);
+				}
+
+				/* find an empty or invalid quest in the list */
+				let i;
+				for (i = 0; i < 32; i++) {
+					const qid = quests_out.tasks[i];
+					if (!qid) {
+						break;
+					}
+
+					const q = db.tasks[qid];
+					if (!q) {
+						break;
+					}
+
+					if (q.parent_quest) {
+						break;
+					}
+				}
+
+				if (i == 32) {
+					db.open(this.task);
+					this.start_npc = prev_id;
+					db.commit(this.task);
+
+					MessageWindow.open({ 'title': 'Failed to set starting NPC ' + (npc.name || '') + ' ' + serialize_db_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can give (32). Please free some, then try again' });
+					return;
+				}
+
+				/* add entry to the npc list */
+				db.open(quests_out);
+				quests_out.tasks[i] = this.task.id;
+				db.commit(quests_out);
+
+				/* cleanup the entry for the previous npc */
+				const pnpc = db.npcs[prev_id];
+				if (pnpc) {
+					const pquests_out = db.npc_tasks_out[pnpc.id_task_out_service];
+					if (pquests_out) {
+						db.open(pquests_out);
+						for (let i = 0; i < 32; i++) {
+							if (pquests_out.tasks?.[i] == this.task.id) {
+								pquests_out.tasks[i] = 0;
+							}
+						}
+						db.commit(pquests_out);
+					}
+				}
+			}
+
+		} else if (type == 'finish_npc') {
+			/* first validate the new npc can complete any more quests */
+			const npc = db.npcs[new_id];
+			if (npc) {
+				let quests_in = db.npc_tasks_in[npc.id_task_in_service];
+				if (!quests_in) {
+					/* init the quests in list if it's the first quest for that npc */
+					quests_in = db.new('npc_tasks_in');
+					db.open(npc);
+					npc.id_task_in_service = quests_in.id;
+					db.commit(npc);
+				}
+
+				if (!quests_in.tasks) {
+					/* ^ */
+					db.open(quests_in);
+					quests_in.tasks = [];
+					db.commit(quests_in);
+				}
+
+				/* find an empty or invalid quest in the list */
+				let i;
+				for (i = 0; i < 32; i++) {
+					const qid = quests_in.tasks[i];
+					if (!qid) {
+						break;
+					}
+
+					const q = db.tasks[qid];
+					if (!q) {
+						break;
+					}
+				}
+
+				if (i == 32) {
+					db.open(this.task);
+					this.finish_npc = prev_id;
+					db.commit(this.task);
+
+					MessageWindow.open({ 'title': 'Failed to set finish NPC ' + (npc.name || '') + ' ' + serialize_db_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can complete (32). Please free some, then try again' });
+					return;
+				}
+
+				/* add entry to the npc list */
+				db.open(quests_in);
+				quests_in.tasks[i] = this.task.id;
+				db.commit(quests_in);
+
+				/* cleanup the entry for the previous npc */
+				const pnpc = db.npcs[prev_id];
+				if (pnpc) {
+					const pquests_in = db.npc_tasks_in[pnpc.id_task_in_service];
+					if (pquests_in) {
+						db.open(pquests_in);
+						for (let i = 0; i < 32; i++) {
+							if (pquests_in.tasks?.[i] == this.task.id) {
+								pquests_in.tasks[i] = 0;
+							}
+						}
+						db.commit(pquests_in);
+					}
+				}
+			}
+
+		}
+	}
+
 	close() {
 		g_open_tasks.delete(this.root_task);
 		document.removeEventListener('mousemove', this.mousemove_fn);

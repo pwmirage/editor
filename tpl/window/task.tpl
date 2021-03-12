@@ -216,7 +216,7 @@
 			<div class="tabs start_by">
 				<div>{* None *}</div>
 				<div>{* Auto *}</div>
-				<div>NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'start_npc'" data-select="db.npcs" style="margin-top: 1px;"></a>
+				<div>NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'start_npc'" data-select="db.npcs" style="margin-top: 1px;" oninput="{serialize $win}.update_npc('start_npc', this);"></a>
 				</div>
 				<div>Reach Location: (TODO)</div>
 				<div>{* By Death *}</div>
@@ -269,7 +269,7 @@
 								<div style="flex: 1;"></div>
 								<a class="button add" onclick="{serialize $win}.add_req_monster();">(add) <i class="fa fa-plus"></i></a>
 							</div>
-							<div>Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
+							<div>Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
 						</div>
 					</div>
 
@@ -287,7 +287,7 @@
 							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('req');"></span>
 						</div>
 
-						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
+						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
 					</div>
 
 					<div>
@@ -302,7 +302,7 @@
 						<div style="display: flex; column-gap: 5px; padding-top: 4px;">
 							Wait (sec): <span data-input class="input-number" style="width: 38px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_wait_time'" data-placeholder="(0)"></span>
 						</div>
-						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs"></a></div>
+						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
 					</div>
 				</div>
 			{/if}

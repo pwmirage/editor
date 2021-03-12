@@ -873,7 +873,7 @@ class HTMLSugar {
 		const type = dummy_obj._db.type;
 		const obj_details = PWPreview.get_obj_type(dummy_obj);
 
-		const update_label = () => {
+		const update_label = (auto = false) => {
 			const id = get_obj_field(link.obj, link.path);
 			const obj = db[type][id];
 			if (obj) {
@@ -881,8 +881,12 @@ class HTMLSugar {
 			} else {
 				el.textContent = '(none)';
 			}
+			if (!auto && el.oninput) {
+				el._mg_value = id;
+				el.oninput();
+			}
 		};
-		update_label();
+		update_label(true);
 
 		el.oncontextmenu = (e) => { el.onclick(e); return false; };
 		el.onclick = (e) => {
@@ -893,6 +897,7 @@ class HTMLSugar {
 					obj, type, {
 					pick_win_title: 'Pick new ' + obj_details.name + 'for ' + (link.obj.name || link.obj._db.type) + ' ' + serialize_db_id(link.obj.id),
 					update_obj_fn: (new_obj) => {
+						el._mg_prev_value = get_obj_field(link.obj, link.path);
 						db.open(link.obj);
 						set_obj_field(link.obj, link.path, new_obj?.id || 0);
 						db.commit(link.obj);
