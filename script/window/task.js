@@ -959,7 +959,7 @@ class TaskWindow extends Window {
 
 				if (i == 32) {
 					db.open(this.task);
-					this.start_npc = prev_id;
+					this.task.start_npc = prev_id;
 					db.commit(this.task);
 					el._mg_update_label(true);
 
@@ -971,23 +971,22 @@ class TaskWindow extends Window {
 				db.open(quests_out);
 				quests_out.tasks[i] = this.task.id;
 				db.commit(quests_out);
-
-				/* cleanup the entry for the previous npc */
-				const pnpc = db.npcs[prev_id];
-				if (pnpc) {
-					const pquests_out = db.npc_tasks_out[pnpc.id_task_out_service];
-					if (pquests_out) {
-						db.open(pquests_out);
-						for (let i = 0; i < 32; i++) {
-							if (pquests_out.tasks?.[i] == this.task.id) {
-								pquests_out.tasks[i] = 0;
-							}
-						}
-						db.commit(pquests_out);
-					}
-				}
 			}
 
+			/* cleanup the entry for the previous npc */
+			const pnpc = db.npcs[prev_id];
+			if (pnpc) {
+				const pquests_out = db.npc_tasks_out[pnpc.id_task_out_service];
+				if (pquests_out) {
+					db.open(pquests_out);
+					for (let i = 0; i < 32; i++) {
+						if (pquests_out.tasks?.[i] == this.task.id) {
+							pquests_out.tasks[i] = 0;
+						}
+					}
+					db.commit(pquests_out);
+				}
+			}
 		} else if (type == 'finish_npc') {
 			/* first validate the new npc can complete any more quests */
 			const npc = db.npcs[new_id];
@@ -1024,7 +1023,7 @@ class TaskWindow extends Window {
 
 				if (i == 32) {
 					db.open(this.task);
-					this.finish_npc = prev_id;
+					this.task.finish_npc = prev_id;
 					db.commit(this.task);
 					el._mg_update_label(true);
 
@@ -1036,23 +1035,22 @@ class TaskWindow extends Window {
 				db.open(quests_in);
 				quests_in.tasks[i] = this.task.id;
 				db.commit(quests_in);
-
-				/* cleanup the entry for the previous npc */
-				const pnpc = db.npcs[prev_id];
-				if (pnpc) {
-					const pquests_in = db.npc_tasks_in[pnpc.id_task_in_service];
-					if (pquests_in) {
-						db.open(pquests_in);
-						for (let i = 0; i < 32; i++) {
-							if (pquests_in.tasks?.[i] == this.task.id) {
-								pquests_in.tasks[i] = 0;
-							}
-						}
-						db.commit(pquests_in);
-					}
-				}
 			}
 
+			/* cleanup the entry for the previous npc */
+			const pnpc = db.npcs[prev_id];
+			if (pnpc) {
+				const pquests_in = db.npc_tasks_in[pnpc.id_task_in_service];
+				if (pquests_in) {
+					db.open(pquests_in);
+					for (let i = 0; i < 32; i++) {
+						if (pquests_in.tasks?.[i] == this.task.id) {
+							pquests_in.tasks[i] = 0;
+						}
+					}
+					db.commit(pquests_in);
+				}
+			}
 		}
 	}
 
