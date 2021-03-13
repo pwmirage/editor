@@ -315,7 +315,7 @@
 							<div data-id="initial" onclick="{serialize $win}.select_tab('dialogue', 'initial');" style="{if $task.parent_quest}display: none;{/if}">Initial</div>
 							<div data-id="notqualified" onclick="{serialize $win}.select_tab('dialogue', 'notqualified');" style="{if $task.parent_quest}display: none;{/if}">Requirements not met</div>
 							<div data-id="unfinished" onclick="{serialize $win}.select_tab('dialogue', 'unfinished');">In progress</div>
-							<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length || !$task.parent_quest}display: none;{/if}">Ready to finish</div>
+							<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length}display: none;{/if}">Ready to finish</div>
 						</div>
 					</div>
 					<div class="dialogue_container">
