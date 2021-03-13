@@ -905,6 +905,7 @@ class HTMLSugar {
 						update_label();
 					},
 					edit_obj_fn: (new_obj) => {
+						const obj_details = PWPreview.get_obj_type(new_obj);
 						obj_details.open_fn();
 					},
 					usage_name_fn: (obj) => {
