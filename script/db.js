@@ -490,7 +490,7 @@ class DB {
 			}
 
 			this.open(org);
-			DB.copy_obj_data(org, change);
+			DB.apply_diff(org, change);
 			this.commit(org);
 
 			/* call the init_cb again */
@@ -541,7 +541,7 @@ class DB {
 					/* diff is always an object, so can't use Array.isArray() */
 					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
-				DB.copy_obj_data(obj[f], diff[f]);
+				DB.apply_diff(obj[f], diff[f]);
 			} else {
 				obj[f] = diff[f];
 			}
