@@ -12,8 +12,8 @@
 <div class="content flex-rows">
 	<div class="border flex-rows">
 		<div class="header flex-columns flex-all" style="margin-bottom: 5px;">
-			<span>Tasks given: ({@($tasks_out.tasks || []).filter(t => t).length})</span>
-			<span>Tasks completed: ({@($tasks_in.tasks || []).filter(t => t).length})</span>
+			<span>Tasks given: ({@($tasks_out?.tasks || []).filter(t => t).length})</span>
+			<span>Tasks completed: ({@($tasks_in?.tasks || []).filter(t => t).length})</span>
 		</div>
 		<div class="scroll flex-columns flex-all">
 			<div class="tasks">
