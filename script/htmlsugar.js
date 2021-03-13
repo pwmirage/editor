@@ -886,6 +886,7 @@ class HTMLSugar {
 				el.oninput();
 			}
 		};
+		el._mg_update_label = update_label;
 		update_label(true);
 
 		el.oncontextmenu = (e) => { el.onclick(e); return false; };

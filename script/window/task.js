@@ -961,6 +961,7 @@ class TaskWindow extends Window {
 					db.open(this.task);
 					this.start_npc = prev_id;
 					db.commit(this.task);
+					el._mg_update_label(true);
 
 					MessageWindow.open({ 'title': 'Failed to set starting NPC ' + (npc.name || '') + ' ' + serialize_db_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can give (32). Please free some, then try again' });
 					return;
@@ -1025,6 +1026,7 @@ class TaskWindow extends Window {
 					db.open(this.task);
 					this.finish_npc = prev_id;
 					db.commit(this.task);
+					el._mg_update_label(true);
 
 					MessageWindow.open({ 'title': 'Failed to set finish NPC ' + (npc.name || '') + ' ' + serialize_db_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can complete (32). Please free some, then try again' });
 					return;
