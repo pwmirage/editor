@@ -73,7 +73,7 @@
 #items > * {
 	width: 32px;
 	height: 32px;
-	margin-top: 4px;
+	margin-top: 0;
 	margin-right: 4px;
 	position: relative;
 }
@@ -96,7 +96,7 @@
 	border: 1px solid var(--header-color);
 	margin-left: -1px;
 	margin-bottom: -1px;
-	margin-top: 3px;
+	margin-top: -1px;
 	margin-right: 3px;
 }
 
