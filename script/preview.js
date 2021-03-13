@@ -91,6 +91,10 @@ class PWPreview {
 				name = 'Resource';
 				open_fn; /* TODO */
 				break;
+			case 'tasks':
+				name = 'Quest';
+				open_fn = () => TaskWindow.open({ task: obj });
+				break;
 			default:
 				break;
 		}
@@ -107,7 +111,7 @@ class PWPreview {
 		let file = 'item-unknown.png';
 		let src = null;
 
-		if (['npc_crafts', 'npc_sells', 'monsters', 'npcs', 'mines'].includes(obj._db.type)) {
+		if (['npc_crafts', 'npc_sells', 'monsters', 'npcs', 'mines', 'tasks'].includes(obj._db.type)) {
 			file = 'icon_' + obj._db.type + '.jpg';
 		} else if (obj._db.type.startsWith('spawners_')) {
 			if (obj.type == 'npc') {
