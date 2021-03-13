@@ -318,9 +318,9 @@ class PWDB {
 
 	static async save(db, show_tag = true) {
 		let project = db.metadata[1];
-		if (!project || project.read_only) {
+		if (!project || project.read_only || project.author_id != WCF.User.userID) {
 			Loading.notify('warning', 'This project is read-only.');
-			return;
+			return false;
 		}
 
 		const data = db.dump_last(0);
@@ -330,7 +330,7 @@ class PWDB {
 			if (show_tag) {
 				notify('success', 'Saved');
 			}
-			return;
+			return true;
 		}
 
 		const req = await post(ROOT_URL + 'project/' + project.pid + '/save', {
@@ -343,18 +343,20 @@ class PWDB {
 			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
 			const dump = db.dump_last(0);
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
-			return;
+			return false;
 		}
 
 		db.new_generation();
 		if (show_tag) {
 			notify('success', 'Saved');
 		}
+
+		return true;
 	}
 
-	static async publish(db) {
+	static async publish(db, show_tag = true) {
 		let project = db.metadata[1];
-		if (!project || project.read_only) {
+		if (!project || project.read_only || project.author_id != WCF.User.userID) {
 			Loading.notify('warning', 'This project is read-only.');
 			return;
 		}
@@ -368,9 +370,15 @@ class PWDB {
 			return;
 		}
 
-		notify('success', 'Published');
-		await sleep(2000);
-		window.location.href = '/forum/thread/' + project.thread_id;
+		if (show_tag) {
+			notify('success', 'Published');
+			await sleep(2000);
+			window.location.href = '/forum/thread/' + project.thread_id;
+		}
+	}
+
+	static get_proj_info(pid) {
+		return get(ROOT_URL + 'project/' + pid + '/info', { is_json: 1 });
 	}
 
 	static find_usages(db, obj) {
