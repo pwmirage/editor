@@ -24,11 +24,14 @@ class Navbar {
 		this.org_menu_dom.parentNode.insertBefore(this.dom, this.org_menu_dom);
 
 		const b = this.buttons = {};
+		let tmp;
 		let p;
 		p = this.add_button(null, 'Project');
 
 		b['proj_summary'] = this.add_button(p, 'Show summary');
-		b['proj_new'] = this.add_button(p, 'Create');
+		tmp = this.add_button(p, '');
+		tmp.innerHTML = '<hr>';
+		b['proj_new'] = this.add_button(p, 'Create new');
 		b['proj_save'] = this.add_button(p, 'Save');
 		b['proj_publish'] = this.add_button(p, 'Publish');
 		b['proj_rebase'] = this.add_button(p, 'Rebase');
@@ -42,15 +45,24 @@ class Navbar {
 		};
 
 		p = this.add_button(b['editor'], 'Browse');
-		b['items'] = p = this.add_button(p, 'Items');
-		b['recipes'] = p = this.add_button(p, 'Recipes');
-		b['npc_crafts'] = p = this.add_button(p, 'NPC Crafts');
-		b['npc_sells'] = p = this.add_button(p, 'NPC Goods');
-		b['npcs'] = p = this.add_button(p, 'NPCs');
-		b['monsters'] = p = this.add_button(p, 'Monsters');
-		b['resources'] = p = this.add_button(p, 'Resources');
-		b['triggers'] = p = this.add_button(p, 'Triggers');
-		b['quests'] = p = this.add_button(p, 'Quests');
+		b['browse'] = {};
+		b['browse']['items'] = this.add_button(p, 'Items');
+		b['browse']['npc_crafts'] = this.add_button(p, 'NPC Crafts');
+		b['browse']['npc_sells'] = this.add_button(p, 'NPC Goods');
+		b['browse']['npcs'] = this.add_button(p, 'NPCs');
+		b['browse']['monsters'] = this.add_button(p, 'Monsters');
+		b['browse']['mines'] = this.add_button(p, 'Resources');
+		b['browse']['tasks'] = this.add_button(p, 'Quests');
+
+		p = this.add_button(b['editor'], 'New');
+		b['new'] = {};
+		b['new']['items'] = this.add_button(p, 'Item');
+		b['new']['npc_crafts'] = this.add_button(p, 'NPC Crafts');
+		b['new']['npc_sells'] = this.add_button(p, 'NPC Goods');
+		b['new']['npcs'] = this.add_button(p, 'NPC');
+		b['new']['monsters'] = this.add_button(p, 'Monster');
+		b['new']['mines'] = this.add_button(p, 'Resource');
+		b['new']['tasks'] = this.add_button(p, 'Quest');
 
 		this.search = newElement('<div style="display: flex; align-items: center; padding-left: 15px;"><i class="fa fa-search" style="color: #fff;"></i><input type="text" style="margin-left: 5px;" placeholder="Quick search"></div>');
 		this.dom.append(this.search);
@@ -64,11 +76,39 @@ class Navbar {
 			parent = this.dom;
 		} else if (!parent.classList.contains('boxMenuHasChildren')) {
 			parent.classList.add('boxMenuHasChildren');
-			const depth_regex = parent.parentNode.className.match(/boxMenuDepth([0-9]+)/);
-			const depth = depth_regex ? ((parseInt(depth_regex[1]) + 1) || 1) : 1;
-			const sub_list = newElement('<ol class="boxMenuDepth' + depth + '"></ol>');
-			parent.append(sub_list);
-			parent = sub_list;
+
+			if (parent.parentNode.classList.contains('boxMenu')) {
+				/* add a regular wcf expandable submenu at 0-depth */
+				const sub_list = newElement('<ol class="boxMenuDepth1"></ol>');
+				parent.append(sub_list);
+				parent = sub_list;
+			} else {
+				/* add our custom submenu */
+				parent.classList.add('mgSubmenu');
+				const sub_list = newElement('<ol class="boxMenuDepth1"></ol>');
+				parent.append(sub_list);
+				let timeout = 0;
+				parent.onmouseenter = (e) => {
+					if (timeout) {
+						clearTimeout(timeout);
+						timeout = 0;
+					}
+
+					if (Navbar.last_hovered) {
+						Navbar.last_hovered.classList.remove('hovered');
+					}
+					Navbar.last_hovered = parent;
+					parent.classList.add('hovered');
+				}
+				parent.onmouseleave = (e) => {
+					timeout = setTimeout(() => {
+						if (!parent.matches('ol:hover')) {
+							parent.classList.remove('hovered');
+						}
+					}, 500);
+				}
+				parent = sub_list;
+			}
 		} else {
 			parent = parent.querySelector('ol');
 		}
@@ -98,5 +138,15 @@ class Navbar {
 		set_enabled(b['proj_publish'], has_proj);
 		set_enabled(b['proj_rebase'], has_proj);
 		set_enabled(b['proj_share'], has_proj);
+
+		for (const type in b['new']) {
+			const btn = b['new'][type];
+
+			btn.onclick = () => {
+				const obj = db.new(type);
+				const type_details = PWPreview.get_obj_type(obj);
+				type_details.open_fn();
+			};
+		}
 	}
 }
