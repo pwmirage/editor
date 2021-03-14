@@ -185,7 +185,7 @@
 
 					<div class="data-field">
 						<span>Coins:</span>
-						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'coins'"></span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'premise_coins'"></span>
 					</div>
 					<div id="premise_items" class="data-field">
 						<span>Items: </span>
