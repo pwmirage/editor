@@ -919,6 +919,10 @@ class TaskWindow extends Window {
 		const prev_id = el._mg_prev_value;
 		const new_id = el._mg_value;
 
+		if (prev_id == new_id) {
+			return;
+		}
+
 		if (type == 'start_npc') {
 			/* first validate the new npc can give any more quests */
 			const npc = db.npcs[new_id];
