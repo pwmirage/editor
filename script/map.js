@@ -362,6 +362,14 @@ class PWMap {
 				return;
 			}
 
+			if (obj.type == 'npc') {
+				/* always put spawner type in the diff */
+				const changesets = obj._db.changesets;
+				const last = changesets[changesets.length - 1];
+				set_obj_field(last, [ 'groups', 0, 'type' ], obj?.groups?.[0]?.type || 0);
+				last.type = obj.type;
+			}
+
 			(async () => {
 				await this.post_canvas_msg({ type: 'update_obj', obj: obj });
 				this.force_mouse_update = true;
