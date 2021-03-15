@@ -586,7 +586,7 @@ textarea {
 	position: relative;
 	flex: 1;
 	display: flex;
-	min-height: 29px;
+	min-height: 26px;
 	overflow: hidden;
 }
 
@@ -619,17 +619,19 @@ textarea {
 .pw-editable-color-text > .color {
 	position: absolute;
 	right: 20px;
-	bottom: 0;
+	bottom: -6px;
 	width: 13px;
 	height: 19px;
 	color: #ffffff;
 	margin-bottom: -6px;
 	border: 1px solid #fafafa;
 	padding: 3px 5px;
+	cursor: pointer;
 }
 
 .pw-editable-color-text > .color:hover {
 	background-color: #6b6b6b;
+	bottom: 0;
 }
 
 .pw-editable-color-text input[type="color"] {
