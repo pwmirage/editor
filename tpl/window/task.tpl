@@ -311,16 +311,22 @@
 				<div style="margin-bottom: -5px; margin-left: -8px; margin-right: -8px">
 					<div style="display: flex;">
 						<span style="margin-left: 8px; margin-top: 4px; margin-right: 8px; font-weight: bold;">Dialogue:</span>
-						<div class="tab_menu dialogue dialogue_tabs">
+						<div class="tab_menu dialogue dialogue_tabs" style="width: 100%;">
 							<div data-id="initial" onclick="{serialize $win}.select_tab('dialogue', 'initial');" style="{if $task.parent_quest}display: none;{/if}">Initial</div>
 							<div data-id="notqualified" onclick="{serialize $win}.select_tab('dialogue', 'notqualified');" style="{if $task.parent_quest}display: none;{/if}">Requirements not met</div>
 							<div data-id="unfinished" onclick="{serialize $win}.select_tab('dialogue', 'unfinished');">In progress</div>
 							<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length}display: none;{/if}">Ready to finish</div>
+							<div data-id="description" style="margin-left: auto;" onclick="{serialize $win}.select_tab('dialogue', 'description');">Description</div>
 						</div>
 					</div>
 					<div class="dialogue_container">
 						<div class="dialogue-diagram">
 							<ul class="diagram" style="margin-bottom: -5px;">
+								{if $win.sel_opts.dialogue == 'description'}
+									<li class="description">
+										<span class="pw-editable-color-text" style="flex: 1; margin-right: 5px; min-width: 275px;" data-editable-color-text data-link="{serialize $task} => 'briefing'"></span>
+									</li>
+								{/if}
 								<li class="start"><span>NPC</span>
 									{if $win.sel_opts.dialogue && $task.dialogue?.[$win.sel_opts.dialogue]?.questions?.filter(q => q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
 										<ul>
@@ -335,33 +341,31 @@
 			</div>
 
 			<div class="flex-columns" style="flex-wrap: wrap; margin-top: 5px; align-items: baseline;">
-				<div id="free_given_items" class="data-field" style="align-items: unset;">
-					<span>Give Items on start: </span>
-					{assign idx = -1}
-					{for item of ($task.free_given_items || [])}
-						{$idx++}
-						{if !$item?.id}{continue}{/if}
-						<div class="item-w-cnt">
-							<span class="item" data-link-item="{serialize $task} => 'free_given_items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('free_given');" tabindex="0"></span>
-							<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'free_given_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
-						</div>
-					{/for}
-					<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('free_given');"></span>
-				</div>
 				{if $task.parent_quest}
 					<label><input type="checkbox" data-link="{serialize $task} => 'on_fail_parent_fail'" class="checkbox"><span>Fail parent on fail</label>
 					<label><input type="checkbox" data-link="{serialize $task} => 'on_success_parent_success'" class="checkbox"><span>Succeed the parent on success</label>
 				{/if}
 				<label><input type="checkbox" data-link="{serialize $task} => 'can_give_up'" class="checkbox"><span>Can give up</label>
-				<label><input type="checkbox" data-link="{serialize $task} => 'can_retake'" class="checkbox"><span>Can be re-taken after giving up</label>
-				{if $task.parent_quest}
-					<label><input type="checkbox" data-link="{serialize $task} => 'on_give_up_parent_fail'" class="checkbox"><span>Fail parent on give up</label>
-				{/if}
+				<label><input type="checkbox" data-link="{serialize $task} => 'can_retake_after_giving_up'" class="checkbox"><span>Can be re-taken after giving up</label>
 				<div class="flex-columns">
 					<span>Time limit (sec): </span>
 					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'time_limit_sec'"></span>
 				</div>
 				<label><input type="checkbox" data-link="{serialize $task} => 'can_retake_after_failure'" class="checkbox"><span>Can be re-taken after failure</label>
+			</div>
+
+			<div id="free_given_items" class="data-field" style="align-items: center;">
+				<span style="font-weight: bold;">Give Items on start: </span>
+				{assign idx = -1}
+				{for item of ($task.free_given_items || [])}
+					{$idx++}
+					{if !$item?.id}{continue}{/if}
+					<div class="item-w-cnt">
+						<span class="item" data-link-item="{serialize $task} => 'free_given_items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('free_given');" tabindex="0"></span>
+						<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'free_given_items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+					</div>
+				{/for}
+				<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('free_given');"></span>
 			</div>
 
 			<div>
@@ -388,7 +392,7 @@
 					<div class="data-field" style="align-items: unset;">
 						<span>Items: </span>
 						<span id="award_items_type" data-select="TaskWindow.award_item_types" data-onselect="{serialize $win}.select_award_item_type(id);" style="width: auto; min-width: 130px;" data-selected="{@$win.award_item_type}"></span>
-						<div id="award_items" style="display: flex;">
+						<div id="award_items" style="display: flex; flex-wrap: wrap; row-gap: 10px;">
 							{if $win.award_item_type == 0 || $win.award_item_type == 1}
 								<div style="display: flex; flex-direction: column; row-gap: 5px; padding-right: 4px;">
 										<span>Num:</span>
@@ -638,7 +642,7 @@
 	pointer-events: none;
 }
 
-.diagram li span {
+.diagram li > span {
 	pointer-events: all;
 	border: solid .1em #333;
 	border-radius: .2em;
@@ -713,7 +717,7 @@
 
 /* | */
 .diagram ul:before,
-.diagram span:before {
+.diagram li > span:before {
 	outline: solid 1px #333;
 	content: "";
 	height: .4em;
@@ -725,7 +729,7 @@
 	top: -.5em;
 }
 
-.diagram span:before {
+.diagram li > span:before {
 	top: -.55em;
 }
 
@@ -735,6 +739,11 @@
 .diagram > li:after,
 .diagram > li > span:before {
 outline: none;
+}
+
+.diagram code {
+	border: none;
+	overflow: hidden;
 }
 
 ul, li {

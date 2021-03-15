@@ -581,6 +581,8 @@ class TaskWindow extends Window {
 			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
 			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
 			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(no npc)';
+
+			this.shadow.querySelector('.dialogue-diagram li.start > span').style.display = id == 'description' ? 'none' : '';
 		}
 	}
 
@@ -612,7 +614,7 @@ class TaskWindow extends Window {
 			this.select_tab('start_by', this.task.start_by || 0);
 			this.select_tab('goal', this.task.success_method || 3);
 			this.select_tab('sub_quest_activation', this.task.subquest_activate_order || 0);
-			this.select_tab('dialogue', !this.task.parent_quest ? 'initial' : (this.task.sub_quests?.length ? 'unfinished' : 'ready'));
+			this.select_tab('dialogue', 'description');
 		};
 
 		if (e.which == 1) {
