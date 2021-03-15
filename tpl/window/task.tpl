@@ -389,19 +389,7 @@
 						<span>Items: </span>
 						<span id="award_items_type" data-select="TaskWindow.award_item_types" data-onselect="{serialize $win}.select_award_item_type(id);" style="width: auto; min-width: 130px;" data-selected="{@$win.award_item_type}"></span>
 						<div id="award_items" style="display: flex;">
-							{if $win.award_item_type == 0}
-								{assign idx = -1}
-								{for item of ($task.award?.item_groups?.[0]?.items || [])}
-									{$idx++}
-									{if !$item?.id}{continue}{/if}
-									<div class="item-w-cnt">
-										<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('award');" tabindex="0"></span>
-										<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
-									</div>
-								{/for}
-								<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('award');"></span>
-
-							{else if $win.award_item_type == 1}
+							{if $win.award_item_type == 0 || $win.award_item_type == 1}
 								<div style="display: flex; flex-direction: column; row-gap: 5px; padding-right: 4px;">
 										<span>Num:</span>
 										<span>%:</span>

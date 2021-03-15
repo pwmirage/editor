@@ -184,7 +184,7 @@ class TaskWindow extends Window {
 
 	static award_item_types = init_id_array([
 		{ id: 0, name: "Fixed Items" },
-		{ id: 1, name: "Random Items" },
+		{ id: 1, name: "One Random Item" },
 		{ id: 2, name: "Chooser" },
 	]);
 
@@ -843,7 +843,7 @@ class TaskWindow extends Window {
 				break;
 			}
 		}
-		item_arr[f_idx] = { id: 13188 };
+		item_arr[f_idx] = { id: 13188, probability: 1.0 };
 		db.commit(this.task);
 
 		if (type == 'premise') {
