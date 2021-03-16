@@ -346,7 +346,7 @@
 					<label><input type="checkbox" data-link="{serialize $task} => 'on_success_parent_success'" class="checkbox"><span>Succeed the parent on success</label>
 				{/if}
 				<label><input type="checkbox" data-link="{serialize $task} => 'can_give_up'" class="checkbox"><span>Can give up</label>
-				<label><input type="checkbox" data-link="{serialize $task} => 'can_retake_after_giving_up'" class="checkbox"><span>Can be re-taken after giving up</label>
+				<label><input type="checkbox" data-link="{serialize $task} => 'cant_retake_after_giving_up'" class="checkbox"><span>Can't be re-taken after giving up</label>
 				<div class="flex-columns">
 					<span>Time limit (sec): </span>
 					<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'time_limit_sec'"></span>
