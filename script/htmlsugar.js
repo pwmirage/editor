@@ -30,12 +30,10 @@ class EditableColorText {
 		this.el.append(this.color_el);
 
 		this.code_el.contentEditable = true;
-		this.code_el.onkeydown = (e) => this.last_key = e.key;
 		this.code_el.onkeyup = () => this.update_caret();
 		this.code_el.onmouseup = () => this.update_caret();
 		this.code_el.onmousemove = () => this.update_caret();
-		this.code_el.onpaste = () => setTimeout(() => this.format(), 1);
-		this.code_el.oninput = () => this.format();
+		this.code_el.oninput = () => this.normalize();
 
 		this.link_el = newElement('<span class="input-text">');
 		this.link_el.dataset.link = this.link_str;
@@ -44,7 +42,8 @@ class EditableColorText {
 		HTMLSugar.link_el(this.link_el);
 
 		this.code_el.textContent = this.link_el.textContent;
-		this.format();
+		this.reformat();
+		this.initialized = true;
 	}
 
 	update_caret() {
@@ -61,10 +60,8 @@ class EditableColorText {
 			const r2 = this.caret_selection.getRangeAt(0);
 			if (r2) {
 				r2.setStart(this.code_el, 0);
-				const o = Math.max(r2.toString().length - 1, 0);
-				if (o) {
-					this.caret_off = o;
-				}
+				const o = Math.max(r2.toString().length, 0);
+				this.caret_off = o;
 			}
 
 		} catch (e) { }
@@ -95,7 +92,8 @@ class EditableColorText {
 
 		const text = '^ffffff';
 		document.execCommand('insertText', false, text)
-		this.format();
+		this.reformat();
+		this.normalize();
 	}
 
 	create_range(index) {
@@ -114,12 +112,13 @@ class EditableColorText {
 	};
 
 	normalize() {
-		const prev_len = this.link_el.textContent.length;
+		let is_modified = false;
 
 		/* normalize newlines from user input */
 		const newlines = this.code_el.querySelectorAll('br');
 		for (const n of newlines) {
 			n.replaceWith(document.createTextNode('\n'));
+			is_modified = true;
 		}
 
 		/* if color chooser is not in front of a hidden span, it must have
@@ -129,15 +128,17 @@ class EditableColorText {
 		for (const input of inputs) {
 			if (input.previousElementSibling?.className != 'hidden') {
 				input.parentNode.insertBefore(newElement('<span class="hidden">^' + input.value.substring(1) + '</span>'), input);
+				is_modified = true;
 			}
 		}
 
-		/* if there's a hidden span without a color chooser in front, the color
-		 * chooser must have been removed -> remove the hidden span too */
 		const hiddens = this.code_el.querySelectorAll('.hidden');
 		for (const h of hiddens) {
+			/* if there's a hidden span without a color chooser in front, the color
+			 * chooser must have been removed -> remove the hidden span too */
 			if (h.nextElementSibling?.nodeName != 'INPUT') {
 				h.remove();
+				is_modified = true;
 				continue;
 			}
 
@@ -149,34 +150,34 @@ class EditableColorText {
 				const text = h.nextSibling;
 				text.remove();
 				h.parentNode.insertBefore(text, h);
+				is_modified = true;
 			}
 		}
 
-		/* normalize any html inputs into clear text */
-		const txt = this.code_el.textContent;
-		this.code_el.textContent = '';
 		/* also collapse sibling color choosers and leave only the last one */
-		this.code_el.textContent = txt.replace(/(?:\^[a-fA-F0-9]{6})+(\^[a-fA-F0-9]{6})/g, '$1');
+		const txt = this.code_el.textContent;
+		const normalized_txt = txt.replace(/(?:\^[a-fA-F0-9]{6})+(\^[a-fA-F0-9]{6})/g, '$1');
+		if (normalized_txt != txt) {
+			this.code_el.textContent = normalized_txt;
+			is_modified = true;
+		}
 
-		/* the raw text is ready so save it */
-		this.link_el.textContent = this.code_el.textContent;
-		this.link_el.oninput();
+		if (is_modified) {
+			this.reformat();
+		}
 
-		const new_len = this.link_el.textContent.length;
-		return new_len - prev_len;
+		if (this.initialized) {
+			this.link_el.textContent = this.code_el.textContent;
+			this.link_el.oninput();
+		}
 	}
 
-	format() {
+	reformat() {
 		if (this.in_format) {
 			return;
 		}
 
 		this.in_format = true;
-		let off = this.caret_off;
-
-		/* normalize to ensure we get clear, raw text inside code_el without any
-		 * html elements */
-		const diff = this.normalize();
 
 		const apply_color = (input) => {
 			const prev_in_format = this.in_format;
@@ -214,24 +215,18 @@ class EditableColorText {
 			input.oninput = () => apply_color(input);
 		}
 
-		if (this.caret_selection && off) {
+		if (this.caret_selection) {
 			try {
 				this.caret_selection.removeAllRanges();
-				if (diff == 1) {
-					this.caret_off += 1;
-					const r2 = this.create_range(off + 2);
-					this.caret_selection.addRange(r2);
-				} else if (diff == -1) {
-					if (this.last_key == 'Delete') {
-						off += 1;
-					} else {
-						this.caret_off -= 1;
-					}
-					const r2 = this.create_range(off);
-					this.caret_selection.addRange(r2);
-				}
+				this.caret_off = Math.min(new_len, this.caret_off + diff);
+				const r2 = this.create_range(this.caret_off);
+				this.caret_selection.addRange(r2);
 			} catch (e) { }
 		}
+
+		/* normalize again */
+		this.normalize();
+
 		this.in_format = false;
 	}
 }
@@ -489,7 +484,7 @@ class HTMLSugar {
 			const edit_el = el.querySelector('.edit');
 			const hints_el = el.querySelector('.hints');
 			const link_el = el.querySelector('.link');
-			
+
 			let hidden = false;
 			const try_hide = () => setTimeout(() => {
 				if (hidden) {
