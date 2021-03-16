@@ -604,6 +604,7 @@ textarea {
 	overflow-y: scroll;
 	overflow-x: hidden;
 	display: inline-block;
+	font-family: "Open Sans", sans-serif;
 }
 
 .pw-editable-color-text > code,
