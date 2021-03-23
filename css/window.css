@@ -51,6 +51,10 @@ table {
 	margin: -1px;
 }
 
+.window.minimized {
+	min-height: auto !important;
+}
+
 .window.resizable:not(.minimized) > .content:after {
 	font-family: FontAwesome;
 	font-size: 10pt;
