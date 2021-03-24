@@ -10,24 +10,30 @@
 	</div>
 </div>
 <div class="content flex-rows">
-	<div class="border flex-rows">
-		<div class="header flex-columns flex-all" style="margin-bottom: 5px;">
-			<span>Tasks given: ({@($tasks_out?.tasks || []).filter(t => t).length})</span>
-			<span>Tasks completed: ({@($tasks_in?.tasks || []).filter(t => t).length})</span>
-		</div>
+	<div class="border flex-rows" style="flex-direction: column-reverse;">
+		{assign in_count = 0}
+		{assign out_count = 0}
 		<div class="scroll flex-columns flex-all">
 			<div class="tasks">
 				{for tid of ($tasks_out?.tasks || [])}
 					{if !$tid}{continue}{/if}
+					{if !TaskWindow.is_valid_task_out(db.tasks[$tid], $npc)}{continue}{/if}
 					<div onclick="TaskWindow.open(\{ task: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
+					{$out_count++}
 				{/for}
 			</div>
 			<div class="tasks" style="padding-right: 5px;">
 				{for tid of ($tasks_in?.tasks || [])}
 					{if !$tid}{continue}{/if}
+					{if !TaskWindow.is_valid_task_in(db.tasks[$tid], $npc)}{continue}{/if}
 					<div onclick="TaskWindow.open(\{ task: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
+					{$in_count++}
 				{/for}
 			</div>
+		</div>
+		<div class="header flex-columns flex-all" style="margin-bottom: 5px;">
+			<span>Tasks given: ({@$out_count})</span>
+			<span>Tasks completed: ({@$in_count})</span>
 		</div>
 	</div>
 </div>

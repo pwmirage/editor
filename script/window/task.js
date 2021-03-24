@@ -943,12 +943,7 @@ class TaskWindow extends Window {
 						break;
 					}
 
-					const q = db.tasks[qid];
-					if (!q) {
-						break;
-					}
-
-					if (q.parent_quest) {
+					if (!TaskWindow.is_valid_task_out(db.tasks[qid], npc)) {
 						break;
 					}
 				}
@@ -1011,8 +1006,7 @@ class TaskWindow extends Window {
 						break;
 					}
 
-					const q = db.tasks[qid];
-					if (!q) {
+					if (!TaskWindow.is_valid_task_in(db.tasks[qid], npc)) {
 						break;
 					}
 				}
@@ -1048,6 +1042,39 @@ class TaskWindow extends Window {
 				}
 			}
 		}
+	}
+
+	static is_valid_task_out(q, npc) {
+		if (!q) {
+			return false;
+		}
+
+		if (q.parent_quest) {
+			return false;
+		}
+
+		if (q.start_by != 2) {
+			return false;
+		}
+
+		/* don't check start_npc -> it can be different */
+		return true;
+	}
+
+	static is_valid_task_in(q, npc) {
+		if (!q) {
+			return false;
+		}
+
+		if (q.success_method == 4) {
+			return false;
+		}
+
+		if (q.sub_quests?.length) {
+			return false;
+		}
+
+		return true;
 	}
 
 	close() {
