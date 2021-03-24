@@ -313,8 +313,8 @@
 					<div style="display: flex;">
 						<span style="margin-left: 8px; margin-top: 4px; margin-right: 8px; font-weight: bold;">Dialogue:</span>
 						<div class="tab_menu dialogue dialogue_tabs" style="width: 100%;">
-							<div data-id="initial" onclick="{serialize $win}.select_tab('dialogue', 'initial');" style="{if $task.parent_quest}display: none;{/if}">Initial</div>
-							<div data-id="notqualified" onclick="{serialize $win}.select_tab('dialogue', 'notqualified');" style="{if $task.parent_quest}display: none;{/if}">Requirements not met</div>
+							<div data-id="initial" onclick="{serialize $win}.select_tab('dialogue', 'initial');" style="{if $task.parent_quest || $task.start_by != 2}display: none;{/if}">Initial</div>
+							<div data-id="notqualified" onclick="{serialize $win}.select_tab('dialogue', 'notqualified');" style="{if $task.parent_quest || $task.success_method == 3 || $task.success_method == 0}display: none;{/if}">Requirements not met</div>
 							<div data-id="unfinished" onclick="{serialize $win}.select_tab('dialogue', 'unfinished');">In progress</div>
 							<div data-id="ready" onclick="{serialize $win}.select_tab('dialogue', 'ready');" style="{if $task.sub_quests?.length}display: none;{/if}">Ready to finish</div>
 							<div data-id="description" style="margin-left: auto;" onclick="{serialize $win}.select_tab('dialogue', 'description');">Description</div>
