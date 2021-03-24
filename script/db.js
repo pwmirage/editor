@@ -645,7 +645,7 @@ class DB {
 		for (const f in obj) {
 			if (f === '_db') continue;
 			if (typeof(obj[f]) === 'object') {
-				if (DB.is_obj_diff(obj[f], org[f])) {
+				if (typeof(org) !== 'object' || DB.is_obj_diff(obj[f], org[f])) {
 					return true;
 				}
 			} else {
