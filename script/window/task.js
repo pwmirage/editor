@@ -899,17 +899,7 @@ class TaskWindow extends Window {
 
 		const t = this.task;
 		db.open(t);
-
-		if (!this.task.award) {
-			this.task.award = {};
-		}
-		if (!this.task.award.item_groups) {
-			this.task.award.item_groups = [];
-		}
-		if (this.task.award.item_groups.length == 0) {
-			this.task.award.item_groups.push({});
-		}
-
+		set_obj_field(this.task, [ 'award', 'item_groups', 0 ], {});
 		this.task.award.item_groups[0].chosen_randomly = id == 1;
 		db.commit(t);
 
