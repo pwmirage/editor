@@ -19,13 +19,13 @@
 			<div class="tasks">
 				{for tid of ($tasks_out?.tasks || [])}
 					{if !$tid}{continue}{/if}
-					<div>{@$win.print_task_by_id($tid)}</div>
+					<div onclick="TaskWindow.open(\{ task: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
 				{/for}
 			</div>
 			<div class="tasks" style="padding-right: 5px;">
 				{for tid of ($tasks_in?.tasks || [])}
 					{if !$tid}{continue}{/if}
-					<div>{@$win.print_task_by_id($tid)}</div>
+					<div onclick="TaskWindow.open(\{ task: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
 				{/for}
 			</div>
 		</div>
@@ -70,6 +70,7 @@
 .tasks > * {
 	padding: 4px 6px;
 	background-color: #3a3a3a;
+	cursor: pointer;
 }
 </style>
 @@}
