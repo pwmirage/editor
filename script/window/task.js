@@ -576,6 +576,10 @@ class TaskWindow extends Window {
 			db.open(t);
 			t.success_method = id;
 			db.commit(t);
+		} else if (tab_type == 'sub_quest_activation') {
+			db.open(t);
+			t.subquest_activate_order = id;
+			db.commit(t);
 		} else if (tab_type == 'dialogue') {
 			this.tpl.reload('.dialogue-diagram');
 			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
