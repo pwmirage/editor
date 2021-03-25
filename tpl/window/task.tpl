@@ -212,22 +212,24 @@
 				{/if}
 			</div>
 
-			<div class="tab_menu_container" style="display: flex;">
-				<span class="header" style="font-weight: bold;">Start by:</span>
-				<div class="tab_menu start_by">
-					{for tab of TaskWindow.tabs_obtain_ways}
-						<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('start_by', {@$tab.id});"><input type="radio" name="tab_start_by">{@$tab.name}</label>
-					{/for}
+			{if !$task.parent_quest}
+				<div class="tab_menu_container" style="display: flex;">
+					<span class="header" style="font-weight: bold;">Start by:</span>
+					<div class="tab_menu start_by">
+						{for tab of TaskWindow.tabs_obtain_ways}
+							<label data-id="{@$tab.id}" onclick="{serialize $win}.select_tab('start_by', {@$tab.id});"><input type="radio" name="tab_start_by">{@$tab.name}</label>
+						{/for}
+					</div>
 				</div>
-			</div>
-			<div class="tabs start_by">
-				<div>{* None *}</div>
-				<div>{* Auto *}</div>
-				<div>NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'start_npc'" data-select="db.npcs" style="margin-top: 1px;" oninput="{serialize $win}.update_npc('start_npc', this);"></a>
+				<div class="tabs start_by">
+					<div>{* None *}</div>
+					<div>{* Auto *}</div>
+					<div>NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'start_npc'" data-select="db.npcs" style="margin-top: 1px;" oninput="{serialize $win}.update_npc('start_npc', this);"></a>
+					</div>
+					<div>Reach Location: (TODO)</div>
+					<div>{* By Death *}</div>
 				</div>
-				<div>Reach Location: (TODO)</div>
-				<div>{* By Death *}</div>
-			</div>
+			{/if}
 
 			<div class="tab_menu_container" style="display: flex;">
 				<span class="header" ><span style="font-weight: bold;">Goal:</span> {if $task.sub_quests}completed by subquest{/if}</span>
