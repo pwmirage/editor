@@ -35,8 +35,12 @@ const post = async (url, { data, is_json } = {}) => {
 	const form_data = new FormData();
 
 	form_data.append('t', SECURITY_TOKEN);
-	for (field in data) {
-		form_data.append(field, data[field]);
+	for (const field in data) {
+		if (typeof(data[field]) == 'object') {
+			Object.entries(data[field]).forEach((v, k) => form_data.append(`${field}[${v[0]}]`, v[1]));
+		} else {
+			form_data.append(field, data[field]);
+		}
 	}
 
 	return _fetch(url, { is_json, params: { method: 'POST', body: form_data }});
