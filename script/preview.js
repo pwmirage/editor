@@ -155,6 +155,16 @@ class PWPreview {
 
 	}
 
+	static async load_latest_db() {
+		if (!g_latest_db_promise) {
+			g_latest_db_promise = new Promise(async (resolve) => {
+				g_latest_db = await PWDB.new_db({ pid: 'latest', new: true, no_tag: true });
+				resolve();
+			});
+		}
+		await g_latest_db_promise;
+	}
+
 	static load_promise;
 }
 
@@ -206,13 +216,7 @@ class PWPreviewElement extends HTMLElement {
 	}
 
 	async connectedCallback() {
-		if (!g_latest_db_promise) {
-			g_latest_db_promise = new Promise(async (resolve) => {
-				g_latest_db = await PWDB.new_db({ pid: 'latest', new: true, no_tag: true });
-				resolve();
-			});
-		}
-		await g_latest_db_promise;
+		await PWPreview.load_latest_db();
 
 		let preview_db;
 		if (this.dataset.hash) {
