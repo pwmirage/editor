@@ -36,7 +36,7 @@ const post = async (url, { data, is_json } = {}) => {
 
 	form_data.append('t', SECURITY_TOKEN);
 	for (const field in data) {
-		if (typeof(data[field]) == 'object') {
+		if (typeof(data[field]) == 'object' && !(data[field] instanceof File)) {
 			Object.entries(data[field]).forEach((v, k) => form_data.append(`${field}[${v[0]}]`, v[1]));
 		} else {
 			form_data.append(field, data[field]);
