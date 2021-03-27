@@ -33,6 +33,13 @@ function get_obj_diff(obj, prev) {
 		}
 	}
 
+	if (Array.isArray(obj) && Array.isArray(prev) && obj.length < prev.length) {
+		/* include removed array entries */
+		for (let i = obj.length; i < prev.length; i++) {
+			diff[i] = DB.force_null;
+		}
+	}
+
 	/* just check if it has any fields, return null otherwise */
 	for (const field in diff) {
 		return diff;
@@ -53,6 +60,7 @@ function dump(data, spacing = 1, custom_fn) {
 		if (k === '_db') return { type: v.obj._db.type };
 		/* dont include any nulls, undefined results in no output at all */
 		if (v === null) return undefined;
+		if (v === DB.force_null) return null;
 		/* stringify javascript sets */
 		if (typeof v === 'object' && v instanceof Set) {
 			force_array = false;
@@ -83,6 +91,10 @@ class DB {
 		 *  array name => array metadata
 		 */
 		this.type_info = {};
+
+		if (!DB.force_null) {
+			DB.force_null = Symbol();
+		}
 
 		/* 2d array of changesets. First level is the changeset generation, second level is just
 		 * a collection. This is stored specifically for dumping the changes to JSON easily. */
@@ -311,7 +323,7 @@ class DB {
 							/* check if there's a difference (excluding any mix
 							 * of 0s, empty strings, nulls, undefines) */
 							const v = obj[f] || 0;
-							const prev = org ? (org[f] || 0) : 0;
+							const prev = org && org[f] != DB.force_null ? (org[f] || 0) : 0;
 							/* match (!org) as well -> there may be a value at
 							 * earlier changeset different than 0 and we do want
 							 * to diff it then */
@@ -534,16 +546,30 @@ class DB {
 			return true;
 		}
 
+		let deleted = false;
 		for (const f in diff) {
 			if (f === '_db') continue;
 			if (typeof(diff[f]) === 'object') {
-				if (!obj.hasOwnProperty(f) || obj[f] === undefined) {
+				if (!obj.hasOwnProperty(f) || obj[f] === undefined || obj[f] === DB.force_null) {
 					/* diff is always an object, so can't use Array.isArray() */
 					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
-				DB.apply_diff(obj[f], diff[f]);
+				if (diff[f] == null) {
+					delete obj[f];
+					deleted = true;
+				} else {
+					DB.apply_diff(obj[f], diff[f]);
+				}
 			} else {
 				obj[f] = diff[f];
+
+			}
+		}
+
+		if (deleted && Array.isArray(obj)) {
+			/* deleting from array leaves out an "empty" entry, clean it up */
+			while (obj.length && obj[obj.length - 1] === undefined) {
+				obj.length--;
 			}
 		}
 	}
@@ -651,7 +677,7 @@ class DB {
 			} else {
 				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
 				const v = obj[f] || 0;
-				const prev = org ? (org[f] || 0) : 0;
+				const prev = org && org[f] != DB.force_null ? (org[f] || 0) : 0;
 				if (v != prev) {
 					return true;
 				}
