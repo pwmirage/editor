@@ -120,6 +120,10 @@ class RMenuWindow extends Window {
 			this.onclose = resolve;
 		});
 
+		if (this.selected == NaN) {
+			return -1;
+		}
+
 		return this.selected ?? -1;
 
 	}
