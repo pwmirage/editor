@@ -395,6 +395,7 @@ class TaskWindow extends Window {
 								if (this.sel_opts.dialogue == 'initial') {
 									functions = init_id_array([
 										TaskWindow.dialogue_choice_opts[0x80000006], /* start q */
+										TaskWindow.dialogue_choice_opts[0x80000007], /* finish q */
 										TaskWindow.dialogue_choice_opts[0x80000011], /* previous dialogue */
 										TaskWindow.dialogue_choice_opts[0x80000012], /* exit dialogue */
 									]);
