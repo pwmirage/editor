@@ -494,7 +494,11 @@
 								{if !$item?.id}{continue}{/if}
 								<div class="item-w-cnt">
 									<span class="item" data-link-item="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('failure_award');" tabindex="0"></span>
-									<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+									<div style="display: flex; flex-direction: column; row-gap: 5px; padding: 0 4px;">
+										<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+										<span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
+									</div>
+
 								</div>
 							{/for}
 							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('failure_award');"></span>
