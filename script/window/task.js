@@ -896,6 +896,16 @@ class TaskWindow extends Window {
 		}
 	}
 
+	fix_award_probability(group_idx) {
+		db.open(this.task);
+		for (let i = 0; i < 4; i++) {
+			if (get_obj_field(this.task, [ 'award', 'item_groups', group_idx, 'items', i, 'id' ])) {
+				this.task.award.item_groups[group_idx].items[i].probability = 1.0;
+			}
+		}
+		db.commit(this.task);
+	}
+
 	select_award_item_type(id, auto) {
 		if (id < 0) {
 			return;
@@ -909,6 +919,10 @@ class TaskWindow extends Window {
 
 		this.award_item_type = id;
 		this.tpl.reload('#award_items');
+
+		if (id == 2) {
+			this.fix_award_probability(0);
+		}
 	}
 
 	update_npc(type, el) {

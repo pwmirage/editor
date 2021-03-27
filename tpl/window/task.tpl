@@ -430,7 +430,7 @@
 											{$group_idx++}
 											<span>{@$group_idx + 1}.</span>
 											{for idx = 0; idx < 4; idx++}
-												<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', {@$group_idx}, 'items', {@$idx}, 'id'" data-default-id="0" tabindex="0"></span>
+												<span class="item" data-link-item="{serialize $task} => 'award', 'item_groups', {@$group_idx}, 'items', {@$idx}, 'id'" data-default-id="0" oninput="{serialize $win}.fix_award_probability({@$group_idx});" tabindex="0"></span>
 											{/for}
 											<div style="flex: 1;"></div>
 											<a class="remove-btn" onclick="{serialize $win}.remove_award_item_row({@$group_idx});"><i class="close fa fa-minus-circle"></i></a>
