@@ -270,6 +270,12 @@ class PWDB {
 		}
 
 		db.register_commit_cb((obj, diff, prev_vals) => {
+			if (diff.name && diff.name.includes('\n')) {
+				/* no newlines in objects' names */
+				obj.name = diff.name = diff.name.replace(/[\n\r]/g, '');
+
+			}
+
 			if (obj._db.type != 'metadata' && !obj._db.project_initial_state) {
 				const state = DB.clone_obj(obj._db.changesets[0]);
 				for (const c of obj._db.changesets) {
