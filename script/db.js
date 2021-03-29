@@ -469,7 +469,7 @@ class DB {
 	}
 
 	/* dump changesets from the latest generation to JSON -> array of changesets */
-	dump_last(spacing = 1, custom_fn) {
+	dump_last({ spacing = 1, custom_fn } = {}) {
 		return dump(this.changelog[this.changelog.length - 1], spacing, custom_fn);
 	}
 

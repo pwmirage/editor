@@ -10,7 +10,7 @@ class PWDB {
 			}
 
 			const project = db.metadata[1];
-			const dump = db.dump_last(0);
+			const dump = db.dump_last({ spacing: 0 });
 			PWDB.has_unsaved_changes = false;
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 		};
@@ -329,7 +329,7 @@ class PWDB {
 			return false;
 		}
 
-		const data = db.dump_last(0);
+		const data = db.dump_last({ spacing: 0 });
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
 
 		if (data == '[]') {
@@ -347,7 +347,7 @@ class PWDB {
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
-			const dump = db.dump_last(0);
+			const dump = db.dump_last({ spacing: 0 });
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 			return false;
 		}

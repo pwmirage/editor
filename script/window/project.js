@@ -55,7 +55,7 @@ class CreateProjectWindow extends Window {
 
 		if (this.shadow.querySelector('#transfer-changes').checked) {
 			const cur_project = db.metadata[1];
-			const data = db.dump_last(0);
+			const data = db.dump_last({ spacing: 0 });
 			localStorage.removeItem('pwdb_lchangeset_' + cur_project.pid);
 
 			if (data != '[]') {
@@ -94,7 +94,7 @@ class CreateProjectWindow extends Window {
 				});
 				if (!req.ok) {
 					Loading.notify('error', 'Project created, but failed to transfer the changes: ' + (req.data.err || 'Unknown error'));
-					const dump = db.dump_last(0);
+					const dump = db.dump_last({ spacing: 0 });
 					localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 				}
 			}
