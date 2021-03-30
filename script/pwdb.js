@@ -229,7 +229,7 @@ class PWDB {
 			Loading.hide_tag(spawners_tag);
 		}
 
-		db.project_changelog_start_gen = 0;
+		db.project_changelog_start_gen = 1;
 		let project_changeset = null;
 		if (!args.new) {
 			if (project.pid > 0) {
@@ -245,7 +245,7 @@ class PWDB {
 						db.new_id_start = 0x80000000 + pid * 0x100000;
 						db.load(changesets[i], { join_changesets: true });
 					}
-					db.project_changelog_start_gen = db.changelog.length;
+					db.project_changelog_start_gen = db.changelog.length - 1;
 
 					for (const changeset of db.changelog) {
 						for (const c of changeset) {
@@ -304,8 +304,8 @@ class PWDB {
 			PWDB.has_unsaved_changes = true;
 		});
 
-		PWDB.last_saved_changeset = db.changelog.length;
 		db.new_id_start = 0x80000000 + project.pid * 0x100000;
+
 		try {
 			if (project_changeset) {
 				db.load(project_changeset);
@@ -316,10 +316,14 @@ class PWDB {
 					const changeset = JSON.parse(changeset_str);
 					db.load(changeset);
 				}
+			} else {
+				db.new_generation();
 			}
 		} catch (e) {
 			console.error(e);
 		}
+
+		PWDB.last_saved_changeset = db.changelog.length;
 
 		return db;
 	}
@@ -355,7 +359,7 @@ class PWDB {
 			return false;
 		}
 
-		PWDB.last_saved_changeset = db.changelog.length;
+		PWDB.last_saved_changeset = db.changelog.length - 1;
 		db.new_generation();
 		if (show_tag) {
 			notify('success', 'Saved');

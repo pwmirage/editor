@@ -14,8 +14,12 @@ class DB {
 		}
 
 		/* 2d array of changesets. First level is the changeset generation, second level is just
-		 * a collection. This is stored specifically for dumping the changes to JSON easily. */
+		 * a collection. This is stored specifically for dumping the changes to JSON easily.
+		 * The first changelog entry is always empty for convenience. Generation 0 is always the
+		 * initial object version, generation 1 is the first diff, and with this dummy changeset
+		 * at index 0, the generation 1 will be at index 1.*/
 		this.changelog = [
+			new Set(),
 			new Set(),
 		];
 
