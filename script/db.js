@@ -469,8 +469,18 @@ class DB {
 	}
 
 	/* dump changesets from the latest generation to JSON -> array of changesets */
-	dump_last({ spacing = 1, custom_fn } = {}) {
-		return dump(this.changelog[this.changelog.length - 1], spacing, custom_fn);
+	dump_last(dump_start_gen, { spacing = 1, custom_fn } = {}) {
+		let ret = '[';
+
+		for (let i = dump_start_gen; i < this.changelog.length; i++) {
+			ret += dump(this.changelog[i], spacing, custom_fn);
+			if (i != this.changelog.length - 1) {
+				ret += ',';
+			}
+		}
+
+		ret += ']';
+		return ret;
 	}
 
 	/* dump all changesets to JSON as 2d array */

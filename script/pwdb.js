@@ -10,7 +10,7 @@ class PWDB {
 			}
 
 			const project = db.metadata[1];
-			const dump = db.dump_last({ spacing: 0 });
+			const dump = db.dump_last(PWDB.last_saved_changeset, { spacing: 0 });
 			PWDB.has_unsaved_changes = false;
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 		};
@@ -58,6 +58,7 @@ class PWDB {
 		 * (and not its dependencies) */
 		PWDB.tag_categories = {};
 		PWDB.tags = {};
+		PWDB.last_saved_changeset = 0;
 
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
@@ -303,6 +304,7 @@ class PWDB {
 			PWDB.has_unsaved_changes = true;
 		});
 
+		PWDB.last_saved_changeset = db.changelog.length;
 		db.new_id_start = 0x80000000 + project.pid * 0x100000;
 		try {
 			if (project_changeset) {
@@ -329,10 +331,11 @@ class PWDB {
 			return false;
 		}
 
-		const data = db.dump_last({ spacing: 0 });
+		const data = db.dump_last(PWDB.last_saved_changeset, { spacing: 0 });
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
 
-		if (data == '[]') {
+		/* check if empty. <5 rules out [[]] and such */
+		if (data.length < 5) {
 			if (show_tag) {
 				notify('success', 'Saved');
 			}
@@ -347,11 +350,12 @@ class PWDB {
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
-			const dump = db.dump_last({ spacing: 0 });
+			const dump = db.dump_last(PWDB.last_saved_changeset, { spacing: 0 });
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 			return false;
 		}
 
+		PWDB.last_saved_changeset = db.changelog.length;
 		db.new_generation();
 		if (show_tag) {
 			notify('success', 'Saved');
