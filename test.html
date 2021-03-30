@@ -11,13 +11,13 @@
 			.failed { background-color: red; }
 		</style>
 		<script>
-			const marker = (passed) => {
-				return passed ? '<span class="result passed">PASSED</span>' : '<span class="result failed">FAILED</span>';
+			const marker = (result) => {
+				return result == 0 ? '<span class="result passed">PASSED</span>' : '<span class="result failed">FAILED<br>' + result + '</span>';
 			}
 			window.onload = () => {
-				for (const t in window._testDBPass) {
-					const passed = window._testDBPass[t];
-					document.querySelector('body').innerHTML += ('<p>' + t + ' test: ' + marker(passed) + '</p');
+				for (const t in g_testresults) {
+					const result = g_testresults[t];
+					document.querySelector('body').innerHTML += ('<p>' + t + ': ' + marker(result) + '</p');
 				}
 
 			};
