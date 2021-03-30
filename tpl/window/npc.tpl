@@ -2,7 +2,7 @@
 <div class="window" style="width: 316px;">
 <div class="header">
 	<span>
-		Crafts: {@$crafts.name || ""} {@serialize_db_id($crafts.id)}
+		Crafts: {@$crafts.name || ""} {@DB.serialize_id($crafts.id)}
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -41,7 +41,7 @@
 			{assign recipe = db.recipes[$recipe_id || -1] || \{ id: $recipe_id \}}
 			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 4px; margin: 0 -12px; margin-bottom: 5px;">
 				{if $recipe_id}
-					<span style="align-self: center;">Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}</span>
+					<span style="align-self: center;">Recipe {@$recipe.name || ""} {@DB.serialize_id($recipe.id || 0)}</span>
 				{else}
 					<span style="align-self: center;">Recipe None (empty)</span>
 				{/if}
@@ -241,10 +241,10 @@ span.tabname.selected {
 <div class="header">
 	<span>
 		{if !$npc.id && $npc._db.base}
-			{@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@serialize_db_id($npc._db.base)}
+			{@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@DB.serialize_id($npc._db.base)}
 		{else}
 			{if $npc._db.base}<span style="font-weight: bold;">(f) </span>{/if}
-			{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} {@serialize_db_id($npc.id)}
+			{@($npc?.id ? (($npc?.name ?? "(unknown)") || "(unnamed)") : "(none)")} {@DB.serialize_id($npc.id)}
 		{/if}
 	</span>
 	<div class="menu">

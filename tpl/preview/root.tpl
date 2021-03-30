@@ -19,7 +19,7 @@
 
 		<div onclick="">
 			<img src="{@PWPreview.get_obj_img($db, $obj)}">
-			<span>{@$obj.name || PWPreview.get_obj_type(obj).name } {@serialize_db_id($obj.id)}</span>
+			<span>{@$obj.name || PWPreview.get_obj_type(obj).name } {@DB.serialize_id($obj.id)}</span>
 		</div>
 	{/for}
 	{if $objects.length == 0}

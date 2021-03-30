@@ -312,7 +312,7 @@ class PWMap {
 			if (diff.name !== undefined && was_modified) {
 				const mod_el = changed_objects_map.get(obj)
 				mod_el.children[1].textContent =
-					(obj.name || mod_el.dataset.type_name) + ' ' + serialize_db_id(obj.id);
+					(obj.name || mod_el.dataset.type_name) + ' ' + DB.serialize_id(obj.id);
 			}
 
 			if ((diff.targets !== undefined || diff.icon !== undefined || diff.type !== undefined) && was_modified) {
@@ -328,7 +328,7 @@ class PWMap {
 				let { name, open_fn } = PWPreview.get_obj_type(obj);
 				img.src = PWPreview.get_obj_img(db, obj);
 
-				span.textContent = (obj.name || name) + ' ' + serialize_db_id(obj.id);
+				span.textContent = (obj.name || name) + ' ' + DB.serialize_id(obj.id);
 				el.appendChild(img);
 				el.appendChild(span);
 				el.onclick = open_fn;
@@ -563,7 +563,7 @@ class PWMap {
 				const get_name = (spawner) => {
 					const type = spawner.groups?.[0]?.type;
 					const obj = db.npcs[type] || db.monsters[type] || db.mines[type];
-					return (spawner.name || obj?.name) + ' ' + serialize_db_id(spawner.id);
+					return (spawner.name || obj?.name) + ' ' + DB.serialize_id(spawner.id);
 				};
 				const entries = spawners.map(s => ({ name: get_name(s), id: idx++ }));
 				const x = e.clientX - Window.bounds.left;

@@ -36,9 +36,9 @@
 							{assign spawned_id = $obj.groups?.[0]?.type || 0}
 							{assign typename = $obj.type == 'npc' ? 'NPC' : ($obj.type == 'resource' ? 'Resource' : 'Monster')}
 							{assign spawned = db.npcs[$spawned_id] || db.monsters[$spawned_id] || db.mines[$spawned_id]}
-							<span>{@$typename} Spawner: {@$obj.name || $spawned?.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
+							<span>{@$typename} Spawner: {@$obj.name || $spawned?.name || ''} {@DB.serialize_id($obj.id)} {@$win.used_by($obj)}</span>
 						{else}
-							<span>{@PWDB.get_type_name($obj._db.type)}: {@$obj.name || ''} {@serialize_db_id($obj.id)} {@$win.used_by($obj)}</span>
+							<span>{@PWDB.get_type_name($obj._db.type)}: {@$obj.name || ''} {@DB.serialize_id($obj.id)} {@$win.used_by($obj)}</span>
 						{/if}
 					</div>
 					<div>
@@ -200,8 +200,8 @@
 										{assign pspawned_id = $prev.groups?.[$groupidx]?.type}
 										{assign pspawned = db.npcs[$pspawned_id] || db.monsters[$pspawned_id] || db.mines[$pspawned_id]}
 										{if $obj.type != 'npc'}<span class="header">Group {@(parseInt($groupidx) + 1)}.</span>{/if}
-										{if $pspawned}<span class="minus">{@$pspawned?.name || '(unnamed)'} {@serialize_db_id($pspawned_id)}</span>{/if}
-										<span class="plus">{@$dspawned?.name || '(unnamed)'} {@serialize_db_id($dspawned_id)}</span>
+										{if $pspawned}<span class="minus">{@$pspawned?.name || '(unnamed)'} {@DB.serialize_id($pspawned_id)}</span>{/if}
+										<span class="plus">{@$dspawned?.name || '(unnamed)'} {@DB.serialize_id($dspawned_id)}</span>
 									</div>
 								{/if}
 							</div>
@@ -234,7 +234,7 @@
 				<div style="font-size: 13px;" onclick="{serialize $type}.open_fn();">
 					<div class="header">
 						<img src="{@PWPreview.get_obj_img(db, $obj)}">
-						<span>{@$obj.name || $type.name } {@serialize_db_id($obj.id)}</span>
+						<span>{@$obj.name || $type.name } {@DB.serialize_id($obj.id)}</span>
 					</div>
 
 					{@PWPreview.diff(\{ db, obj: $obj, diff: $diff, prev: $obj._db.project_initial_state \})}

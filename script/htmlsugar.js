@@ -823,7 +823,7 @@ class HTMLSugar {
 				const obj = db.items[id || 0];
 				HTMLSugar.open_edit_rmenu(el,
 					obj, 'items', {
-					pick_win_title: 'Pick new Item for ' + (link.obj.name || link.obj._db.type) + ' ' + serialize_db_id(link.obj.id),
+					pick_win_title: 'Pick new Item for ' + (link.obj.name || link.obj._db.type) + ' ' + DB.serialize_id(link.obj.id),
 					update_obj_fn: (new_obj) => {
 						db.open(link.obj);
 						set_obj_field(link.obj, link.path, new_obj?.id || 0);
@@ -834,7 +834,7 @@ class HTMLSugar {
 						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
 					},
 					usage_name_fn: (obj) => {
-						return (obj.name || '') + ' ' + serialize_db_id(obj.id);
+						return (obj.name || '') + ' ' + DB.serialize_id(obj.id);
 					}
 				});
 			} else if (e.which == 3) {
@@ -872,7 +872,7 @@ class HTMLSugar {
 			const id = get_obj_field(link.obj, link.path);
 			const obj = db[type][id];
 			if (obj) {
-				el.textContent = (obj.name || '') + ' ' + serialize_db_id(obj.id);
+				el.textContent = (obj.name || '') + ' ' + DB.serialize_id(obj.id);
 			} else {
 				el.textContent = '(none)';
 			}
@@ -891,7 +891,7 @@ class HTMLSugar {
 				const obj = db[type][id || 0];
 				HTMLSugar.open_edit_rmenu(el,
 					obj, type, {
-					pick_win_title: 'Pick new ' + obj_details.name + 'for ' + (link.obj.name || link.obj._db.type) + ' ' + serialize_db_id(link.obj.id),
+					pick_win_title: 'Pick new ' + obj_details.name + 'for ' + (link.obj.name || link.obj._db.type) + ' ' + DB.serialize_id(link.obj.id),
 					update_obj_fn: (new_obj) => {
 						el._mg_prev_value = get_obj_field(link.obj, link.path);
 						db.open(link.obj);
@@ -904,7 +904,7 @@ class HTMLSugar {
 						obj_details.open_fn();
 					},
 					usage_name_fn: (obj) => {
-						return (obj.name || '') + ' ' + serialize_db_id(obj.id);
+						return (obj.name || '') + ' ' + DB.serialize_id(obj.id);
 					}
 				});
 			} else if (e.which == 3) {
@@ -930,7 +930,7 @@ class HTMLSugar {
 			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
 			{ id: 25, name: 'Clear', disabled: !obj},
 			{ name: '...', visible: false, children: [
-				{ name: 'Base: ' + (base ? (base.name + ' ' + serialize_db_id(base.id)) : '(none)') },
+				{ name: 'Base: ' + (base ? (base.name + ' ' + DB.serialize_id(base.id)) : '(none)') },
 				{ id: 21, name: 'Rebase', disabled: !obj },
 				{ id: 22, name: 'Fork & Edit', disabled: !obj },
 				{ id: 23, name: 'Detach from base', disabled: !base },
@@ -953,7 +953,7 @@ class HTMLSugar {
 					win = await ItemChooserWindow.open({ });
 				} else {
 					const name_fn = (obj) => {
-						const ret = (obj.name || '(unnamed)') + ' ' + serialize_db_id(obj.id);
+						const ret = (obj.name || '(unnamed)') + ' ' + DB.serialize_id(obj.id);
 						if (obj_type == 'recipes') {
 							return '<div style="overflow: auto;"><img style="float: left; margin-right: 2px; width:32px; height: 32px;" src="' + NPCCraftsWindow.get_recipe_icon(obj.id) + '"><span>' + ret + '</span></div>';
 						}
@@ -986,7 +986,7 @@ class HTMLSugar {
 				break;
 			}
 			case 5: { /* find usages */
-				const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + serialize_db_id(obj.id), items: usages, width: 176, name_fn: usage_name_fn });
+				const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + DB.serialize_id(obj.id), items: usages, width: 176, name_fn: usage_name_fn });
 
 				break;
 			}

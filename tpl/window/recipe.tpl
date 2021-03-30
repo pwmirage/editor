@@ -4,7 +4,7 @@
 <div class="window resizable" style="position: static; width: 312px;">
 <div class="header">
 	<span>
-		Recipe {@$recipe.name || ""} {@serialize_db_id($recipe.id || 0)}
+		Recipe {@$recipe.name || ""} {@DB.serialize_id($recipe.id || 0)}
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>

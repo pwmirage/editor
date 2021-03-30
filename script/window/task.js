@@ -33,11 +33,11 @@ class TasksByNPCWindow extends Window {
 	print_task_by_id(tid) {
 		const task = db.tasks[tid];
 		if (!task) {
-			return '(invalid) ' + serialize_db_id(tid);
+			return '(invalid) ' + DB.serialize_id(tid);
 		}
 
 		const name = task?.name || '(unnamed)';
-		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + serialize_db_id(tid);
+		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + DB.serialize_id(tid);
 	}
 }
 
@@ -436,7 +436,7 @@ class TaskWindow extends Window {
 					if (input?.tagName == 'INPUT') {
 						input.oninput = (e) => {
 							let id = input.value;
-							const parsed_id = parse_db_id(id);
+							const parsed_id = DB.parse_id(id);
 							if (parsed_id != NaN) {
 								id = parsed_id;
 							}
@@ -494,11 +494,11 @@ class TaskWindow extends Window {
 	static print_task_by_id(tid) {
 		const task = db.tasks[tid];
 		if (!task) {
-			return '(invalid) ' + serialize_db_id(tid);
+			return '(invalid) ' + DB.serialize_id(tid);
 		}
 
 		const name = task?.name || '(unnamed)';
-		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + serialize_db_id(tid);
+		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + DB.serialize_id(tid);
 	}
 
 	add_quest(type) {
@@ -584,7 +584,7 @@ class TaskWindow extends Window {
 			this.tpl.reload('.dialogue-diagram');
 			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
 			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
-			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + serialize_db_id(npc_id)) : '(no npc)';
+			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + DB.serialize_id(npc_id)) : '(no npc)';
 
 			this.shadow.querySelector('.dialogue-diagram li.start > span').style.display = id == 'description' ? 'none' : '';
 		}
@@ -735,7 +735,7 @@ class TaskWindow extends Window {
 			const sub = db.tasks[sub_id];
 
 			ret += '<li class="task" data-id="' + sub_id + '" data-idx="' + idx + '">';
-			ret += '<a class="taskbtn">' + TaskWindow.print_task_name(sub.name) + ' ' + serialize_db_id(sub.id) + '</a>'
+			ret += '<a class="taskbtn">' + TaskWindow.print_task_name(sub.name) + ' ' + DB.serialize_id(sub.id) + '</a>'
 			ret += TaskWindow.print_subquests(sub);
 			ret += '</li>';
 
@@ -776,7 +776,7 @@ class TaskWindow extends Window {
 					const ctype = TaskWindow.dialogue_choice_opts[c.id];
 					ret += '<li class="choice" data-id="' + idx + '"><span data-option="true" contentEditable="true">' + c.text + '</span><br><span>' + ctype.name;
 					if (ctype.param) {
-						ret += ': &nbsp;<input type="text" value="' + (serialize_db_id(c.param) || c.param) + '">';
+						ret += ': &nbsp;<input type="text" value="' + (DB.serialize_id(c.param) || c.param) + '">';
 					}
 					ret += '</span></li>';
 				}
@@ -974,7 +974,7 @@ class TaskWindow extends Window {
 					db.commit(this.task);
 					el._mg_update_label(true);
 
-					MessageWindow.open({ 'title': 'Failed to set starting NPC ' + (npc.name || '') + ' ' + serialize_db_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can give (32). Please free some, then try again' });
+					MessageWindow.open({ 'title': 'Failed to set starting NPC ' + (npc.name || '') + ' ' + DB.serialize_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can give (32). Please free some, then try again' });
 					return;
 				}
 
@@ -1037,7 +1037,7 @@ class TaskWindow extends Window {
 					db.commit(this.task);
 					el._mg_update_label(true);
 
-					MessageWindow.open({ 'title': 'Failed to set finish NPC ' + (npc.name || '') + ' ' + serialize_db_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can complete (32). Please free some, then try again' });
+					MessageWindow.open({ 'title': 'Failed to set finish NPC ' + (npc.name || '') + ' ' + DB.serialize_id(npc.id), msg: 'This NPC has already reached the max. number of quests it can complete (32). Please free some, then try again' });
 					return;
 				}
 

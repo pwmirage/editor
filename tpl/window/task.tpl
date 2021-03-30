@@ -2,7 +2,7 @@
 
 <div class="window resizable" style="width: 580px; min-height: 473px; height: 473px;">
 <div class="header">
-	<span>Tasks related to NPC {@$npc.name} {@serialize_db_id($npc.id)}</span>
+	<span>Tasks related to NPC {@$npc.name} {@DB.serialize_id($npc.id)}</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -86,7 +86,7 @@
 
 <div class="window resizable" style="width: 1050px; min-height: 800px; height: 800px;">
 <div class="header">
-	<span>Task: {@($task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@serialize_db_id($task.id)}</span>
+	<span>Task: {@($task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@DB.serialize_id($task.id)}</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -126,7 +126,7 @@
 		<div class="tasks flex-rows">
 			<div class="header">Next quests:</div>
 			{for next_task of ($win.next_tasks || [])}
-				<div class="task">{@TaskWindow.print_task_name($next_task.name)} {@serialize_db_id($next_task.id)}</div>
+				<div class="task">{@TaskWindow.print_task_name($next_task.name)} {@DB.serialize_id($next_task.id)}</div>
 			{/for}
 		</div>
 	</div>
@@ -135,7 +135,7 @@
 		<div class="left tasks" style="padding: 3px; min-width: 200px;">
 			<ul class="tree">
 				<li id="root_task" data-id="{@$root_task.id}" class="task root" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.select_subquest(event)">
-					<a class="taskbtn">{@TaskWindow.print_task_name($root_task.name)} {@serialize_db_id($root_task.id)}</a>
+					<a class="taskbtn">{@TaskWindow.print_task_name($root_task.name)} {@DB.serialize_id($root_task.id)}</a>
 					{@TaskWindow.print_subquests($root_task)}
 				</li>
 			</ul>

@@ -60,7 +60,7 @@ class RecipeWindow extends Window {
 			sleep(150).then(() => {
 				HTMLSugar.open_edit_rmenu(el,
 					obj, 'items', {
-					pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + serialize_db_id(recipe.id),
+					pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + DB.serialize_id(recipe.id),
 					update_obj_fn: (new_obj) => {
 						db.open(recipe);
 
@@ -82,7 +82,7 @@ class RecipeWindow extends Window {
 						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
 					},
 					usage_name_fn: (item) => {
-						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
+						return item.name + ': ' + (item.name || '') + ' ' + DB.serialize_id(item.id);
 					}
 				});
 			});

@@ -5,7 +5,7 @@
 <div class="window resizable" style="{if !$edit}display: none;{/if}">
 <div class="header">
 	<span>
-		Item {@$item.name || ""} {@serialize_db_id($item.id || 0)}
+		Item {@$item.name || ""} {@DB.serialize_id($item.id || 0)}
 	</span>
 	<div class="menu">
 		<i class="minimize fa" aria-hidden="true"></i>

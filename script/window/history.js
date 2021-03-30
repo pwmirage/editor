@@ -96,7 +96,7 @@ class HistoryWindow extends Window {
 		let ret = '';
 
 		if (usages.length > 0) {
-			ret += '(used by ' + (usages[0].name || 'NPC') + ' ' + serialize_db_id(usages[0].id);
+			ret += '(used by ' + (usages[0].name || 'NPC') + ' ' + DB.serialize_id(usages[0].id);
 			if (usages.length > 1) {
 				ret += ' and ' + (usages.length - 1) + ' more';
 			}

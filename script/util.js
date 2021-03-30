@@ -160,28 +160,6 @@ const align_dom = (elements, interval) => {
 	}
 }
 
-const serialize_db_id = (id) => {
-	const p = id < 0x80000000 ? 0 : Math.floor((id - 0x80000000) / 0x100000);
-	const i = id % 0x100000;
-
-	return '#' + p + ':' + i;
-}
-
-const parse_db_id = (id) => {
-	const id_parts = id.split(':');
-	let ret;
-
-	if (id_parts.length == 1) {
-		ret = parseInt(id_parts[0]);
-	} else {
-		const pid = parseInt(id_parts[0].charAt(0) == '#' ? id_parts[0].substring(1) : id_parts[0]);
-		const off = parseInt(id_parts[1]);
-		ret = (pid > 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
-	}
-
-	return ret;
-};
-
 const init_id_array = (arr, fallback) => {
 	const obj_map = new Map();
 	const ret = new Proxy(obj_map, {

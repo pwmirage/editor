@@ -98,7 +98,7 @@
 <div class="window resizable" style="width: 300px; min-height: 100px; height: 170px;">
 <div class="header">
 	<span>
-		<span>Change rotation of spawner <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span></span>
+		<span>Change rotation of spawner <span class="id">&nbsp;{@DB.serialize_id($spawner.id)}</span></span>
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -137,7 +137,7 @@
 <div class="window resizable" style="width: 300px; min-height: 100px; height: 170px;">
 <div class="header">
 	<span>
-		<span>Change position of spawner <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span></span>
+		<span>Change position of spawner <span class="id">&nbsp;{@DB.serialize_id($spawner.id)}</span></span>
 	</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -191,7 +191,7 @@
 			{else if $spawner.type == 'npc'}NPC
 			{else}Monster{/if}
 			&nbsp;Spawner 
-		</span> <span class="id">&nbsp;{@serialize_db_id($spawner.id)}</span>
+		</span> <span class="id">&nbsp;{@DB.serialize_id($spawner.id)}</span>
 	</span>
 	<div class="menu">
 		<i class="details fa fa-ellipsis-v"></i>
@@ -243,7 +243,7 @@
 				{assign obj = db.npcs[$group.type] || db.monsters[$group.type]}
 			{/if}
 			<div class="group-row flex-columns">
-				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type && $spawner.type != 'npc'} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} {@serialize_db_id($group.type)}</div>
+				<div>{@$idx + 1}. {@($obj?.id ? (($obj?.name ?? "(unknown)") || "(unnamed)") : "(none)")}{if $group.type && $spawner.type != 'npc'} <span style="font-size: 12px; vertical-align: bottom;">x{@$group.count || 0}</span>{/if} {@DB.serialize_id($group.type)}</div>
 				<div style="flex: 1;"></div>
 				<a class="button no-break menu-triangle" onmousedown="{serialize $win}.open_group(this, {@$idx}, event);" oncontextmenu="event.preventDefault();" style="width: 13px; text-align: center;"><i class="fa fa-pencil-square-o"></i></a>
 				<a class="group-hover button no-break" onmouseenter="{serialize $win}.info_group(this, {@$idx});" onclick="{serialize $win}.select_group(this.parentNode); event.stopPropagation();" style="margin-right: -10px;"><i class="fa fa-asterisk"></i></a>

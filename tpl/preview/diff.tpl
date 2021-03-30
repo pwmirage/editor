@@ -147,8 +147,8 @@
 					{assign pspawned_id = $prev.groups?.[$groupidx]?.type}
 					{assign pspawned = db.npcs[$pspawned_id] || db.monsters[$pspawned_id] || db.mines[$pspawned_id]}
 					{if $obj.type != 'npc'}<span class="header">Group {@(parseInt($groupidx) + 1)}.</span>{/if}
-					{if $pspawned}<span class="minus">{@$pspawned?.name || '(unnamed)'} {@serialize_db_id($pspawned_id)}</span>{/if}
-					<span class="plus">{@$dspawned?.name || '(unnamed)'} {@serialize_db_id($dspawned_id)}</span>
+					{if $pspawned}<span class="minus">{@$pspawned?.name || '(unnamed)'} {@DB.serialize_id($pspawned_id)}</span>{/if}
+					<span class="plus">{@$dspawned?.name || '(unnamed)'} {@DB.serialize_id($dspawned_id)}</span>
 				</div>
 			{/if}
 		</div>

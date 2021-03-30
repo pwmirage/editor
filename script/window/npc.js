@@ -85,7 +85,7 @@ class NPCCraftsWindow extends Window {
 			if (was_selected && e.which == 1) {
 				HTMLSugar.open_edit_rmenu(recipe_el,
 					obj, 'recipes', {
-					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + serialize_db_id(this.crafts.id),
+					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + DB.serialize_id(this.crafts.id),
 					update_obj_fn: (new_obj) => {
 						const s = this.crafts;
 						db.open(s);
@@ -112,7 +112,7 @@ class NPCCraftsWindow extends Window {
 						this.select_recipe(recipe_el);
 					},
 					usage_name_fn: (recipe) => {
-						return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
+						return recipe.name + ': ' + (recipe.name || '') + ' ' + DB.serialize_id(recipe.id);
 					},
 				});
 			} else if (e.which == 3) {
@@ -156,7 +156,7 @@ class NPCCraftsWindow extends Window {
 				RecipeWindow.open({ recipe: new_obj });
 			},
 			usage_name_fn: (recipe) => {
-				return recipe.name + ': ' + (recipe.name || '') + ' ' + serialize_db_id(recipe.id);
+				return recipe.name + ': ' + (recipe.name || '') + ' ' + DB.serialize_id(recipe.id);
 			},
 		});
 	}
@@ -250,7 +250,7 @@ class NPCGoodsWindow extends Window {
 
 				HTMLSugar.open_edit_rmenu(this.hover_el,
 					obj, 'items', {
-					pick_win_title: 'Pick new item for ' + (this.goods.name || 'Goods') + ' ' + serialize_db_id(this.goods.id),
+					pick_win_title: 'Pick new item for ' + (this.goods.name || 'Goods') + ' ' + DB.serialize_id(this.goods.id),
 					update_obj_fn: (new_obj) => {
 						const s = this.goods;
 						db.open(s);
@@ -274,7 +274,7 @@ class NPCGoodsWindow extends Window {
 						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
 					},
 					usage_name_fn: (item) => {
-						return item.name + ': ' + (item.name || '') + ' ' + serialize_db_id(item.id);
+						return item.name + ': ' + (item.name || '') + ' ' + DB.serialize_id(item.id);
 					},
 				});
 			} else if (e.which == 3) {
@@ -331,7 +331,7 @@ class NPCWindow extends Window {
 					file_set.add(o.file_model);
 					NPCWindow.models[o.id] = {
 						id: o.id,
-						name: o.name + ' ' + serialize_db_id(o.id),
+						name: o.name + ' ' + DB.serialize_id(o.id),
 						file: o.file_model,
 					};
 				}
@@ -375,7 +375,7 @@ class NPCWindow extends Window {
 		if (e.which == 1) {
 			HTMLSugar.open_edit_rmenu(el,
 				obj, 'npc_' + what, {
-					pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + serialize_db_id(this.npc.id),
+					pick_win_title: 'Pick new ' + (is_craft ? 'Crafts' : 'Goods') + ' for ' + (this.npc.name || 'NPC') + ' ' + DB.serialize_id(this.npc.id),
 				update_obj_fn: (new_obj) => {
 					const n = this.npc;
 					db.open(n);

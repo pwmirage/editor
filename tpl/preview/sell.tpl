@@ -4,10 +4,10 @@
 	<div class="header">
 		<div>
 			{if $goods.id == -1}
-				<p class="data diff-plus">(New) NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($diff.id)}</p>
+				<p class="data diff-plus">(New) NPC Goods: {@$goods.name || "(unnamed)"} {@DB.serialize_id($diff.id)}</p>
 			{else}
-				{if $diff.name}<p class="new">NPC Goods: {@$diff.name || "(unnamed)"} {@serialize_db_id($diff.id)}</p>{/if}
-				<p class="data">NPC Goods: {@$goods.name || "(unnamed)"} {@serialize_db_id($goods.id)}</p>
+				{if $diff.name}<p class="new">NPC Goods: {@$diff.name || "(unnamed)"} {@DB.serialize_id($diff.id)}</p>{/if}
+				<p class="data">NPC Goods: {@$goods.name || "(unnamed)"} {@DB.serialize_id($goods.id)}</p>
 			{/if}
 		</div>
 		{if $goods._db.refs}<span class="" style="margin-left: auto; padding-left: 3px;"><i class="fa fa-share" aria-hidden="true"></i> ({@$goods._db.refs.length})</span>{/if}

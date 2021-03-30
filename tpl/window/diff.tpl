@@ -2,7 +2,7 @@
 <div class="window resizable" style="width: 376px: min-width: 376px;">
 {assign project = db.metadata[1]}
 <div class="header">
-	<span>Diff: {@$obj.name || PWPreview.get_obj_type($obj).name } {@serialize_db_id($obj.id)}</span>
+	<span>Diff: {@$obj.name || PWPreview.get_obj_type($obj).name } {@DB.serialize_id($obj.id)}</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>

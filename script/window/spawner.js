@@ -322,7 +322,7 @@ class SpawnerWindow extends Window {
 			const obj = db[type][group.type];
 			HTMLSugar.open_edit_rmenu(el,
 				obj, type, {
-				pick_win_title: 'Pick new ' + pretty_name + ' for ' + (this.spawner.name || 'Spawner') + ' ' + serialize_db_id(this.spawner.id),
+				pick_win_title: 'Pick new ' + pretty_name + ' for ' + (this.spawner.name || 'Spawner') + ' ' + DB.serialize_id(this.spawner.id),
 				update_obj_fn: (new_obj) => {
 					const s = this.spawner;
 					db.open(s);
@@ -341,14 +341,14 @@ class SpawnerWindow extends Window {
 				usage_name_fn: (spawner) => {
 					const mapid = spawner._db.type.substring('spawners_'.length);
 					const mapname = PWMap.maps[mapid]?.name || '(unknown?)';
-					return mapname + ': ' + (spawner.name ? (spawner.name + ' ') : '') + serialize_db_id(spawner.id);
+					return mapname + ': ' + (spawner.name ? (spawner.name + ' ') : '') + DB.serialize_id(spawner.id);
 				}
 			});
 		} else if (e.which == 3) {
 			HTMLSugar.open_undo_rmenu(el, this.spawner, {
 				undo_path: [ 'groups', idx, 'type' ],
 				undo_fn: () => { this.tpl.reload('#groups'); this.refresh_npc_window(); },
-				name_fn: (id) => id ? ((db.npcs[id]?.name || '(unnamed)') + ' ' + serialize_db_id(id)) : '(none)'
+				name_fn: (id) => id ? ((db.npcs[id]?.name || '(unnamed)') + ' ' + DB.serialize_id(id)) : '(none)'
 			});
 		}
 	}

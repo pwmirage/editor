@@ -95,7 +95,7 @@ class DB {
 					};
 				}
 
-				const id = parse_db_id(k);
+				const id = DB.parse_id(k);
 				let obj = map.get(id);
 				if (obj) {
 					return obj;
@@ -455,6 +455,28 @@ class DB {
 				this.new_generation();
 			}
 		}
+	}
+
+	static serialize_id(id) {
+		const p = id < 0x80000000 ? 0 : Math.floor((id - 0x80000000) / 0x100000);
+		const i = id % 0x100000;
+
+		return '#' + p + ':' + i;
+	}
+
+	static parse_id(id) {
+		const id_parts = id.split(':');
+		let ret;
+
+		if (id_parts.length == 1) {
+			ret = parseInt(id_parts[0]);
+		} else {
+			const pid = parseInt(id_parts[0].charAt(0) == '#' ? id_parts[0].substring(1) : id_parts[0]);
+			const off = parseInt(id_parts[1]);
+			ret = (pid > 0 ? 0x80000000 : 0) + 0x100000 * pid + off;
+		}
+
+		return ret;
 	}
 
 	static apply_diff(obj, diff) {
