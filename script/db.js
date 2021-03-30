@@ -303,17 +303,17 @@ class DB {
 		const obj = {};
 
 		obj._db = { type, is_allocated: true, commit_cb: commit_cb };
-		obj.id = this.new_id_start + this.new_id_offset;
+		obj.id = 0;
+		const id = this.new_id_start + this.new_id_offset;
 		this.new_id_offset++;
-		this[obj._db.type][obj.id] = obj;
+		this[obj._db.type][id] = obj;
 
-		const id = obj.id;
 		DB.init_obj_data(obj, base);
-		obj.id = id;
 		/* create a dummy change to have this object stored in changelog.
 		 * Otherwise it could be lost if there are no changes to it - even
 		 * if it's referenced somewhere */
 		this.open(obj);
+		obj.id = id;
 		obj._allocated = true;
 		this.commit(obj);
 		return obj;
