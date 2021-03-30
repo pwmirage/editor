@@ -225,7 +225,7 @@
 				{if !$obj._db.project_initial_state}
 					{continue}
 				{/if}
-				{assign diff = get_obj_diff($obj, $obj._db.project_initial_state)}
+				{assign diff = DB.get_obj_diff($obj, $obj._db.project_initial_state)}
 				{if !$diff}
 					{continue}
 				{/if}

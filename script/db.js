@@ -2,51 +2,6 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-function get_obj_diff(obj, prev) {
-	const diff = {};
-
-	for (const f in obj) {
-		if (!obj.hasOwnProperty(f)) continue;
-		if (f === '_db') {
-			if ((!!obj._db.base && (!prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev._db && !!prev._db.base)) {
-				diff[f] = { base: obj._db.base };
-			} else if (diff[f]) {
-				diff[f] = undefined;
-			}
-		} else if (typeof(obj[f]) === 'object') {
-			const nested_diff = get_obj_diff(obj[f], prev ? prev[f] : undefined);
-			/* we want to avoid iterable undefined fields in diff[f],
-			 * set it only if needed */
-			if (nested_diff || diff[f]) {
-				diff[f] = nested_diff;
-			}
-		} else {
-			/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-			const v = obj[f] || 0;
-			const p = prev ? (prev[f] || 0) : 0;
-			if (v != p) {
-				diff[f] = obj[f];
-			} else if (diff[f]) {
-				/* delete is super slow, just set to undefined */
-				diff[f] = undefined;
-			}
-		}
-	}
-
-	if (Array.isArray(obj) && Array.isArray(prev) && obj.length < prev.length) {
-		/* include removed array entries */
-		for (let i = obj.length; i < prev.length; i++) {
-			diff[i] = DB.force_null;
-		}
-	}
-
-	/* just check if it has any fields, return null otherwise */
-	for (const field in diff) {
-		return diff;
-	}
-	return undefined;
-}
-
 class DB {
 	constructor() {
 		/* assoc array:
@@ -241,7 +196,7 @@ class DB {
 		let changeset = obj._db.changesets[obj._db.changesets.length - 1];
 
 		/* gather modified fields */
-		const diff = get_obj_diff(obj, obj._db.latest_state);
+		const diff = DB.get_obj_diff(obj, obj._db.latest_state);
 		let changeset_empty = true;
 
 		if (diff) {
@@ -652,6 +607,51 @@ class DB {
 		}
 
 		return false;
+	}
+
+	static get_obj_diff(obj, prev) {
+		const diff = {};
+
+		for (const f in obj) {
+			if (!obj.hasOwnProperty(f)) continue;
+			if (f === '_db') {
+				if ((!!obj._db.base && (!prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev._db && !!prev._db.base)) {
+					diff[f] = { base: obj._db.base };
+				} else if (diff[f]) {
+					diff[f] = undefined;
+				}
+			} else if (typeof(obj[f]) === 'object') {
+				const nested_diff = DB.get_obj_diff(obj[f], prev ? prev[f] : undefined);
+				/* we want to avoid iterable undefined fields in diff[f],
+				 * set it only if needed */
+				if (nested_diff || diff[f]) {
+					diff[f] = nested_diff;
+				}
+			} else {
+				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
+				const v = obj[f] || 0;
+				const p = prev ? (prev[f] || 0) : 0;
+				if (v != p) {
+					diff[f] = obj[f];
+				} else if (diff[f]) {
+					/* delete is super slow, just set to undefined */
+					diff[f] = undefined;
+				}
+			}
+		}
+
+		if (Array.isArray(obj) && Array.isArray(prev) && obj.length < prev.length) {
+			/* include removed array entries */
+			for (let i = obj.length; i < prev.length; i++) {
+				diff[i] = DB.force_null;
+			}
+		}
+
+		/* just check if it has any fields, return null otherwise */
+		for (const field in diff) {
+			return diff;
+		}
+		return undefined;
 	}
 
 	static dump(data, spacing = 1, custom_fn) {

@@ -9,7 +9,7 @@ class DiffWindow extends Window {
 
 		this.obj = this.args.obj;
 		this.prev = this.args.prev;
-		this.diff = get_obj_diff(this.obj, this.prev);
+		this.diff = DB.get_obj_diff(this.obj, this.prev);
 
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-diff-window');
