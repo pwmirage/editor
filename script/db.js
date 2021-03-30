@@ -47,44 +47,6 @@ function get_obj_diff(obj, prev) {
 	return undefined;
 }
 
-function dump(data, spacing = 1, custom_fn) {
-	let force_array = true;
-	return JSON.stringify(data, function(k, v) {
-		if (custom_fn) {
-			const ret = custom_fn(k, v);
-			if (ret !== undefined) {
-				return ret;
-			}
-		}
-		/* keep the _db at its minimum */
-		if (k === '_db') return { type: v.obj._db.type };
-		/* dont include any nulls, undefined results in no output at all */
-		if (v === null) return undefined;
-		if (v === DB.force_null) return null;
-		/* stringify javascript sets */
-		if (typeof v === 'object' && v instanceof Set) {
-			force_array = false;
-			return [...v];
-		}
-		if (typeof v === 'object') {
-			if (Array.isArray(v)) {
-				if (force_array) {
-					force_array = false;
-					return v;
-				}
-
-				/* convert to "associative array" e.g. when it was set explicitly in an obj */
-				const o = {};
-				for (const k in v) {
-					o[k] = v[k];
-				}
-				return o;
-			}
-		}
-		return v;
-	}, spacing);
-}
-
 class DB {
 	constructor() {
 		/* assoc array:
@@ -473,7 +435,7 @@ class DB {
 		let ret = '[';
 
 		for (let i = dump_start_gen; i < this.changelog.length; i++) {
-			ret += dump(this.changelog[i], spacing, custom_fn);
+			ret += DB.dump(this.changelog[i], spacing, custom_fn);
 			if (i != this.changelog.length - 1) {
 				ret += ',';
 			}
@@ -481,11 +443,6 @@ class DB {
 
 		ret += ']';
 		return ret;
-	}
-
-	/* dump all changesets to JSON as 2d array */
-	dump_all() {
-		return dump(this.changelog);
 	}
 
 	/* initiate a new chapter in changelog */
@@ -695,6 +652,44 @@ class DB {
 		}
 
 		return false;
+	}
+
+	static dump(data, spacing = 1, custom_fn) {
+		let force_array = true;
+		return JSON.stringify(data, function(k, v) {
+			if (custom_fn) {
+				const ret = custom_fn(k, v);
+				if (ret !== undefined) {
+					return ret;
+				}
+			}
+			/* keep the _db at its minimum */
+			if (k === '_db') return { type: v.obj._db.type };
+			/* dont include any nulls, undefined results in no output at all */
+			if (v === null) return undefined;
+			if (v === DB.force_null) return null;
+			/* stringify javascript sets */
+			if (typeof v === 'object' && v instanceof Set) {
+				force_array = false;
+				return [...v];
+			}
+			if (typeof v === 'object') {
+				if (Array.isArray(v)) {
+					if (force_array) {
+						force_array = false;
+						return v;
+					}
+
+					/* convert to "associative array" e.g. when it was set explicitly in an obj */
+					const o = {};
+					for (const k in v) {
+						o[k] = v[k];
+					}
+					return o;
+				}
+			}
+			return v;
+		}, spacing);
 	}
 }
 
