@@ -283,4 +283,33 @@ testcase('create_obj', () => {
 	assert(db.changelog[1].size == 1);
 });
 
+testcase('clone_obj', () => {
+	const db = new_test_db1();
+	const obj = db.items[4096];
+	db.new_id_start = 10;
+
+	/* create an object, make sure the commit cb is called immediately on creation */
+	let called = 0;
+	let cb = db.register_commit_cb((obj, diff, prev) => {
+		called++;
+
+		if (called == 1) {
+			assert(obj.id == 10);
+		} else if (called == 1) {
+			assert(obj.id == 11);
+		}
+	});
+
+	assert(db.new_id_offset == 0);
+	const clone1 = db.clone(obj);
+	assert(clone1.id == 10);
+	assert(db.new_id_offset == 1);
+	assert(called == 1);
+
+	const clone2 = db.clone(obj);
+	assert(clone2.id == 11);
+	assert(db.new_id_offset == 2);
+	assert(called == 2);
+});
+
 console.log('DB tests passed');
