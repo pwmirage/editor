@@ -84,8 +84,8 @@ testcase('commit', () => {
 	db.commit(obj);
 
 	/* there must be a single change stored */
-	assert(db.changelog.length == 1);
-	assert(db.changelog[0].size == 1);
+	assert(db.changelog.length == 2);
+	assert(db.changelog[1].size == 1);
 
 	/* 2 = original copy + diff */
 	assert(obj._db.changesets.length == 2)
@@ -195,8 +195,8 @@ testcase('commit_multiple_generations', () => {
 	db.commit(obj);
 
 	/* there must be a single change stored */
-	assert(db.changelog.length == 1);
-	assert(db.changelog[0].size == 1);
+	assert(db.changelog.length == 2);
+	assert(db.changelog[1].size == 1);
 
 	/* 2 = original copy + diff */
 	assert(obj._db.changesets.length == 2)
@@ -213,8 +213,8 @@ testcase('commit_multiple_generations', () => {
 	obj.field = "new_value2";
 	db.commit(obj);
 
-	assert(db.changelog.length == 2);
-	assert(db.changelog[0].size == 1);
+	assert(db.changelog.length == 3);
+	assert(db.changelog[1].size == 1);
 	assert(obj.field == "new_value2");
 
 	/* the first diff should be unchanged */
@@ -250,15 +250,15 @@ testcase('create_obj', () => {
 
 	assert(db.new_id_offset == 1);
 	assert(called == 2);
-	assert(db.changelog.length == 1);
-	assert(db.changelog[0].size == 1);
+	assert(db.changelog.length == 2);
+	assert(db.changelog[1].size == 1);
 
 	db.open(obj);
 	db.commit(obj);
 	assert(called == 2);
 	assert(obj.id > 0);
-	assert(db.changelog.length == 1);
-	assert(db.changelog[0].size == 1);
+	assert(db.changelog.length == 2);
+	assert(db.changelog[1].size == 1);
 
 	db.unregister_commit_cb(cb);
 
@@ -279,8 +279,8 @@ testcase('create_obj', () => {
 	assert(db.new_id_offset == 1);
 	db.commit(obj);
 	assert(db.new_id_offset == 1);
-	assert(db.changelog.length == 1);
-	assert(db.changelog[0].size == 1);
+	assert(db.changelog.length == 2);
+	assert(db.changelog[1].size == 1);
 });
 
 console.log('DB tests passed');
