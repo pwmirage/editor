@@ -292,10 +292,9 @@ class DB {
 	}
 
 	clone(obj, commit_cb) {
-		const copy = this._new(obj._db.type, obj, commit_cb);
+		const copy = this._new(obj._db.type, obj, commit_cb, false);
 		const id = copy.id;
 
-		this.open(copy);
 		DB.copy_obj_data(copy, obj);
 		copy.id = id;
 		this.commit(copy);
@@ -303,7 +302,7 @@ class DB {
 		return copy;
 	}
 
-	_new(type, base, commit_cb) {
+	_new(type, base, commit_cb, do_commit = true) {
 		const obj = {};
 
 		obj._db = { type, is_allocated: true, commit_cb: commit_cb };
@@ -319,7 +318,10 @@ class DB {
 		this.open(obj);
 		obj.id = id;
 		obj._allocated = true;
-		this.commit(obj);
+
+		if (do_commit) {
+			this.commit(obj);
+		}
 		return obj;
 	}
 
