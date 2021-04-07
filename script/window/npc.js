@@ -6,6 +6,9 @@ let g_open_npc_crafts = new Set();
 let g_npc_tpl = load_tpl(ROOT_URL + 'tpl/window/npc.tpl')
 
 class NPCCraftsWindow extends Window {
+	static saved_empty_recipe;
+	static reference_empty_recipe;
+
 	async init() {
 		await g_npc_tpl;
 		this.crafts = this.args.crafts;
@@ -23,7 +26,7 @@ class NPCCraftsWindow extends Window {
 
 		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
 		const recipe_edit_el = this.shadow.querySelector('#recipe');
-		this.recipe_win = await RecipeWindow.open({ recipe: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
+		this.recipe_win = await RecipeWindow.open({ parent_win: this, recipe: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
 
 		const prev_compile_cb = this.recipe_win.tpl_compile_cb;
 		this.recipe_win.tpl_compile_cb = (dom) => {
@@ -78,51 +81,6 @@ class NPCCraftsWindow extends Window {
 			was_selected = !this.select_recipe(recipe_el);
 		}
 
-		const obj = db.recipes[recipe_id];
-		let page = this.crafts.pages[this.selected_tab];
-
-		(async () => {
-			if (was_selected && e.which == 1) {
-				HTMLSugar.open_edit_rmenu(recipe_el,
-					obj, 'recipes', {
-					pick_win_title: 'Pick new recipe for ' + (this.crafts.name || 'Crafts') + ' ' + DB.serialize_id(this.crafts.id),
-					update_obj_fn: (new_obj) => {
-						const s = this.crafts;
-						db.open(s);
-
-						let page = this.crafts.pages[this.selected_tab];
-						if (!page) {
-							page = this.crafts.pages[this.selected_tab] = {};
-						}
-
-						if (!page.recipe_id) {
-							page.recipe_id = [];
-						}
-
-						page.recipe_id[recipe_idx] = new_obj?.id || 0;
-
-						db.commit(s);
-						this.tpl.reload('#items');
-
-					},
-					edit_obj_fn: (new_obj) => {
-						this.tpl.reload('#items');
-						this.selected_recipe = -1;
-						const recipe_el = this.shadow.querySelector('#items').children[recipe_idx];
-						this.select_recipe(recipe_el);
-					},
-					usage_name_fn: (recipe) => {
-						return recipe.name + ': ' + (recipe.name || '') + ' ' + DB.serialize_id(recipe.id);
-					},
-				});
-			} else if (e.which == 3) {
-				HTMLSugar.open_undo_rmenu(recipe_el, this.crafts, {
-					undo_path: [ 'pages', this.selected_tab, 'recipe_id', recipe_idx ],
-					undo_fn: () => this.tpl.reload('#items')
-				});
-			}
-		})();
-
 		return false;
 	}
 
@@ -161,6 +119,17 @@ class NPCCraftsWindow extends Window {
 		});
 	}
 
+	focus() {
+		super.focus();
+		if (this.selected_recipe !== undefined) {
+			/* force select it again to create another empty recipe if needed */
+			/* FIXME this makes the window flash on rmenu showup */
+			//const sel = this.selected_recipe;
+			//this.selected_recipe = -1;
+			//this.select_recipe(this.shadow.querySelectorAll('#items .recipe')[sel]);
+		}
+	}
+
 	close() {
 		g_open_npc_crafts.delete(this.crafts);
 		super.close();
@@ -187,7 +156,57 @@ class NPCCraftsWindow extends Window {
 		this.selected_recipe_tab = this.selected_tab;
 		const page = this.crafts.pages[this.selected_tab];
 		const recipe_id = page?.recipe_id?.[this.selected_recipe];
-		const recipe = db.recipes[recipe_id || -1];
+		let recipe = db.recipes[recipe_id || -1];
+
+		if (!recipe) {
+			const new_empty = () => {
+				const empty = NPCCraftsWindow.empty_recipe = db.new('recipes');
+				empty._db.commit_cb = (obj) => {
+					obj._db.commit_cb = null;
+
+					db.open(this.crafts);
+					this.crafts.pages[this.selected_tab].recipe_id[this.selected_recipe] = obj.id;
+					db.commit(this.crafts);
+
+					db.open(obj);
+					obj.crafts = this.crafts.id;
+					db.commit(obj);
+				};
+			};
+
+			if (!NPCCraftsWindow.reference_empty_recipe) {
+				new_empty();
+				recipe = NPCCraftsWindow.empty_recipe;
+				const ref = NPCCraftsWindow.reference_empty_recipe = {};
+				DB.copy_obj_data(ref, recipe);
+			} else {
+				NPCCraftsWindow.reference_empty_recipe.id = NPCCraftsWindow.empty_recipe.id;
+				NPCCraftsWindow.reference_empty_recipe.crafts = NPCCraftsWindow.empty_recipe.crafts;
+				if (DB.is_obj_diff(NPCCraftsWindow.empty_recipe,
+						NPCCraftsWindow.reference_empty_recipe)) {
+					/* empty_recipe could have been modified, in which case we need a new one */
+					new_empty();
+				}
+				recipe = NPCCraftsWindow.empty_recipe;
+			}
+		} else if (!recipe.crafts) {
+			const crafts_arr = PWDB.find_usages(db, recipe);
+
+			db.open(recipe);
+			recipe.crafts = this.crafts.id;
+			db.commit(recipe);
+
+			if (crafts_arr.length > 1) {
+				/* make sure we don't edit any other recipe, but this one
+				 * right here only */
+				const new_recipe = db.clone(recipe);
+				db.open(this.crafts);
+				this.crafts.pages[this.selected_tab].recipe_id[this.selected_recipe] = new_recipe.id;
+				db.commit(this.crafts);
+
+				recipe = new_recipe;
+			}
+		}
 
 		const prev_focused = this.shadow.querySelector('.recipe.focus');
 		if (prev_focused) prev_focused.classList.remove('focus');

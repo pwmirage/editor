@@ -417,6 +417,16 @@ class PWDB {
 			return usages;
 		} else if (obj._db.type == 'npc_sells') {
 			return db.npcs.filter(n => n.id_sell_service == obj.id);
+		} else if (obj._db.type == 'recipes') {
+			return db.npc_crafts.filter(c => {
+				for (const p of c.pages) {
+					for (const rid of p.recipe_id) {
+						if (rid == obj.id) {
+							return true;
+						}
+					}
+				}
+			});
 		}
 
 		return [];

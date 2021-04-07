@@ -308,6 +308,40 @@ class PWMap {
 				return;
 			}
 
+			if (obj._db.type == 'recipes') {
+				/* we quietly integrate recipes into crafts */
+				if (!obj.crafts || !db.npc_crafts[obj.crafts]) {
+					/* unexpected? */
+					return;
+				}
+
+				const crafts = db.npc_crafts[obj.crafts];
+				/* modify crafts to show *their* marker instead */
+				let ref = crafts._extra_ref;
+				if (!crafts._db.modified_recipes) {
+					if (DB.is_obj_diff(obj, obj._db.project_initial_state)) {
+						ref = 1;
+					}
+
+					crafts._db.modified_recipes = new Set();
+				} else {
+					const is_diff = DB.is_obj_diff(obj, obj._db.project_initial_state);
+					const has_ref = crafts._db.modified_recipes.has(obj);
+					if (has_ref && !is_diff) {
+						ref--;
+					} else if (!has_ref && is_diff) {
+						ref++;
+					}
+				}
+
+				/* when extra_ref drops to 0, there will be no diff in crafts and its
+				 * marker will disappear as well */
+				db.open(crafts);
+				crafts._extra_ref = ref;
+				db.commit(crafts);
+				return;
+			}
+
 			const was_modified = this.modified_db_objs.has(obj);
 			if (diff.name !== undefined && was_modified) {
 				const mod_el = changed_objects_map.get(obj)
@@ -341,7 +375,7 @@ class PWMap {
 			}
 
 			this.modified_db_objs.add(obj);
-			if ((obj._removed && obj._db.changesets[1].generation < db.project_changelog_start_gen) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
+			if ((obj._removed && (obj._db.changesets[1].generation < db.project_changelog_start_gen || obj._db.is_allocated)) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
 				this.modified_db_objs.delete(obj);
 				const el = changed_objects_map.get(obj);
 				el.remove();

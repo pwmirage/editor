@@ -13,10 +13,6 @@
 	</div>
 </div>
 <div class="content" style="">
-	<div class="flex-columns" style="align-items: center; margin-bottom: 5px;">
-		<span style="width: 45px;">Name:</span>
-		<span data-input style="flex: 1;" data-link="{serialize $recipe} => 'name'" data-placeholder="(unnamed)"></span>
-	</div>
 	<div class="flex-columns" style="align-items: center; margin-top: -2px; margin-bottom: 4px; column-gap: 3px;">
 		<span>x</span>
 		<span data-input class="input-number" style="width: 20px;" data-link="{serialize $recipe} => 'num_to_make'" data-placeholder="(0)"></span>

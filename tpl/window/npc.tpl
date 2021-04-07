@@ -35,21 +35,7 @@
 			<span class="recipe menu-triangle" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($id)}" alt=""></span>
 		{/for}
 	</div>
-	<div id="recipe" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);">
-		{if $win.selected_recipe != undefined}
-			{assign recipe_id = $crafts.pages[$win.selected_tab]?.recipe_id?.[$win.selected_recipe]}
-			{assign recipe = db.recipes[$recipe_id || -1] || \{ id: $recipe_id \}}
-			<div class="flex-columns" style="background-color: var(--header-color); color: white; padding: 2px 4px; margin: 0 -12px; margin-bottom: 5px;">
-				{if $recipe_id}
-					<span style="align-self: center;">Recipe {@$recipe.name || ""} {@DB.serialize_id($recipe.id || 0)}</span>
-				{else}
-					<span style="align-self: center;">Recipe None (empty)</span>
-				{/if}
-				<span style="flex: 1;"></span>
-				<i id="recipe-details" class="fa fa-ellipsis-v" onclick="{serialize $win}.recipe_details_onclick(this, event);"></i>
-			</div>
-		{/if}
-	</div>
+	<div id="recipe" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);"></div>
 </div>
 </div>
 
@@ -116,7 +102,7 @@ span.tabname.selected {
 }
 
 #recipe {
-	margin-top: 5px;
+	margin-top: 10px;
 	min-height: 336px;
 }
 
