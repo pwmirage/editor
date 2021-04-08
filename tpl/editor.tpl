@@ -1,4 +1,4 @@
-<div>
+<div oncontextmenu="return false;">
 	<div id="pw-map-canvas">
 		<div id="pw-map" class="gpu">
 			<img class="bg"></img>
