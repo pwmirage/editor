@@ -69,7 +69,7 @@
 			{/if}
 		</div>
 
-		<div id="prereqs" class="section flex-all" style="width: 282px; flex-wrap: wrap;">
+		<div id="prereqs" class="section {if $edit}flex-all{/if}" style="width: 282px; flex-wrap: wrap;">
 			{if $edit}<span class="section-header" style="width: 140px;">Prerequisites</span>{/if}
 			{if $edit || $item.require_level}<span style="">{if $edit}&nbsp;{else}Requisite {/if}Lv. {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" data-link="{serialize $item} => 'require_level'"></span></span>{/if}
 			{if $edit || $item.require_vitality}<span style="">{if !$edit}Requisite {/if}Vitality {if $edit}<span class="fill"></span>{/if}<span {@$data_preview} data-input class="input-number width-5c noalign" style="" data-link="{serialize $item} => 'require_vitality'"></span></span>{/if}
