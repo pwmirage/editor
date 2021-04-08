@@ -158,15 +158,8 @@ class SimpleChooserWindow extends ChooserWindow {
 
 	filter(str) {
 		this.filter_str = str;
-
-		let items;
-		if (!str) {
-			const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
-			this.items = this.all_items.sort((a, b) => collator.compare(a.name, b.name));
-		} else {
-			items = fuzzysort.go(str, this.all_items, { key: 'name', allowTypo: true });
-			this.items = items.map(i => i.obj);
-		}
+		const items = fuzzysort.go(str, this.all_items);
+		this.items = items.map(i => i.obj);
 		this.pager_offset = 0;
 		this.move_pager(0);
 	}
@@ -175,7 +168,7 @@ class SimpleChooserWindow extends ChooserWindow {
 		const tab = this.tabs[idx];
 		this.selected_tab = idx;
 		this.tpl.reload('#search');
-		this.all_items = this.args.items.filter(tab.filter);
+		this.all_items = fuzzysort.index(this.args.items.filter(tab.filter), { key: 'name' });
 		this.filter(this.filter_str || '');
 	}
 

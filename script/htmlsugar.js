@@ -630,16 +630,11 @@ class HTMLSugar {
 			let hints;
 
 			if (!select_arr_cp) {
-				select_arr_cp = select_arr.filter(i => i.name);
+				select_arr_cp = fuzzysort.index(select_arr, { key: 'name' });
 			}
 
-			if (!search) {
-				const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
-				hints = [...select_arr_cp].sort((a, b) => collator.compare(a.name, b.name));
-			} else {
-				hints = fuzzysort.go(search.trim(), select_arr_cp, { key: 'name', allowTypo: true });
-				hints = hints.map(i => i.obj);
-			}
+			hints = fuzzysort.go(search, select_arr_cp);
+			hints = hints.map(i => i.obj);
 			if (hints.length > 10) {
 				hints.length = 10;
 			}
