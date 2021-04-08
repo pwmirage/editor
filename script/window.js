@@ -349,7 +349,37 @@ class Window {
 	}
 
 	async details(details_el, e) {
-		/* to be inherited */
+		const coords = Window.get_el_coords(details_el);
+		const x = coords.left;
+		const y = coords.bottom;
+
+		const win = await RMenuWindow.open({
+		x, y, bg: false,
+		entries: [
+			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
+			{ id: 1, name: 'Remove', visible: !this.obj._removed },
+			{ id: 2, name: 'Restore', visible: !!this.obj._removed },
+		]});
+		const sel = await win.wait();
+		switch (sel) {
+			case 1: {
+				db.open(this.obj);
+				this.obj._removed = true;
+				db.commit(this.obj);
+				this.dom_header.classList.add('removed');
+				break;
+			}
+			case 2: {
+				db.open(this.obj);
+				this.obj._removed = false;
+				db.commit(this.obj);
+				this.dom_header.classList.remove('removed');
+				break;
+			}
+			case 3: {
+				DiffWindow.open({ obj: this.obj, prev: this.obj._db.project_initial_state });
+			}
+		}
 	}
 
 	minimize() {

@@ -1,8 +1,11 @@
 <script id="tpl-tasks-by-npc" type="text/x-dot-template">
 
 <div class="window resizable" style="width: 580px; min-height: 473px; height: 473px;">
-<div class="header">
+<div class="header {if $npc._removed}removed{/if}">
 	<span>Tasks related to NPC {@$npc.name} {@DB.serialize_id($npc.id)}</span>
+	<div class="menu">
+		<i class="details fa fa-ellipsis-v"></i>
+	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -87,6 +90,9 @@
 <div class="window resizable" style="width: 1050px; min-height: 800px; height: 800px;">
 <div class="header">
 	<span>Task: {@($task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@DB.serialize_id($task.id)}</span>
+	<div class="menu">
+		<i class="details fa fa-ellipsis-v"></i>
+	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>

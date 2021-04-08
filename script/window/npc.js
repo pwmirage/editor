@@ -11,7 +11,7 @@ class NPCCraftsWindow extends Window {
 
 	async init() {
 		await g_npc_tpl;
-		this.crafts = this.args.crafts;
+		this.crafts = this.obj = this.args.crafts;
 		if (!this.args.debug && g_open_npc_crafts.has(this.crafts)) return false;
 		g_open_npc_crafts.add(this.crafts);
 
@@ -230,7 +230,7 @@ let g_open_npc_goods = new Set();
 class NPCGoodsWindow extends Window {
 	async init() {
 		await g_npc_tpl;
-		this.goods = this.args.goods;
+		this.goods = this.obj = this.args.goods;
 		if (!this.args.debug && g_open_npc_goods.has(this.goods)) return false;
 		g_open_npc_goods.add(this.goods);
 
@@ -333,7 +333,7 @@ class NPCWindow extends Window {
 	static models = null;
 
 	async init() {
-		this.npc = this.args.npc;
+		this.npc = this.obj = this.args.npc;
 		if (!this.args.debug && g_open_npcs.has(this.npc)) return false;
 		g_open_npcs.add(this.npc);
 

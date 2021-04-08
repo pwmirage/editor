@@ -1,9 +1,12 @@
 <script id="tpl-npc-crafts" type="text/x-dot-template">
 <div class="window" style="width: 316px;">
-<div class="header">
+<div class="header {if $crafts._removed}removed{/if}">
 	<span>
 		Crafts: {@$crafts.name || ""} {@DB.serialize_id($crafts.id)}
 	</span>
+	<div class="menu">
+		<i class="details fa fa-ellipsis-v"></i>
+	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -121,10 +124,13 @@ span.tabname.selected {
 
 <script id="tpl-npc-goods" type="text/x-dot-template">
 <div class="window" style="width: 316px; height: 352px;">
-<div class="header">
+<div class="header {if $goods._removed}removed{/if}">
 	<span>
 		Goods: {@$goods.name || ""} #{@$goods.id}
 	</span>
+	<div class="menu">
+		<i class="details fa fa-ellipsis-v"></i>
+	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -224,7 +230,7 @@ span.tabname.selected {
 <script id="tpl-npc" type="text/x-dot-template">
 
 <div class="window resizable" style="width: 350px; height: 400px;">
-<div class="header">
+<div class="header {if $npc._removed}removed{/if}">
 	<span>
 		{if !$npc.id && $npc._db.base}
 			{@(db.npcs[$npc._db.base]?.name ?? "(unknown)") || "(unnamed)"} {@DB.serialize_id($npc._db.base)}

@@ -39,6 +39,26 @@ class TasksByNPCWindow extends Window {
 		const name = task?.name || '(unnamed)';
 		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + DB.serialize_id(tid);
 	}
+
+	async details(details_el, e) {
+		const coords = Window.get_el_coords(details_el);
+		const x = coords.left;
+		const y = coords.bottom;
+
+		const win = await RMenuWindow.open({
+		x, y, bg: false,
+		entries: [
+			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
+		]});
+		const sel = await win.wait();
+		switch (sel) {
+			case 3: {
+				DiffWindow.open({ obj: this.tasks_in, prev: this.tasks_in._db.project_initial_state });
+				DiffWindow.open({ obj: this.tasks_out, prev: this.tasks_out._db.project_initial_state });
+			}
+		}
+	}
+
 }
 
 const g_open_tasks = new Set();
@@ -200,7 +220,7 @@ class TaskWindow extends Window {
 		}
 
 		this.root_task = task;
-		this.task = this.args.task;
+		this.task = this.obj = this.args.task;
 		if (!this.args.debug && g_open_tasks.has(this.root_task)) return false;
 		g_open_tasks.add(this.root_task);
 
