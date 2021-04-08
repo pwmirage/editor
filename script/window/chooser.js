@@ -26,6 +26,7 @@ class ChooserWindow extends Window {
 			this.reload_items();
 			this.tpl.reload('#pager');
 			this.shadow.querySelector('.content').classList.remove('loading');
+			this.shadow.querySelector('#search > input').focus();
 		}, 50);
 
 	}

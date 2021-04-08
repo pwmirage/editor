@@ -11,7 +11,7 @@
 <div class="content flex-rows">
 	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
 		<span>Search:</span>
-		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);">
+		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" tabindex="1">
 		{for i = 0; i < $win.tabs.length; i++}
 			{assign tab = $win.tabs[i]}
 			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
@@ -19,7 +19,7 @@
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="{serialize $win}.onmousemove(event);">
 		{for i = 0; i < $win.max_items_per_page; i++}
-			<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="0"><img src="data:," alt=""></span>
+			<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"><img src="data:," alt=""></span>
 		{/for}
 	</div>
 	<div style="flex: 1;"></div>
@@ -144,7 +144,7 @@
 <div class="content flex-rows">
 	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
 		<span>Search:</span>
-		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" value="{@$win.search}">
+		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" value="{@$win.search}" tabindex="1">
 		{for i = 0; i < $win.tabs.length; i++}
 			{assign tab = $win.tabs[i]}
 			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
@@ -152,7 +152,7 @@
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.max_items_per_page; i++}
-			<a class="button" data-type="{@$i}" ondblclick="{serialize $win}.choose('{@$i}');" data-onhover="{serialize $win}.item_hover({@$i}, is_hover);"></a>
+			<a class="button" data-type="{@$i}" ondblclick="{serialize $win}.choose('{@$i}');" data-onhover="{serialize $win}.item_hover({@$i}, is_hover);" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"></a>
 		{/for}
 	</div>
 	<div style="flex: 1;"></div>
