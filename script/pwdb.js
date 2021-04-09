@@ -10,7 +10,7 @@ class PWDB {
 			}
 
 			const project = db.metadata[1];
-			const dump = db.dump_last(PWDB.last_saved_changeset, { spacing: 0 });
+			const dump = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 			PWDB.has_unsaved_changes = false;
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 		};
@@ -323,7 +323,7 @@ class PWDB {
 			console.error(e);
 		}
 
-		PWDB.last_saved_changeset = db.changelog.length;
+		PWDB.last_saved_changeset = db.changelog.length - 2;
 
 		return db;
 	}
@@ -335,7 +335,7 @@ class PWDB {
 			return false;
 		}
 
-		const data = db.dump_last(PWDB.last_saved_changeset, { spacing: 0 });
+		const data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
 
 		/* check if empty. <5 rules out [[]] and such */
@@ -354,7 +354,7 @@ class PWDB {
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to save: unknown error');
-			const dump = db.dump_last(PWDB.last_saved_changeset, { spacing: 0 });
+			const dump = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 			localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 			return false;
 		}

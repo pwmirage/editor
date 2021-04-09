@@ -399,7 +399,7 @@ class DB {
 			ret += '[';
 		}
 
-		for (let i = dump_start_gen; i < this.changelog.length; i++) {
+		for (let i = dump_start_gen ?? this.changelog.length - 1; i < this.changelog.length; i++) {
 			ret += DB.dump(this.changelog[i], spacing, custom_fn);
 			if (i != this.changelog.length - 1) {
 				ret += ',';

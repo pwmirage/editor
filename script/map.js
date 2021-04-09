@@ -375,7 +375,7 @@ class PWMap {
 			}
 
 			this.modified_db_objs.add(obj);
-			if ((obj._removed && (obj._db.changesets[1].generation < db.project_changelog_start_gen || obj._db.is_allocated)) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
+			if ((obj._removed && obj._db.is_allocated && obj._db.changesets[1]?._db?.generation >= db.project_changelog_start_gen) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
 				this.modified_db_objs.delete(obj);
 				const el = changed_objects_map.get(obj);
 				el.remove();
