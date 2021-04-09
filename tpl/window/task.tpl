@@ -509,15 +509,16 @@
 							{/for}
 							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('failure_award');"></span>
 						</div>
-						<div class="flex-columns">
-							<span>Simultaneous player limit:</span>
-							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'simultaneous_player_limit'"></span>
-						</div>
+						{if !$task.parent_quest}
+							<div class="flex-columns">
+								<span>Simultaneous player limit:</span>
+								<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'simultaneous_player_limit'"></span>
+							</div>
+							<label><input type="checkbox" data-link="{serialize $task} => 'cant_be_found'" class="checkbox"><span>Hide from "Find quest"</label>
+						{/if}
 
-						<label><input type="checkbox" data-link="{serialize $task} => 'display_quest_title'" class="checkbox"><span>Notify when quest received</label>
-						<label><input type="checkbox" data-link="{serialize $task} => 'is_gold_quest'" class="checkbox"><span>Show as gold quest<span></label>
-						<label><input type="checkbox" data-link="{serialize $task} => 'can_be_found'" class="checkbox"><span>Show in "Find quest"</label>
-						<label><input type="checkbox" data-link="{serialize $task} => 'show_direction'" class="checkbox"><span>Show navigation arrow</label>
+						<label><input type="checkbox" data-link="{serialize $task} => 'display_quest_title'" class="checkbox"><span>Dont notify on receive/complete</label>
+						<label><input type="checkbox" data-link="{serialize $task} => 'no_show_direction'" class="checkbox"><span>Hide navigation arrow</label>
 					</div>
 
 					<div class="flex-columns" style="flex-wrap: wrap; margin-top: 8px;">

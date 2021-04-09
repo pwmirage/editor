@@ -74,6 +74,7 @@ class TaskWindow extends Window {
 		{ id: 7, name: 'Legendary' },
 		{ id: 8, name: 'Battle' },
 		{ id: 9, name: 'Public' },
+		{ id: 10, name: 'Main Story' },
 		{ id: 11, name: 'Faction' },
 		{ id: 12, name: 'Daily' },
 		{ id: 13, name: 'Event' },
