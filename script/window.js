@@ -357,6 +357,7 @@ class Window {
 		x, y, bg: false,
 		entries: [
 			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
+			{ id: 4, name: 'Undo all changes', disabled: !this.obj._db.project_initial_state },
 			{ id: 1, name: 'Remove', visible: !this.obj._removed },
 			{ id: 2, name: 'Restore', visible: !!this.obj._removed },
 		]});
@@ -378,6 +379,18 @@ class Window {
 			}
 			case 3: {
 				DiffWindow.open({ obj: this.obj, prev: this.obj._db.project_initial_state });
+				break;
+			}
+			case 4: {
+				db.open(this.obj);
+				/* unset all fields, including any added ones */
+				for (const f in this.obj) {
+					if (f == '_db') continue;
+					this.obj[f] = undefined;
+				}
+				DB.copy_obj_data(this.obj, this.obj._db.project_initial_state);
+				db.commit(this.obj);
+				break;
 			}
 		}
 	}

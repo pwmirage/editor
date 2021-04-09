@@ -535,7 +535,7 @@ class DB {
 			if (!(f in org)) continue;
 			if (f === '_db') continue;
 			if (typeof(org[f]) === 'object') {
-				if (!(f in obj)) {
+				if (typeof (obj[f]) !== 'object') {
 					obj[f] = Array.isArray(org[f]) ? [] : {};
 				}
 				DB.copy_obj_data(obj[f], org[f]);
