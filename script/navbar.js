@@ -50,6 +50,7 @@ class Navbar {
 		b['browse']['items'] = this.add_button(p, 'Items');
 		b['browse']['npc_crafts'] = this.add_button(p, 'NPC Crafts');
 		b['browse']['npc_sells'] = this.add_button(p, 'NPC Goods');
+		b['browse']['triggers'] = this.add_button(p, 'Triggers');
 		b['browse']['npcs'] = this.add_button(p, 'NPCs');
 		b['browse']['monsters'] = this.add_button(p, 'Monsters');
 		b['browse']['mines'] = this.add_button(p, 'Resources');
@@ -60,6 +61,7 @@ class Navbar {
 		b['new']['items'] = this.add_button(p, 'Item');
 		b['new']['npc_crafts'] = this.add_button(p, 'NPC Crafts');
 		b['new']['npc_sells'] = this.add_button(p, 'NPC Goods');
+		b['new']['triggers'] = this.add_button(p, 'Trigger');
 		b['new']['npcs'] = this.add_button(p, 'NPC');
 		b['new']['monsters'] = this.add_button(p, 'Monster');
 		b['new']['mines'] = this.add_button(p, 'Resource');
@@ -176,5 +178,16 @@ class Navbar {
 				type_details.open_fn();
 			};
 		}
+
+		b['new']['triggers'].onclick = () => {
+			if (g_map.maptype.id == 'none') {
+				MessageWindow.open({ title: 'Error', msg: 'You need to open a map first' });
+				return;
+			}
+
+			const obj = db.new('triggers_' + g_map.maptype.id);
+			const type_details = PWPreview.get_obj_type(obj);
+			type_details.open_fn();
+		};
 	}
 }

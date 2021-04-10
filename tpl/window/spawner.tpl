@@ -259,7 +259,7 @@
 	{/if}
 	<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
 		<div>Trigger:</div>
-		<a class="button" onclick="MessageWindow.open({@@{ msg: 'Not implemented yet' }@@})">(none) &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+		<a class="button menu-triangle" data-link-button="{serialize $win.spawner} => 'trigger'" data-select="db.{@$win.spawner._db.type.replace('spawners_', 'triggers_')}" style="margin-top: 1px; margin-bottom: 1px;"></a>
 	</div>
 	{if $spawner.type != 'npc'}
 		<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">

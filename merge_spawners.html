@@ -74,11 +74,14 @@
 
 			window.onload = async () => {
 				let spawners = [];
+				let triggers = [];
 				for (const m in maps) {
 					const s = await fetch('data/base/map/' + m + '/spawners.json');
 					const r = await fetch('data/base/map/' + m + '/resources.json');
+					const t = await fetch('data/base/map/' + m + '/triggers.json');
 					let _sp = await s.json();
 					let _rs = await r.json();
+					let _tp = await t.json();
 					const map = maps[m];
 					for (const s of _sp) {
 						s.type = s.is_npc ? 'npc' : 'monster';
@@ -90,15 +93,26 @@
 					}
 					_sp = _sp.filter(s => s.type == 'monster' || (s?.groups?.filter(g => g.count && g.type)?.length));
 					spawners.push({ id: spawners.length, tag: m, name: map.name, entries: [..._sp, ..._rs] });
+					triggers.push({ id: triggers.length, tag: m, name: map.name, entries: _tp });
 				}
 
-				const d = dump2(spawners, 0);
+				{
+					const d = dump2(spawners, 0);
+					const file = new Blob([d], {type: 'application/json'});
+					const a = document.createElement('a');
+					a.href = URL.createObjectURL(file);
+					a.download = 'spawners.json';
+					a.click();
+				}
 
-				const file = new Blob([d], {type: 'application/json'});
-				const a = document.createElement('a');
-				a.href = URL.createObjectURL(file);
-				a.download = 'spawners.json';
-				a.click();
+				{
+					const d = dump2(triggers, 0);
+					const file = new Blob([d], {type: 'application/json'});
+					const a = document.createElement('a');
+					a.href = URL.createObjectURL(file);
+					a.download = 'triggers.json';
+					a.click();
+				}
 			};
 		</script>
 	</head>

@@ -195,6 +195,7 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'monsters'),
 			PWDB.register_data_type(db, args, 'items'),
 			PWDB.load_db_file('spawners'),
+			PWDB.load_db_file('triggers'),
 			PWDB.register_data_type(db, args, 'weapon_major_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'weapon_minor_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'armor_major_types', 'object_types'),
@@ -222,6 +223,13 @@ class PWDB {
 			db.register_type('spawners_' + arr.tag, init_id_array(arr.entries));
 			if (args.preinit) {
 				db['spawners_' + arr.tag].init();
+			}
+		}
+
+		for (const arr of g_db.triggers) {
+			db.register_type('triggers_' + arr.tag, init_id_array(arr.entries));
+			if (args.preinit) {
+				db['triggers_' + arr.tag].init();
 			}
 		}
 
@@ -427,6 +435,19 @@ class PWDB {
 					}
 				}
 			});
+		} else if (obj._db.type.startsWith('triggers_')) {
+			const mapid = obj._db.type.replace('triggers_', '');
+
+			const usages = [];
+
+			const arr = db['spawners_' + mapid];
+			for (const i of arr) {
+				if (i.trigger == obj.id) {
+					usages.push(i);
+				}
+			}
+
+			return usages;
 		}
 
 		return [];

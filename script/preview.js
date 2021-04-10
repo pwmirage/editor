@@ -104,6 +104,11 @@ class PWPreview {
 			open_fn = () => SpawnerWindow.open({ spawner: obj });
 		}
 
+		if (obj._db.type.startsWith('triggers_')) {
+			name = 'Trigger';
+			open_fn = () => TriggerWindow.open({ trigger: obj });
+		}
+
 		return { name, open_fn };
 	}
 
