@@ -517,7 +517,7 @@
 							<label><input type="checkbox" data-link="{serialize $task} => 'cant_be_found'" class="checkbox"><span>Hide from "Find quest"</label>
 						{/if}
 
-						<label><input type="checkbox" data-link="{serialize $task} => 'display_quest_title'" class="checkbox"><span>Dont notify on receive/complete</label>
+						<label><input type="checkbox" data-link="{serialize $task} => 'no_display_quest_title'" class="checkbox"><span>Dont notify on receive/complete</label>
 						<label><input type="checkbox" data-link="{serialize $task} => 'no_show_direction'" class="checkbox"><span>Hide navigation arrow</label>
 					</div>
 
