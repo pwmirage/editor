@@ -447,6 +447,12 @@ class PWDB {
 				}
 			}
 
+			for (const t of db.tasks) {
+				if (t.ai_trigger || t.award?.ai_trigger || t.failure_award?.ai_trigger) {
+					usages.push(t);
+				}
+			}
+
 			return usages;
 		}
 

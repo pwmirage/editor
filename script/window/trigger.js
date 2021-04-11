@@ -22,9 +22,14 @@ class TriggerWindow extends Window {
 		return await super.init();
 	}
 
-	print_spawner_name(spawner) {
+	print_obj_name(obj) {
+		if (obj._db.type == 'tasks') {
+			return 'Task: ' + (obj.name || '') + ' ' + DB.serialize_id(obj.id);
+		}
+
+		const spawner = obj;
 		const type = spawner.groups?.[0]?.type;
-		const obj = db.npcs[type] || db.monsters[type] || db.mines[type];
-		return (spawner.name || obj?.name) + ' ' + DB.serialize_id(spawner.id);
+		const spawned = db.npcs[type] || db.monsters[type] || db.mines[type];
+		return 'Spawner: ' + (spawned?.name || '') + ' ' + DB.serialize_id(spawner.id);
 	}
 }

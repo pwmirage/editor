@@ -39,8 +39,8 @@
 	<div id="spawned">
 		{assign usages = PWDB.find_usages(db, $trigger)}
 		{for obj of $usages}
-			{assign details = PWPreview.get_obj_type($obj)}
-			<a class="button" onclick="{serialize $details.open_fn}()">{@$details.name}: {@$win.print_spawner_name($obj)}</a>
+			{if !$obj._db.type.startsWith('spawners_')}{continue}{/if}
+			<a class="button" onclick="{serialize $details.open_fn}()">{@$win.print_obj_name($obj)}</a>
 		{/foreach}
 		{if $usages.length == 0}
 			<span>None</span>
