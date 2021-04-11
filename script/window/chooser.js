@@ -132,7 +132,14 @@ class SimpleChooserWindow extends ChooserWindow {
 		this.tabs = this.args.tabs || [ { name: 'All', filter: (i) => i } ];
 		this.name_fn = this.args.name_fn;
 		this.search = this.args.search || '';
-		
+
+		if (this.items.values().next().value && this.items.values().next().value._db?.type == 'items') {
+			this.name_fn = (item) => {
+				return '<span class="icon-container"><span class="item"><img src="' + Item.get_icon(item.icon || 0) + '"></span>' + item.name + '</span>';
+			};
+			this.args.width = 175;
+		}
+
 		this.args.tpl = 'tpl-simple-chooser';
 		await super.init();
 		this.select_tab(0);

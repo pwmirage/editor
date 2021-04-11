@@ -209,7 +209,15 @@
 	width: 100px;
 	margin-top: 4px;
 	margin-right: 4px;
+	overflow: hidden;
 	position: relative;
+}
+
+#items > * > .icon-container {
+	display: flex;
+	align-items: center;
+	column-gap: 4px;
+	padding: 3px 0;
 }
 
 #items > .selected {
