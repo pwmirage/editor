@@ -886,7 +886,7 @@ class HTMLSugar {
 				const obj = db[type][id || 0];
 				HTMLSugar.open_edit_rmenu(el,
 					obj, type, {
-					pick_win_title: 'Pick new ' + obj_details.name + 'for ' + (link.obj.name || link.obj._db.type) + ' ' + DB.serialize_id(link.obj.id),
+					pick_win_title: 'Pick new ' + obj_details.name + ' for ' + (link.obj.name || link.obj._db.type) + ' ' + DB.serialize_id(link.obj.id),
 					update_obj_fn: (new_obj) => {
 						el._mg_prev_value = get_obj_field(link.obj, link.path);
 						db.open(link.obj);
