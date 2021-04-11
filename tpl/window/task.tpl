@@ -492,6 +492,10 @@
 							<span>Auto-start quest on failure:</span>
 							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'item_groups', 0, 'new_quest'" data-select="db.tasks"></a>
 						</div>
+						<div class="flex-columns">
+							<span>Trigger on failure:</span>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'ai_trigger'" data-select="db['triggers_' + g_map.maptype.id]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+						</div>
 						<div id="failure_award_items" class="data-field" style="align-items: unset;">
 							<span>Give Items on failure: </span>
 							{assign idx = -1}
@@ -519,6 +523,11 @@
 
 						<label><input type="checkbox" data-link="{serialize $task} => 'no_display_quest_title'" class="checkbox"><span>Dont notify on receive/complete</label>
 						<label><input type="checkbox" data-link="{serialize $task} => 'no_show_direction'" class="checkbox"><span>Hide navigation arrow</label>
+
+						<div class="flex-columns">
+							<span>Trigger on start:</span>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'ai_trigger'" data-select="db['triggers_' + g_map.maptype.id]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+						</div>
 					</div>
 
 					<div class="flex-columns" style="flex-wrap: wrap; margin-top: 8px;">
@@ -545,9 +554,14 @@
 							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'y'"></span>
 							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'z'"></span>
 						</div>
+
+						<div class="flex-columns">
+							<span>Trigger:</span>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'ai_trigger'" data-select="db['triggers_' + g_map.maptype.id]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+						</div>
 					</div>
 					<div>
-						<div>TODO: date spans, ai trigger, instant tp</div>
+						<div>TODO: date spans, instant tp</div>
 					</div>
 				</div>
 			</div>
