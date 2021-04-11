@@ -33,7 +33,7 @@ class PWDB {
 			}
 
 			const changes = localStorage.getItem('pwdb_lchangeset_' + project.pid);
-			if (!changes || changes == '[]') {
+			if (!changes || changes.length < 5) {
 				return;
 			}
 
