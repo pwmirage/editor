@@ -239,7 +239,7 @@ class TaskWindow extends Window {
 
 		await super.init();
 
-		this.shadow.querySelector('#container .task.root > a').click();
+		this.shadow.querySelector('#container .task[data-id="' + this.task.id + '"] > a').click();
 
 		this.scroll_ctx = { el: null, top: 0, left: 0, x: 0, y: 0 };
 		this.mousemove_fn = (e) => this.onmousemove(e);
