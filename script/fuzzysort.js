@@ -42,7 +42,6 @@ const levenshtein = (a, b) => {
 	return d[alen][blen];
 }
 
-let FS_THR = 5;
 const fuzzysort = {
 	index: (arr, { key }) => {
 		const index = [];
@@ -61,7 +60,7 @@ const fuzzysort = {
 	go: (search, index, { threshold = 3 } = {}) => {
 		if (!search) {
 			const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
-			return index.sort((a, b) => collator.compare(a.obj.name, b.obj.name));
+			return index.filter(e => e.obj.name).sort((a, b) => collator.compare(a.obj.name, b.obj.name));
 		}
 
 		const search_words = search.trim().split(' ');
