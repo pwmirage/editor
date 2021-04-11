@@ -135,7 +135,7 @@ class SimpleChooserWindow extends ChooserWindow {
 
 		if (this.items.values().next().value && this.items.values().next().value._db?.type == 'items') {
 			this.name_fn = (item) => {
-				return '<span class="icon-container"><span class="item"><img src="' + Item.get_icon(item.icon || 0) + '"></span>' + item.name + '</span>';
+				return '<span class="icon-container"><span class="item"><img src="' + Item.get_icon(item.icon || 0) + '"></span>' + item.name + ' ' + DB.serialize_id(item.id) + '</span>';
 			};
 			this.args.width = 175;
 		}
@@ -157,7 +157,7 @@ class SimpleChooserWindow extends ChooserWindow {
 				el.style.display = 'none';
 				continue;
 			}
-			el.innerHTML = this.name_fn ? this.name_fn(item) : item.name;
+			el.innerHTML = this.name_fn ? this.name_fn(item) : (item.name + ' ' + DB.serialize_id(item.id));
 			el.style.display = '';
 		}
 

@@ -51,6 +51,7 @@ const fuzzysort = {
 			}
 
 			const words = obj[key].split(' ');
+			words.push(DB.serialize_id(obj.id));
 			const entry = { obj, words, dist: 999 };
 			index.push(entry);
 		}
