@@ -189,5 +189,23 @@ class Navbar {
 			const type_details = PWPreview.get_obj_type(obj);
 			type_details.open_fn();
 		};
+
+		for (const type in b['browse']) {
+			const btn = b['browse'][type];
+
+			btn.onclick = () => {
+				const type_details = PWPreview.get_obj_type(db[type].values().next().value);
+				SimpleChooserWindow.open({ title: type_details.name, items: db[type] });
+			};
+		}
+
+		b['browse']['triggers'].onclick = () => {
+			if (g_map.maptype.id == 'none') {
+				MessageWindow.open({ title: 'Error', msg: 'You need to open a map first' });
+				return;
+			}
+
+			SimpleChooserWindow.open({ title: 'Triggers ' + g_map.maptype.name, items: db['triggers_' + g_map.maptype.id] });
+		};
 	}
 }
