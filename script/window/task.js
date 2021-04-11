@@ -576,8 +576,10 @@ class TaskWindow extends Window {
 			(active.querySelector('input[type="radio"]') || {}).checked = false;
 		}
 
-		el.classList.add('active');
-		(el.querySelector('input[type="radio"]') || {}).checked = true;
+		if (el) {
+			el.classList.add('active');
+			(el.querySelector('input[type="radio"]') || {}).checked = true;
+		}
 		this.sel_opts[tab_type] = id;
 
 		const tabs = this.shadow.querySelector('.tabs.' + tab_type);
@@ -585,8 +587,10 @@ class TaskWindow extends Window {
 			for (const c of tabs.children) {
 				c.classList.remove('active');
 			}
-			tabs.children[id].classList.add('active');
-			tabs.style.display = tabs.children[id].innerText.trim() ? '' : 'none';
+			if (tabs.children[id]) {
+				tabs.children[id].classList.add('active');
+				tabs.style.display = tabs.children[id].innerText.trim() ? '' : 'none';
+			}
 		}
 
 		if (tab_type == 'start_by') {
