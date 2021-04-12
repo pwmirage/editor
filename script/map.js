@@ -404,6 +404,13 @@ class PWMap {
 				last.type = obj.type;
 			}
 
+			if (obj.type == 'items') {
+				/* ^ same with items */
+				const changesets = obj._db.changesets;
+				const last = changesets[changesets.length - 1];
+				last.type = obj.type;
+			}
+
 			(async () => {
 				await this.post_canvas_msg({ type: 'update_obj', obj: obj });
 				this.force_mouse_update = true;
