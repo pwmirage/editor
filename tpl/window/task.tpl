@@ -494,24 +494,26 @@
 						</div>
 						<div class="flex-columns">
 							<span>Trigger on failure:</span>
-							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'ai_trigger'" data-select="db['triggers_' + g_map.maptype.id]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
 						</div>
 						<div id="failure_award_items" class="data-field" style="align-items: unset;">
 							<span>Give Items on failure: </span>
-							{assign idx = -1}
-							{for item of ($task.failure_award?.item_groups?.[0]?.items || [])}
-								{$idx++}
-								{if !$item?.id}{continue}{/if}
-								<div class="item-w-cnt">
-									<span class="item" data-link-item="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('failure_award');" tabindex="0"></span>
-									<div style="display: flex; flex-direction: column; row-gap: 5px; padding: 0 4px;">
-										<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
-										<span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
-									</div>
+							<div style="display: flex; flex-wrap: wrap; row-gap: 10px;">
+								{assign idx = -1}
+								{for item of ($task.failure_award?.item_groups?.[0]?.items || [])}
+									{$idx++}
+									{if !$item?.id}{continue}{/if}
+									<div class="item-w-cnt" style="display: flex;">
+										<span class="item" data-link-item="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" oninput="{serialize $win}.cleanup_items('failure_award');" tabindex="0"></span>
+										<div style="display: flex; flex-direction: column; row-gap: 5px; padding: 0 4px;">
+											<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', {@$idx}, 'amount'" data-placeholder="(0)"></span>
+											<span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'failure_award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
+										</div>
 
-								</div>
-							{/for}
-							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('failure_award');"></span>
+									</div>
+								{/for}
+								<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('failure_award');"></span>
+							</div>
 						</div>
 						{if !$task.parent_quest}
 							<div class="flex-columns">
@@ -526,7 +528,7 @@
 
 						<div class="flex-columns">
 							<span>Trigger on start:</span>
-							<a class="button menu-triangle" data-link-button="{serialize $task} => 'ai_trigger'" data-select="db['triggers_' + g_map.maptype.id]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
 						</div>
 					</div>
 
@@ -557,11 +559,12 @@
 
 						<div class="flex-columns">
 							<span>Trigger:</span>
-							<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'ai_trigger'" data-select="db['triggers_' + g_map.maptype.id]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+							<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
 						</div>
 					</div>
 					<div>
 						<div>TODO: date spans, instant tp</div>
+						<br>
 					</div>
 				</div>
 			</div>
