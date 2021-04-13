@@ -80,6 +80,14 @@ class DB {
 						return ret;
 					}
 				}
+				if (k === 'find') {
+					return function(fn) {
+						for (const obj of map.values()) {
+							if (fn(obj)) return obj;
+						}
+						return null;
+					}
+				}
 				if (k === 'size') return map.size;
 				if (k === Symbol.iterator) {
 					return function *() {
