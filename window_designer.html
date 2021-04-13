@@ -40,7 +40,6 @@
 			location.search.substr(1).split("&").forEach(function(item) {g_params[item.split("=")[0]] = item.split("=")[1]})
 			var SECURITY_TOKEN = g_params.token;
 
-
 			window.onload = async () => {
 				await g_mg_loaded;
 				await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
@@ -56,6 +55,9 @@
 					ROOT_URL + 'tpl/window/' + win_name + '.tpl',
 					ROOT_URL + 'css/window.css',
 				];
+				if (win_name == 'item') {
+					watch_files[0] = ROOT_URL + 'tpl/item_tooltip.tpl';
+				}
 				let prev_files = new Array(watch_files.length);
 
 				const fn = async () => {
@@ -75,11 +77,16 @@
 
 								const prev_win = g_win;
 								const cls_name = g_params.class;
-								await load_tpl(ROOT_URL + 'tpl/window/' + win_name + '.tpl');
+								const item_id = g_params.item || 6;
+								if (win_name == 'item') {
+									await load_tpl(ROOT_URL + 'tpl/item_tooltip.tpl');
+								} else {
+									await load_tpl(ROOT_URL + 'tpl/window/' + win_name + '.tpl');
+								}
 								const cls = eval(cls_name);
 								const spawner = db.spawners_gs01[12920];
 								g_win = await cls.open( { debug: true, spawner: spawner, group: spawner.groups[0], npc: db.npcs[2109], crafts: db.npc_crafts[2902], simplified: true,
-										goods: db.npc_sells[2241], item: db.items[40], x: win_name == 'rmenu' ? 100 : 0, y: win_name == 'rmenu' ? 100 : 0, edit: true,
+										goods: db.npc_sells[2241], item: db.items[item_id], x: win_name == 'rmenu' ? 100 : 0, y: win_name == 'rmenu' ? 100 : 0, edit: true, db,
 										task: db.tasks[14022],
 										entries: [ { id: 0, name: 'First', children: [ { id: 1, name: 'NPC' } ] }, { id: 1, name: 'Second' }] });
 								if (prev_win) {
