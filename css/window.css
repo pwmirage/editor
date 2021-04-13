@@ -588,7 +588,6 @@ textarea {
 
 .pw-editable-color-text {
 	position: relative;
-	flex: 1;
 	display: flex;
 	min-height: 26px;
 	overflow: hidden;
