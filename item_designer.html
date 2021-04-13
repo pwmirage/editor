@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>ItemPreview</title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600" rel="stylesheet" type="text/css">
+		<style>
+		html, head, body, #windows {
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			margin: 0;
+			font-family:"Open Sans", Arial, Helvetica, sans-serif;
+			font-size:14px;
+			color: #fff;
+			font-weight:400;
+			line-height:20.72px;
+			overflow-wrap:break-word;
+			text-size-adjust:100%;
+		}
+
+		.window {
+			position: absolute;
+		}
+
+		#pw-map {
+			display: none;
+		}
+
+		.force-display {
+			display: block !important;
+		}
+
+		</style>
+
+		<script src="script/main.js"></script>
+		<script type="text/javascript">
+			let g_win;
+
+			let g_params = {};
+			var WCF = { User: { userID: 0, username: "" } };
+
+			location.search.substr(1).split("&").forEach(function(item) {g_params[item.split("=")[0]] = item.split("=")[1]})
+			var SECURITY_TOKEN = g_params.token;
+
+			window.onload = async () => {
+				await g_mg_loaded;
+				await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
+				await Editor.load();
+				db = await PWDB.new_db({ preinit: true });
+				db.metadata[1].pid = 274;
+
+				Template.debug = true;
+				Window.set_container(document.querySelector('#windows'));
+
+				g_win = new ItemTooltip( { debug: true, item: db.items[g_params.item || 6], x: 0, y: 0, edit: false, parent_el: document.querySelector('#mgeArea'), db });
+
+				const watch_files = [
+					ROOT_URL + 'tpl/item_tooltip.tpl',
+					ROOT_URL + 'css/window.css',
+				];
+				let prev_files = new Array(watch_files.length);
+
+				const fn = async () => {
+					try {
+						if (document.querySelector("#refreshCheck").checked) {
+							const new_files = await Promise.all(watch_files.map(f => get(f).then(r => r.data)));
+							let modified = false;
+							for (let i = 0; i < prev_files.length; i++) {
+								if (prev_files[i] != new_files[i]) {
+									modified = true;
+									break;
+								}
+							}
+
+							if (modified) {
+								prev_files = new_files;
+
+								const prev_win = g_win;
+								const item_id = g_params.item || 6;
+								const el = document.querySelector('.item');
+								el.dataset.id = item_id;
+
+								await load_tpl(ROOT_URL + 'tpl/item_tooltip.tpl');
+								g_win.tpl = new Template('tpl-item-info');
+								g_win.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
+
+								g_win.hover_el = null;
+								HTMLSugar.show_item_tooltip(g_win, el, { db });
+								g_win.dom.classList.add('force-display');
+							}
+						}
+					} finally {
+						setTimeout(fn, 3000);
+					}
+
+				};
+
+				await fn();
+				g_win.dom.style.visibility = 'visible';
+
+			};
+		</script>
+	</head>
+	<body>
+		<div id="windows" style="position: absolute; top: 0;"></div>
+		<div id="mgeArea" style="position: absolute; top: 0; width:100vw; height: 100vh;">
+			<span class="item menu-triangle" data-id="6" tabindex="0"><img{ } src=""></span>
+		</div>
+		<div style="position: absolute; top: 0; right: 10px; color: black;">Auto Refresh <input type="checkbox" id="refreshCheck" checked></input></div>
+	</body>
+</html>
