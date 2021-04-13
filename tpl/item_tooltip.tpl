@@ -29,7 +29,7 @@
 			<span class="item icon" ondblclick="{serialize $win}.select_icon();" oncontextmenu="{serialize $win}.icon_onclick(event, this); return false;" style="cursor: pointer;"><img{ } src="{@Item.get_icon($item.icon || 0)}"></span>
 		{/if}
 		<div style="flex: 1;">
-			<span class="flex-columns" style="{if !$edit}font-size: 13px; margin-bottom: 3px;{/if}"><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;#{@$item.id}&nbsp;</span>
+			<span class="flex-columns" style="{if !$edit}font-size: 13px; margin-bottom: 3px;{/if}"><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;{@DB.serialize_id($item.id)}&nbsp;</span>
 			<span style="margin-top: -4px;">{@Item.types[$item.type]?.name || "Invalid item"}</span>
 		</div>
 	</div>
@@ -341,17 +341,6 @@
 			{/if}
 		</div>
 
-		{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
-			<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
-				{if $edit}
-					<span class="section-header">Description</span>
-					<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
-				{else}
-					<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
-				{/if}
-			</div>
-		{/if}
-
 
 
 	{else if $item.type == Item.typeid('Quest')}
@@ -359,35 +348,24 @@
 		{if $edit}
 			<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
 		{/if}
-
-		{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
-			<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
-				{if $edit}
-					<span class="section-header">Description</span>
-					<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
-				{else}
-					<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
-				{/if}
-			</div>
-		{/if}
-
-
-
 	{else}
-		{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
-			<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
-				{if $edit}
-					<span class="section-header">Description</span>
-					<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
-				{else}
-					<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
-				{/if}
-			</div>
-		{/if}
-
-
-
+		{* ======== UNKNOWN ITEM TYPE ========= *}
 	{/if}
+
+
+
+	{* ======== COMMON FOR ALL ITEM TYPES ========= *}
+	{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
+		<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
+			{if $edit}
+				<span class="section-header">Description</span>
+				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
+			{else}
+				<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+			{/if}
+		</div>
+	{/if}
+
 </div>
 </div>
 </div>
