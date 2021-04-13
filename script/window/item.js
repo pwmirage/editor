@@ -10,6 +10,7 @@ class ItemChooserWindow extends ChooserWindow {
 		this.args.height = 36;
 		this.pager_offset = 0;
 		this.items_gen = 0;
+		this.all_items = this.args.items || db.items;
 		this.items = [];
 		this.tabs = [];
 
@@ -17,9 +18,15 @@ class ItemChooserWindow extends ChooserWindow {
 			this.tabs.push({ name: name, filter: (i) => i && i.type == type })
 		};
 
-		this.tabs.push({ name: 'All', filter: (i) => i });
+		this.tabs.push({ name: 'Icons + Items', filter: (i) => i });
+		this.tabs.push({ name: 'Items', filter: (i) => !i.is_icon });
+		this.tabs.push({ name: 'Icons', filter: (i) => i.is_icon });
 		add_type_tab('Weapons', Item.typeid('Weapon'));
 		add_type_tab('Armors', Item.typeid('Armor'));
+		add_type_tab('Fashion', Item.typeid('Fashion'));
+		add_type_tab('Misc', Item.typeid('Misc Item'));
+		add_type_tab('Quest Item', Item.typeid('Quest Item'));
+		add_type_tab('Consumable', Item.typeid('Consumable Quest Item'));
 
 		await super.init();
 		this.select_tab(0);
@@ -44,7 +51,7 @@ class ItemChooserWindow extends ChooserWindow {
 
 				if (item) {
 					el.firstElementChild.src = Item.get_icon(item.icon || 0);
-					el.dataset.id = item.id;
+					el.dataset.id = item.is_icon ? 0 : item.id;
 					el.style.display = '';
 				} else {
 					el.style.display = 'none';
@@ -70,7 +77,7 @@ class ItemChooserWindow extends ChooserWindow {
 	filter(str) {
 		let items;
 
-		items = fuzzysort.go(str, this.all_items);
+		items = fuzzysort.go(str, this.items_index);
 		this.items = items.map(i => i.obj);
 		this.pager_offset = 0;
 		this.move_pager(0);
@@ -80,14 +87,14 @@ class ItemChooserWindow extends ChooserWindow {
 		const tab = this.tabs[idx];
 		this.selected_tab = idx;
 		this.tpl.reload('#search');
-		this.all_items = fuzzysort.index(db.items.filter(tab.filter), { key: 'name' });
+		this.items_index = fuzzysort.index(this.all_items.filter(tab.filter), { key: 'name' });
 		this.filter(this.filter_str || '');
 	}
 }
 
 class ItemTooltipWindow extends Window {
 	async init() {
-		this.item = this.args.item || db.items.entries().next().value[1];
+		this.item = this.obj = this.args.item || db.items.entries().next().value[1];
 		this.edit = this.args.edit || false;
 		this.db = this.args.db;
 
@@ -162,6 +169,44 @@ class ItemTooltipWindow extends Window {
 			db.commit(this.item);
 			this.tpl.reload('#decompose');
 		}
+	}
+
+	static icons_db;
+	async select_icon() {
+		if (!ItemTooltipWindow.icons_db) {
+			const icons_db = ItemTooltipWindow.icons_db = [...db.items];
+			const start_len = icons_db.length;
+			icons_db.length += Item.icons.length;
+			for (let i = 0; i < Item.icons.length; i++) {
+				icons_db[start_len + i] = { id: i, name: ' ', icon: i, is_icon: 1 };
+			}
+		}
+
+		const win = await ItemChooserWindow.open({ items: ItemTooltipWindow.icons_db });
+		win.onchoose = (new_item) => {
+			if (!new_item) {
+				return;
+			}
+
+			db.open(this.item);
+			this.item.icon = new_item.icon;
+			db.commit(this.item);
+			this.tpl.reload('.item.icon');
+		}
+	}
+
+	icon_onclick(e, el) {
+		if (e.which != 3) {
+			return;
+		}
+
+		return HTMLSugar.open_undo_rmenu(el, this.item, {
+			undo_path: 'icon',
+			undo_fn: () => {
+				this.tpl.reload('.item.icon');
+			},
+			name_fn: (val) => 'Icon: ' + val
+		});
 	}
 
 }

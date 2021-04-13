@@ -2,7 +2,7 @@
 <div class="window" style="border: 30px solid rgba(1.0, 1.0, 1.0, 0.7); overflow: hidden; transition: none;">
 <div class="header">
 	<span>
-		Item chooser
+		Icon chooser
 	</span>
 	<div class="menu">
 		<i class="close fa fa-close" aria-hidden="true"></i>
@@ -76,6 +76,7 @@
 	margin-top: 0;
 	margin-right: 4px;
 	position: relative;
+	cursor: pointer;
 }
 
 #items > .item > img {
