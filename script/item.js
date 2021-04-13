@@ -232,9 +232,9 @@ class Item {
 
 class ItemTooltip {
 	constructor(args) {
-		this.item = args.item || { id: 0 }
 		this.edit = args.edit || false;
 		this.db = args.db || document.db;
+		this.item = args.item || { id: 0, _db: { type: 'items' } };
 
 		this.tpl = new Template('tpl-item-info');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
