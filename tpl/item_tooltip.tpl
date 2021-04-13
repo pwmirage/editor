@@ -355,6 +355,24 @@
 
 
 	{* ======== COMMON FOR ALL ITEM TYPES ========= *}
+	<div class="section flex-rows">
+		{for proc of Item.proc_types}
+			{if $proc.mask & 0x80000000}
+				{if $edit}
+					<span style="">{@$proc.name}: <span data-input class="input-number" oninput="{serialize $win}.set_proc({@$proc.id}, this);">{@($item.proc_type >> 20) * 300}</span></span>
+				{else}
+					<span>{@$proc.name} (sec): {@($item.proc_type >> 20) * 300}</span>
+				{/if}
+			{else}
+				{if $edit}
+					<label><input type="checkbox" class="checkbox" {if $item.proc_type & $proc.mask}checked{/if} oninput="{serialize $win}.set_proc({@$proc.id}, this);"><span>{@$proc.name}</span></label>
+				{else if $item.proc_type & $proc.mask}
+					<span>{@$proc.name}</span>
+				{/if}
+			{/if}
+		{/for}
+	</div>
+
 	{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
 		<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
 			{if $edit}

@@ -45,6 +45,21 @@ class Item {
 		{ id: 38, name: 'Dye' }
 	];
 
+	static proc_types = [
+		{ id: 0, name: 'Doesn\'t drop on death', mask: 0x0001 },
+		{ id: 1, name: 'Unable to drop', mask: 0x0002 },
+		{ id: 2, name: 'Unable to sell', mask: 0x0004 },
+		{ id: 3, name: 'Log excessively', mask: 0x0008 },
+		{ id: 4, name: 'Unable to trade', mask: 0x0010 },
+		{ id: 5, name: 'Bound on equip', mask: 0x0040 },
+		{ id: 6, name: 'Unable to unbind', mask: 0x0080 },
+		{ id: 7, name: 'Disappear on map change', mask: 0x0100 },
+		{ id: 8, name: 'Use automatically', mask: 0x0200 },
+		{ id: 9, name: 'Disappear on death', mask: 0x0400 },
+		{ id: 10, name: 'Unrepairable', mask: 0x1000 },
+		{ id: 11, name: 'Expiration time', mask: 0xfff00000 },
+	]
+
 	static typeid(name) {
 		name = name.toLowerCase();
 		return Item.types.find((t) => t.name.toLowerCase().includes(name))?.id || -1;

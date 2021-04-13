@@ -209,4 +209,22 @@ class ItemTooltipWindow extends Window {
 		});
 	}
 
+	set_proc(proc_id, el) {
+		db.open(this.item);
+		if (!this.item.proc_type) {
+			this.item.proc_type = 0;
+		}
+
+		const proc = Item.proc_types[parseInt(proc_id)];
+		this.item.proc_type &= ~proc.mask;
+
+		if (proc.mask & 0xf0000000) {
+			const exp = parseInt(el.textContent);
+			this.item.proc_type |= ((exp / 300) << 20);
+		} else if (el.checked) {
+			this.item.proc_type |= proc.mask;
+		}
+
+		db.commit(this.item);
+	}
 }
