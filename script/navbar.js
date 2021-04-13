@@ -190,6 +190,20 @@ class Navbar {
 			type_details.open_fn();
 		};
 
+		b['new']['items'].onclick = async () => {
+			const win = await ItemTypeChooserWindow.open();
+			const type = await win.wait();
+
+			const obj = db.new('items');
+			db.open(obj);
+			obj.type = type.id;
+			db.commit(obj);
+
+			const type_details = PWPreview.get_obj_type(obj);
+			type_details.open_fn();
+		};
+
+
 		for (const type in b['browse']) {
 			const btn = b['browse'][type];
 
