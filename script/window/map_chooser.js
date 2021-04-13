@@ -30,6 +30,12 @@ class MapChooserWindow extends Window {
 		await super.init();
 		this.move((Window.bounds.right - Window.bounds.left - this.dom_win.offsetWidth) / 2,
 				(Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight) / 2);
+
+		if (g_map.maptype.id != 'none') {
+			this.select_map(g_map.maptype.id);
+		}
+
+		search_el.focus();
 		return true;
 	}
 

@@ -17,13 +17,15 @@
 	<span style="margin-bottom: 4px;">Choose a map to edit</span>
 	<div class="flex-columns" style="align-items: baseline; margin-bottom: 2px;">
 		<span>Search</span>
-		<input type="text" id="search" style="flex: 1; margin-bottom: 4px;" autocomplete="off"></input>
+		<input type="text" id="search" style="flex: 1; margin-bottom: 4px;" autocomplete="off" tabindex="1"></input>
 	</div>
 	<div class="maps">
+		{assign count = 0}
 		{foreach map_id in $maps}
 			{assign map = $maps[map_id]}
 			{if $map.id == 'none'}{continue}{/if}
-			<div class="map" id="map-{@$map.id}" onclick="{serialize $win}.select_map('{@$map.id}')" ondblclick="this.onclick(); {serialize $win}.open_map();">{@$map.name}</div>
+			<div class="map" id="map-{@$map.id}" onfocus="{serialize $win}.select_map('{@$map.id}')" ondblclick="this.onfocus(); {serialize $win}.open_map();" tabindex="{@2 + $count}" onkeydown="if (event.key === 'Enter') {serialize $win}.open_map();">{@$map.name}</div>
+			{$count++}
 		{/foreach}
 	</div>
 	<div style="flex: 1;"></div>
@@ -61,13 +63,10 @@
 	user-select: none;
 }
 
-.maps > .map:active {
-	background-color: #f6e0e0;
-}
-
-.maps > .map.selected{
+.maps > .map.selected {
 	background-color: #f6e0e0;
 	border: 1px dashed #000;
+	outline: none;
 }
 </style>
 @@}
