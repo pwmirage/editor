@@ -274,8 +274,16 @@
 									<span>Count:</span>
 									<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'count'" data-placeholder="(0)"></span>
 									<span class="item collect" data-link-item="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_id'" data-default-id="-1" tabindex="0"></span>
-									<span class="collect">x</span>
-									<span data-input class="collect input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_cnt'" data-placeholder="(0)"></span>
+									<div class="collect flex-rows">
+										<div class="flex-columns">
+											<span style="display: inline-block; width: 16px;">x</span>
+											<span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_cnt'" data-placeholder="(0)"></span>
+										</div>
+										<div class="flex-columns">
+											<span style="display: inline-block; width: 16px;">%</span>
+											<span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $task} => 'req_monsters', {@$idx}, 'drop_item_probability'" data-placeholder="(0)"></span>
+										</div>
+									</div>
 									<div style="flex: 1;"></div>
 									<a class="remove-btn always" onclick="{serialize $win}.remove_req_monster({@$idx});"><i class="close fa fa-minus-circle"></i></a>
 								</div>
