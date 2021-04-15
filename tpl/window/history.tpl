@@ -93,7 +93,7 @@
 										{for i = 0; i < 8; i++}
 											{assign prev_id = $get_item_id($rowid * 8 + $i)}
 											{assign cur_id = $page.item_id[$rowid * 8 + $i] ?? $prev_id}
-											<div class="flex-rows" style="gap: 2px;" onmousemove="PWPreview.try_show_obj_tooltip(db, event);" onmouseleave="this.onmousemove(event);">
+											<div class="flex-rows" style="gap: 2px;">
 												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}"><img{ } src="{@PWPreview.get_item_icon(db, $prev_id)}" alt=""></span>
 												<span class="item {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}"><img{ } src="{@PWPreview.get_item_icon(db, $cur_id)}" alt=""></span>
 											</div>
@@ -139,7 +139,7 @@
 										{for i = 0; i < 8; i++}
 											{assign prev_id = $get_recipe_id($rowid * 8 + $i)}
 											{assign cur_id = $page.recipe_id[$rowid * 8 + $i] ?? $prev_id}
-											<div class="flex-rows" style="gap: 2px;" onmousemove="PWPreview.try_show_obj_tooltip(db, event);" onmouseleave="this.onmousemove(event);">
+											<div class="flex-rows" style="gap: 2px;">
 												<span class="recipe {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($prev_id)}" alt=""></span>
 												<span class="recipe {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
 											</div>

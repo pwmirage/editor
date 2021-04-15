@@ -24,12 +24,7 @@ class PWPreview {
 		customElements.define('pw-diff', PWPreviewElement);
 
 		const mgeArea = document.querySelector('#mgeArea');
-		PWPreview.item_win = new ItemTooltip({ parent_el: mgeArea, edit: false });
-		PWPreview.recipe_win = new RecipeTooltip({ parent_el: mgeArea, edit: false });
-		
-		const s = newStyle(ROOT_URL + 'css/preview.css');
-		await new Promise((resolve) => { s.onload = resolve; });
-		PWPreview.recipe_win.shadow.prepend(s);
+
 	}
 
 	static is_empty(obj) {
@@ -135,15 +130,6 @@ class PWPreview {
 		return src || (ROOT_URL + '/img/' + file);
 	}
 
-	static try_show_obj_tooltip(db, e) {
-		const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
-		const item = el?.classList.contains('item') ? el : null;
-		const recipe = el?.classList.contains('recipe') ? el : null;
-
-		HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db });
-		HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: db });
-	};
-
 	static diff(args) {
 		if (!PWPreview.diff_tpl) {
 			PWPreview.diff_tpl = new Template('tpl-diff');
@@ -204,20 +190,6 @@ class PWPreviewElement extends HTMLElement {
 		this.shadow.append(...styles);
 
 		this.tpl = new Template('pw-preview-root');
-	}
-
-	onmousemove(e) {
-		if (!this.item_win || !this.recipe_win) {
-			/* not initialized yet */
-			return;
-		}
-
-		const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
-		const item = el?.classList.contains('item') ? el : null;
-		const recipe = el?.classList.contains('recipe') ? el : null;
-
-		HTMLSugar.show_item_tooltip(this.item_win, item, { db: this.db });
-		HTMLSugar.show_recipe_tooltip(this.recipe_win, recipe, { db: this.db });
 	}
 
 	async connectedCallback() {
@@ -281,16 +253,6 @@ class PWPreviewElement extends HTMLElement {
 		const data = this.tpl.run({ preview: this, db: this.db, objects: preview_db, has_local_changes });
 		this.shadow.append(data);
 
-		this.item_win = new ItemTooltip({ parent_el: this.shadow, db: this.db, edit: false });
-		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db: this.db, edit: false });
-		for (const shadow of [ this.recipe_win.shadow, this.item_win.shadow ]) {
-			const s = newStyle(ROOT_URL + 'css/preview.css');
-			const s_p = new Promise((resolve) => { s.onload = resolve; });
-			shadow.prepend(s);
-			await s_p;
-		}
-
-		data.onmousemove = (e) => this.onmousemove(e);
 		this.classList.add('loaded');
 	}
 

@@ -797,6 +797,7 @@ class HTMLSugar {
 
 		const update_icon = (auto = false) => {
 			const id = get_obj_field(link.obj, link.path);
+			el.dataset.id = id;
 
 			if (default_id) {
 				img.src = Item.get_icon_by_item(db, id || default_id);
