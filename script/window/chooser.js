@@ -50,6 +50,7 @@ class ChooserWindow extends Window {
 
 		setTimeout(() => {
 			this.resizing = false;
+			this.tpl.reload('#items');
 			this.recalculate_pager();
 			this.move_pager(0);
 		}, 500);
