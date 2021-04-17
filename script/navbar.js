@@ -207,19 +207,27 @@ class Navbar {
 		for (const type in b['browse']) {
 			const btn = b['browse'][type];
 
-			btn.onclick = () => {
+			btn.onclick = async () => {
 				const type_details = PWPreview.get_obj_type(db[type].values().next().value);
-				SimpleChooserWindow.open({ title: type_details.name, items: db[type] });
+				const win = await SimpleChooserWindow.open({ title: type_details.name, items: db[type], maximized: false });
+				win.onclick = (obj) => {
+					const type_details = PWPreview.get_obj_type(obj);
+					type_details.open_fn();
+				};
 			};
 		}
 
-		b['browse']['triggers'].onclick = () => {
+		b['browse']['triggers'].onclick = async () => {
 			if (g_map.maptype.id == 'none') {
 				MessageWindow.open({ title: 'Error', msg: 'You need to open a map first' });
 				return;
 			}
 
-			SimpleChooserWindow.open({ title: 'Triggers ' + g_map.maptype.name, items: db['triggers_' + g_map.maptype.id] });
+			const win = await SimpleChooserWindow.open({ title: 'Triggers ' + g_map.maptype.name, items: db['triggers_' + g_map.maptype.id], maximized: false });
+			win.onclick = (obj) => {
+				const type_details = PWPreview.get_obj_type(obj);
+				type_details.open_fn();
+			};
 		};
 	}
 }

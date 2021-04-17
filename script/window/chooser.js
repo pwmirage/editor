@@ -123,6 +123,13 @@ class ChooserWindow extends Window {
 		}
 		this.close();
 	}
+
+	click(idx) {
+		if (this.onclick) {
+			idx = parseInt(idx) + this.pager_offset;
+			this.onclick(this.items[idx]);
+		}
+	}
 }
 
 class SimpleChooserWindow extends ChooserWindow {
