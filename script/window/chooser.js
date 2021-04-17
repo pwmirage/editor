@@ -14,11 +14,16 @@ class ChooserWindow extends Window {
 		this.args.height = this.args.height || 34;
 		this.args.win = this;
 		this.args.npc = this.npc;
+		this.args.maximized = this.args.maximized ?? true;
 		const data = this.tpl.run(this.args);
 
 		shadow.append(data);
 		await super.init();
-		this.maximize();
+
+		if (this.args.maximized) {
+			this.maximize();
+		}
+
 		this.shadow.querySelector('.content').classList.add('loading');
 		setTimeout(() => {
 			this.recalculate_pager();
@@ -26,7 +31,7 @@ class ChooserWindow extends Window {
 			this.reload_items();
 			this.tpl.reload('#pager');
 			this.shadow.querySelector('.content').classList.remove('loading');
-			this.shadow.querySelector('#search > input').focus();
+			this.shadow.querySelector('#search input').focus();
 		}, 50);
 
 	}
@@ -80,19 +85,6 @@ class ChooserWindow extends Window {
 		}
 
 		this.items_per_page = this.max_items_per_page - overflown_items;
-	}
-
-	onmousemove(e) {
-		const item = e.path?.find(el => el?.classList?.contains('item'));
-
-		if (item != this.hovered_item) {
-			this.hover_item(item);
-			this.hovered_item = item;
-		}
-	}
-
-	hover_item(el) {
-		/* virtual */
 	}
 
 	filter() {
@@ -186,10 +178,6 @@ class SimpleChooserWindow extends ChooserWindow {
 		this.tpl.reload('#search');
 		this.all_items = fuzzysort.index(this.args.items.filter(tab.filter), { key: 'name' });
 		this.filter(this.filter_str || '');
-	}
-
-	item_hover(idx, is_hover) {
-		/* empty */
 	}
 }
 

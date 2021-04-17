@@ -70,10 +70,6 @@ class ItemChooserWindow extends ChooserWindow {
 		super.reload_items();
 	}
 
-	hover_item(el) {
-		HTMLSugar.show_item_tooltip(this.item_win, el, { db });
-	}
-
 	filter(str) {
 		let items;
 

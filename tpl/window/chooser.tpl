@@ -1,10 +1,14 @@
 <script id="tpl-item-chooser" type="text/x-dot-template">
-<div class="window" style="border: 30px solid rgba(1.0, 1.0, 1.0, 0.7); overflow: hidden; transition: none;">
+<div class="window" style="{if $win.args.maximized}border: 30px solid rgba(1.0, 1.0, 1.0, 0.7);{/if} overflow: hidden; transition: none;">
 <div class="header">
 	<span>
 		Icon chooser
 	</span>
 	<div class="menu">
+		{if !$win.args.maximized}
+			<i class="minimize fa"></i>
+			<i class="maximize fa"></i>
+		{/if}
 		<i class="close fa fa-close" aria-hidden="true"></i>
 	</div>
 </div>
@@ -133,19 +137,25 @@
 </script>
 
 <script id="tpl-simple-chooser" type="text/x-dot-template">
-<div class="window" style="border: 30px solid rgba(1.0, 1.0, 1.0, 0.7); overflow: hidden; transition: none;">
+<div class="window {if !$win.args.maximized}resizable{/if}" style="{if $win.args.maximized}border: 30px solid rgba(1.0, 1.0, 1.0, 0.7);{/if} overflow: hidden; transition: none; width: 414px; height: 515px; min-height: 210px;">
 <div class="header">
 	<span>
 		{@$win.title}
 	</span>
 	<div class="menu">
+		{if !$win.args.maximized}
+			<i class="minimize fa"></i>
+			<i class="maximize fa"></i>
+		{/if}
 		<i class="close fa fa-close" aria-hidden="true"></i>
 	</div>
 </div>
 <div class="content flex-rows">
 	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
-		<span>Search:</span>
-		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" value="{@$win.search}" tabindex="1">
+		<div style="display: flex; align-items: baseline; column-gap: 6px;">
+			<span>Search:</span>
+			<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" value="{@$win.search}" tabindex="1">
+		</div>
 		{for i = 0; i < $win.tabs.length; i++}
 			{assign tab = $win.tabs[i]}
 			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
@@ -153,7 +163,7 @@
 	</div>
 	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.max_items_per_page; i++}
-			<a class="button" data-type="{@$i}" ondblclick="{serialize $win}.choose('{@$i}');" data-onhover="{serialize $win}.item_hover({@$i}, is_hover);" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"></a>
+			<a class="button" data-type="{@$i}" onclick="{serialize $win}.click('{@$i}');" ondblclick="{serialize $win}.choose('{@$i}');" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"></a>
 		{/for}
 	</div>
 	<div style="flex: 1;"></div>
