@@ -299,6 +299,10 @@ class Window {
 				win.dom_win.style.height = (bounds.height + (win.dom_header.offsetHeight || 0) - 2) + 'px';
 			}
 			e.preventDefault();
+
+			if (win.onresize) {
+				win.onresize();
+			}
 		}
 	}
 
