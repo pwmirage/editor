@@ -150,21 +150,6 @@ class ItemTooltipWindow extends Window {
 		this.tpl.reload('#' + type);
 	}
 
-	async select_decomp() {
-		const prev_item = db.items[this.item.element_id || 0];
-		const win = await ItemChooserWindow.open({ itemname: prev_item?.name });
-		win.onchoose = (new_item) => {
-			if (!new_item) {
-				return;
-			}
-
-			db.open(this.item);
-			this.item.element_id = new_item.id;
-			db.commit(this.item);
-			this.tpl.reload('#decompose');
-		}
-	}
-
 	static icons_db;
 	async select_icon() {
 		if (!ItemTooltipWindow.icons_db) {

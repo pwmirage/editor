@@ -324,7 +324,7 @@
 				<div id="decompose" class="flex-columns" style="align-items: center; margin-top: 3px;">
 					<span style="white-space: nowrap;">Decompose to </span>
 					{assign decomp = $db.items[$item.element_id || 0]}
-					<span class="item" ondblclick="{serialize $win}.select_decomp();" tabindex="0"><img{ } src="{if $item.element_id}{@Item.get_icon($decomp?.icon || 0)}{else}{@ROOT_URL + 'img/itemslot.png'}{/if}"></span>
+					<span class="item" data-link-item="{serialize $item} => 'element_id'" data-default-id="-1" tabindex="0"></span>
 
 					x&nbsp;<span {@$data_preview} data-input class="input-number width-3c" style="" data-link="{serialize $item} => 'element_num'"></span>
 				</div>
