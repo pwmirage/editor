@@ -650,12 +650,7 @@ class HTMLSugar {
 
 					div.onclick = async () => {
 						let win;
-						if (select_arr.values()?.next()?.value?.icon) {
-							/* assume it's an item */
-							win = await ItemChooserWindow.open({ });
-						} else {
-							win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
-						}
+						win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
 
 						win.onchoose = (type) => {
 							if (type) {
@@ -951,18 +946,14 @@ class HTMLSugar {
 
 				/* TODO make a 'new' entry inside? */
 				let win;
-				if (obj_type == 'items') {
-					win = await ItemChooserWindow.open({ });
-				} else {
-					const name_fn = (obj) => {
-						const ret = (obj.name || '(unnamed)') + ' ' + DB.serialize_id(obj.id);
-						if (obj_type == 'recipes') {
-							return '<div style="overflow: auto;"><img style="float: left; margin-right: 2px; width:32px; height: 32px;" src="' + NPCCraftsWindow.get_recipe_icon(obj.id) + '"><span>' + ret + '</span></div>';
-						}
-						return ret;
-					};
-					win = await SimpleChooserWindow.open({ title: pick_win_title, items, width: 176, name_fn  });
-				}
+				const name_fn = (obj) => {
+					const ret = (obj.name || '(unnamed)') + ' ' + DB.serialize_id(obj.id);
+					if (obj_type == 'recipes') {
+						return '<div style="overflow: auto;"><img style="float: left; margin-right: 2px; width:32px; height: 32px;" src="' + NPCCraftsWindow.get_recipe_icon(obj.id) + '"><span>' + ret + '</span></div>';
+					}
+					return ret;
+				};
+				win = await SimpleChooserWindow.open({ title: pick_win_title, items, width: 176, name_fn  });
 
 				win.onchoose = (type) => {
 					if (type) {
