@@ -14,6 +14,7 @@ class RMenuWindow extends Window {
 			return false;
 		}
 
+		Item.hide_tooltips();
 		if (RMenuWindow.last_rmenu) {
 			RMenuWindow.last_rmenu.close();
 		}
@@ -61,8 +62,6 @@ class RMenuWindow extends Window {
 			this.activate();
 			menu_el.onmouseenter = null;
 		};
-
-		setTimeout(() => this.activate(), 400);
 	}
 
 	onblur() {
@@ -83,7 +82,6 @@ class RMenuWindow extends Window {
 
 	activate() {
 		this.activated = true;
-		this.shadow.querySelector('#background').classList.add('activated');
 	}
 
 	tryclose() {

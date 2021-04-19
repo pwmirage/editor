@@ -19,13 +19,6 @@ class HistoryWindow extends Window {
 
 		await super.init();
 
-		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
-		this.recipe_win = new RecipeTooltip({ parent_el: this.shadow, db, edit: false });
-		
-		const s = newStyle(ROOT_URL + 'css/preview.css');
-		const s_p = new Promise((resolve) => { s.onload = resolve; });
-		this.recipe_win.shadow.prepend(s);
-
 		this.select_tab(2);
 	}
 

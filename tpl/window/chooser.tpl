@@ -21,7 +21,7 @@
 			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
 		{/for}
 	</div>
-	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="{serialize $win}.onmousemove(event);">
+	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 		{for i = 0; i < $win.max_items_per_page; i++}
 			<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"><img src="data:," alt=""></span>
 		{/for}

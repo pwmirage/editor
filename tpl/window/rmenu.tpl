@@ -40,10 +40,6 @@
 	height: 100vh;
 }
 
-#background:not(.activated):before {
-	pointer-events: none;
-}
-
 #background.visible:before {
 	background-color: #000;
 }

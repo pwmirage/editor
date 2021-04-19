@@ -38,7 +38,7 @@
 			<span class="recipe menu-triangle" data-id="{@$id}" data-idx="{@$i}" tabindex="0"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($id)}" alt=""></span>
 		{/for}
 	</div>
-	<div id="recipe" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);"></div>
+	<div id="recipe"></div>
 </div>
 </div>
 
@@ -152,7 +152,7 @@ span.tabname.selected {
 		<span class="tabname" data-input onfocus="{serialize $win}.select({@$i});" data-link="{serialize $goods} => 'pages', {@$i}, 'title'" data-placeholder="(none)"></span>
 	{/for}
 	</div>
-	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousemove="{serialize $win}.onmousemove(event);" onmouseleave="this.onmousemove(event);" onmousedown="return {serialize $win}.onclick(event);" oncontextmenu="return {serialize $win}.onclick(event);">
+	<div id="items" class="flex-columns" style="flex-wrap: wrap;" onmousedown="return {serialize $win}.onclick(event);" oncontextmenu="return {serialize $win}.onclick(event);">
 		{assign tab = $goods.pages[$win.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.item_id ? $tab?.item_id[i] : 0}

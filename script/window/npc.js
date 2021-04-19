@@ -24,7 +24,6 @@ class NPCCraftsWindow extends Window {
 
 		await super.init();
 
-		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
 		const recipe_edit_el = this.shadow.querySelector('#recipe');
 		this.recipe_win = await RecipeWindow.open({ parent_win: this, recipe: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
 
@@ -50,12 +49,6 @@ class NPCCraftsWindow extends Window {
 		const tgt_id = recipe?.targets?.[0]?.id || 0;
 
 		return Item.get_icon(db.items[tgt_id]?.icon || 0);
-	}
-
-	onmousemove(e) {
-		const item = e.path?.find(el => el?.classList?.contains('item'));
-
-		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
 	}
 
 	onclick(e) {
@@ -243,31 +236,23 @@ class NPCGoodsWindow extends Window {
 
 		await super.init();
 		this.select(0);
-
-		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
-	}
-
-	onmousemove(e) {
-		const item = e.path?.find(el => el?.classList?.contains('item'));
-
-		this.hover_el = item;
-		HTMLSugar.show_item_tooltip(this.item_win, item, { db });
 	}
 
 	onclick(e) {
-		if (this.hover_el == undefined || this.selected_tab == undefined) {
+		const hover_el = e.path?.find(el => el?.classList?.contains('item'));
+		if (hover_el == undefined || this.selected_tab == undefined) {
 			return;
 		}
 
 		let page = this.goods.pages[this.selected_tab];
-		const item_idx = parseInt(this.hover_el.dataset.idx);
+		const item_idx = parseInt(hover_el.dataset.idx);
 
 		(async () => {
 			if (e.which == 1) {
 				const itemid = page?.item_id ? page.item_id[item_idx] : 0;
 				const obj = db.items[itemid];
 
-				HTMLSugar.open_edit_rmenu(this.hover_el,
+				HTMLSugar.open_edit_rmenu(hover_el,
 					obj, 'items', {
 					pick_win_title: 'Pick new item for ' + (this.goods.name || 'Goods') + ' ' + DB.serialize_id(this.goods.id),
 					update_obj_fn: (new_obj) => {
@@ -297,7 +282,7 @@ class NPCGoodsWindow extends Window {
 					},
 				});
 			} else if (e.which == 3) {
-				HTMLSugar.open_undo_rmenu(this.hover_el, this.crafts, {
+				HTMLSugar.open_undo_rmenu(hover_el, this.crafts, {
 					undo_path: [ 'pages', this.selected_tab, 'item_id', item_idx ],
 					undo_fn: () => this.tpl.reload('#items')
 				});

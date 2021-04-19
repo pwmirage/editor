@@ -1,4 +1,4 @@
-/*
+/* SPDX-License-Identifier: MIT
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
@@ -34,8 +34,6 @@ class ItemChooserWindow extends ChooserWindow {
 			this.shadow.querySelector('#search > input').value = this.args.itemname;
 			this.filter(this.args.itemname);
 		}
-
-		this.item_win = new ItemTooltip({ parent_el: this.shadow, db, edit: false });
 	}
 
 	reload_items() {
@@ -170,15 +168,15 @@ class ItemTooltipWindow extends Window {
 	static icons_db;
 	async select_icon() {
 		if (!ItemTooltipWindow.icons_db) {
-			const icons_db = ItemTooltipWindow.icons_db = [...db.items];
+			const icons_db = ItemTooltipWindow.icons_db = [];
 			const start_len = icons_db.length;
 			icons_db.length += Item.icons.length;
 			for (let i = 0; i < Item.icons.length; i++) {
-				icons_db[start_len + i] = { id: i, name: ' ', icon: i, is_icon: 1 };
+				icons_db[start_len + i] = { id: i, name: ' ', icon: i, is_icon: 1, _db: {} };
 			}
 		}
 
-		const win = await ItemChooserWindow.open({ items: ItemTooltipWindow.icons_db });
+		const win = await ItemChooserWindow.open({ items: [...db.items, ...ItemTooltipWindow.icons_db ] });
 		win.onchoose = (new_item) => {
 			if (!new_item) {
 				return;
