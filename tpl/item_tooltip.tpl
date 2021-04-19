@@ -247,7 +247,7 @@
 		{/if}
 
 		{if $edit || $item.probability_unique}
-			<div class="section flex-rows">
+			<div class="section flex-rows" style="{if $edit}overflow:auto;{/if}>
 				{if $edit}
 					<span class="flex-columns section-header" style="width: 100%;">
 						<span style="flex: 1;">Unique addon</span>
@@ -408,8 +408,9 @@
 
 #item_info.edit {
 	overflow-x: auto;
-	width: 100%;
 	overflow-y: hidden;
+	width: 100%;
+	height: 100%;
 }
 
 #item_info > * {
