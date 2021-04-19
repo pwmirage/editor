@@ -57,34 +57,32 @@ class RecipeWindow extends Window {
 			const itemid = recipe[type][idx]?.id || 0;
 			const obj = db.items[itemid];
 
-			sleep(150).then(() => {
-				HTMLSugar.open_edit_rmenu(el,
-					obj, 'items', {
-					pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + DB.serialize_id(recipe.id),
-					update_obj_fn: (new_obj) => {
-						db.open(recipe);
+			HTMLSugar.open_edit_rmenu(el,
+				obj, 'items', {
+				pick_win_title: 'Pick new item for ' + (recipe.name || 'Recipe') + ' ' + DB.serialize_id(recipe.id),
+				update_obj_fn: (new_obj) => {
+					db.open(recipe);
 
-						if (!recipe[type]) {
-							recipe[type] = [];
-						}
-
-						if (!recipe[type][idx]) {
-							recipe[type][idx] = {};
-						}
-
-						recipe[type][idx].id = new_obj?.id;
-
-						db.commit(recipe);
-						this.tpl.reload('#' + type);
-
-					},
-					edit_obj_fn: (new_obj) => {
-						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
-					},
-					usage_name_fn: (item) => {
-						return item.name + ': ' + (item.name || '') + ' ' + DB.serialize_id(item.id);
+					if (!recipe[type]) {
+						recipe[type] = [];
 					}
-				});
+
+					if (!recipe[type][idx]) {
+						recipe[type][idx] = {};
+					}
+
+					recipe[type][idx].id = new_obj?.id;
+
+					db.commit(recipe);
+					this.tpl.reload('#' + type);
+
+				},
+				edit_obj_fn: (new_obj) => {
+					ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+				},
+				usage_name_fn: (item) => {
+					return item.name + ': ' + (item.name || '') + ' ' + DB.serialize_id(item.id);
+				}
 			});
 		} else if (e.which == 3) {
 			HTMLSugar.open_undo_rmenu(el, this.recipe, {

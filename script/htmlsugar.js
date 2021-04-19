@@ -914,7 +914,6 @@ class HTMLSugar {
 
 	static async open_edit_rmenu(around_el, obj, obj_type, { pick_win_title, update_obj_fn, edit_obj_fn, usage_name_fn = null }) {
 		const base = obj ? (db[obj._db.type][obj._db.base]) : null;
-		const usages = await PWDB.find_usages(db, obj);
 
 		const win = await RMenuWindow.open({
 		around_el, bg: false,
@@ -923,7 +922,7 @@ class HTMLSugar {
 			{ id: 2, name: 'Pick' },
 			{ id: 3, name: obj ? 'Replace with new' : 'Create new' },
 			{ id: 4, name: 'Clone & Edit', disabled: !obj },
-			{ id: 5, name: 'Find usages (' + usages.length + ')', disabled: !obj },
+			{ id: 5, name: 'Find usages (...)', disabled: !obj },
 			{ id: 25, name: 'Clear', disabled: !obj},
 			{ name: '...', visible: false, children: [
 				{ name: 'Base: ' + (base ? (base.name + ' ' + DB.serialize_id(base.id)) : '(none)') },
@@ -934,6 +933,13 @@ class HTMLSugar {
 				{ id: 25, name: 'Clear', disabled: !obj},
 			]},
 		]});
+
+		const usages = new Promise(resolve => setTimeout(() => {
+			const u = PWDB.find_usages(db, obj);
+			win.shadow.querySelector('#entry-5 > span').textContent = 'Find usages (' + u.length + ')';
+			resolve(u);
+		}), 1);
+
 		const sel = await win.wait();
 		switch(sel) {
 			case 1: { /* edit directly */
@@ -982,7 +988,7 @@ class HTMLSugar {
 				break;
 			}
 			case 5: { /* find usages */
-				const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + DB.serialize_id(obj.id), items: usages, width: 176, name_fn: usage_name_fn });
+				const win = await SimpleChooserWindow.open({ title: 'Usages of ' + obj.name + ' ' + DB.serialize_id(obj.id), items: await usages, width: 176, name_fn: usage_name_fn });
 
 				break;
 			}
