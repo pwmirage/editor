@@ -360,7 +360,7 @@
 			{if $proc.mask & 0x80000000}
 				{if $edit}
 					<span style="">{@$proc.name}: <span data-input class="input-number" oninput="{serialize $win}.set_proc({@$proc.id}, this);">{@($item.proc_type >> 20) * 300}</span></span>
-				{else}
+				{else if $item.proc_type & $proc.mask}
 					<span>{@$proc.name} (sec): {@($item.proc_type >> 20) * 300}</span>
 				{/if}
 			{else}
