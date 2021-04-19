@@ -129,11 +129,17 @@ class SimpleChooserWindow extends ChooserWindow {
 		this.pager_offset = 0;
 		this.items = this.args.items || [];
 		this.title = this.args.title || 'Chooser';
-		this.tabs = this.args.tabs || [ { name: 'All', filter: (i) => i } ];
 		this.name_fn = this.args.name_fn;
 		this.search = this.args.search || '';
 
-		if (this.items.values().next().value && this.items.values().next().value._db?.type == 'items') {
+		const type = this.type = this.items.values().next().value._db?.type;
+
+		this.tabs = this.args.tabs || [
+			{ name: 'All', filter: (i) => i && !i._removed },
+			{ name: 'Recent', filter: (i) => i && !i._removed && i._db.chooser_recent_idx }
+		];
+
+		if (type === 'items') {
 			this.name_fn = (item) => {
 				return '<span class="icon-container"><span class="item"><img src="' + Item.get_icon(item.icon || 0) + '"></span>' + item.name + ' ' + DB.serialize_id(item.id) + '</span>';
 			};
@@ -178,6 +184,21 @@ class SimpleChooserWindow extends ChooserWindow {
 		this.tpl.reload('#search');
 		this.all_items = fuzzysort.index(this.args.items.filter(tab.filter), { key: 'name' });
 		this.filter(this.filter_str || '');
+	}
+
+	choose(idx) {
+		const prev_onchoose = this.onchoose;
+
+		if (prev_onchoose) {
+			this.onchoose = (obj) => {
+				if (obj?.id) {
+					PWDB.set_chooser_recent(this.type, obj.id);
+				}
+				return prev_onchoose(obj);
+			}
+		}
+
+		super.choose(idx);
 	}
 }
 

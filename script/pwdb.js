@@ -59,7 +59,6 @@ class PWDB {
 		PWDB.tag_categories = {};
 		PWDB.tags = {};
 		PWDB.last_saved_changeset = 0;
-
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
 		const init_type_arr = (type, typename, arr) => {
@@ -174,19 +173,32 @@ class PWDB {
 		const db = new DB();
 		this.db_promise = null;
 
+		if (!PWDB.metadata_types) {
+			PWDB.metadata_types = {
+				project: 1,
+				chooser_recent: 2,
+			};
+		}
+
 		const project = {
-			id: 1,
+			id: PWDB.metadata_types.project,
 			tag: "project",
 			pid: args.pid || 0,
 			base: 0,
 			edit_time: 0,
 		};
 
+		const chooser_recent = {
+			id: PWDB.metadata_types.chooser_recent,
+			tag: "chooser_recent",
+			types: {},
+		};
+
 		let spawner_arrs = null;
 		const spawners_tag = args.no_tag ? null : Loading.show_tag('Loading spawners');
 
 		await Promise.all([
-			db.register_type('metadata', init_id_array([project])),
+			db.register_type('metadata', init_id_array([project, chooser_recent])),
 			PWDB.register_data_type(db, args, 'mines'),
 			PWDB.register_data_type(db, args, 'recipes'),
 			PWDB.register_data_type(db, args, 'npc_sells'),
@@ -282,10 +294,13 @@ class PWDB {
 			if (diff.name && diff.name.includes('\n')) {
 				/* no newlines in objects' names */
 				obj.name = diff.name = diff.name.replace(/[\n\r]/g, '');
-
 			}
 
 			if (obj._db.type != 'metadata' && !obj._db.project_initial_state) {
+				if (diff._allocated) {
+					PWDB.set_chooser_recent(obj._db.type, obj.id);
+				}
+
 				const state = DB.clone_obj(obj._db.changesets[0]);
 				for (const c of obj._db.changesets) {
 					if (c._db.generation == 0) {
@@ -331,6 +346,7 @@ class PWDB {
 			console.error(e);
 		}
 
+		PWDB.sort_chooser_recent(db);
 		PWDB.last_saved_changeset = db.changelog.length - 2;
 
 		return db;
@@ -642,4 +658,63 @@ class PWDB {
 			}, 400);
 		}
 	}
+
+	static sort_chooser_recent(db, type = undefined) {
+		const recent = db.metadata[PWDB.metadata_types.chooser_recent];
+		const sort_arr = (type) => {
+			const id_arr = recent.types[type];
+			const obj_arr = db[type];
+
+			if (!id_arr || !obj_arr) {
+				return;
+			}
+
+			let idx = 0;
+			for (const id of id_arr) {
+				if (!obj_arr[id]) {
+					continue;
+				}
+
+				obj_arr[id]._db.chooser_recent_idx = 1 + idx;
+				idx++;
+			}
+		}
+
+		if (type) {
+			sort_arr(type);
+		} else {
+			for (const type in recent.types) {
+				sort_arr(type);
+			}
+		}
+	}
+
+	static set_chooser_recent(type, id) {
+		if (!db) {
+			/* called while still loading, but no problem as we'll call
+			 * sort_chooser_recent() afterwards */
+			return;
+		}
+
+		const recent = db.metadata[PWDB.metadata_types.chooser_recent];
+
+		if (!recent.types[type]) {
+			/* no need to commit */
+			recent.types[type] = [];
+		}
+
+		const arr = recent.types[type];
+
+		const idx = arr.indexOf(id);
+		db.open(recent);
+		if (idx !== -1) {
+			arr.splice(idx, 1);
+			PWDB.sort_chooser_recent(db, type);
+		} else {
+			db[type][id]._db.chooser_recent_idx = 1 + arr.length;
+		}
+		arr.push(id);
+		db.commit(recent);
+	}
+
 }

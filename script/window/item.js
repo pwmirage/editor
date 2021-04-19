@@ -15,12 +15,12 @@ class ItemChooserWindow extends ChooserWindow {
 		this.tabs = [];
 
 		const add_type_tab = (name, type) => {
-			this.tabs.push({ name: name, filter: (i) => i && i.type == type })
+			this.tabs.push({ name: name, filter: (i) => i && !i._removed && i.type == type })
 		};
 
-		this.tabs.push({ name: 'Icons + Items', filter: (i) => i });
-		this.tabs.push({ name: 'Items', filter: (i) => !i.is_icon });
-		this.tabs.push({ name: 'Icons', filter: (i) => i.is_icon });
+		this.tabs.push({ name: 'Icons + Items', filter: (i) => i && !i._removed });
+		this.tabs.push({ name: 'Items', filter: (i) => i && !i._removed && !i.is_icon });
+		this.tabs.push({ name: 'Icons', filter: (i) => i && !i._removed && i.is_icon });
 		add_type_tab('Weapons', Item.typeid('Weapon'));
 		add_type_tab('Armors', Item.typeid('Armor'));
 		add_type_tab('Fashion', Item.typeid('Fashion'));
