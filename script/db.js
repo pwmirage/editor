@@ -334,7 +334,7 @@ class DB {
 	}
 
 	/* Create a new object with a specific ID */
-	_new_by_id(type, id) {
+	new_by_id(type, id) {
 		const obj = {};
 
 		if (this[type][id]) {
@@ -444,7 +444,7 @@ class DB {
 		const load_change = (change) => {
 			let org = this[change._db.type][change.id];
 			if (!org) {
-				org = this._new_by_id(change._db.type, change.id);
+				org = this.new_by_id(change._db.type, change.id);
 			}
 
 			this.open(org);
