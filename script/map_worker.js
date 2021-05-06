@@ -182,7 +182,7 @@ const get_spawners_at = (mx, my) => {
 const get_name = (spawner, group_idx = 0) => {
 	let obj = null;
 	const type = spawner.groups[group_idx]?.type;
-	if (spawner.type == 'resources') {
+	if (spawner.type == 'resource') {
 		obj = g_objs.mines?.get(type);
 	} else {
 		obj = g_objs.npcs?.get(type) || g_objs.monsters?.get(type);
