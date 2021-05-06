@@ -259,6 +259,7 @@
 	min-width: 75px;
 	text-align: center;
 	overflow: hidden;
+	margin-bottom: 7px;
 }
 
 #changed-objects > div > img {
