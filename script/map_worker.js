@@ -263,6 +263,15 @@ const filter_spawners = (canvas) => {
 			continue;
 		}
 
+		let type = spawner.type;
+		if (type && !map_filters[type](spawner)) {
+			continue;
+		}
+
+		if (spawner._removed && !g_opts?.['show-removed-spawners']) {
+			continue;
+		}
+
 		if (search) {
 			let match = false;
 
@@ -280,15 +289,6 @@ const filter_spawners = (canvas) => {
 			if (!match) {
 				continue;
 			}
-		}
-
-		let type = spawner.type;
-		if (type && !map_filters[type](spawner)) {
-			continue;
-		}
-
-		if (spawner._removed && !g_opts?.['show-removed-spawners']) {
-			continue;
 		}
 
 		drawn_spawners[type].push(spawner);
