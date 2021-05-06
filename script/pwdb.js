@@ -690,9 +690,13 @@ class PWDB {
 	}
 
 	static set_chooser_recent(type, id) {
-		if (!db) {
-			/* called while still loading, but no problem as we'll call
-			 * sort_chooser_recent() afterwards */
+		try {
+			if (!db) {
+				/* called while still loading, but no problem as we'll call
+				 * sort_chooser_recent() afterwards */
+				return;
+			}
+		} catch (e) {
 			return;
 		}
 
