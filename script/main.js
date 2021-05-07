@@ -52,7 +52,7 @@ const load_script = (src) => {
 
 let g_last_body_el = null;
 const load_tpl = async (src) => {
-	const file = await get(src);
+	const file = await get(src + '?v=' + MG_VERSION);
 	if (!file.ok) {
 		throw new Error('Failed to load template: ' + src);
 	}
