@@ -261,3 +261,14 @@ const cleanup_id_arr = (arr) => {
 
 	}
 }
+
+const get_wcf_css = () => {
+	const styles = document.querySelectorAll('head > link[rel="stylesheet"]');
+	for (const s of styles) {
+		if (s.href.includes('style')) {
+			return s;
+		}
+	}
+	/* we shouldn't get here, but just in case */
+	return styles[0];
+}
