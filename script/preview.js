@@ -14,8 +14,6 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/db.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/idb.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 			load_tpl(ROOT_URL + 'tpl/preview/diff.tpl'),
 		]);

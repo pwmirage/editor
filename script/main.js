@@ -28,6 +28,8 @@ const mg_init = async () => {
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION);
+	await load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION);
 
 	try {
