@@ -52,17 +52,24 @@ const load_script = (src) => {
 	});
 }
 
-let g_last_body_el = null;
+let g_tpl_dom = {};
 const load_tpl = async (src) => {
 	const file = await get(src + '?v=' + MG_VERSION);
 	if (!file.ok) {
 		throw new Error('Failed to load template: ' + src);
 	}
 
-	if (!g_last_body_el) {
-		g_last_body_el = document.body.lastElementChild;
+	const els = newArrElements(file.data);
+	for (const el of els) {
+		if (el.id) {
+			const prev = document.getElementById(el.id);
+			if (prev) {
+				prev.remove();
+			}
+		}
+		document.head.insertAdjacentElement('beforeend', el);
+		Template.tpl_generation[el.id] = (Template.tpl_generation[el.id] + 1) || 1;
 	}
-	g_last_body_el.insertAdjacentHTML('afterend', file.data);
 }
 
 let g_mg_editor_open = false;

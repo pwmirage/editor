@@ -8,6 +8,7 @@ class Template {
 	static tpl_map = new WeakMap();
 	static tpl_map_idx = 0;
 	static tpl_id_map = {};
+	static tpl_generation = {};
 
 	constructor(name) {
 		this.name = name;
@@ -105,10 +106,11 @@ class Template {
 
 		const f_text = Template.build(tpl_script.text);
 		this.func = new Function('tpl', 'local', f_text);
+		this.generation = Template.tpl_generation[this.name];
 	}
 
 	run(args = {}) {
-		if (!this.func) {
+		if (!this.func || Template.tpl_generation[this.name] != this.generation) {
 			this.compile();
 		}
 
