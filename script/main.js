@@ -117,7 +117,7 @@ const notify = (type, msg) => {
 }
 
 let g_confirm_dom = null;
-const confirm = (msg, html) => {
+const confirm = (msg, html, title) => {
 	return new Promise(resolve => {
 		require(["Ui/Confirmation"], function(UiConfirmation) {
 			UiConfirmation.show({
@@ -127,7 +127,13 @@ const confirm = (msg, html) => {
 				message: msg,
 				template: html,
 			});
-			g_confirm_dom = UiConfirmation.getContentElement();
+			g_confirm_dom = document.querySelector('.dialogOverlay .dialogContainer');
+			if (title) {
+				const title_el = g_confirm_dom.querySelector('.dialogTitle');
+				if (title_el) {
+					title_el.textContent = title;
+				}
+			}
 		});
 	});
 }
