@@ -8,8 +8,7 @@ g_mg_pages['branch'] = new class {
 		this.tpl = new Template('tpl-page-branch');
 
 		this.dom = document.createElement('div');
-		/* hack for the HTMLSugar */
-		this.shadow = document;
+		this.shadow = this.dom.attachShadow({ mode: 'open' });
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
 		this.branch_colors = [];
@@ -21,36 +20,33 @@ g_mg_pages['branch'] = new class {
 		this.cur_branch_id = parseInt(args.id || 1);
 
 		let req;
+		req = await get(ROOT_URL + 'project/admin/pck_patches', { is_json: 1});
+		this.patches = req.data;
+
 		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
 		this.branches = req.data;
 
 		this.selected_branch = this.branches.find(b => b.id == this.cur_branch_id);
+		this.projects = this.selected_branch.mergables;
+		const mergables = this.projects.filter(p => !p.deferred);
+		const deferred = this.projects.filter(p => p.deferred);
 
-		for (const b of this.branches) {
-			for (const p of b.mergables) {
-				p.can_be_merged = !!b.history.find(c => c.id == p.base_project_id);
-			}
+		for (const p of this.selected_branch.mergables) {
+			p.can_be_merged = !!this.selected_branch.history.find(c => c.id == p.base_project_id);
 		}
 
-		const data = await this.tpl.run({ page: this, branches: this.branches, mergables: [], deferred: [] });
+		for (const p of this.patches) {
+			p.can_be_merged = !this.selected_branch.history.find(c => c.pck_patch_id == p.ID);
+		}
 
-		this.dom.append(data);
-		await this.on_merge_branch_change(this.selected_branch.id);
+		const data = await this.tpl.run({ page: this, branches: this.branches, patches: this.patches, mergables, deferred });
 
-		this.select_tab(0);
+		const s = newStyle(get_wcf_css().href);
+		const s_p = new Promise((resolve) => { s.onload = resolve; });
+		this.shadow.append(s);
+		this.shadow.append(data);
+
 		return this.dom;
-	}
-
-	select_tab(idx) {
-		for (const t of this.dom.querySelectorAll('.tab')) {
-			t.style.display = 'none';
-		}
-		for (const t of this.dom.querySelectorAll('.tabMenu > ul > *')) {
-			t.className = ''
-		}
-
-		this.dom.querySelectorAll('.tab')[idx].style.display = '';
-		this.dom.querySelectorAll('.tabMenu > ul > *')[idx].className = 'active ui-state-active';
 	}
 
 	async defer(id, do_defer) {
@@ -65,16 +61,6 @@ g_mg_pages['branch'] = new class {
 		}
 	}
 
-	async on_merge_branch_change(branch_id) {
-		this.selected_branch = this.branches.find(b => b.id == branch_id);
-		this.projects = this.selected_branch.mergables;
-		const mergables = this.projects.filter(p => !p.deferred);
-		const deferred = this.projects.filter(p => p.deferred);
-
-		this.tpl.reload('.mgContent', { mergables, deferred });
-		this.select_tab(0);
-	}
-
 	async merge(id, revision) {
 		const project = this.projects.find(p => p.id == id);
 		let ok;
@@ -87,6 +73,28 @@ g_mg_pages['branch'] = new class {
 		
 		const b = this.selected_branch;
 		const req = await post(ROOT_URL + 'project/admin/' + id + '/merge', { is_json: 1, data: { revision, branch: b.id} });
+
+		if (!req.ok) {
+			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
+		} else {
+			window.location.reload();
+		}
+	}
+
+	async merge_pck_patch(id) {
+		const patch = this.patches.find(p => p.ID == id);
+		let ok;
+
+		const branch_name = this.selected_branch.name.charAt(0).toUpperCase() + this.selected_branch.name.substring(1);
+		ok = await confirm('Are you sure you want to merge PCK Patch <b>' + patch.name + '</b> to <b>' + branch_name + '</b>?');
+		if (!ok) {
+			return;
+		}
+		
+		const b = this.selected_branch;
+		const req = await post(ROOT_URL + 'project/admin/merge_pck_patch', { is_json: 1, data: {
+			branch: b.id, patch: id
+		}});
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
@@ -167,6 +175,12 @@ g_mg_pages['branch'] = new class {
 	async set_motd() {
 		const motd = this.dom.querySelector('#motd').value;
 		const req = await post(ROOT_URL + 'project/admin/motd', { is_json: 1, data: { branch: this.selected_branch.id, motd } });
+
+		if (!req.ok) {
+			notify('error', req.data.msg || 'Unexpected error, couldn\'t set MOTD');
+		} else {
+			notify('success', 'MOTD updated');
+		}
 	}
 
 	async publish() {
@@ -184,6 +198,8 @@ g_mg_pages['branch'] = new class {
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t publish');
 		} else {
+			await this.set_motd();
+			await sleep(1000);
 			window.location.reload();
 		}
 	}
