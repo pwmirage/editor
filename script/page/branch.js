@@ -173,7 +173,7 @@ g_mg_pages['branch'] = new class {
 	}
 
 	async set_motd() {
-		const motd = this.dom.querySelector('#motd').value;
+		const motd = this.shadow.querySelector('#motd').value;
 		const req = await post(ROOT_URL + 'project/admin/motd', { is_json: 1, data: { branch: this.selected_branch.id, motd } });
 
 		if (!req.ok) {
