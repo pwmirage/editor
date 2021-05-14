@@ -51,18 +51,6 @@
 
 	<a class="button buttonPrimary" style="margin-left: auto; margin-top: 4px;" href="javascript:void(0);" onclick="{serialize $page}.new_patch();">New patch</a>
 
-	<div style="font-weight: bold;">Update branch:</div>
-	<div style="display: flex; align-items: baseline; column-gap: 4px;">
-		<div>Branch:</div>
-		<select name="branch" style="text-transform: capitalize;">
-			<option value="" selected></option>
-			{for branch of $branches}
-				<option value="{@$branch.name}">{@$branch.name}</option>
-			{/for}
-		</select>
-		<a class="button buttonPrimary" href="javascript:void(0);" onclick="{serialize $page}.update_branch_head();">Move branch head</a>
-	</div>
-
 	<div id="new_patch_dialogue" style="display: none;">
 		<div style="display: flex; align-items: baseline;">
 			<div style="width: 45px;">PCK</div>

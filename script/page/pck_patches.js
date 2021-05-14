@@ -67,15 +67,6 @@ g_mg_pages['pck_patches'] = new class {
 		}
 	}
 
-	async update_branch_head(id) {
-		const req = await post(ROOT_URL + 'project/admin/files', { is_json: 1, data: { branch: branch.id, files: JSON.stringify(json) }});
-		if (req.ok) {
-			notify('success', branch.name + ' saved.');
-		} else {
-			notify('error', 'Error. ' + (req.data.err || ''));
-		}
-	}
-
 	async new_patch() {
 		this.tpl.reload('#new_patch_dialogue .file_drop', { file: null });
 		let req = confirm(this.shadow.querySelector('#new_patch_dialogue').innerHTML, '', 'Upload new patch');
