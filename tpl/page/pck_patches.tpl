@@ -17,7 +17,7 @@
 			{assign branch_tr_printed = false}
 			{for branch of $branches}
 				{if (!$branch_labels[$branch.id] && $branch.head_pck_patch_id >= $patch.ID) ||
-						(!$next_branch_labels[$branch.id] && $branch.next_pck_patch_id >= $patch.ID)}
+						(!$next_branch_labels[$branch.id] && !$branch_labels[$branch.id] && $branch.next_pck_patch_id >= $patch.ID)}
 					{if !$branch_tr_printed}
 						<tr><td colspan="7"><div class="branch_labels">
 					{/if}
