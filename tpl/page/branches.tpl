@@ -3,7 +3,7 @@
 <div class="mgContent">
 	<div style="display: flex; flex-direction: column; row-gap: 5px; width: 300px;">
 		{for branch of $branches}
-			<a class="button" style="background: {@$page.branch_colors[$branch.id]};" href="todo://{@$branch.name}">{@$branch.name}</a>
+			<a class="button" style="background: {@$page.branch_colors[$branch.id]};" href="/admin/branch/edit/?id={@$branch.id}">{@$branch.name}</a>
 		{/for}
 	</div>
 </div>
