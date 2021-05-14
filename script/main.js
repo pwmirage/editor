@@ -67,6 +67,12 @@ const load_tpl = async (src) => {
 				prev.remove();
 			}
 		}
+
+		if (el.nodeType != 1) {
+			/* a comment, ignore it */
+			continue;
+		}
+
 		document.head.insertAdjacentElement('beforeend', el);
 		Template.tpl_generation[el.id] = (Template.tpl_generation[el.id] + 1) || 1;
 	}
