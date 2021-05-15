@@ -119,7 +119,6 @@ class TaskWindow extends Window {
 	static faction_ranks = init_id_array([
 		{ id: 0, name: "None" },
 		{ id: 2, name: "Leader" },
-		{ id: 2, name: "Leader" },
 		{ id: 3, name: "Director" },
 		{ id: 4, name: "Marshal" },
 		{ id: 5, name: "Executor" },

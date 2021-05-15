@@ -6,7 +6,7 @@
 			{for player of $online_p}
 				<div onclick="{serialize $page}.show_char_info({@$player.roleid});">
 					<span class="name">{@$player.name} #{@$player.roleid}</span>
-					<span class="fac">Fac: unavailable</span>
+					<span class="fac">Fac: {@$player.fid || '(none)'}</span>
 					<span class="ip">IP: unavailable</span>
 				</div>
 			{/for}

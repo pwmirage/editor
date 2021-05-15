@@ -14,7 +14,7 @@ class GameAdminPage {
 
 		let req;
 		req = await post(ROOT_URL + 'project/admin/gamereq', { is_json: 1, data: {
-			branch: 2, req: 'status'
+			branch: 2, req: 'status', data: { faction: 1 }
 		}});
 		this.online_p = req.data;
 
