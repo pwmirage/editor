@@ -32,6 +32,8 @@ const mg_init = async () => {
 	await load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION);
 
+	document.head.append(newStyle(ROOT_URL + 'css/style.css'));
+
 	try {
 		eval("document?.window ?? true");
 		await PWPreview.load_promise;
