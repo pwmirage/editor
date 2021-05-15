@@ -156,33 +156,6 @@ class Editor {
 
 		Editor.navbar.reload();
 
-		if (!Editor.item_win) {
-			Editor.item_win = new ItemTooltip({ parent_el: mgeArea, edit: false });
-			Editor.recipe_win = new RecipeTooltip({ parent_el: mgeArea, edit: false });
-
-			for (const parent of [Editor.item_win, Editor.recipe_win]) {
-				const s = newStyle(ROOT_URL + 'css/preview.css');
-				await new Promise((resolve) => { s.onload = resolve; });
-				parent.shadow.prepend(s);
-			}
-
-			let prev_el = null;
-			document.addEventListener('mousemove', (e) => {
-				const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
-
-				if (el === prev_el) {
-					return;
-				}
-				prev_el = el;
-
-				const item = el?.classList.contains('item') ? el : null;
-				const recipe = el?.classList.contains('recipe') ? el : null;
-
-				HTMLSugar.show_item_tooltip(Editor.item_win, item, { db });
-				HTMLSugar.show_recipe_tooltip(Editor.recipe_win, recipe, { db: db });
-			}, { passive: true });
-		}
-
 		new Promise(async (resolve) => {
 			if (localStorage.getItem('mg_welcome_closed')) {
 				resolve();
