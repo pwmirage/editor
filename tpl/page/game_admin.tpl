@@ -70,8 +70,7 @@ h1 {
 </script>
 
 <script id="tpl-page-game_admin-char-info" type="text/x-dot-template">
-<div id="background" onclick="{serialize $page}.close();">
-<div class="modal" onclick="event.stopPropagation();">
+<div style="width: 990px; display: flex; flex-wrap: wrap; column-gap: 8px; row-gap: 8px;">
 	<div style="display: flex; flex-direction: column;">
 		<h1 style="margin-top: 0;">Player: {@$p.base.name} Lv. {@$p.status.level} #{@$p.base.id}</h1>
 		<span>Created: {@GameAdminCharPage.parse_date($p.base.create_time)}</span>
@@ -80,20 +79,18 @@ h1 {
 		<span>In world: #{@$p.status.worldtag}, pos: [{@Math.floor($p.status.posx)}, {@Math.floor($p.status.posy)}, {@Math.floor($p.status.posz)}]</span>
 	</div>
 
-	<a class="button buttonPrimary" style="position: absolute; right: 20px;" href="javascript:void(0);" onclick="{serialize $page}.close();">X</a>
-
-	<div>
-		<div>
-			<h1>Equipped</h1>
-			<div class="items equipped">
-				{assign idx = -1}
-				{for item of $p.equipment.slots}
-					{$idx++}
-					<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item.id)}" alt=""></span>
-				{/for}
-			</div>
+	<div style="margin-left: 20px;">
+		<h1>Equipped Items</h1>
+		<div class="items equipped">
+			{assign idx = -1}
+			{for item of $p.equipment.slots}
+				{$idx++}
+				<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item.id)}" alt=""></span>
+			{/for}
 		</div>
+	</div>
 
+	<div style="width: 100%;">
 		<div style="display: flex; column-gap: 8px;">
 			<div>
 				<h1>Inventory</h1>
@@ -121,129 +118,98 @@ h1 {
 					{/for}
 				</div>
 			</div>
+			<div>
+				<h1>Task items:</h1>
+				<div class="items taskitems">
+					{assign idx = -1}
+					{for item of $p.tasks.invslots}
+						{$idx++}
+						<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item.id)}" alt=""></span>
+					{/for}
+				</div>
+			</div>
 		</div>
 	</div>
 
-	<div>
+	<div style="width: 100%;">
 		<h1>Tasks:</h1>
-		<div>
-			<h2>In progress:</h2>
-			<div class="tasks">
-				{assign d = $p.tasks.data}
-				{assign count = $d[0]}
-				{if $count * 32 + 8 != $d.length}
-					Invalid task data
-				{else}
-					{assign depth = 0}
-					{for idx = 0; idx < $count; idx++}
-						{assign q_off = 8 + $idx * 32}
-						{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
-						{assign child_idx = $d[$q_off + 5]}
-						{assign q = g_latest_db.tasks[$id]}
-						<div>
-							{for i = 0; i < $depth; i++}
-								&nbsp; &nbsp; &nbsp;
-							{/for}
-							{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
-						</div>
-						{if $child_idx != 0xff}
-							{$depth++}
-						{else}
-							{$depth = 0}
-						{/if}
-					{/for}
-				{/if}
+		<div style="display: flex; flex-wrap: wrap; column-gap: 8px; row-gap: 8px;">
+			<div>
+				<h2>In progress:</h2>
+				<div class="tasks">
+					{assign d = $p.tasks.data}
+					{assign count = $d[0]}
+					{if $count * 32 + 8 != $d.length}
+						Invalid task data
+					{else}
+						{assign depth = 0}
+						{for idx = 0; idx < $count; idx++}
+							{assign q_off = 8 + $idx * 32}
+							{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
+							{assign child_idx = $d[$q_off + 5]}
+							{assign q = g_latest_db.tasks[$id]}
+							<div>
+								{for i = 0; i < $depth; i++}
+									&nbsp; &nbsp; &nbsp;
+								{/for}
+								{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
+							</div>
+							{if $child_idx != 0xff}
+								{$depth++}
+							{else}
+								{$depth = 0}
+							{/if}
+						{/for}
+					{/if}
+				</div>
 			</div>
 
-			<h2>Finished:</h2>
-			<div class="tasks">
-				{assign d = $p.tasks.complete}
-				{assign count = $d[0] | ($d[1] << 8)}
-				{if $count * 2 + 4 != $d.length}
-					Invalid task data
-				{else}
-					{for idx = 0; idx < $count; idx++}
-						{assign q_off = 4 + $idx * 2}
-						{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
-						{assign q = g_latest_db.tasks[$id]}
-						<div>
-							{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
-						</div>
-					{/for}
-				{/if}
+			<div>
+				<h2>Finished:</h2>
+				<div class="tasks">
+					{assign d = $p.tasks.complete}
+					{assign count = $d[0] | ($d[1] << 8)}
+					{if $count * 2 + 4 != $d.length}
+						Invalid task data
+					{else}
+						{for idx = 0; idx < $count; idx++}
+							{assign q_off = 4 + $idx * 2}
+							{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
+							{assign q = g_latest_db.tasks[$id]}
+							<div>
+								{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
+							</div>
+						{/for}
+					{/if}
+				</div>
 			</div>
 
-			<h2>Finished (repeatable quests):</h2>
-			<div class="tasks">
-				{assign d = $p.tasks.finishtime}
-				{assign count = $d[0] | ($d[1] << 8)}
-				{if $count * 6 + 2 != $d.length}
-					Invalid task data
-				{else}
-					{for idx = 0; idx < $count; idx++}
-						{assign q_off = 2 + $idx * 6}
-						{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
-						{assign q = g_latest_db.tasks[$id]}
-						<div>
-							{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
-						</div>
-					{/for}
-				{/if}
+			<div>
+				<h2>Finished (repeatable quests):</h2>
+				<div class="tasks">
+					{assign d = $p.tasks.finishtime}
+					{assign count = $d[0] | ($d[1] << 8)}
+					{if $count * 6 + 2 != $d.length}
+						Invalid task data
+					{else}
+						{for idx = 0; idx < $count; idx++}
+							{assign q_off = 2 + $idx * 6}
+							{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
+							{assign q = g_latest_db.tasks[$id]}
+							<div>
+								{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
+							</div>
+						{/for}
+					{/if}
+				</div>
 			</div>
 
 		</div>
-		<div>
-			<h1>Task items:</h1>
-			<div class="items taskitems">
-				{assign idx = -1}
-				{for item of $p.tasks.invslots}
-					{$idx++}
-					<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item.id)}" alt=""></span>
-				{/for}
-			</div>
-		</div>
 	</div>
-
-	<div style="display: flex; margin-top: 10px;">
-		<div style="flex: 1;"></div>
-		<a class="button buttonPrimary" href="javascript:void(0);" onclick="{serialize $page}.close();">Close</a>
-	</div>
-</div>
-<div class="modal-margin">
-</div>
 </div>
 
 {@@
 <style>
-#background {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: rgba(0, 0, 0, 0.4);
-	overflow-y: auto;
-	z-index: 100;
-}
-
-.modal {
-	margin-left: 50%;
-	margin-top: 40px;
-	transform: translate(-50%, 0);
-	display: flex;
-	flex-direction: column;
-	row-gap: 4px;
-	background-color: #f7f9fa;
-	background-color: #e4e4e4;
-	padding: 20px;
-	column-gap: 5px;
-	row-gap: 5px;
-}
-
-.modal-margin {
-	height: 40px;
-}
-
 h1 {
 	font-size: 14pt;
 }
