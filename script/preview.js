@@ -147,8 +147,9 @@ class PWPreview {
 			g_latest_db_promise = new Promise(async (resolve) => {
 				g_latest_db = await PWDB.new_db({ pid: 'latest', new: true, no_tag: true });
 
-				PWPreview.item_win = new ItemTooltip({ parent_el: mgeArea, edit: false });
-				PWPreview.recipe_win = new RecipeTooltip({ parent_el: mgeArea, edit: false });
+				const mgeArea = document.querySelector('#mgeArea');
+				PWPreview.item_win = new ItemTooltip({ parent_el: document.body, edit: false });
+				PWPreview.recipe_win = new RecipeTooltip({ parent_el: document.body, edit: false });
 
 				for (const parent of [PWPreview.item_win, PWPreview.recipe_win]) {
 					const s = newStyle(ROOT_URL + 'css/preview.css');
