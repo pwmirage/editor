@@ -20,7 +20,6 @@ class GameAdminPage {
 
 		const styles = [];
 		styles.push(newStyle(ROOT_URL + 'css/window.css'));
-		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 
 		this.style_promises = styles.map((s) => new Promise((resolve) => { s.onload = resolve; }));
 		this.shadow.append(...styles);
@@ -33,10 +32,17 @@ class GameAdminPage {
 
 	async show_char_info(id) {
 		const char_page = new GameAdminCharPage();
+		let req = confirm('<div class="loading-spinner"></div>', '', 'Character #' + id);
+		await sleep(1);
+
 		const char_page_dom = await char_page.init({ id });
 
-		document.body.append(char_page_dom);
+		const content = g_confirm_dom.querySelector('.systemConfirmation > p');
+		for (const c of content.children) { c.remove(); }
 
+		content.append(char_page_dom);
+		g_confirm_dom.classList.add('big');
+		g_confirm_dom.classList.add('noconfirm');
 	}
 };
 g_mg_pages['game_admin'] = new GameAdminPage();
@@ -59,8 +65,6 @@ class GameAdminCharPage {
 		this.player = req.data;
 
 		const styles = [];
-		styles.push(newStyle(ROOT_URL + 'css/window.css'));
-		styles.push(newStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'));
 
 		this.style_promises = styles.map((s) => new Promise((resolve) => { s.onload = resolve; }));
 		this.shadow.append(...styles);
@@ -68,7 +72,7 @@ class GameAdminCharPage {
 		const data = await this.tpl.run({ page: this, p: this.player });
 		this.shadow.append(data);
 
-		return this.dom;
+		return this.shadow;
 	}
 
 	static parse_date(timestamp) {
