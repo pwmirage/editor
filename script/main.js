@@ -137,6 +137,10 @@ let g_confirm_dom = null;
 const confirm = (msg, html, title = 'Confirmation Required') => {
 	return new Promise(resolve => {
 		require(["Ui/Confirmation"], function(UiConfirmation) {
+			if (g_confirm_dom) {
+				g_confirm_dom.classList.remove('big');
+			}
+
 			UiConfirmation.show({
 				confirm: () => { resolve(true); },
 				cancel: () => { resolve(false); },
@@ -144,6 +148,7 @@ const confirm = (msg, html, title = 'Confirmation Required') => {
 				message: msg,
 				template: html,
 			});
+
 			g_confirm_dom = document.querySelector('.dialogOverlay .dialogContainer');
 			const title_el = g_confirm_dom.querySelector('.dialogTitle');
 			if (title_el) {
