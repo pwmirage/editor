@@ -15,10 +15,10 @@ g_mg_pages['files'] = new class {
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
 		let req;
-		req = await get(ROOT_URL + 'project/admin/files', { is_json: 1});
+		req = await get(ROOT_URL + 'api/game/admin/files', { is_json: 1});
 		this.files = req.data;
 
-		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/project/admin/branches', { is_json: 1});
 		this.branches = req.data;
 
 		const data = await this.tpl.run({ page: this, branches: this.branches, files: this.files });
@@ -54,7 +54,7 @@ g_mg_pages['files'] = new class {
 			return;
 		}
 
-		const req = await post(ROOT_URL + 'project/admin/files', { is_json: 1, data: { branch: branch.id, files: JSON.stringify(json) }});
+		const req = await post(ROOT_URL + 'api/game/admin/files', { is_json: 1, data: { branch: branch.id, files: JSON.stringify(json) }});
 		if (req.ok) {
 			notify('success', branch.name + ' saved.');
 		} else {

@@ -11,7 +11,7 @@ class Maintainer {
 			return;
 		}
 
-		const req = await post(ROOT_URL + 'project/maintainer/' + parseInt(pid) + '/approved', { is_json: 1, data: { revision } });
+		const req = await post(ROOT_URL + 'api/project/maintainer/' + parseInt(pid) + '/approved', { is_json: 1, data: { revision } });
 		if (req.ok) {
 			notify('success', 'Project Approved');
 		} else {
@@ -27,7 +27,7 @@ class Maintainer {
 			return;
 		}
 
-		const req = await post(ROOT_URL + 'project/maintainer/' + parseInt(pid) + '/needs_changes', { is_json: 1, data: { revision } });
+		const req = await post(ROOT_URL + 'api/project/maintainer/' + parseInt(pid) + '/needs_changes', { is_json: 1, data: { revision } });
 		if (req.ok) {
 			notify('info', 'Project Updated');
 		} else {

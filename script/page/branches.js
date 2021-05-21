@@ -19,7 +19,7 @@ g_mg_pages['branches'] = new class {
 		this.branch_colors[4] = 'indianred';
 
 		let req;
-		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/project/admin/branches', { is_json: 1});
 		this.branches = req.data;
 
 		const data = await this.tpl.run({ page: this, branches: this.branches });

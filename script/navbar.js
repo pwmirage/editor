@@ -140,13 +140,13 @@ class Navbar {
 
 			if (!pinfo.data.is_merged) {
 				await PWDB.publish(db, false);
-				await post(ROOT_URL + 'project/admin/' + pinfo.data.id + '/merge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
+				await post(ROOT_URL + 'api/project/admin/' + pinfo.data.id + '/merge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
 			} else {
-				await post(ROOT_URL + 'project/admin/' + pinfo.data.id + '/quickmerge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
+				await post(ROOT_URL + 'api/project/admin/' + pinfo.data.id + '/quickmerge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
 
 			}
 
-			const req = await post(ROOT_URL + 'project/admin/publish', { is_json: 1, data: { branch: 2 } });
+			const req = await post(ROOT_URL + 'api/project/admin/publish', { is_json: 1, data: { branch: 2 } });
 			if (req.ok) {
 				notify('success', 'Changes applied, server restarted');
 

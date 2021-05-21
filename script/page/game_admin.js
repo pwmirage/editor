@@ -13,7 +13,7 @@ class GameAdminPage {
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
 		let req;
-		req = await post(ROOT_URL + 'project/admin/gamereq', { is_json: 1, data: {
+		req = await post(ROOT_URL + 'api/game/admin/gamereq', { is_json: 1, data: {
 			branch: 2, req: 'status', data: { faction: 1 }
 		}});
 		this.online_p = req.data;
@@ -59,7 +59,7 @@ class GameAdminCharPage {
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
 		let req;
-		req = await post(ROOT_URL + 'project/admin/gamereq', { is_json: 1, data: {
+		req = await post(ROOT_URL + 'api/game/admin/gamereq', { is_json: 1, data: {
 			branch: 2, req: 'getrole', data: { id: args.id || 0 }
 		}});
 		this.player = req.data;

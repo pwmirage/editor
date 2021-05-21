@@ -20,10 +20,10 @@ g_mg_pages['branch'] = new class {
 		this.cur_branch_id = parseInt(args.id || 1);
 
 		let req;
-		req = await get(ROOT_URL + 'project/admin/pck_patches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/project/admin/pck_patches', { is_json: 1});
 		this.patches = req.data;
 
-		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/project/admin/branches', { is_json: 1});
 		this.branches = req.data;
 
 		this.selected_branch = this.branches.find(b => b.id == this.cur_branch_id);
@@ -52,7 +52,7 @@ g_mg_pages['branch'] = new class {
 	async defer(id, do_defer) {
 		id = parseInt(id);
 		do_defer = 0 + do_defer;
-		const req = await post(ROOT_URL + 'project/admin/' + id + '/defer', { is_json: 1, data: { defer: do_defer } });
+		const req = await post(ROOT_URL + 'api/project/admin/' + id + '/defer', { is_json: 1, data: { defer: do_defer } });
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t defer');
@@ -72,7 +72,7 @@ g_mg_pages['branch'] = new class {
 		}
 		
 		const b = this.selected_branch;
-		const req = await post(ROOT_URL + 'project/admin/' + id + '/merge', { is_json: 1, data: { revision, branch: b.id} });
+		const req = await post(ROOT_URL + 'api/project/admin/' + id + '/merge', { is_json: 1, data: { revision, branch: b.id} });
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
@@ -92,7 +92,7 @@ g_mg_pages['branch'] = new class {
 		}
 		
 		const b = this.selected_branch;
-		const req = await post(ROOT_URL + 'project/admin/merge_pck_patch', { is_json: 1, data: {
+		const req = await post(ROOT_URL + 'api/project/admin/merge_pck_patch', { is_json: 1, data: {
 			branch: b.id, patch: id
 		}});
 
@@ -114,7 +114,7 @@ g_mg_pages['branch'] = new class {
 		}
 		
 		const b = this.selected_branch;
-		const req = await post(ROOT_URL + 'project/admin/' + id + '/unmerge', { is_json: 1, data: { branch: b.id} });
+		const req = await post(ROOT_URL + 'api/project/admin/' + id + '/unmerge', { is_json: 1, data: { branch: b.id} });
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t merge');
@@ -161,7 +161,7 @@ g_mg_pages['branch'] = new class {
 		}
 
 		for (const p of projects.reverse()) {
-			const req = await post(ROOT_URL + 'project/admin/' + p.id + '/merge', { is_json: 1, data: { revision: p.revision, branch: dest.id } });
+			const req = await post(ROOT_URL + 'api/project/admin/' + p.id + '/merge', { is_json: 1, data: { revision: p.revision, branch: dest.id } });
 
 			if (!req.ok) {
 				notify('error', req.data.msg || 'Unexpected error, couldn\'t merge ' + p.id);
@@ -174,7 +174,7 @@ g_mg_pages['branch'] = new class {
 
 	async set_motd() {
 		const motd = this.shadow.querySelector('#motd').value;
-		const req = await post(ROOT_URL + 'project/admin/motd', { is_json: 1, data: { branch: this.selected_branch.id, motd } });
+		const req = await post(ROOT_URL + 'api/project/admin/motd', { is_json: 1, data: { branch: this.selected_branch.id, motd } });
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t set MOTD');
@@ -193,7 +193,7 @@ g_mg_pages['branch'] = new class {
 		}
 
 		const b = this.selected_branch;
-		const req = await post(ROOT_URL + 'project/admin/publish', { is_json: 1, data: { branch: b.id } });
+		const req = await post(ROOT_URL + 'api/project/admin/publish', { is_json: 1, data: { branch: b.id } });
 
 		if (!req.ok) {
 			notify('error', req.data.msg || 'Unexpected error, couldn\'t publish');

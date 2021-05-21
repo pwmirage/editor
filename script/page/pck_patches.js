@@ -14,10 +14,10 @@ g_mg_pages['pck_patches'] = new class {
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
 		let req;
-		req = await get(ROOT_URL + 'project/admin/pck_patches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/game/admin/pck_patches', { is_json: 1});
 		this.patches = req.data;
 
-		req = await get(ROOT_URL + 'project/admin/branches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/project/admin/branches', { is_json: 1});
 		this.branches = req.data;
 
 		this.branch_colors = [];
@@ -88,7 +88,7 @@ g_mg_pages['pck_patches'] = new class {
 			return;
 		}
 
-		req = await post(ROOT_URL + 'project/admin/new_pck_patch', { is_json: 1, data: {
+		req = await post(ROOT_URL + 'api/game/admin/new_pck_patch', { is_json: 1, data: {
 			file: this.file, pck, name, description
 		}});
 		if (req.ok) {
@@ -97,7 +97,7 @@ g_mg_pages['pck_patches'] = new class {
 			notify('error', 'Error. ' + (req.data.err || ''));
 		}
 
-		req = await get(ROOT_URL + 'project/admin/pck_patches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/game/admin/pck_patches', { is_json: 1});
 		this.patches = req.data;
 		this.tpl.reload('#patches', { patches: this.patches });
 	}
@@ -112,7 +112,7 @@ g_mg_pages['pck_patches'] = new class {
 
 		let req;
 
-		req = await post(ROOT_URL + 'project/admin/find_pck_patch', { is_json: 1, data: {
+		req = await post(ROOT_URL + 'api/game/admin/find_pck_patch', { is_json: 1, data: {
 			patch: id
 		}});
 		if (!req.ok) {
@@ -136,7 +136,7 @@ g_mg_pages['pck_patches'] = new class {
 			}
 		}
 
-		req = await post(ROOT_URL + 'project/admin/remove_pck_patch', { is_json: 1, data: {
+		req = await post(ROOT_URL + 'api/game/admin/remove_pck_patch', { is_json: 1, data: {
 			patch: id
 		}});
 		if (req.ok) {
@@ -145,7 +145,7 @@ g_mg_pages['pck_patches'] = new class {
 			notify('error', 'Error. ' + (req.data.err || ''));
 		}
 
-		req = await get(ROOT_URL + 'project/admin/pck_patches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/game/admin/pck_patches', { is_json: 1});
 		this.patches = req.data;
 		this.tpl.reload('#patches', { patches: this.patches });
 	}

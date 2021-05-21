@@ -254,7 +254,7 @@ class PWDB {
 		if (!args.new) {
 			if (project.pid > 0) {
 				try {
-					const req = await get(ROOT_URL + 'project/' + project.pid + '/load', { is_json: 1 });
+					const req = await get(ROOT_URL + 'api/project/' + project.pid + '/load', { is_json: 1 });
 					const changesets = req.data;
 					const removed_objs = new Set();
 					let i;
@@ -370,7 +370,7 @@ class PWDB {
 			return true;
 		}
 
-		const req = await post(ROOT_URL + 'project/' + project.pid + '/save', {
+		const req = await post(ROOT_URL + 'api/project/' + project.pid + '/save', {
 			is_json: 1, data: {
 				file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
 			}
@@ -401,7 +401,7 @@ class PWDB {
 
 		await PWDB.save(db, false);
 
-		const req = await post(ROOT_URL + 'project/' + project.pid + '/publish', { is_json: 1 });
+		const req = await post(ROOT_URL + 'api/project/' + project.pid + '/publish', { is_json: 1 });
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to publish: unknown error');
@@ -416,7 +416,7 @@ class PWDB {
 	}
 
 	static get_proj_info(pid) {
-		return get(ROOT_URL + 'project/' + pid + '/info', { is_json: 1 });
+		return get(ROOT_URL + 'api/project/' + pid + '/info', { is_json: 1 });
 	}
 
 	static find_usages(db, obj) {

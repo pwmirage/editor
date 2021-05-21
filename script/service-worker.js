@@ -79,7 +79,7 @@ function dump2(data, spacing = 1) {
 const gen_proj_preview = async (url, pid, edit_time) => {
 	const db = await PWDB.new_db({ pid: 0, new: true });
 
-	const load = await get(ROOT_URL + 'project/' + pid + '/load', { is_json: 1 });
+	const load = await get(ROOT_URL + 'api/project/' + pid + '/load', { is_json: 1 });
 	const changesets = load.data;
 
 	/* load all changesets but last */

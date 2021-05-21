@@ -39,7 +39,7 @@ class CreateProjectWindow extends Window {
 	async submit() {
 		this.shadow.querySelector('#submit').classList.add('disabled');
 		const name = this.shadow.querySelector('#name').value;
-		let req = await post(ROOT_URL + 'project/new', { is_json: 1, data: { name } });
+		let req = await post(ROOT_URL + 'api/project/new', { is_json: 1, data: { name } });
 		if (!req.ok) {
 			this.shadow.querySelector('#err').textContent = req.data.err || 'Unexpected error occured';
 			if (this.err_fade_timeout) {
@@ -87,7 +87,7 @@ class CreateProjectWindow extends Window {
 				fix_ids(parsed_data);
 
 				const fixed_data = JSON.stringify(parsed_data);
-				req = await post(ROOT_URL + 'project/' + new_project.pid + '/save', {
+				req = await post(ROOT_URL + 'api/project/' + new_project.pid + '/save', {
 					is_json: 1, data: {
 						file: new File([new Blob([fixed_data])], 'project.json', { type: 'application/json' }),
 					}

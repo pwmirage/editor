@@ -221,12 +221,12 @@ class PWPreviewElement extends HTMLElement {
 		let preview_db;
 		if (this.dataset.hash) {
 			/* fetch from the server */
-			const req = await get(ROOT_URL + 'project/preview/' + this.dataset.hash, { is_json: true });
+			const req = await get(ROOT_URL + 'api/project/preview/' + this.dataset.hash, { is_json: true });
 			if (!req.ok) return;
 			preview_db = req.data;
 		} else {
 			/* fetch from the local service worker (cache API) */
-			const req = await get(ROOT_URL + 'project/preview/local/' + this.dataset.pid + '?t=' + this.dataset.lastEdit, { is_json: true });
+			const req = await get(ROOT_URL + 'api/project/preview/local/' + this.dataset.pid + '?t=' + this.dataset.lastEdit, { is_json: true });
 			if (!req.ok) return;
 			preview_db = req.data;
 		}
