@@ -7,6 +7,7 @@ const g_db = {};
 const ROOT_URL = '/editor/';
 let MG_VERSION_FULL = {};
 let MG_VERSION = '0';
+let MG_DEBUG = 0;
 let MG_UNSUPPORTED = false;
 
 try {
@@ -54,6 +55,20 @@ const load_script = (src) => {
 	});
 }
 
+const find_tpls = (parent, name, list) => {
+	for (const c of parent.children) {
+		if (c.mgeTemplate && c.mgeTemplate.name == name) {
+			list.push(c);
+		}
+
+		if (c.shadowRoot) {
+			find_tpls(c.shadowRoot, name, list);
+		} else {
+			find_tpls(c, name, list);
+		}
+	}
+}
+
 let g_tpl_dom = {};
 const load_tpl = async (src) => {
 	const file = await get(src + '?v=' + MG_VERSION);
@@ -63,20 +78,30 @@ const load_tpl = async (src) => {
 
 	const els = newArrElements(file.data);
 	for (const el of els) {
-		if (el.id) {
-			const prev = document.getElementById(el.id);
-			if (prev) {
-				prev.remove();
-			}
-		}
-
-		if (el.nodeType != 1) {
+		if (el.nodeType != 1 || !el.id) {
 			/* a comment, ignore it */
 			continue;
 		}
 
+		const prev = document.getElementById(el.id);
+		if (prev) {
+			prev.remove();
+		}
+
 		document.head.insertAdjacentElement('beforeend', el);
 		Template.tpl_generation[el.id] = (Template.tpl_generation[el.id] + 1) || 1;
+
+		if (MG_DEBUG) {
+			const tpl_els = [];
+			find_tpls(document.body, el.id, tpl_els);
+
+			for (const el of tpl_els) {
+				const t = el.mgeTemplate;
+
+				el.replaceWith(t.run());
+
+			}
+		}
 	}
 }
 

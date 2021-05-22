@@ -32,6 +32,7 @@ class Editor {
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/rmenu.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
 		]);
 
 		await Promise.all([

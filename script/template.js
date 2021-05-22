@@ -118,6 +118,7 @@ class Template {
 		const html_str = this.func(this, this.args);
 
 		const el = document.createElement('div');
+		el.mgeTemplate = this;
 		el.innerHTML = html_str;
 		this.data = el;
 		if (this.compile_cb) {
