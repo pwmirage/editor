@@ -37,10 +37,12 @@ const mg_init = async () => {
 
 	try {
 		eval("document?.window ?? true");
-		await PWPreview.load_promise;
 	} catch (e) {
 		MG_UNSUPPORTED = true;
+		throw e;
 	}
+
+	await PWPreview.load_promise;
 };
 
 const load_script = (src) => {
@@ -98,39 +100,52 @@ const load_tpl = async (src) => {
 			for (const el of tpl_els) {
 				const t = el.mgeTemplate;
 
-				el.replaceWith(t.run());
+				el.replaceWith(t.run(t.args));
 
 			}
 		}
 	}
 }
 
-let g_mg_editor_open = false;
 const mg_open_editor = async (args) => {
-	if (g_mg_editor_open) return;
-
-	g_mg_editor_open = true;
-
 	try {
 		await g_mg_loaded;
 
-		if (MG_UNSUPPORTED) {
-			confirm('Unknown error occured. Is your browser too old?', '<div style="margin-top: 16px;">Click either button to dismiss this dialogue.</div>');
+		if (navigator.userAgent.indexOf("Chrome") == -1){
+			confirm('Mirage editor currently does not support your browser:<br>' +
+				'<b>' + navigator.userAgent + '</b>',
+				'<span style="margin-top: 10px;">Only Chrome, Edge, and their derivatives are supported. Sorry!</span>', 'Error');
+			await sleep(1);
+			g_confirm_dom.classList.add('noconfirm');
 			return;
 		}
 
-		try {
-			Window.close_all();
-		} catch (e) {}
-		await Loading.show_curtain(args.no_animation || false);
+		if (args.pid) {
+			await Loading.show_curtain(true);
+		}
 
 		if (typeof(Editor) === 'undefined') {
 			await load_script(ROOT_URL + 'script/editor.js?v=' + MG_VERSION);
 		}
+
 		await Editor.open(args);
-		Loading.hide_curtain();
-	} finally {
-		g_mg_editor_open = false;
+
+		if (args.pid) {
+			Loading.hide_curtain();
+		}
+	} catch (e) {
+		console.error(e);
+
+		let msg;
+		if (MG_UNSUPPORTED) {
+			msg = 'Sorry, your browser is too old to open the editor.';
+		} else {
+			msg = 'Unknown error occured. Is your browser too old?';
+		}
+
+		confirm(msg, '<div style="margin-top: 16px;">Click either button to dismiss this dialogue.</div>', 'Error');
+		await sleep(1);
+		g_confirm_dom.classList.add('noconfirm');
 	}
 }
 
@@ -164,6 +179,7 @@ const confirm = (msg, html, title = 'Confirmation Required') => {
 		require(["Ui/Confirmation"], function(UiConfirmation) {
 			if (g_confirm_dom) {
 				g_confirm_dom.classList.remove('big');
+				g_confirm_dom.classList.remove('noconfirm');
 			}
 
 			UiConfirmation.show({

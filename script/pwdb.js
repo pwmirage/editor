@@ -714,7 +714,7 @@ class PWDB {
 		if (idx !== -1) {
 			arr.splice(idx, 1);
 			PWDB.sort_chooser_recent(db, type);
-		} else {
+		} else if (db[type][id]) {
 			db[type][id]._db.chooser_recent_idx = 1 + arr.length;
 		}
 		arr.push(id);

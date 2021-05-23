@@ -87,9 +87,10 @@
 
 #curtain{
 	position: absolute;
-	width: 100vw;
+	width: 100%;
 	height: calc(100vh - 50px);
 	display: none;
+	z-index: 99;
 }
 
 #curtain > .curtain {

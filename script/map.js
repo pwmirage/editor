@@ -80,13 +80,14 @@ class PWMap {
 	static async add_elements(parent) {
 		const shadow_el = document.createElement('div');
 		shadow_el.id = 'pw-map';
-		shadow_el.style.position = 'absolute';
+		shadow_el.style.position = 'relative';
 		shadow_el.style.width = '100vw';
 		shadow_el.style.height = '100vh';
 		shadow_el.style.overflow = 'hidden';
 		const shadow = shadow_el.attachShadow({mode: 'open'});
 		const tpl = await get(ROOT_URL + 'tpl/editor.tpl');
 		const els = newArrElements(tpl.data);
+		shadow.append(newStyle(ROOT_URL + 'css/style.css'));
 		shadow.append(...els);
 		parent.prepend(shadow_el);
 		Window.set_container(shadow.querySelector('#pw-windows'));
@@ -506,6 +507,13 @@ class PWMap {
 
 	close() {
 		this.canvas.classList.remove('shown');
+
+		const changed_objects_el = this.shadow.querySelector('#changed-objects');
+		const changed_objects_more_el = this.shadow.querySelector('#more-objects');
+		while (changed_objects_el.firstChild) {
+			changed_objects_el.firstChild.remove();
+		}
+		changed_objects_more_el.style.display = 'none';
 	}
 
 	onmousedown(e) {

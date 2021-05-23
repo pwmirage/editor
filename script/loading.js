@@ -16,18 +16,20 @@ class Loading {
 
 		Loading.tpl = await get(ROOT_URL + 'tpl/loading.tpl');
 
-		const el = newElement('<div class="loading"></div>');
+		const el = newElement('<div id="mgeLoading"></div>');
 		const shadow = el.attachShadow({mode: 'open'});
 		shadow.append(...newArrElements(Loading.tpl.data));
-		document.querySelector('#mgeArea').append(el);
+		document.querySelector('#pageHeader').insertBefore(el, document.querySelector('#pageHeaderFacade'));
 
 		Loading.shadow = shadow;
 	}
 
+	static curtain_shown = false;
+
 	static show_curtain(no_animation = false) {
+		Loading.curtain_shown = true;
+
 		document.body.classList.remove('mge-background');
-		document.body.classList.remove('mge-startfullscreen');
-		document.body.classList.add('mge-fullscreen');
 		document.body.classList.add('mge-loading-fullscreen');
 		const curtains = Loading.shadow.querySelector('#curtain');
 		if (no_animation) {
@@ -39,6 +41,8 @@ class Loading {
 	}
 
 	static hide_curtain() {
+		Loading.curtain_shown = false;
+
 		const curtains = Loading.shadow.querySelector('#curtain');
 		curtains.className = 'showCurtain hideCurtain';
 		setTimeout(() => {
@@ -78,7 +82,7 @@ class Loading {
 		p._mg_timeout = setTimeout(() => {
 			p._mg_shown = true;
 			Loading.shadow.querySelector('#labels').append(p);
-			setTimeout(() => { p.classList.add('appear'); }, 1);
+			setTimeout(() => { p.classList.add('appear'); Loading.cleanup_tags(); }, 1);
 		}, 100);
 		return p;
 	}

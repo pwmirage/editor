@@ -36,6 +36,9 @@
 			<div class="dot"></div>
 		</div>
 	</div>
+	<div id="pw-loading">
+		<div class="loading-spinner"></div>
+	</div>
 	<div id="pw-windows"></div>
 </div>
 
@@ -92,8 +95,9 @@
 	border-left: 2px dotted white;
 }
 
-#pw-map-canvas, #pw-overlay, #pw-windows {
+#pw-map-canvas, #pw-overlay, #pw-windows, #pw-loading {
 	position: absolute;
+	top: 0;
 	width: 100vw;
 	height: calc(100vh - 50px);
 	text-align: left;
@@ -397,6 +401,29 @@
 
 #curtain > div {
 	z-index: 100;
+}
+
+#pw-loading {
+	top: 40%;
+
+}
+
+#pw-loading:before {
+	content: '';
+	width: 300vw;
+	height: 300vh;
+	position: absolute;
+	left: -100vw;
+	top: -100vh;
+	background: #000;
+	opacity: 0.5;
+	user-events: none;
+}
+
+#pw-loading > .loading-spinner:before {
+	width: 40px;
+	height: 40px;
+	border-top-color: white;
 }
 
 .gpu {

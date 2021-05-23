@@ -1,19 +1,31 @@
 /* SPDX-License-Identifier: MIT
- * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
+ * Copyright(c) 2019-2021 Darek Stojaczyk for pwmirage.com
  */
 
 console.log('Editor initializing');
 
 let g_map = null;
 let db;
-let PROJECT_NAME = ''
-let PROJECT_REVISION = 0;
-let PROJECT_LAST_EDIT = 0;
 
 class Editor {
 	static loaded = false;
 	static navbar = null;
 	static map_shadow = null;
+
+	static async init() {
+		await Promise.all([
+			load_script(ROOT_URL + 'script/window.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/map.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/navbar.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/projects.js?v=' + MG_VERSION),
+		]);
+
+		await Promise.all([
+			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/rmenu.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
+		]);
+	}
 
 	static async load() {
 		console.log('Editor loading');
@@ -24,18 +36,6 @@ class Editor {
 
 
 		await Promise.all([
-			load_script(ROOT_URL + 'script/window.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/map.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/navbar.js?v=' + MG_VERSION),
-		]);
-
-		await Promise.all([
-			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/window/rmenu.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
-		]);
-
-		await Promise.all([
 			load_script(ROOT_URL + 'script/window/welcome.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/map.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/spawner.js?v=' + MG_VERSION),
@@ -43,7 +43,6 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/recipe.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/map_chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/item.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/window/unsupported.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/history.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/project.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/task.js?v=' + MG_VERSION),
@@ -53,13 +52,11 @@ class Editor {
 			load_script(ROOT_URL + 'script/fuzzysort.js?v=' + MG_VERSION),
 		]);
 
-		const tag_p = Loading.show_tag('Processing item icons');
-		/* don't await icon processing */
-		Item.gen_all_icons().then(() => {
-			Loading.hide_tag(tag_p);
-		});
 
-		Editor.map_shadow = await PWMap.add_elements(document.querySelector('#mgeArea'));
+		const editor_dom = document.createElement('div');
+		editor_dom.id = 'mgeArea';
+		document.querySelector('#pageContainer').append(editor_dom);
+		Editor.map_shadow = await PWMap.add_elements(editor_dom);
 
 		const org_menu = document.querySelector('.mainMenu .boxMenu');
 		if (org_menu) {
@@ -71,71 +68,98 @@ class Editor {
 		window.addEventListener('resize', Editor.onresize, { passive: false });
 		window.addEventListener('error', Editor.onerror, { passive: false });
 
-		const ret_btn = document.querySelector('#returnToWebsite')
-		if (ret_btn) ret_btn.onclick = async () => {
-			const minimized = document.body.classList.toggle('mge-background');
-			document.querySelector('#returnToWebsite > a').dataset.tooltip =
-			minimized ? 'Open the editor' : 'Return to website';
-			const page_main = document.querySelector('#main');
-			if (page_main) {
-				if (minimized) {
-					page_main.style.display = '';
-				} else {
-					setTimeout(() => {
-						page_main.style.display = 'none';
-					}, 500);
-				}
-			}
-			//await Window.close_all();
-			//await this.close();
-		};
-
 		PWDB.watch_db();
 
+		await JSDebugClient.init();
+
+		g_map = new PWMap();
 	}
 
 	static async open(args) {
-		document.body.classList.add('mge-fullscreen');
-		if (!Editor.loaded) {
-			await Editor.load();
-			Editor.loaded = true;
-		}
+		await Editor.init();
+
+		const tag_p = Loading.show_tag('Processing item icons');
+		/* don't await icon processing */
+		Item.gen_all_icons().then(() => {
+			Loading.hide_tag(tag_p);
+		});
+
+		await Projects.load();
+		document.querySelector('#pageContainer').append(Projects.instance.dom);
 
 		const page_main = document.querySelector('#main');
 		if (page_main) {
-			page_main.style.display = 'none';
-
 			/* put the fullscreen dialog container outside */
 			const dialog_overlay = document.querySelector('.dialogOverlay');
 			if (dialog_overlay) {
 				dialog_overlay.remove();
-				page_main.parentNode.insertBefore(dialog_overlay, page_main);
+				document.body.append(dialog_overlay);
+			}
+
+			document.querySelector('#pageFooter').remove();
+			document.querySelector('.pageNavigation').remove();
+			document.querySelector('#pageHeaderLogo').remove();
+			page_main.remove();
+		}
+
+		document.body.classList.add('mge-fullscreen');
+		document.body.classList.remove('mge-startfullscreen');
+		document.body.classList.remove('mge-startpreloaded');
+
+		if (args.pid) {
+			await Editor.open_project(args.pid);
+		}
+
+	}
+
+	static async open_project(pid) {
+		let curtain_shown = false;
+		history.pushState({ pid }, '', '?id=' + pid)
+
+		if (!Editor.opened) {
+			Editor.opened = true;
+			if (!Loading.curtain_shown) {
+				await Loading.show_curtain();
+				curtain_shown = true;
+			}
+
+			await Editor.load();
+
+			const ret_btn = document.querySelector('#returnToWebsite')
+			if (ret_btn) {
+				ret_btn.style.display = 'block';
+				ret_btn.onclick = async () => {
+					const minimized = document.body.classList.toggle('mge-background');
+					document.querySelector('#returnToWebsite > a').dataset.tooltip =
+					minimized ? 'Open the editor' : 'Return to projects list';
+					if (minimized) {
+						ret_btn.mgState = window.location.search;
+						history.pushState({}, '', ROOT_URL);
+					} else {
+						history.pushState({}, '', ret_btn.mgState);
+					}
+				};
 			}
 		}
 
-		console.log('Editor open');
-		if (g_map) {
+		try {
+			Window.close_all();
 			g_map.close();
+		} catch (e) {
 		}
 
-		PROJECT_NAME = args.name;
-		PROJECT_LAST_EDIT = args.last_edit;
+		Editor.map_shadow.querySelector('#pw-loading').style.display = 'block';
+		document.body.classList.remove('mge-background');
+		await sleep(650);
 
-		const date = new Date();
+		/*const date = new Date();
 		const version_str = 'Mirage Editor, Version: ' + date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
-		Editor.map_shadow.querySelector('#pw-version').textContent = version_str;
-
-		if (navigator.userAgent.indexOf("Chrome") == -1){
-			const win = await UnsupportedBrowserWindow.open({ });
-			return;
-		}
-
-		await Window.close_all();
+		Editor.map_shadow.querySelector('#pw-version').textContent = version_str;*/
 
 		/* db is global */
-		args.preinit = true;
-		db = await PWDB.new_db(args);
+		db = await PWDB.new_db({ preinit: true, pid: pid });
 
+		/*
 		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
 		if (args.pid) {
 			proj_info_el.textContent = 'Project: ' + PROJECT_NAME + ' by ' + db.metadata[1].author;
@@ -146,18 +170,15 @@ class Editor {
 		} else {
 			proj_info_el.innerHTML = 'Create a project to store<br>your changes on the server';
 		}
+		*/
 
-		if (g_map) {
-			await g_map.close();
-		} else {
-			g_map = new PWMap();
-		}
 		await g_map.reinit('none');
 		await g_map.reload_db();
 
-		Editor.navbar.reload();
+		Editor.navbar.reload()
 
-		new Promise(async (resolve) => {
+		Editor.map_shadow.querySelector('#pw-loading').style.display = 'none';
+		await new Promise(async (resolve) => {
 			if (localStorage.getItem('mg_welcome_closed')) {
 				resolve();
 			} else {
@@ -167,20 +188,13 @@ class Editor {
 		}).then(async () => {
 			localStorage.setItem('mg_welcome_closed', 1);
 
-			if (args.action == 'new') {
-				const win = await CreateProjectWindow.open();
-			} else {
-				const win = await MapChooserWindow.open({ });
-			}
+			//const win = await CreateProjectWindow.open();
+			const win = await MapChooserWindow.open({ });
 		});
-	}
 
-	static close() {
-		const page_main = document.querySelector('#main');
-		if (page_main) {
-			page_main.style.display = '';
+		if (curtain_shown) {
+			await Loading.hide_curtain();
 		}
-		document.body.classList.remove('mge-fullscreen');
 	}
 
 	static onmousemove(e) {
