@@ -89,4 +89,20 @@ class Projects {
 		localStorage.setItem('projects_list_tab', name);
 		this.tpl.reload('.projects-container', { loading: false });
 	}
+
+	async new_project() {
+		let req = await post(ROOT_URL + 'api/project/new', { is_json: 1 });
+
+		if (!req.ok) {
+			notify('error', 'Couldn\'t create the project: ' + (req.data.err || ''));
+			return;
+		}
+
+		return Editor.open_project(req.data.id);
+	}
+
+	async refresh_projects() {
+		await this.select_tab(this.cur_tab);
+
+	}
 }

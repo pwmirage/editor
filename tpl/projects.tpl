@@ -4,7 +4,7 @@
 		Open a recent project or create a new one
 	</div>
 	<div class="recent">
-		<div class="create">
+		<div class="create" onclick="{serialize $projects}.new_project();">
 			<i class="fa fa-plus"></i><span>Create</span>
 		</div>
 		{for project of $projects.recent}
@@ -43,7 +43,9 @@
 				<th>Status</th>
 				<th style="width: 186px;">Owner</th>
 				<th style="width: 186px;">Edit time</th>
-				<th style="width: 50px;"></th>
+				<th style="width: 50px; position: relative;">
+					<a class="button" style="position: absolute; right: 0; top: 3px; padding: 5px 10px;" href="javascript:void(0);" onclick="{serialize $projects}.refresh_projects();"><i class="fa fa-refresh"></i></a>
+				</th>
 			</tr>
 
 			{for project of $projects.list}
@@ -74,7 +76,7 @@
 			{/for}
 		</table>
 
-		<a class="button buttonPrimary" style="float: right; margin-top: 14px;" href="javascript:void(0);" onclick="{serialize $page}.new_patch();">New project</a>
+		<a class="button buttonPrimary" style="float: right; margin-top: 14px;" href="javascript:void(0);" onclick="{serialize $projects}.new_project();">New project</a>
 	</div>
 </div>
 
@@ -112,9 +114,14 @@
 
 #root > .recent {
 	display: flex;
+	flex-wrap: wrap;
 	background: #f1f3f4;
 	column-gap: 10px;
 	padding-top: 10px;
+
+	overflow: hidden;
+	max-height: 108px;
+	row-gap: 50px;
 }
 
 .recent > * {
