@@ -148,6 +148,8 @@ class Editor {
 		} catch (e) {
 		}
 
+		const tag_p = Loading.show_tag('Loading project');
+
 		Editor.map_shadow.querySelector('#pw-loading').style.display = 'block';
 		document.body.classList.remove('mge-background');
 		await sleep(650);
@@ -178,6 +180,8 @@ class Editor {
 		Editor.navbar.reload()
 
 		Editor.map_shadow.querySelector('#pw-loading').style.display = 'none';
+		Loading.hide_tag(tag_p);
+
 		await new Promise(async (resolve) => {
 			if (localStorage.getItem('mg_welcome_closed')) {
 				resolve();
