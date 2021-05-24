@@ -246,7 +246,7 @@ class PWDB {
 		}
 
 		if (spawners_tag) {
-			Loading.hide_tag(spawners_tag);
+			Loading.try_cancel_tag(spawners_tag);
 		}
 
 		db.project_changelog_start_gen = 1;

@@ -118,6 +118,8 @@ class Loading {
 	static try_cancel_tag(tag) {
 		if (!tag._mg_shown) {
 			clearTimeout(tag._mg_timeout);
+		} else {
+			Loading.hide_tag(tag);
 		}
 	}
 };
