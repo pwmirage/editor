@@ -7,14 +7,12 @@
 		<div class="create">
 			<i class="fa fa-plus"></i><span>Create</span>
 		</div>
-		<div>
+		{for project of $projects.recent}
+		<a href="{@ROOT_URL + '?id=' + $project.id}" class="{if $project.last_open_time <= $project.last_edit_time}bold{/if}" onclick="Editor.open_project({@$project.id}); this.classList.remove('bold'); event.preventDefault();">
 			<img src="{@Item.get_icon(164)}" alt="">
-			<span>Project 1</span>
-		</div>
-		<div>
-			<img src="{@Item.get_icon(164)}" alt="">
-			<span>Project long name long log aaaa aaaaa aaaa</span>
-		</div>
+			<span>{@$project.name}</span>
+		</a>
+		{/for}
 	</div>
 
 	<div class="chooser">
@@ -87,7 +85,7 @@
 	width: 100%;
 	height: calc(100% - 50px);
 	overflow-y: auto;
-	padding-bottom: 8aaa0px;
+	padding-bottom: 80px;
 	background: white;
 }
 
@@ -210,8 +208,12 @@
 	text-align: left;
 }
 
+.recent a,
 .projects a {
 	color: #502c2c;
+}
+
+.projects a {
 	padding: 8px;
 }
 
@@ -221,7 +223,8 @@
 	align-items: center;
 }
 
-.projects tr.bold .name {
+.projects tr.bold .name,
+.recent .bold span {
 	font-weight: bold;
 }
 

@@ -49,6 +49,10 @@ class Projects {
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		this.list = [];
+		let req;
+
+		req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data: { type: 'recent' }});
+		this.recent = req.data;
 
 		Projects.DateUtil = await new Promise((resolve) => {
 			require(['DateUtil'], (DateUtil) => {
