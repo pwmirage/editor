@@ -16,6 +16,7 @@ class JSDebugClient {
 
 		socket.addEventListener('open', (event) => {
 			MG_DEBUG = 1;
+			console.log('JSDebugClient connected');
 		});
 
 		socket.addEventListener('message', (event) => {

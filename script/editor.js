@@ -25,6 +25,8 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/rmenu.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
 		]);
+
+		await JSDebugClient.init();
 	}
 
 	static async load() {
@@ -69,8 +71,6 @@ class Editor {
 		window.addEventListener('error', Editor.onerror, { passive: false });
 
 		PWDB.watch_db();
-
-		await JSDebugClient.init();
 
 		g_map = new PWMap();
 	}
