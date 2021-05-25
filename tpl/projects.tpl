@@ -43,22 +43,26 @@
 				<th>Status</th>
 				<th style="width: 186px;">Owner</th>
 				<th style="width: 186px;">Edit time</th>
-				<th style="width: 50px; position: relative;">
+				<th style="width: 35px; position: relative;">
 					<a class="button" style="position: absolute; right: 0; top: 3px; padding: 5px 10px;" href="javascript:void(0);" onclick="{serialize $projects}.refresh_projects();"><i class="fa fa-refresh"></i></a>
 				</th>
 			</tr>
 
 			{for project of $projects.list}
-				<tr class="{if $project.last_open_time <= $project.last_edit_time}bold{/if}" onclick="Editor.open_project({@$project.id}); this.classList.remove('bold'); event.preventDefault();">
+				<tr class="{if !$project.is_public}private{/if} {if $project.last_open_time <= $project.last_edit_time}bold{/if}" onclick="Editor.open_project({@$project.id}); this.classList.remove('bold'); event.preventDefault();">
 					<td>
 						<a class="name" href="{@ROOT_URL + '?id=' + $project.id}">
+							{if !$project.is_public}
+								<i class="fa fa-eye-slash" style="color: #008c00;"></i>
+							{/if}
 							<img src="{@Item.get_icon(164)}" alt="">
 							<span style="">{@$project.name}</span>
 						</a>
 					</td>
 					<td>
 						<a class="labels" href="{@ROOT_URL + '?id=' + $project.id}">
-							<div class="badge green">Fix</div>
+							{assign type = Projects.type.find(t => t.id == $project.type)}
+							<div class="badge {@$type.color}">{@$type.name}</div>
 							{assign status = Projects.status.find(s => s.id == $project.status)}
 							<div class="badge {@$status.color}">{@$status.name}</div>
 						</div>
@@ -71,12 +75,32 @@
 					<td><a href="{@ROOT_URL + '?id=' + $project.id}">
 						{@Projects.DateUtil.getTimeElement(new Date($project.last_edit_time * 1000)).outerHTML}
 					</a></td>
-					<td>...</td>
+					<td onclick="{serialize $projects}.onclick_project_dots(this, event, {@$project.id}); event.stopPropagation();" class="details-button"><i class="fa fa-ellipsis-v"></i></td>
 				</tr>
 			{/for}
 		</table>
 
 		<a class="button buttonPrimary" style="float: right; margin-top: 14px;" href="javascript:void(0);" onclick="{serialize $projects}.new_project();">New project</a>
+	</div>
+
+	<div id="modify_project_dialogue" style="display: none;">
+		{assign project = $project || \{ \}}
+		<div style="display: flex; align-items: baseline;">
+			<div style="width: 50px;">Name:</div>
+			<input type="text" name="name" value="{@$project.name}" style="flex: 1;" autocomplete="off">
+		</div>
+
+		<div style="display: flex; align-items: baseline; margin-top: 8px;">
+			<div style="width: 50px; align-self: end;">Type:</div>
+			<form action="none">
+				{for t of Projects.type}
+					<label>
+						<input type="radio" name="type" value="{@$t.id}" {if $t.id == $project.type}checked{/if}>
+						<span class="badge label {@$t.color}">{@$t.name}</span>
+					</label>
+				{/for}
+			</form>
+		</div>
 	</div>
 </div>
 
@@ -186,6 +210,11 @@
 	cursor: pointer;
 }
 
+.categories > *:hover {
+	border: 1px solid #aaaca0;
+	background: #dadada;
+}
+
 .categories > .selected {
 	background: white;
 	border-bottom: none;
@@ -245,50 +274,17 @@
 	column-gap: 5px;
 }
 
-@keyframes showCurtain {
-	0% { transform: scaleY(0); }
-	100% { transform: scaleY(1); }
+.projects .details-button {
+	padding: 0 15px;
 }
 
-@keyframes hideCurtain {
-	0% { transform: scaleY(1); }
-	100% { transform: scaleY(0) }
-}
+.projects .details-button > i { color: #757070; }
+.projects .details-button:hover { background: #b5b1b1; }
+.projects .details-button:hover > i { color: rgba(80, 44, 44, 1); }
 
-@keyframes stretchHeigh {
-	0%, 40%, 100% { transform: scaleY(0.05); }
-	20% { transform: scaleY(1); }
-}
-
-@keyframes fadeIn {
-	0% { opacity: 0; }
-	100% { opacity: 1; }
-}
-
-@keyframes fadeOut {
-	0% { opacity: 1; }
-	100% { opacity: 0; }
-}
-
-#curtain.showCurtain, #curtain.hideCurtain { display: block; }
-#curtain.showCurtain > #loader { animation: fadeIn 0.2s linear both; }
-#curtain.hideCurtain > #loader { animation: fadeOut 0.2s linear both; }
-#curtain.showCurtain > #loader > div { animation: stretchHeigh 0.8s infinite ease-in-out; }
-#curtain.showCurtain > .curtain { animation: showCurtain 250ms ease-in-out both; }
-#curtain.hideCurtain > .curtain { animation: hideCurtain 250ms ease-in-out both; animation-delay: 0.2s; }
-
-#curtain .top {
-	top: 0;
-	transform-origin: 0 0;
-}
-
-#curtain .bottom {
-	bottom: 0;
-	transform-origin: 0 100%;
-}
-
-#curtain > div {
-	z-index: 100;
+.projects .private span,
+.projects .private a {
+	color: gray;
 }
 </style>
 @@}
