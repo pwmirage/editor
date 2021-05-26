@@ -45,6 +45,7 @@
 <style>
 :host {
 	position: relative;
+	color: white;
 }
 
 #pw-overlay {
