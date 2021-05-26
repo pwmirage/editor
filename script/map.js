@@ -809,6 +809,10 @@ class PWMap {
 	}
 
 	async onresize(e) {
+		if (!this.canvas) {
+			return;
+		}
+
 		if (this.check_overflown_changed_objs) {
 			this.check_overflown_changed_objs();
 		}
