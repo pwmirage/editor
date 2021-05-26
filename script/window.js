@@ -4,7 +4,7 @@
 
 class Window {
 	static container;
-	static bounds;
+	static bounds = { x: 0, y: 0, top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
 	static dragged_win;
 	static resized_win;
 	static focus_win_index = 0;
@@ -64,7 +64,9 @@ class Window {
 
 			this.full_bounds = this.dom_win.getBoundingClientRect();
 		} else {
-			Window.container.append(this.dom);
+			if (Window.container) {
+				Window.container.append(this.dom);
+			}
 
 			this.focus();
 			this.full_bounds = this.dom_win.getBoundingClientRect();
