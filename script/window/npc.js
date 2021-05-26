@@ -29,7 +29,7 @@ class NPCCraftsWindow extends Window {
 
 		const prev_compile_cb = this.recipe_win.tpl_compile_cb;
 		this.recipe_win.tpl_compile_cb = (dom) => {
-			prev_compile_cb(dom);
+			prev_compile_cb.call(this, dom);
 			if (dom.id == 'targets') {
 				this.tpl.reload('#items');
 			}

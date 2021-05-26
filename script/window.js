@@ -103,6 +103,10 @@ class Window {
 
 	tpl_compile_cb(dom) {
 		HTMLSugar.process(dom, this);
+		if (this.dom_header && dom.querySelector('.window > .header')) {
+			this.close();
+			this.constructor.open(this.args);
+		}
 	}
 
 	static set_container(container) {
