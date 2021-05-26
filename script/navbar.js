@@ -31,11 +31,10 @@ class Navbar {
 		b['proj_summary'] = this.add_button(p, 'Show summary');
 		tmp = this.add_button(p, '');
 		tmp.innerHTML = '<hr>';
-		b['proj_new'] = this.add_button(p, 'Create new');
+		b['proj_modify'] = this.add_button(p, 'Modify');
 		b['proj_save'] = this.add_button(p, 'Save');
 		b['proj_publish'] = this.add_button(p, 'Publish');
 		b['proj_rebase'] = this.add_button(p, 'Rebase');
-		b['proj_share'] = this.add_button(p, 'Share');
 		b['proj_test'] = this.add_button(p, 'Quick Test');
 
 		b['editor'] = this.add_button(null, 'Editor');
@@ -123,7 +122,7 @@ class Navbar {
 		const b = this.buttons;
 		const has_proj = !!db?.metadata[1]?.pid;
 
-		b.proj_new.onclick = () => CreateProjectWindow.open();
+		b.proj_modify.onclick = () => Projects.instance.open_project_modify(Editor.current_project);
 		b.proj_summary.onclick = () => HistoryWindow.open();
 		b.proj_save.onclick = () => PWDB.save(db, true);
 		b.proj_publish.onclick = () => PWDB.publish(db);
@@ -167,7 +166,6 @@ class Navbar {
 		set_enabled(b['proj_save'], has_proj);
 		set_enabled(b['proj_publish'], has_proj);
 		set_enabled(b['proj_rebase'], has_proj);
-		set_enabled(b['proj_share'], has_proj);
 
 		for (const type in b['new']) {
 			const btn = b['new'][type];
