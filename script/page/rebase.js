@@ -8,25 +8,22 @@ g_mg_pages['rebase'] = new class {
 		this.tpl = new Template('tpl-page-rebase');
 
 		this.dom = document.createElement('div');
-		if (!args.pid) {
-			this.dom.innerHTML = '<span>Create a project to be able to rebase</span>';
+		if (!args.project) {
+			this.dom.innerHTML = '<span>You need to create a project first</span>';
 			return this.dom;
 		}
-		this.pid = parseInt(args.pid);
-
 
 		/* hack for the HTMLSugar */
 		this.shadow = document;
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
-		let req;
-		req = await get(ROOT_URL + 'api/project/' + this.pid + '/info', { is_json: 1});
-		this.project = req.data;
+		this.project = args.project;
 
+		let req;
 		req = await get(ROOT_URL + 'api/project/branches', { is_json: 1});
 		this.branches = req.data;
 
-		req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data: {name: 'test'}});
+		req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data: { type: 'published' }});
 		this.projects = req.ok ? req.data : [];
 
 		const data = await this.tpl.run({ page: this, project: this.project, branches: this.branches, projects: this.projects });
@@ -45,7 +42,7 @@ g_mg_pages['rebase'] = new class {
 				return;
 			}
 
-			const req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data: { name: val }});
+			const req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data: { name: val, type: 'published' }});
 
 			if (this.search_val != val) {
 				return;

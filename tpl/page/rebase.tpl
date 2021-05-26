@@ -1,13 +1,10 @@
 <script id="tpl-page-rebase" type="text/x-dot-template">
 <div class="mgContent" style="min-height: 276px;">
-	<div style="display: flex; flex-direction: row; gap: 8px; margin-top: 8px;">
-		<div>Project: <a href="{@'/forum/thread/' + $project.topic_id}" class="externalURL"><b>{@$project.name} #{@$project.id}</b></a></div>
-	</div>
 	<div>Current base:</div>
 	<div>
 		<label class="project">
 			<input type="radio" name="base" value="current" oninput="{serialize $page}.onradio(this);" data-fname="" checked>
-			{@$project.base_name} #{@$project.base_project_id} <a href="{@'/forum/thread/' + $project.base_topic_id}" class="externalURL"></a>
+			{@$project.base_name} #{@$project.base_project_id} <a href="{@ROOT_URL + '?id=' + $project.base_project_id}" class="externalURL"></a>
 			{if $project.base_edit_time != $project.base_project_edit_time}
 				<div>(Older version)</div>
 			{/if}
@@ -18,11 +15,11 @@
 		{for branch of $branches}
 			<div class="branch">
 				<label class="project">
-					<div class="header">Branch {@$branch.name} (v{@$branch.version})</div>
+					<div class="header">Branch <span style="text-transform: capitalize;">{@$branch.name}</span> (v{@$branch.head_commit_id})</div>
 					<div>
-						<input type="radio" name="base" value="{@$branch.name}@{@$branch.head_commit_id}" oninput="{serialize $page}.onradio(this);" data-fname="{@$branch.head_commit_name}">
-						{@$branch.head_commit_name}
-						<a href="{@'/forum/thread/' + $branch.head_commit_topic_id}" class="externalURL"> </a>
+						<input type="radio" name="base" value="{@$branch.name}@{@$branch.head_commit_id}" oninput="{serialize $page}.onradio(this);" data-fname="{@$branch.head_name}">
+						{@$branch.head_name}
+						<a href="{@ROOT_URL + '?id=' + $branch.head_id}" class="externalURL"> </a>
 					</div>
 				</label>
 			</div>
@@ -49,9 +46,10 @@
 			{/if}
 		</div>
 	</div>
-	<div style="display: flex;">
+	<div style="display: flex; column-gap: 8px;">
 		<div style="flex: 1;"></div>
 		<a class="button buttonPrimary disabled" href="javascript:void(0);" onclick="{serialize $page}.rebase();">Rebase</a>
+		<a class="button" href="javascript:void(0);" onclick="g_confirm_dom.querySelector('.dialogCloseButton').click();">Cancel</a>
 	</div>
 </div>
 
@@ -78,7 +76,6 @@
 	display: flex;
 	flex-direction: row;
 	column-gap: 8px;
-	width: 200px;
 }
 
 .mgContent .branch {
@@ -99,6 +96,7 @@
 
 .mgContent .projects {
 	flex: 1;
+	width: 625px;
 }
 
 .mgContent .search-projects {
@@ -113,12 +111,14 @@
 }
 
 .mgContent .project {
-	background-color: #dccfcf;
-	border-radius: 5px;
+	background-color: #ffffff;
+	border: 1px solid #dadce0;
+	border-radius: 2px;
 	padding: 5px;
 	cursor: pointer;
 	min-width: 175px;
 	font-weight: bold;
+	box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 10%);
 }
 
 .mgContent label.project {
@@ -126,7 +126,8 @@
 }
 
 .mgContent .project:hover {
-	background-color: #9c7878;
+	background-color: #e2e2e2;
+	color: #585858;
 }
 
 .branch {

@@ -5,10 +5,6 @@
 const g_history_tpl = load_tpl(ROOT_URL + 'tpl/window/history.tpl');
 class HistoryWindow extends Window {
 	async init() {
-		if (this.args.debug) {
-			this.demo();
-		}
-
 		await g_history_tpl;
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-history');
@@ -19,19 +15,11 @@ class HistoryWindow extends Window {
 
 		await super.init();
 
-		this.select_tab(2);
+		this.select_tab(1);
 	}
 
 	tpl_compile_cb(dom) {
 		super.tpl_compile_cb(dom);
-		for (const c of dom.querySelectorAll('#base:not(.loaded)')) {
-			mg_init_page('rebase', { pid: db.metadata[1].pid }).then(
-				(content_el) => {
-					c.appendChild(content_el);
-					c.classList.add('loaded');
-				});
-
-		}
 	}
 
 	select_tab(idx) {
@@ -45,43 +33,6 @@ class HistoryWindow extends Window {
 			c.classList.remove('active');
 		}
 		this.shadow.querySelector('.tabcontents').children[idx].classList.add('active');
-	}
-
-	demo() {
-		let goods = db.npc_sells[2241];
-		if (goods.name == "First gen") {
-			return;
-		}
-
-		db.open(goods)
-		goods.name = "First gen";
-		goods.pages[0].title = "B Sword";
-		goods.pages[0].item_id[3] = 0;
-		goods.pages[0].item_id[6] = 40;
-		goods.pages[2].item_id[12] = 177;
-		db.commit(goods);
-
-		goods = db.npc_sells[2242];
-		db.open(goods)
-		goods.name = "Another Goods";
-		db.commit(goods);
-
-		db.new_generation();
-
-		goods = db.npc_sells[2672];
-		db.open(goods)
-		goods.name = "Second gen";
-		db.commit(goods);
-
-		let crafts = db.npc_crafts[2902];
-		db.open(crafts)
-		crafts.name = "Crafts change";
-		crafts.pages[0].recipe_id[0] = 0;
-		crafts.pages[0].recipe_id[1] = 60;
-		db.commit(crafts);
-
-		let diff = JSON.parse('[{ "id": 2147483648, "pos": { "0": 1727.4746105389604, "2": 980.131307875321 }, "groups": { "0": { "type": 11608, "count": 1 } }, "type": "npc", "_db": { "type": "spawners_gs01" } }]');
-		db.load(diff);
 	}
 
 	used_by(obj) {

@@ -2,7 +2,7 @@
 <div class="window resizable" style="width: 800px; height: 600px;">
 {assign project = db.metadata[1]}
 <div class="header">
-	<span>Project: XYZ #{@$project.pid}</span>
+	<span>Project: {@$project?.name ?? '(none)'} #{@$project.pid}</span>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
@@ -11,13 +11,11 @@
 </div>
 <div class="content flex-rows" style="overflow: hidden;">
 	<div class="flex-columns tabs" style="margin-bottom: 8px;">
-		<div class="tab" onclick="{serialize $win}.select_tab(0);">Base</div>
-		<div class="tab" onclick="{serialize $win}.select_tab(1);">History</div>
-		<div class="tab" onclick="{serialize $win}.select_tab(2);">Changes</div>
+		<div class="tab" onclick="{serialize $win}.select_tab(0);">History</div>
+		<div class="tab" onclick="{serialize $win}.select_tab(1);">Changes</div>
 	</div>
 
 	<div class="tabcontents">
-		<div id="base"></div>
 		<div id="history" class="history">
 			{if $project.pid}
 				<div>Project #{@$project.pid} created on {@(new Date($project.create_time * 1000)).toLocaleString()}</div>

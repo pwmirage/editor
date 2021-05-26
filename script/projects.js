@@ -141,6 +141,20 @@ class Projects {
 		}
 	}
 
+	async open_project_rebase(project) {
+		let req = confirm('<div class="loading-spinner"></div>', '', 'Rebase project: ' + project.name);
+		await sleep(1);
+
+		const page_dom = await mg_init_page('rebase', { project });
+
+		const content = g_confirm_dom.querySelector('.systemConfirmation > p');
+		for (const c of content.children) { c.remove(); }
+
+		content.append(page_dom);
+		g_confirm_dom.classList.add('big');
+		g_confirm_dom.classList.add('noconfirm');
+	}
+
 	async onclick_project_dots(el, e, pid) {
 		const project = this.list.find(p => p.id == pid);
 

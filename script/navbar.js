@@ -125,6 +125,7 @@ class Navbar {
 		b.proj_modify.onclick = () => Projects.instance.open_project_modify(Editor.current_project);
 		b.proj_summary.onclick = () => HistoryWindow.open();
 		b.proj_save.onclick = () => PWDB.save(db, true);
+		b.proj_rebase.onclick = () => Projects.instance.open_project_rebase(Editor.current_project);
 		b.proj_publish.onclick = () => PWDB.publish(db);
 		b.proj_test.onclick = async () => {
 			const ok = await PWDB.save(db, false);
