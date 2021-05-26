@@ -11,6 +11,7 @@ class Editor {
 	static loaded = false;
 	static navbar = null;
 	static map_shadow = null;
+	static current_project = null;
 
 	static async init() {
 		await Promise.all([
@@ -59,6 +60,10 @@ class Editor {
 		editor_dom.id = 'mgeArea';
 		document.querySelector('#pageContainer').append(editor_dom);
 		Editor.map_shadow = await PWMap.add_elements(editor_dom);
+
+		const date = new Date(MG_VERSION * 1000);
+		const version_str = 'Mirage Editor, Version: ' + date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+		Editor.map_shadow.querySelector('#pw-version').textContent = version_str;
 
 		const org_menu = document.querySelector('.mainMenu .boxMenu');
 		if (org_menu) {
@@ -112,7 +117,26 @@ class Editor {
 
 	}
 
+	static async reload_project_info() {
+		if (!Editor.map_shadow) {
+			return;
+		}
+
+		const project = Editor.current_project;
+		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
+		if (project?.id) {
+			proj_info_el.textContent = 'Project: ' + project.name + ' by ' + project.author;
+
+			const d = new Date(project.last_edit_time * 1000);
+			const d_str = d.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString("en-US");
+			proj_info_el.innerHTML = proj_info_el.textContent + '<br>' + d_str;
+		} else {
+			proj_info_el.innerHTML = 'Create a project to store<br>your changes on the server';
+		}
+	}
+
 	static async open_project(pid) {
+		pid = parseInt(pid);
 		let curtain_shown = false;
 		history.pushState({ pid }, '', '?id=' + pid)
 
@@ -150,9 +174,23 @@ class Editor {
 
 		const tag_p = Loading.show_tag('Loading project');
 
+		const req_p = get(ROOT_URL + 'api/project/' + pid + '/info', { is_json: 1 });
+
 		Editor.map_shadow.querySelector('#pw-loading').style.display = 'block';
 		document.body.classList.remove('mge-background');
+		Editor.map_shadow.querySelector('#pw-project-info').innerHTML = '';
 		await sleep(650);
+
+		const req = await req_p;
+		if (!req.ok) {
+			confirm('Error occured while loading this project. Are you sure this project exists and you have access to it?', '', 'Error');
+			await sleep(1);
+			g_confirm_dom.classList.add('noconfirm');
+			return;
+		}
+
+		Editor.current_project = req.data;
+		await Editor.reload_project_info();
 
 		/*const date = new Date();
 		const version_str = 'Mirage Editor, Version: ' + date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });

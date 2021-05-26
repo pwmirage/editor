@@ -110,6 +110,37 @@ class Projects {
 		await this.select_tab(this.cur_tab);
 	}
 
+	async open_project_modify(project) {
+		this.tpl.reload('#modify_project_dialogue', { project });
+		const ok = await confirm(this.shadow.querySelector('#modify_project_dialogue').innerHTML, '', 'Modify project: ' + project.name);
+
+		if (!ok) {
+			return;
+		}
+
+		const name = g_confirm_dom.querySelector('input[name="name"]').value;
+		const type = parseInt(document.querySelector('input[name="type"]:checked')?.value || 0);
+
+		if (project.name == name && project.type == type) {
+			/* no changes */
+			return;
+		}
+
+		const req = await post(ROOT_URL + 'api/project/' + project.id + '/rename', { is_json: 1, data: { name, type }});
+		if (!req.ok) {
+			notify('error', req.data.err || 'Unexpected error occurred');
+			return;
+		}
+		project.name = name;
+		project.type = type;
+		project.last_edit_time = Math.floor(Date.now() / 1000);
+		this.tpl.reload('.projects');
+
+		if (Editor.current_project?.id == project.id) {
+			await Editor.reload_project_info();
+		}
+	}
+
 	async onclick_project_dots(el, e, pid) {
 		const project = this.list.find(p => p.id == pid);
 
@@ -127,30 +158,7 @@ class Projects {
 		const sel = await win.wait();
 		switch (sel) {
 			case 1: {
-				this.tpl.reload('#modify_project_dialogue', { project });
-				const ok = await confirm(this.shadow.querySelector('#modify_project_dialogue').innerHTML, '', 'Modify project: ' + project.name);
-
-				if (!ok) {
-					break;
-				}
-
-				const name = g_confirm_dom.querySelector('input[name="name"]').value;
-				const type = parseInt(document.querySelector('input[name="type"]:checked')?.value || 0);
-
-				if (project.name == name && project.type == type) {
-					/* no changes */
-					break;
-				}
-
-				const req = await post(ROOT_URL + 'api/project/' + project.id + '/rename', { is_json: 1, data: { name, type }});
-				if (!req.ok) {
-					notify('error', req.data.err || 'Unexpected error occurred');
-					break;
-				}
-				project.name = name;
-				project.type = type;
-				project.last_edit_time = Math.floor(Date.now() / 1000);
-				this.tpl.reload('.projects');
+				await this.open_project_modify(project);
 				break;
 			}
 			case 2: {
