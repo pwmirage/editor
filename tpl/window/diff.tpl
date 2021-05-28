@@ -1,5 +1,5 @@
 <script id="tpl-diff-window" type="text/x-dot-template">
-<div class="window resizable" style="width: 376px: min-width: 376px;">
+<div class="window resizable" style="width: 376px: min-width: 376px; height: 400px;">
 {assign project = db.metadata[1]}
 <div class="header">
 	<span>Diff: {@$obj.name || PWPreview.get_obj_type($obj).name } {@DB.serialize_id($obj.id)}</span>
@@ -10,7 +10,6 @@
 	</div>
 </div>
 <div class="content flex-rows" style="overflow: hidden;">
-	{@PWPreview.diff(\{ db, obj: $obj, diff: $diff, prev: $obj._db.project_initial_state \})}
 </div>
 </div>
 
@@ -19,8 +18,10 @@
 .block {
 	display: flex;
 	flex-direction: column;
-	padding: 4px 5px;
-	background-color: rgba(0, 0, 0, 0.05);
+	padding: 2px 5px;
+	background-color: rgba(0, 0, 0, 0.03);
+	font-size: 11px;
+	line-height: 12px;
 }
 
 .block > * {
@@ -102,6 +103,26 @@ table {
 	height: 100%;
 	background-color: #fff;
 	opacity: 0.45;
+}
+
+.item,
+.item > img {
+	width: auto;
+	height: 22px;
+	font-size: 12px;
+	vertical-align: middle;
+}
+
+.item-row > div {
+	display: flex;
+	flex-direction: column;
+	row-gap: 2px;
+	margin-right: 5px;
+}
+
+.item-row > div:not(:first-child) .plus:before,
+.item-row > div:not(:first-child) .minus:before {
+	content: none;
 }
 </style>
 @@}

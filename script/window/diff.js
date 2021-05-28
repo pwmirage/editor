@@ -18,6 +18,9 @@ class DiffWindow extends Window {
 		const data = await this.tpl.run({ win: this, obj: this.obj, prev: this.prev, diff: this.diff });
 		shadow.append(data);
 
+		const diff = PWPreview.diff({ db, obj: this.obj, diff: this.diff, prev: this.prev });
+		diff.style.overflowY = 'auto';
+		shadow.querySelector('.content').append(diff);
 		await super.init();
 	}
 }
