@@ -95,8 +95,8 @@ const fuzzysort = {
 		const results = index.filter(e => e.dist < HARD_THRESHOLD);
 
 		results.sort((a, b) => {
-			const adist = a.dist - !!a.obj._db.chooser_recent_idx;
-			const bdist = b.dist - !!b.obj._db.chooser_recent_idx;
+			const adist = a.dist - !!a.obj._db?.chooser_recent_idx;
+			const bdist = b.dist - !!b.obj._db?.chooser_recent_idx;
 			return adist > bdist ? 1: (adist < bdist ? -1 : 0);
 		});
 
