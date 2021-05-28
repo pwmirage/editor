@@ -32,7 +32,11 @@ class HistoryWindow extends Window {
 			}
 
 			for (const obj of mod_objects) {
-				if (!obj._db.project_initial_state || obj._db.type == 'metadata') {
+				if (!obj._db.project_initial_state ||
+						obj._db.type == 'metadata' ||
+						obj._db.type == 'npc_tasks_in' ||
+						obj._db.type == 'npc_tasks_out' ||
+						obj._db.type == 'recipes') {
 					continue;
 				}
 

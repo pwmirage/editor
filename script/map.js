@@ -306,7 +306,9 @@ class PWMap {
 
 		const changed_objects_map = new Map();
 		const set_modified_obj = (obj, diff) => {
-			if (obj._db.type == 'metadata') {
+			if (obj._db.type == 'metadata' ||
+					obj._db.type == 'npc_tasks_in' ||
+					obj._db.type == 'npc_tasks_out') {
 				return;
 			}
 
