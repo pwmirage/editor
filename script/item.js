@@ -330,7 +330,7 @@ class RecipeTooltip {
 			this.dom.style.position = 'fixed';
 			this.dom.style.backgroundColor = 'transparent';
 			this.dom.style.color = '#fff';
-			this.dom.onmouseenter = (e) => { this.dom.style.display = 'none'; };
+			this.dom.onmouseenter = (e) => { if (!this.pinned) this.dom.style.display = 'none'; };
 			args.parent_el.append(this.dom);
 		}
 	}
@@ -350,6 +350,15 @@ class RecipeTooltip {
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';
 		this.dom.style.top = bounds.top + 'px';
+	}
+
+	toggle_pin(e) {
+		this.pinned = this.shadow.querySelector('#recipe_info').classList.toggle('pinned');
+		if (this.pinned) {
+			return;
+		}
+
+		Item.hide_tooltips();
 	}
 }
 

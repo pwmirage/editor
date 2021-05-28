@@ -1053,6 +1053,10 @@ class HTMLSugar {
 			}
 		}
 
+		if (!el && win.pinned) {
+			return;
+		}
+
 		win.hover_el = el;
 		if (!el) {
 			info.style.display = 'none';

@@ -142,6 +142,16 @@
 	padding-left: 13px;
 }
 
+#recipe_info.pinned:before {
+	content: '';
+	position: absolute;
+	margin-left: -2000px;
+	margin-top: -2000px;
+	width: 4000px;
+	height: 4000px;
+	background: rgba(0, 0, 0, 0.4);
+}
+
 #recipe_info:not(.edit) {
 	background-color: rgba(0, 0, 0, 0.9);
 }

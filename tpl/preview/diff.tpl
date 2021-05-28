@@ -182,8 +182,9 @@
 						{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
 						{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
 						<div class="flex-rows" style="gap: 2px;">
-							<span class="recipe {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$prev_id}" data-prev="1"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($prev_id)}" alt=""></span>
-							<span class="recipe {if $prev_id == $cur_id}unchanged{/if}" data-id="{@$cur_id}" data-prev="1"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
+							{assign is_changed = ($prev_id != $cur_id) || PWPreview.is_recipe_modified(db.recipes[$cur_id])}
+							<span class="recipe {if !$is_changed}unchanged{/if}" data-id="{@$prev_id}" data-prev="1"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($prev_id)}" alt=""></span>
+							<span class="recipe {if !$is_changed}unchanged{/if}" data-id="{@$cur_id}" data-prev="1"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
 						</div>
 					{/for}
 					</div>

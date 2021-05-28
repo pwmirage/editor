@@ -172,6 +172,16 @@ class PWPreview {
 					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: db || g_latest_db });
 				}, { passive: true });
 
+				document.addEventListener('mousedown', (e) => {
+					if (!PWPreview.recipe_win.hover_el || PWPreview.recipe_win.hover_el.tabIndex != -1) {
+						return true;
+					}
+
+					e.stopPropagation();
+					PWPreview.recipe_win.toggle_pin(e);
+					return false;
+				}, { passive: true });
+
 				resolve();
 			});
 		}
@@ -185,6 +195,28 @@ class PWPreview {
 		}
 
 		return entry_tpl.func(entry_tpl, { f: entry, val: data, prev });
+	}
+
+	static is_recipe_modified(obj) {
+		if (!obj) {
+			return false;
+		}
+
+		const initial_state = obj._db.project_initial_state;
+		if (!initial_state) {
+			return false;
+		}
+
+		const diff = DB.get_obj_diff(obj, initial_state);
+
+		for (const field in diff) {
+			/* don't count 'crafts' as change */
+			if (field != 'crafts') {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	static load_promise;
