@@ -14,8 +14,6 @@ class HistoryWindow extends Window {
 		shadow.append(data);
 
 		await super.init();
-
-		this.select_tab(1);
 	}
 
 	tpl_compile_cb(dom) {
@@ -70,19 +68,6 @@ class HistoryWindow extends Window {
 		}
 
 		super.tpl_compile_cb(dom);
-	}
-
-	select_tab(idx) {
-		for (const c of this.shadow.querySelectorAll('.tabs > .active')) {
-			c.classList.remove('active');
-		}
-
-		this.shadow.querySelector('.tabs').children[idx].classList.add('active');
-
-		for (const c of this.shadow.querySelectorAll('.tabcontents > .active')) {
-			c.classList.remove('active');
-		}
-		this.shadow.querySelector('.tabcontents').children[idx].classList.add('active');
 	}
 
 	used_by(obj) {
