@@ -59,7 +59,7 @@ class MapChooserWindow extends Window {
 	async open_map() {
 		this.close();
 		if (g_map) {
-			await g_map.close();
+			await g_map.close(false);
 		} else {
 			g_map = new PWMap();
 		}

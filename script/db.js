@@ -635,6 +635,23 @@ class DB {
 		return DB.is_obj_diff(a, b);
 	}
 
+	static is_obj_nonempty(obj) {
+		for (const f in obj) {
+			if (typeof(obj[f]) === 'object') {
+				if (DB.is_obj_nonempty(obj[f])) {
+					return true;
+				}
+				continue;
+			}
+
+			if (obj[f]) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	static is_obj_diff(obj, org) {
 		for (const f in obj) {
 			if (f === '_db') continue;

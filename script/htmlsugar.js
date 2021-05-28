@@ -1065,10 +1065,13 @@ class HTMLSugar {
 			return;
 		}
 
+		const prev_id = parseInt(el.dataset.prev);
+
 		params.db = params.db || document.db;
 		const obj = params.db[type][id] || { id };
+		const prev_obj = prev_id ? obj._db?.project_initial_state : null;
 		const bounds = el.getBoundingClientRect();
-		win.reload(obj, bounds, params.db);
+		win.reload(obj, prev_obj, bounds, params.db);
 	}
 
 	static show_item_tooltip(item_win, el, params) {

@@ -274,10 +274,6 @@ class ItemTooltip {
 			const s_p = new Promise((resolve) => { s.onload = resolve; });
 			this.shadow.prepend(s);
 
-			const tooltip = this.shadow.querySelector('#item_info');
-			tooltip.remove();
-			this.shadow.append(tooltip);
-
 			s_p.then(() => {
 				args.parent_el.append(this.dom);
 			});
@@ -285,7 +281,7 @@ class ItemTooltip {
 	}
 
 	static last_reloaded = null;
-	reload(item, bounds, db) {
+	reload(item, prev, bounds, db) {
 		ItemTooltip.last_reloaded = this;
 
 		if (db) {
@@ -294,9 +290,8 @@ class ItemTooltip {
 
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.item = item;
-		const old_tooltip = this.shadow.querySelector('#item_info');
 		const newdata = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
-		old_tooltip.replaceWith(newdata.querySelector('#item_info'));
+		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';
 		this.dom.style.top = bounds.top + 'px';
@@ -320,7 +315,7 @@ class RecipeTooltip {
 
 		this.tpl = new Template('tpl-recipe-info');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
-		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit, simplified: this.simplified });
+		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: { id: -1 }, edit: this.edit, simplified: this.simplified });
 
 		this.dom = document.createElement('div');
 		this.dom.className = 'window';
@@ -336,15 +331,12 @@ class RecipeTooltip {
 			this.dom.style.backgroundColor = 'transparent';
 			this.dom.style.color = '#fff';
 			this.dom.onmouseenter = (e) => { this.dom.style.display = 'none'; };
-			const tooltip = this.shadow.querySelector('#recipe_info');
-			tooltip.remove();
-			this.shadow.append(tooltip);
 			args.parent_el.append(this.dom);
 		}
 	}
 
 	static last_reloaded = null;
-	reload(recipe, bounds, db) {
+	reload(recipe, prev, bounds, db) {
 		RecipeTooltip.last_reloaded = this;
 
 		if (db) {
@@ -353,9 +345,8 @@ class RecipeTooltip {
 
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
-		const old_tooltip = this.shadow.querySelector('#recipe_info');
-		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, edit: this.edit, simplified: this.simplified });
-		old_tooltip.replaceWith(newdata.querySelector('#recipe_info'));
+		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: prev || { id: -1 }, edit: this.edit, simplified: this.simplified });
+		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
 		this.dom.style.left = bounds.right + 3 + 'px';
 		this.dom.style.top = bounds.top + 'px';

@@ -2,6 +2,7 @@
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
 {* this can be used as an edit window, or as a plain tooltip div *}
+{if $edit}
 <div class="window resizable" style="{if !$edit}display: none;{else}width: 365px;{/if}">
 <div class="header">
 	<span>
@@ -17,6 +18,7 @@
 	</div>
 </div>
 <div class="content" style="overflow: hidden; padding-right: 28px;">
+{/if}
 <div id="item_info" class="item_info {if $edit}edit{/if}">
 	{if !$edit}
 		{assign data_preview = 'data-preview'}
@@ -385,8 +387,11 @@
 	{/if}
 
 </div>
+
+{if $edit}
 </div>
 </div>
+{/if}
 
 {@@
 <style>
@@ -418,7 +423,7 @@
 	margin-right: 4px;
 }
 
-.item_info .section {
+.item_info .section:not(:empty) {
 	width: 282px;
 }
 

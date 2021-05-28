@@ -74,7 +74,6 @@ class PWMap {
 
 		this.mouse_pos = { x: -1, y: -1 };
 		this.mouse_spawner_pos = { x: -1, y: -1 };
-		this.modified_db_objs = new Set();
 	}
 
 	static async add_elements(parent) {
@@ -283,6 +282,8 @@ class PWMap {
 	}
 
 	reload_db() {
+		this.modified_db_objs = new Set();
+
 		const changed_objects_el = this.shadow.querySelector('#changed-objects');
 		const changed_objects_more_el = this.shadow.querySelector('#more-objects');
 		while (changed_objects_el.firstChild) {
@@ -390,6 +391,11 @@ class PWMap {
 			}
 		}
 
+		if (db._map_commit_registered) {
+			return;
+		}
+
+		db._map_commit_registered = true;
 		db.register_commit_cb((obj, diff, prev_vals) => {
 			set_modified_obj(obj, diff);
 
@@ -417,8 +423,6 @@ class PWMap {
 				this.force_mouse_update = true;
 				await this.redraw_dyn_overlay();
 			})();
-
-
 		});
 	}
 
@@ -505,15 +509,17 @@ class PWMap {
 		});
 	}
 
-	close() {
+	close(clear_changed = true) {
 		this.canvas.classList.remove('shown');
 
-		const changed_objects_el = this.shadow.querySelector('#changed-objects');
-		const changed_objects_more_el = this.shadow.querySelector('#more-objects');
-		while (changed_objects_el.firstChild) {
-			changed_objects_el.firstChild.remove();
+		if (clear_changed) {
+			const changed_objects_el = this.shadow.querySelector('#changed-objects');
+			const changed_objects_more_el = this.shadow.querySelector('#more-objects');
+			while (changed_objects_el.firstChild) {
+				changed_objects_el.firstChild.remove();
+			}
+			changed_objects_more_el.style.display = 'none';
 		}
-		changed_objects_more_el.style.display = 'none';
 	}
 
 	onmousedown(e) {

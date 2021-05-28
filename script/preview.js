@@ -4,6 +4,7 @@
 
 let g_latest_db;
 let g_latest_db_promise;
+let db;
 
 class PWPreview {
 	static async load() {
@@ -167,8 +168,8 @@ class PWPreview {
 					const item = el?.classList.contains('item') ? el : null;
 					const recipe = el?.classList.contains('recipe') ? el : null;
 
-					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db: g_latest_db });
-					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: g_latest_db });
+					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db: db || g_latest_db });
+					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: db || g_latest_db });
 				}, { passive: true });
 
 				resolve();

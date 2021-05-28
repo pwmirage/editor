@@ -5,7 +5,6 @@
 console.log('Editor initializing');
 
 let g_map = null;
-let db;
 
 class Editor {
 	static loaded = false;
@@ -59,6 +58,8 @@ class Editor {
 
 		const editor_dom = document.createElement('div');
 		editor_dom.id = 'mgeArea';
+		editor_dom.style.position = 'absolute';
+		editor_dom.style.top = '50px';
 		document.querySelector('#pageContainer').append(editor_dom);
 		Editor.map_shadow = await PWMap.add_elements(editor_dom);
 

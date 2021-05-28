@@ -49,6 +49,10 @@ class Projects {
 		this.tpl = new Template('tpl-projects');
 
 		this.dom = document.createElement('div');
+		this.dom.style.position = 'absolute';
+		this.dom.style.top = '50px';
+		this.dom.style.width = '100%';
+		this.dom.style.height = '100%';
 
 		this.shadow = this.dom.attachShadow({ mode: 'open' });
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);

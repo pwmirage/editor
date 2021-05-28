@@ -108,7 +108,6 @@ const load_tpl = async (src) => {
 }
 
 const mg_open_editor = async (args) => {
-	try {
 		await g_mg_loaded;
 
 		if (navigator.userAgent.indexOf("Chrome") == -1){
@@ -133,20 +132,6 @@ const mg_open_editor = async (args) => {
 		if (args.pid) {
 			Loading.hide_curtain();
 		}
-	} catch (e) {
-		console.error(e);
-
-		let msg;
-		if (MG_UNSUPPORTED) {
-			msg = 'Sorry, your browser is too old to open the editor.';
-		} else {
-			msg = 'Unknown error occured. Is your browser too old?';
-		}
-
-		confirm(msg, '<div style="margin-top: 16px;">Click either button to dismiss this dialogue.</div>', 'Error');
-		await sleep(1);
-		g_confirm_dom.classList.add('noconfirm');
-	}
 }
 
 const g_mg_pages = {};
