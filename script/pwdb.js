@@ -61,85 +61,266 @@ class PWDB {
 		PWDB.last_saved_changeset = 0;
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
+		PWDB.type_fields = [
+			'string',
+			'int',
+			'float',
+			'bool',
+			'object',
+			'arr',
+			'id_ptr',
+			'id_ptr_arr',
+			'item_id_ptr',
+			'item_id_ptr_arr',
+		];
+	}
+
+	static init_types() {
 		const init_type_arr = (type, typename, arr) => {
 			const fields = PWDB.type_fields[type] = {};
 			PWDB.type_names[type] = typename;
 
-			fields._removed = { id: '_removed', name: 'Is Removed', linked_map_fn: null };
+			fields._removed = _b('_removed', 'Is Removed');
+			fields.name = _s('name', 'Name');
 			for (const fobj of arr) {
-				const id = fobj[0];
-				const name = fobj[1];
-				const linked_map_fn = fobj[2];
-
-				fields[id] = { id, name, linked_map_fn };
+				fields[fobj.id] = fobj;
 			}
 		}
 
+		const _s = (id, name) => ({ id, name, type: 0 });
+		const _i = (id, name) => ({ id, name, type: 1 });
+		const _f = (id, name) => ({ id, name, type: 2 });
+		const _b = (id, name) => ({ id, name, type: 3 });
+		const _obj = (id, name, schema) => ({ id, name, type: 4, schema });
+		const _arr = (id, name, schema) => ({ id, name, type: 5, schema });
+		const _id = (id, name, arr) => ({ id, name, type: 6, linked_arr: arr });
+		const _id_arr = (id, name, arr) => ({ id, name, type: 7, linked_arr: arr });
+		const _item = (id, name) => ({ id, name, type: 8, linked_arr: 'items' });
+		const _item_arr = (id, name) => ({ id, name, type: 9, linked_arr: 'items' });
+
 		init_type_arr('spawners_', 'Spawner', [
-			[ 'name', 'Name', ],
-			[ 'auto_respawn', 'Auto Respawn', ],
-			[ 'auto_spawn', 'Auto Spawn', ],
-			[ 'lifetime', 'Time till despawn', ],
-			[ 'max_num', 'Max groups num', ],
-			[ 'mob_type', 'Boss type' ],
-			[ 'trigger', 'Trigger', /* TODO */ ],
+			_b('auto_respawn', 'Auto Respawn'),
+			_b('auto_spawn', 'Auto Spawn'),
+			_i('lifetime', 'Time till despawn'),
+			_i('max_num', 'Max groups num'),
+			_i('mob_type', 'Boss type'),
+			_id('trigger', 'Trigger', 'triggers'),
 		]);
 
 		init_type_arr('npcs', 'NPC', [
-			[ 'name', 'Name', ],
-			[ 'file_model', 'Model' ],
-			[ 'greeting', 'Greeting' ],
-			[ 'base_monster_id', 'Base Monster', (db) => db.monsters ],
-			[ 'combined_services', 'Other services' ],
-			[ 'id_buy_service', 'Buy service' ],
-			[ 'id_decompose_service', 'Decompose service' ],
-			[ 'id_install_service', 'Install service' ],
-			[ 'id_make_service', 'Crafts' ],
-			[ 'id_repair_service', 'Repair service' ],
-			[ 'id_sell_service', 'Goods' ],
-			[ 'id_task_in_service', 'Task in ID' ],
-			[ 'id_task_out_service', 'Task out ID' ],
-			[ 'id_type', 'NPC Type' ],
-			[ 'id_uninstall_service', 'Uninstall type' ],
+			_s('file_model', 'Model' /* TODO */),
+			_s('greeting', 'Greeting'),
+			_id('base_monster_id', 'Base Monster', 'monsters' ),
+			_i('combined_services', 'Other services'),
+			_i('id_buy_service', 'Buy service'),
+			_i('id_decompose_service', 'Decompose service'),
+			_i('id_install_service', 'Install service'),
+			_id('id_make_service', 'Crafts', 'npc_crafts'),
+			_i('id_repair_service', 'Repair service'),
+			_id('id_sell_service', 'Goods sold', 'npc_sells'),
+			_id('id_task_in_service', 'Tasks completed list', 'npc_tasks_in'),
+			_id('id_task_out_service', 'Tasks given list', 'npc_tasks_out'),
+			_s('id_type', 'NPC Type', NPCWindow.types),
+			_i('id_uninstall_service', 'Uninstall service'),
 		]);
 
 		init_type_arr('recipes', 'Recipe', [
-			[ 'name', 'Name', ],
-			[ 'duration', 'Craft time' ],
-			[ 'major_type', 'Major type' ],
-			[ 'minor_type', 'Minor type' ],
-			[ 'name', 'Name' ],
-			[ 'num_to_make', 'Crafted item count' ],
-			[ 'recipe_level', 'Recipe level' ],
-			[ 'skill_id', 'Req. Crafting Skill', () => RecipeTooltip.craft_types ],
-			[ 'skill_level', 'Req. Crafting Skill Level' ],
-			[ 'xp', 'XP' ],
-			[ 'sp', 'SP' ],
+			_s('name', 'Name'),
+			_i('duration', 'Craft time'),
+			_i('major_type', 'Major type'), /* TODO */
+			_i('minor_type', 'Minor type'),
+			_i('num_to_make', 'Crafted item count'),
+			_i('recipe_level', 'Recipe level'),
+			_id('skill_id', 'Req. Crafting Skill', RecipeTooltip.craft_types),
+			_i('skill_level', 'Req. Crafting Skill Level'),
+			_i('xp', 'XP'),
+			_i('sp', 'SP'),
 		]);
 
 		init_type_arr('npc_sells', 'Goods', [
-			[ 'name', 'Name' ],
-			[ 'option', 'NPC Option' ],
+			_s('name', 'Name'),
+			_s('option', 'NPC Option Name'),
 		]);
 
 		init_type_arr('npc_crafts', 'Crafts', [
-			[ 'name', 'Name' ],
-			[ 'option', 'NPC Option' ],
+			_s('name', 'Name'),
+			_s('option', 'NPC Option Name'),
 		]);
 
 		init_type_arr('mines', 'Resources', [
-			[ 'exp', 'XP' ],
-			[ 'file_model', 'Model' ],
-			[ 'id_type', 'Type' /* TODO db.mine_type */ ],
-			[ 'item_required', 'Item required', (db) => db.items ],
-			[ 'level', 'Lv.' ],
-			[ 'level_required', 'Req. Lv.' ],
-			[ 'name', 'Name' ],
-			[ 'sp', 'SP' ],
-			[ 'time_max', 'Max pick time' ],
-			[ 'time_min', 'Min pick time' ],
+			_s('name', 'Name'),
+			_s('file_model', 'Model'),
+			_id('id_type', 'Type', 'mines'),
+			_item('item_required', 'Item required'),
+			_i('level', 'Lv.'),
+			_i('level_required', 'Req. Lv.'),
+			_i('exp', 'XP Given'),
+			_i('sp', 'SP Given'),
+			_i('time_min', 'Min pick time'),
+			_i('time_max', 'Max pick time'),
 		]);
 
+		const task_award_schema = [
+			_i('coins', 'Coins'),
+			_i('xp', 'XP'),
+			_i('sp', 'SP'),
+			_i('rep', 'Rep.'),
+			_id('new_quest', 'New Quest', 'tasks'),
+			_id('culti', 'Cultivation', TaskWindow.cultivation_levels),
+			_i('new_waypoint', 'New waypoint'),
+			_i('storage_slots', 'Bank Storage Slots'),
+			_i('inventory_slots', 'Inventory Slots'),
+			_i('petbag_slots', 'Pet Bag Slots'),
+			_i('chi', 'Chi'),
+			_obj('tp', 'TP', [
+				_i('world', 'World ID'), /* TODO id */
+				_f('x', 'X'),
+				_f('y', 'Y'),
+				_f('z', 'Z'),
+			]),
+			_id('ai_trigger', 'Trigger', 'triggers'),
+			_b('level_dependant_xp', 'Level-dependant XP scaling'),
+			_arr('item_groups', 'Item groups', [
+					_b('chosen_randomly', 'One Random Item'),
+					_arr('items', 'Items', [
+						_i('amount', 'Count'),
+						_item('id', 'Item'),
+						_f('probability', 'Probability'),
+					]),
+				]),
+			];
+
+		init_type_arr('tasks', 'Quest', [
+			_id('start_by', 'Start by', TaskWindow.task_obtain_ways),
+			_id('avail_frequency', 'Repeatable', TaskWindow.avail_frequency_types),
+			_id('type', 'Icon', TaskWindow.task_types),
+			_i('time_limit_sec', 'Time limit (sec)'),
+			_b('date_span_is_cyclic', 'TODO 0'),
+			_s('date_types', 'TODO 1'),
+			_id('subquest_activate_order', 'Subquest activation order', TaskWindow.tabs_sub_quest_activation),
+			_b('on_fail_parent_fail', 'Fail parent on fail'),
+			_b('on_success_parent_success', 'Succeed parent on success'),
+			_b('can_give_up', 'Can give up'),
+			_b('can_retake_after_failure', 'Can retake after failure'),
+			_b('cant_retake_after_giving_up', 'Can retake after giving up'),
+			_b('fail_on_death', 'Fail on death'),
+			_i('simultaneous_player_limit', 'Simultaneous player limit'),
+			_s('start_on_enter_world_id', 'TODO 2'),
+			_s('start_on_enter_location', 'TODO 3'),
+			_b('instant_teleport', 'TODO 4'),
+			_i('instant_teleport_point', 'TODO 5'),
+			_id('ai_trigger', 'Trigger on start', 'triggers'),
+			_b('remove_premise_items', 'Remove premise items'),
+			_i('recommended_level', 'TODO 6'),
+			_b('no_display_quest_title', 'Don\'t show quest title'),
+			_id('start_npc', 'Start NPC', 'npcs'),
+			_id('finish_npc', 'Report to NPC', 'npcs'),
+			_b('cant_be_found', 'Don\'t shown in "Find quest"'),
+			_b('no_show_direction', 'Don\'t show direction arrow'),
+			_i('premise_level_min', 'Prereq. level min.'),
+			_i('premise_level_max', 'Prereq. level max.'),
+			_b('show_without_level_min', 'Show even without level req.'),
+			_b('show_without_premise_items', 'Show even without premise items'),
+			_i('premise_coins', 'Prereq. coins'),
+			_b('show_without_premise_coins', 'Show even without premise coins'),
+			_i('premise_reputation_min', 'Prereq. reputation min.'),
+			_i('premise_reputation_max', 'Prereq. reputation max.'),
+			_b('show_without_premise_reputation', 'Show even without reputation req.'),
+			_id_arr('premise_quests', 'Prereq. quests', 'tasks'),
+			_b('show_without_premise_quests', 'Show even without premise quests'),
+			_id('premise_cultivation', 'Prereq. cultivation', TaskWindow.cultivation_levels),
+			_s('show_without_premise_cultivation', 'Show even without cultivation req.'),
+			_id('premise_faction_role', 'Prereq. faction role', TaskWindow.faction_ranks),
+			_s('show_without_premise_faction_role', 'Show even without faction role req.'),
+			_id('premise_gender', 'Gender req.', TaskWindow.genders),
+			_b('show_without_premise_gender', 'Show even for the other gender'),
+			_i('premise_class', 'Prereq. class'),
+			_b('show_without_class', 'Show even without req. class'),
+			_b('premise_be_married', 'Prereq. be married'),
+			_b('show_without_marriage', 'Show even without marriage'),
+			_b('premise_be_gm', 'GM only'),
+			_id_arr('mutex_quests', 'Mutually exclusive quests', 'tasks'),
+			_i('premise_blacksmith_level', 'TODO 7'),
+			_i('premise_tailor_level', 'TODO 8'),
+			_i('premise_craftsman_level', 'TODO 9'),
+			_i('premise_apothecary_level', 'TODO 10'),
+			_i('team_recommended', 'TODO 11'),
+			_b('recv_in_team_only', 'TODO 12'),
+			_b('m_bSharedTask', 'TODO 13'),
+			_b('m_bSharedAchieved', 'TODO 14'),
+			_b('m_bCheckTeammate', 'TODO 15'),
+			_i('m_fTeammateDist', 'TODO 16'),
+			_s('m_bAllFail', 'TODO 17'),
+			_s('m_bCapFail', 'TODO 18'),
+			_s('m_bCapSucc', 'TODO 19'),
+			_s('m_fSuccDist', 'TODO 20'),
+			_s('m_bDismAsSelfFail', 'TODO 21'),
+			_s('m_bRcvChckMem', 'TODO 22'),
+			_s('m_fRcvMemDist', 'TODO 23'),
+			_s('m_bCntByMemPos', 'TODO 24'),
+			_s('m_fCntMemDist', 'TODO 25'),
+			_b('show_without_premise_squad', 'Show even without squad req.'),
+			_id('success_method', 'Goal', TaskWindow.tabs_goals),
+			_i('req_coins', 'Required coins'),
+			_i('m_ulNPCToProtect', 'TODO 26'),
+			_i('m_ulProtectTimeLen', 'TODO 27'),
+			_i('m_ulNPCMoving', 'TODO 28'),
+			_i('m_ulNPCDestSite', 'TODO 29'),
+			_s('reach_location', 'TODO 30'),
+			_s('reach_location_world_id', 'TODO 31'),
+			_i('req_wait_time', 'Wait time (sec)'),
+			_id('award_type', 'Award type', TaskWindow.award_types),
+			_s('date_spans', 'TODO 32'),
+			_arr('premise_items', 'Prereq. Items', [
+				_i('amount', 'Count'),
+				_item('id', 'ID'),
+			]),
+			_arr('free_given_items', 'Free given items', [
+				_i('amount', 'Count'),
+				_item('id', 'ID'),
+			]),
+			_s('premise_squad', 'TODO 35'),
+			_arr('req_monsters', 'Monsters to kill', [
+				_id('id', 'Type', 'monsters'),
+				_i('count', 'Count'),
+				_item('drop_item_id', 'Dropped Item'),
+				_i('drop_item_cnt', 'Item Count'),
+				_f('drop_item_probability', 'Drop Probability'),
+				_b('lvl_diff_gt8_doesnt_cnt', 'Don\'t count if mob/player lvl difference is >= 8'),
+			]),
+			_arr('req_items', 'Items to obtain', [
+				_item('id', 'Item'),
+				_i('amount', 'Count'),
+			]),
+			_obj('award', 'Reward', task_award_schema),
+			_obj('failure_award', 'Award on failure', task_award_schema),
+			_obj('timed_award', 'Timed Award', [
+				_arr('time_spent_ratio', 'Time Spent Ratio', [ _i('', '') ]),
+				_arr('awards', 'Awards', task_award_schema),
+			]),
+			_obj('failure_timed_award', 'Timed Award on failure', [
+				_arr('time_spent_ratio', 'Time Spent Ratio', [ _i('', '') ]),
+				_arr('awards', 'Awards', task_award_schema),
+			]),
+			_obj('scaled_award', 'Scaled Award'),
+			_obj('failure_scaled_award', 'Scaled Award on failure'),
+			_s('description', 'Description'),
+			_arr('dialogue', 'Dialogue',  [
+				_s('initial', 'Initial'),
+				_s('notqualified', 'Requirements not met'),
+				_s('unfinished', 'In progress'),
+				_s('ready', 'Ready to finish'),
+			]),
+			_id_arr('sub_quests', 'Sub quests', 'tasks'),
+		]);
+	}
+
+	static get_linked_arr(linked_arr) {
+		if (typeof(linked_arr) === 'string') {
+			return db[linked_arr];
+		} else {
+			return linked_arr;
+		}
 	}
 
 	static get_type_fields(type) {

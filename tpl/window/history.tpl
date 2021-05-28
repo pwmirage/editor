@@ -210,35 +210,7 @@
 			{/for}{/for}
 		</div>
 		<div id="changes" class="changes">
-		<div id="changed-objects">
-			{assign cur_generation = 0}
-			{assign mod_objects = new Set()}
-			{for gen_idx = db.changelog.length - 1; gen_idx >= db.project_changelog_start_gen; gen_idx--}
-				{assign gen = db.changelog[$gen_idx]}
-				{for diff of $gen}
-					{$mod_objects.add($diff._db.obj)}
-				{/for}
-			{/for}
-			{for obj of $mod_objects}
-				{if !$obj._db.project_initial_state}
-					{continue}
-				{/if}
-				{assign diff = DB.get_obj_diff($obj, $obj._db.project_initial_state)}
-				{if !$diff}
-					{continue}
-				{/if}
-				{if $obj._db.type == 'metadata'}{continue}{/if}
-				{assign type = PWPreview.get_obj_type($obj)}
-				<div style="font-size: 13px;" onclick="{serialize $type}.open_fn();">
-					<div class="header">
-						<img src="{@PWPreview.get_obj_img(db, $obj)}">
-						<span>{@$obj.name || $type.name } {@DB.serialize_id($obj.id)}</span>
-					</div>
-
-					{@PWPreview.diff(\{ db, obj: $obj, diff: $diff, prev: $obj._db.project_initial_state \})}
-				</div>
-			{/for}
-		</div>
+			<div id="changed-objects"></div>
 		</div>
 	</div>
 </div>
@@ -304,8 +276,10 @@
 .block {
 	display: flex;
 	flex-direction: column;
-	padding: 4px 5px;
-	background-color: rgba(0, 0, 0, 0.05);
+	padding: 2px 5px;
+	background-color: rgba(0, 0, 0, 0.03);
+	font-size: 11px;
+	line-height: 12px;
 }
 
 .block > * {
@@ -400,12 +374,14 @@ table {
 	display: flex;
 	flex-wrap: wrap;
 	column-gap: 5px;
+	padding: 2px;
 }
 
 #changed-objects > div {
-	background-color: #dccfcf;
+	background-color: #ffffff;
+	border: 1px solid #dadce0;
+	box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 10%);
 	border-radius: 2px;
-	border-width: 0;
 	color: rgba(33, 33, 33, 1);
 	cursor: pointer;
 	display: flex;
@@ -426,7 +402,7 @@ table {
 }
 
 #changed-objects > div:hover {
-	background-color: #d0c5c5;
+	background-color: #efefef;
 	text-decoration: none;
 }
 
@@ -449,6 +425,27 @@ table {
 	margin: auto;
 	margin-left: 0;
 }
+
+#changed-objects .item,
+#changed-objects .item > img {
+	width: auto;
+	height: 22px;
+	font-size: 12px;
+	vertical-align: middle;
+}
+
+#changed-objects .item-row > div {
+	display: flex;
+	flex-direction: column;
+	row-gap: 2px;
+	margin-right: 5px;
+}
+
+#changed-objects .item-row > div:not(:first-child) .plus:before,
+#changed-objects .item-row > div:not(:first-child) .minus:before {
+	content: none;
+}
+
 </style>
 @@}
 

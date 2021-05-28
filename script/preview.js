@@ -20,6 +20,10 @@ class PWPreview {
 
 		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
 
+		PWPreview.diff_tpl = new Template('tpl-diff');
+		PWPreview.diff_entry_tpl = new Template('tpl-diff-entry');
+
+		await PWPreview.load_latest_db();
 		customElements.define('pw-diff', PWPreviewElement);
 	}
 
@@ -127,13 +131,7 @@ class PWPreview {
 	}
 
 	static diff(args) {
-		if (!PWPreview.diff_tpl) {
-			PWPreview.diff_tpl = new Template('tpl-diff');
-			PWPreview.diff_tpl.compile();
-		}
-
-		PWPreview.diff_tpl.args = args;
-		return PWPreview.diff_tpl.func(PWPreview.diff_tpl, PWPreview.diff_tpl.args);
+		return PWPreview.diff_tpl.run(args);
 	}
 
 	static get_item_icon(db, itemid) {
@@ -177,6 +175,15 @@ class PWPreview {
 			});
 		}
 		await g_latest_db_promise;
+	}
+
+	static render_diff_entry(entry, data, prev) {
+		const entry_tpl = PWPreview.diff_entry_tpl;
+		if (!entry_tpl.func || Template.tpl_generation['diff-entry-tpl'] != entry_tpl.generation) {
+			entry_tpl.compile();
+		}
+
+		return entry_tpl.func(entry_tpl, { f: entry, val: data, prev });
 	}
 
 	static load_promise;

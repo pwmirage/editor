@@ -55,6 +55,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/fuzzysort.js?v=' + MG_VERSION),
 		]);
 
+		PWDB.init_types();
 
 		const editor_dom = document.createElement('div');
 		editor_dom.id = 'mgeArea';
