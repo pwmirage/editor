@@ -48,6 +48,7 @@ wss.on('connection', (ws) => {
 	watch_dir('script/page');
 	watch_dir('tpl');
 	watch_dir('tpl/window');
+	watch_dir('tpl/preview');
 	watch_dir('tpl/page');
 	watch_dir('css');
 });
