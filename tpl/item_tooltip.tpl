@@ -423,7 +423,7 @@
 	margin-right: 4px;
 }
 
-.item_info .section:not(:empty) {
+.item_info.edit .section {
 	width: 282px;
 }
 
