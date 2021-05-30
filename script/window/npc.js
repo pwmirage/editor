@@ -2,18 +2,15 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_open_npc_crafts = new Set();
 let g_npc_tpl = load_tpl(ROOT_URL + 'tpl/window/npc.tpl')
 
-class NPCCraftsWindow extends Window {
+class NPCCraftsWindow extends SingleInstanceWindow {
 	static saved_empty_recipe;
 	static reference_empty_recipe;
 
 	async init() {
 		await g_npc_tpl;
-		this.crafts = this.obj = this.args.crafts;
-		if (!this.args.debug && g_open_npc_crafts.has(this.crafts)) return false;
-		g_open_npc_crafts.add(this.crafts);
+		this.crafts = this.obj = this.args.obj;
 
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-npc-crafts');
@@ -25,7 +22,7 @@ class NPCCraftsWindow extends Window {
 		await super.init();
 
 		const recipe_edit_el = this.shadow.querySelector('#recipe');
-		this.recipe_win = await RecipeWindow.open({ parent_win: this, recipe: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
+		this.recipe_win = await RecipeWindow.open({ parent_win: this, obj: db.recipes.values().next().value, embedded: recipe_edit_el, debug: this.args.debug });
 
 		const prev_compile_cb = this.recipe_win.tpl_compile_cb;
 		this.recipe_win.tpl_compile_cb = (dom) => {
@@ -104,7 +101,7 @@ class NPCCraftsWindow extends Window {
 
 			},
 			edit_obj_fn: (new_obj) => {
-				RecipeWindow.open({ recipe: new_obj });
+				RecipeWindow.open({ obj: new_obj });
 			},
 			usage_name_fn: (recipe) => {
 				return recipe.name + ': ' + (recipe.name || '') + ' ' + DB.serialize_id(recipe.id);
@@ -121,11 +118,6 @@ class NPCCraftsWindow extends Window {
 			//this.selected_recipe = -1;
 			//this.select_recipe(this.shadow.querySelectorAll('#items .recipe')[sel]);
 		}
-	}
-
-	close() {
-		g_open_npc_crafts.delete(this.crafts);
-		super.close();
 	}
 
 	select_tab(idx) {
@@ -219,13 +211,10 @@ class NPCCraftsWindow extends Window {
 	}
 }
 
-let g_open_npc_goods = new Set();
-class NPCGoodsWindow extends Window {
+class NPCGoodsWindow extends SingleInstanceWindow {
 	async init() {
 		await g_npc_tpl;
-		this.goods = this.obj = this.args.goods;
-		if (!this.args.debug && g_open_npc_goods.has(this.goods)) return false;
-		g_open_npc_goods.add(this.goods);
+		this.goods = this.obj = this.args.obj;
 
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-npc-goods');
@@ -275,7 +264,7 @@ class NPCGoodsWindow extends Window {
 
 					},
 					edit_obj_fn: (new_obj) => {
-						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+						ItemTooltipWindow.open({ obj: new_obj, edit: true, db });
 					},
 					usage_name_fn: (item) => {
 						return item.name + ': ' + (item.name || '') + ' ' + DB.serialize_id(item.id);
@@ -292,11 +281,6 @@ class NPCGoodsWindow extends Window {
 		return false;
 	}
 
-	close() {
-		g_open_npc_goods.delete(this.goods);
-		super.close();
-	}
-
 	select(idx) {
 		this.selected_tab = idx;
 		for (const tname of this.shadow.querySelectorAll('.tabname')) {
@@ -308,8 +292,7 @@ class NPCGoodsWindow extends Window {
 	}
 }
 
-const g_open_npcs = new Set();
-class NPCWindow extends Window {
+class NPCWindow extends SingleInstanceWindow {
 	static types = init_id_array([
 		{ id: 3214, name: 'NPC' },
 		{ id: 3216, name: 'Guard' },
@@ -318,9 +301,7 @@ class NPCWindow extends Window {
 	static models = null;
 
 	async init() {
-		this.npc = this.obj = this.args.npc;
-		if (!this.args.debug && g_open_npcs.has(this.npc)) return false;
-		g_open_npcs.add(this.npc);
+		this.npc = this.obj = this.args.obj;
 
 		if (!NPCWindow.models) {
 			NPCWindow.models = init_id_array([]);
@@ -362,11 +343,6 @@ class NPCWindow extends Window {
 		super.init();
 	}
 
-	close() {
-		g_open_npcs.delete(this.npc);
-		super.close();
-	}
-
 	async edit(el, what, e) {
 		let obj;
 		const is_craft = what == 'crafts';
@@ -394,9 +370,9 @@ class NPCWindow extends Window {
 				},
 				edit_obj_fn: (new_obj) => {
 					if (is_craft) {
-						NPCCraftsWindow.open({ crafts: new_obj });
+						NPCCraftsWindow.open({ obj: new_obj });
 					} else {
-						NPCGoodsWindow.open({ goods: new_obj });
+						NPCGoodsWindow.open({ obj: new_obj });
 					}
 				},
 			});
@@ -411,6 +387,6 @@ class NPCWindow extends Window {
 	}
 
 	find_related_quests() {
-		TasksByNPCWindow.open({ npc: this.npc });
+		TasksByNPCWindow.open({ obj: this.npc });
 	}
 }

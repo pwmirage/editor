@@ -482,6 +482,36 @@ class Window {
 	}
 }
 
+class SingleInstanceWindow extends Window {
+	static instances = {};
+
+	static async open(args) {
+		const typename = this.name;
+
+		let arr = SingleInstanceWindow.instances[typename];
+		if (!arr) {
+			arr = SingleInstanceWindow.instances[typename] = new Map();
+		}
+
+		let win = arr.get(args.obj);
+		if (win) {
+			win.focus();
+			return;
+		}
+
+		win = await super.open(args);
+		arr.set(args.obj, win);
+		return win;
+	}
+
+	close() {
+		const typename = this.constructor.name;
+		const arr = SingleInstanceWindow.instances[typename];
+		arr.delete(this.obj);
+		super.close();
+	}
+}
+
 class PopupWindow extends Window {
 	async init() {
 		return super.init();

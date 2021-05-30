@@ -61,7 +61,7 @@ class PWPreview {
 		switch (obj._db.type) {
 			case 'npcs':
 				name = 'NPC';
-				open_fn = () => NPCWindow.open({ npc: obj });
+				open_fn = () => NPCWindow.open({ obj: obj });
 				break;
 			case 'monsters':
 				name = 'Monster';
@@ -69,19 +69,19 @@ class PWPreview {
 				break;
 			case 'npc_crafts':
 				name = 'Crafts';
-				open_fn = () => NPCCraftsWindow.open({ crafts: obj });
+				open_fn = () => NPCCraftsWindow.open({ obj: obj });
 				break;
 			case 'npc_sells':
 				name = 'Goods';
-				open_fn = () => NPCGoodsWindow.open({ goods: obj });
+				open_fn = () => NPCGoodsWindow.open({ obj: obj });
 				break;
 			case 'recipes':
 				name = 'Recipe';
-				open_fn = () => RecipeWindow.open({ recipe: obj });
+				open_fn = () => RecipeWindow.open({ obj: obj });
 				break;
 			case 'items':
 				name = 'Item';
-				open_fn = () => ItemTooltipWindow.open({ item: obj, edit: true, db });
+				open_fn = () => ItemTooltipWindow.open({ obj: obj, edit: true, db });
 				break;
 			case 'mines':
 				name = 'Resource';
@@ -89,7 +89,7 @@ class PWPreview {
 				break;
 			case 'tasks':
 				name = 'Quest';
-				open_fn = () => TaskWindow.open({ task: obj });
+				open_fn = () => TaskWindow.open({ obj: obj });
 				break;
 			default:
 				break;
@@ -97,12 +97,12 @@ class PWPreview {
 
 		if (obj._db.type.startsWith('spawners_')) {
 			name = 'Spawner';
-			open_fn = () => SpawnerWindow.open({ spawner: obj });
+			open_fn = () => SpawnerWindow.open({ obj: obj });
 		}
 
 		if (obj._db.type.startsWith('triggers_')) {
 			name = 'Trigger';
-			open_fn = () => TriggerWindow.open({ trigger: obj });
+			open_fn = () => TriggerWindow.open({ obj: obj });
 		}
 
 		return { name, open_fn };

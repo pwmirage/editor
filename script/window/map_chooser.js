@@ -2,15 +2,11 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-class MapChooserWindow extends Window {
-	static is_open = false;
+class MapChooserWindow extends SingleInstanceWindow {
 	static loaded = load_tpl(ROOT_URL + 'tpl/window/map_chooser.tpl');
 	async init() {
 		await MapChooserWindow.loaded;
-		if (MapChooserWindow.is_open) {
-			return;
-		}
-		MapChooserWindow.is_open = true;
+
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-map-chooser');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
@@ -37,11 +33,6 @@ class MapChooserWindow extends Window {
 
 		search_el.focus();
 		return true;
-	}
-
-	close() {
-		MapChooserWindow.is_open = false;
-		super.close();
 	}
 
 	select_map(id) {

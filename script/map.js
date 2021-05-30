@@ -676,7 +676,7 @@ class PWMap {
 	}
 
 	async open_spawner(spawner, e) {
-		const win = await SpawnerWindow.open({ spawner: spawner });
+		const win = await SpawnerWindow.open({ obj: spawner });
 
 		win.onfocus = () => {
 			this.focused_spawners.add(spawner);

@@ -2,16 +2,13 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_open_recipes = new Set();
 let g_recipe_tpl = load_tpl(ROOT_URL + 'tpl/window/recipe.tpl')
 
 class RecipeWindow extends Window {
 	async init() {
 		await g_recipe_tpl;
-		this.recipe = this.args.recipe;
+		this.recipe = this.obj = this.args.obj;
 		this.embedded = this.args.embedded;
-		//if (!this.args.debug && g_open_recipes.has(this.recipe)) return false;
-		g_open_recipes.add(this.recipe);
 
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-recipe');
@@ -33,9 +30,7 @@ class RecipeWindow extends Window {
 	}
 
 	reembed(parent_el, recipe) {
-		g_open_recipes.delete(this.recipe);
-		this.recipe = recipe;
-		g_open_recipes.add(this.recipe);
+		this.recipe = this.obj = recipe;
 		const container = newElement('<div><div></div></div>');
 		this.tpl.reload('.content', { recipe }, { el: container.firstChild });
 
@@ -78,7 +73,7 @@ class RecipeWindow extends Window {
 
 				},
 				edit_obj_fn: (new_obj) => {
-					ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+					ItemTooltipWindow.open({ obj: new_obj, edit: true, db });
 				},
 				usage_name_fn: (item) => {
 					return item.name + ': ' + (item.name || '') + ' ' + DB.serialize_id(item.id);
@@ -91,10 +86,4 @@ class RecipeWindow extends Window {
 			});
 		}
 	}
-
-	close() {
-		g_open_recipes.delete(this.recipe);
-		super.close();
-	}
-
 }

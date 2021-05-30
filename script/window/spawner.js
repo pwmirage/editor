@@ -2,12 +2,11 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_open_spawners = new Set();
 const g_spawner_tpl = load_tpl(ROOT_URL + 'tpl/window/spawner.tpl');
 
 class SpawnerGroupWindow extends PopupWindow {
 	async init() {
-		this.spawner = this.args.spawner;
+		this.spawner = this.args.obj;
 		this.group = this.args.group;
 
 		await g_spawner_tpl;
@@ -24,7 +23,7 @@ class SpawnerGroupWindow extends PopupWindow {
 
 class SpawnerPositionWindow extends Window {
 	async init() {
-		this.spawner = this.args.spawner;
+		this.spawner = this.args.obj;
 
 		await g_spawner_tpl;
 		const shadow = this.dom.shadowRoot;
@@ -65,7 +64,7 @@ class SpawnerPositionWindow extends Window {
 
 class SpawnerRotationWindow extends Window {
 	async init() {
-		this.spawner = this.args.spawner;
+		this.spawner = this.args.obj;
 
 		await g_spawner_tpl;
 		const shadow = this.dom.shadowRoot;
@@ -117,11 +116,9 @@ class SpawnerRotationWindow extends Window {
 }
 
 
-class SpawnerWindow extends Window {
+class SpawnerWindow extends SingleInstanceWindow {
 	async init() {
-		this.spawner = this.args.spawner;
-		if (!this.args.debug && g_open_spawners.has(this.spawner)) return false;
-		g_open_spawners.add(this.spawner);
+		this.spawner = this.args.obj;
 
 		this.normalize_spawner();
 
@@ -138,7 +135,7 @@ class SpawnerWindow extends Window {
 		if (this.spawner.type == 'npc') {
 			const npc = this.npc_win_npc = db.npcs[this.spawner.groups[0]?.type];
 			if (npc) {
-				this.npc_win = await NPCWindow.open({ npc, parent_win: this, debug: this.args.debug });
+				this.npc_win = await NPCWindow.open({ obj: npc, parent_win: this, debug: this.args.debug });
 				this.shadow.querySelector('#npc-window').append(this.npc_win.dom);
 			}
 		}
@@ -172,7 +169,7 @@ class SpawnerWindow extends Window {
 
 	async pos_onclick(el, e) {
 		if (e.which == 1) {
-			const win = await SpawnerPositionWindow.open({ spawner: this.spawner });
+			const win = await SpawnerPositionWindow.open({ obj: this.spawner });
 			win.onclose = () => this.tpl.reload('#position');
 		} else if (e.which == 3) {
 			HTMLSugar.open_undo_rmenu(el, this.spawner, {
@@ -190,7 +187,7 @@ class SpawnerWindow extends Window {
 
 	async dir_onclick(el, e) {
 		if (e.which == 1) {
-			const win = await SpawnerRotationWindow.open({ spawner: this.spawner });
+			const win = await SpawnerRotationWindow.open({ obj: this.spawner });
 			win.onclose = () => this.tpl.reload('#rotation');
 		} else if (e.which == 3) {
 			HTMLSugar.open_undo_rmenu(el, this.spawner, {
@@ -258,7 +255,7 @@ class SpawnerWindow extends Window {
 			return;
 		}
 
-		const new_win = await NPCWindow.open({ npc, parent_win: this, debug: this.args.debug });
+		const new_win = await NPCWindow.open({ obj: npc, parent_win: this, debug: this.args.debug });
 		if (this.npc_win) {
 			this.npc_win.close();
 		}
@@ -272,7 +269,6 @@ class SpawnerWindow extends Window {
 			this.npc_win.close();
 		}
 		this.normalize_spawner();
-		g_open_spawners.delete(this.spawner);
 		super.close();
 	}
 
@@ -289,7 +285,7 @@ class SpawnerWindow extends Window {
 	info_group(el, idx) {
 		if (!el._mg_group) {
 			const group = this.spawner.groups[idx];
-			el._mg_group = SpawnerGroupWindow.open({ parent: this, spawner: this.spawner, group, group_idx: idx });
+			el._mg_group = SpawnerGroupWindow.open({ parent: this, obj: this.spawner, group, group_idx: idx });
 			(async () => {
 				const win = await el._mg_group;
 				win.move(0, 0);
@@ -336,7 +332,7 @@ class SpawnerWindow extends Window {
 
 				},
 				edit_obj_fn: (new_obj) => {
-					NPCWindow.open({ npc: new_obj });
+					NPCWindow.open({ obj: new_obj });
 				},
 				usage_name_fn: (spawner) => {
 					const mapid = spawner._db.type.substring('spawners_'.length);

@@ -2,14 +2,11 @@
  * Copyright(c) 2021 Darek Stojaczyk for pwmirage.com
  */
 
-const g_open_npc_tasks = new Set();
 const g_task_tpl = load_tpl(ROOT_URL + 'tpl/window/task.tpl');
 
-class TasksByNPCWindow extends Window {
+class TasksByNPCWindow extends SingleInstanceWindow {
 	async init() {
-		this.npc = this.args.npc;
-		if (!this.args.debug && g_open_npc_tasks.has(this.npc)) return false;
-		g_open_npc_tasks.add(this.npc);
+		this.npc = this.obj = this.args.obj;
 
 		this.tasks_in = db.npc_tasks_in[this.npc.id_task_in_service || 0];
 		this.tasks_out = db.npc_tasks_out[this.npc.id_task_out_service || 0];
@@ -23,11 +20,6 @@ class TasksByNPCWindow extends Window {
 		shadow.append(data);
 
 		await super.init();
-	}
-
-	close() {
-		g_open_npc_tasks.delete(this.npc);
-		super.close();
 	}
 
 	print_task_by_id(tid) {
@@ -61,8 +53,7 @@ class TasksByNPCWindow extends Window {
 
 }
 
-const g_open_tasks = new Set();
-class TaskWindow extends Window {
+class TaskWindow extends SingleInstanceWindow {
 	static task_types = init_id_array([
 		{ id: 0, name: 'Normal' },
 		{ id: 1, name: 'Cycle' },
@@ -209,7 +200,7 @@ class TaskWindow extends Window {
 	]);
 
 	async init() {
-		let task = this.args.task;
+		let task = this.args.obj;
 
 		while (task?.parent_quest) {
 			task = db.tasks[task.parent_quest];
@@ -220,11 +211,9 @@ class TaskWindow extends Window {
 		}
 
 		this.root_task = task;
-		this.task = this.obj = this.args.task;
-		if (!this.args.debug && g_open_tasks.has(this.root_task)) return false;
-		g_open_tasks.add(this.root_task);
+		this.task = this.obj = this.args.obj;
 
-		this.selected_task = this.args.task;
+		this.selected_task = this.args.obj;
 		this.next_tasks = db.tasks.filter(t => t.premise_quests?.includes(this.task.id));
 		this.sel_opts = {};
 
@@ -1122,7 +1111,6 @@ class TaskWindow extends Window {
 	}
 
 	close() {
-		g_open_tasks.delete(this.root_task);
 		document.removeEventListener('mousemove', this.mousemove_fn);
 		document.removeEventListener('mouseup', this.mouseup_fn);
 		super.close();

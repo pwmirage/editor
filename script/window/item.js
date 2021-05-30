@@ -86,9 +86,9 @@ class ItemChooserWindow extends ChooserWindow {
 	}
 }
 
-class ItemTooltipWindow extends Window {
+class ItemTooltipWindow extends SingleInstanceWindow {
 	async init() {
-		this.item = this.obj = this.args.item || db.items.entries().next().value[1];
+		this.item = this.obj = this.args.obj || db.items.entries().next().value[1];
 		this.edit = this.args.edit || false;
 		this.db = this.args.db;
 

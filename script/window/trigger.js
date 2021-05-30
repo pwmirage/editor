@@ -2,14 +2,11 @@
  * Copyright(c) 2021 Darek Stojaczyk for pwmirage.com
  */
 
-const g_open_triggers = new Set();
 const g_trigger_tpl = load_tpl(ROOT_URL + 'tpl/window/trigger.tpl');
 
-class TriggerWindow extends Window {
+class TriggerWindow extends SingleInstanceWindow {
 	async init() {
-		this.trigger = this.obj = this.args.trigger;
-		if (!this.args.debug && g_open_triggers.has(this.triger)) return false;
-		g_open_triggers.add(this.trigger);
+		this.trigger = this.obj = this.args.obj;
 
 		await g_trigger_tpl;
 		const shadow = this.dom.shadowRoot;
