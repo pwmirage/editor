@@ -104,7 +104,7 @@ class PWDB {
 			_i('lifetime', 'Time till despawn'),
 			_i('max_num', 'Max groups num'),
 			_i('mob_type', 'Boss type'),
-			_id('trigger', 'Trigger', 'triggers'),
+			_i('trigger', 'Trigger', 'triggers'),
 		]);
 
 		init_type_arr('npcs', 'NPC', [
@@ -178,7 +178,7 @@ class PWDB {
 				_f('y', 'Y'),
 				_f('z', 'Z'),
 			]),
-			_id('ai_trigger', 'Trigger', 'triggers'),
+			_i('ai_trigger', 'Trigger', 'triggers'),
 			_b('level_dependant_xp', 'Level-dependant XP scaling'),
 			_arr('item_groups', 'Item groups', [
 					_b('chosen_randomly', 'One Random Item'),
@@ -209,7 +209,7 @@ class PWDB {
 			_s('start_on_enter_location', 'TODO 3'),
 			_b('instant_teleport', 'TODO 4'),
 			_i('instant_teleport_point', 'TODO 5'),
-			_id('ai_trigger', 'Trigger on start', 'triggers'),
+			_i('ai_trigger', 'Trigger on start', 'triggers'),
 			_b('remove_premise_items', 'Remove premise items'),
 			_i('recommended_level', 'TODO 6'),
 			_b('no_display_quest_title', 'Don\'t show quest title'),
