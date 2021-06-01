@@ -591,8 +591,6 @@ class PWDB {
 
 		if (show_tag) {
 			notify('success', 'Published');
-			await sleep(2000);
-			window.location.href = '/forum/thread/' + project.thread_id;
 		}
 	}
 

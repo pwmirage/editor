@@ -98,9 +98,13 @@
 						</div>
 					</div>
 				{/for}
+
+				{if Editor.usergroups['user']}
 				<div id="post_comment" class="collapsed" style="margin-top: auto;">
-					<span class="header" onclick="this.parentNode.classList.toggle('collapsed');">Post comment</span>
-					<div class="votes" style="display: flex; column-gap: 20px;">
+					<span class="header" onclick="this.parentNode.classList.toggle('collapsed');">
+						Post comment
+					</span>
+					<div class="votes">
 						<label>
 							<input type="radio" name="vote" value="-1">
 							Vote -1
@@ -117,6 +121,13 @@
 					<textarea style="width: 100%; min-height: 100px; max-height: 600px; resize: none;" oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'"></textarea>
 					<a class="button buttonPrimary" style="float: right; float: right; margin-top: 6px; font-size: 12px; padding: 4px 9px;" href="javascript:void(0);" onclick="Editor.add_comment(this);">Post comment</a>
 				</div>
+				{else}
+				<div id="post_comment" style="margin-top: auto;">
+					<span>
+						Log in to be able to post comments
+					</span>
+				</div>
+				{/if}
 			{/if}
 			</div>
 			<div id="project-info-expand" onclick="Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed')"></div>
@@ -130,6 +141,34 @@
 		<div class="loading-spinner"></div>
 	</div>
 	<div id="pw-windows"></div>
+	<div id="publish_project_dialogue" style="display: none;">
+	{if $project}
+		<p>You are about to publish project <b>{@escape($project.name)}</b>.</p>
+		<p style="margin-top: 4px;">This means everyone will be able to see it, and a maintainer will soon review it to&nbsp;
+		see if it can be merged and put into the game. To simplify the merging process, please&nbsp;
+		review the changes yourself first using <i><u>Project -> Show summary</u></i> from the top&nbsp;
+		menu. Any changes that shouldn't be in the project should be reverted.</p>
+		<p style="margin-top: 14px;">Please also set a short, descriptive project name using <i><u>Project -> Modify</u></i>. If the project is relatively big you should consider leaving a longer description in the comments panel.</p>
+		<p style="margin-top: 14px;">
+			<span>The following will be published:</span>
+			<ul style="list-style: inside;">
+				<li>Final state of all modified objects</li>
+				<li>All project comments made so far</li>
+			</ul>
+		<p style="margin-top: 14px;">
+			<span>The following will <b>not</b> be published:</span>
+			<ul style="list-style: inside;">
+				<li>Modification history for any of the objects</li>
+				<li>"Recent" lists for items, NPCs, and all other objects</li>
+			</ul>
+		</p>
+		<p style="margin-top: 14px;">
+			Any changes you make to this project after publishing won't be publicly visible&nbsp;
+			until you publish again.
+		</p>
+		<p style="margin-top: 14px;">Are you sure you want to publish now?</p>
+	{/if}
+	</div>
 </div>
 
 {@@
@@ -279,6 +318,11 @@
 
 #project-info #post_comment.loading-spinner {
 	position:relative;
+}
+
+#project-info #post_comment .votes {
+	display: flex;
+	column-gap: 20px;
 }
 
 #project-info #post_comment.collapsed {

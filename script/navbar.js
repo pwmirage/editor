@@ -128,20 +128,31 @@ class Navbar {
 		const has_proj = !!db?.metadata[1]?.pid;
 
 		b.proj_modify.onclick = () => Projects.instance.open_project_modify(Editor.current_project);
-		b.proj_summary.onclick = () => HistoryWindow.open();
+		b.proj_summary.onclick = async () => {
+			const win = await HistoryWindow.open();
+			win.maximize();
+		}
 		b.proj_save.onclick = () => PWDB.save(db, true);
 		b.proj_rebase.onclick = () => Projects.instance.open_project_rebase(Editor.current_project);
 		b.proj_publish.onclick = async () => {
-			if (!Editor.current_project) {
-
-			}
-			const ok = await confirm('aaa', '', 'Publish project: ');
+			Editor.tpl.reload('#publish_project_dialogue', { project: Editor.current_project });
+			const ok = await confirm(Editor.map_shadow.querySelector('#publish_project_dialogue').innerHTML, '', 'Publish project: ' + Editor.current_project.name);
 
 			if (!ok) {
 				return;
 			}
 
-			PWDB.publish(db);
+			await PWDB.publish(db);
+			const req = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/info', { is_json: 1 });
+			const req_log = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log', { is_json: 1 });
+			if (!req.ok || !req_log.ok) {
+				notify('error', 'Unexpected error while refreshing the project status. ' + (req.data.err || ''));
+				return;
+			}
+			Editor.current_project = req.data;
+			Editor.current_project.log = req_log.data;
+			Editor.tpl.reload('#project-info', { project: Editor.current_project });
+			Editor.map_shadow.querySelector('#project-info').classList.remove('collapsed');
 		}
 
 		b.proj_test.onclick = async () => {
