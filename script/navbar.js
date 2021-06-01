@@ -37,6 +37,10 @@ class Navbar {
 		b['proj_rebase'] = this.add_button(p, 'Rebase');
 		b['proj_test'] = this.add_button(p, 'Quick Test');
 
+		if (!Editor.usergroups['maintainer']) {
+			b['proj_test'].style.display = 'none';
+		}
+
 		b['editor'] = this.add_button(null, 'Editor');
 
 		p = this.add_button(b['editor'], 'Change Map');
@@ -120,13 +124,26 @@ class Navbar {
 
 	reload() {
 		const b = this.buttons;
+		const is_author = Editor.current_project?.author_id == WCF.User.userID;
 		const has_proj = !!db?.metadata[1]?.pid;
 
 		b.proj_modify.onclick = () => Projects.instance.open_project_modify(Editor.current_project);
 		b.proj_summary.onclick = () => HistoryWindow.open();
 		b.proj_save.onclick = () => PWDB.save(db, true);
 		b.proj_rebase.onclick = () => Projects.instance.open_project_rebase(Editor.current_project);
-		b.proj_publish.onclick = () => PWDB.publish(db);
+		b.proj_publish.onclick = async () => {
+			if (!Editor.current_project) {
+
+			}
+			const ok = await confirm('aaa', '', 'Publish project: ');
+
+			if (!ok) {
+				return;
+			}
+
+			PWDB.publish(db);
+		}
+
 		b.proj_test.onclick = async () => {
 			const ok = await PWDB.save(db, false);
 			if (!ok) {
@@ -164,9 +181,10 @@ class Navbar {
 			}
 		};
 
-		set_enabled(b['proj_save'], has_proj);
-		set_enabled(b['proj_publish'], has_proj);
-		set_enabled(b['proj_rebase'], has_proj);
+		set_enabled(b['proj_modify'], has_proj && (is_author || Editor.usergroups['maintainer']));
+		set_enabled(b['proj_save'], has_proj && (is_author || Editor.usergroups['maintainer']));
+		set_enabled(b['proj_publish'], has_proj && (is_author || Editor.usergroups['maintainer']));
+		set_enabled(b['proj_rebase'], has_proj && (is_author || Editor.usergroups['maintainer']));
 
 		for (const type in b['new']) {
 			const btn = b['new'][type];
@@ -192,6 +210,10 @@ class Navbar {
 		b['new']['items'].onclick = async () => {
 			const win = await ItemTypeChooserWindow.open();
 			const type = await win.wait();
+
+			if (type == 0) {
+				return;
+			}
 
 			const obj = db.new('items');
 			db.open(obj);
