@@ -104,6 +104,7 @@
 					<span class="header" onclick="this.parentNode.classList.toggle('collapsed');">
 						Post comment
 					</span>
+					{if Editor.usergroups['maintainer']}
 					<div class="votes">
 						<label>
 							<input type="radio" name="vote" value="-1">
@@ -118,6 +119,7 @@
 							Vote +1
 						</label>
 					</div>
+					{/if}
 					<textarea style="width: 100%; min-height: 100px; max-height: 600px; resize: none;" oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'"></textarea>
 					<a class="button buttonPrimary" style="float: right; float: right; margin-top: 6px; font-size: 12px; padding: 4px 9px;" href="javascript:void(0);" onclick="Editor.add_comment(this);">Post comment</a>
 				</div>
