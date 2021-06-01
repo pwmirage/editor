@@ -17,6 +17,12 @@ class HistoryWindow extends Window {
 	}
 
 	tpl_compile_cb(dom) {
+		const refresh_el = dom.querySelector('.header > .menu > .refresh');
+		if (refresh_el) {
+			refresh_el.onclick = async () => {
+				this.tpl.reload('#changes');
+			};
+		}
 		const changed_objs_dom = dom.querySelector('#changed-objects');
 		if (changed_objs_dom) {
 			let cur_generation = 0;

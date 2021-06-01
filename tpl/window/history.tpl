@@ -1,15 +1,17 @@
 <script id="tpl-history" type="text/x-dot-template">
 <div class="window resizable" style="width: 800px; height: 600px;">
-{assign project = db.metadata[1]}
 <div class="header">
-	<span>Project: {@$project?.name ?? '(none)'} #{@$project.pid}</span>
+	<span>Project: {@Editor.current_project?.name ?? '(none)'} #{@Editor.current_project?.id || 0}</span>
+	<div class="menu">
+		<i class="refresh fa fa-refresh"></i>
+	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>
 		<i class="maximize fa"></i>
 		<i class="close fa fa-close"></i>
 	</div>
 </div>
-<div class="content flex-rows" style="overflow: hidden;">
+<div class="content flex-rows" style="overflow: hidden; padding: 0;">
 	<div id="changes" class="changes">
 		<div id="changed-objects"></div>
 	</div>
@@ -80,6 +82,10 @@
 	background-color: rgba(0, 0, 0, 0.03);
 	font-size: 11px;
 	line-height: 12px;
+}
+
+#changed-objects table {
+	font-size: 11px;
 }
 
 .block > * {
@@ -163,11 +169,13 @@ table {
 	opacity: 0.45;
 }
 
-#changes.active {
+#changes {
 	display: flex;
 	overflow-y: auto;
 	overflow-x: hidden;
 	height: 100%;
+	margin-bottom: 16px;
+	padding: 8px 12px;
 }
 
 #changed-objects {
