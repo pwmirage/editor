@@ -76,33 +76,6 @@ class PWMap {
 		this.mouse_spawner_pos = { x: -1, y: -1 };
 	}
 
-	static async add_elements(parent) {
-		const shadow_el = document.createElement('div');
-		shadow_el.id = 'pw-map';
-		shadow_el.style.position = 'relative';
-		shadow_el.style.width = '100vw';
-		shadow_el.style.height = '100vh';
-		shadow_el.style.overflow = 'hidden';
-		const shadow = shadow_el.attachShadow({mode: 'open'});
-		const tpl = await get(ROOT_URL + 'tpl/editor.tpl');
-		const els = newArrElements(tpl.data);
-		shadow.append(newStyle(ROOT_URL + 'css/style.css'));
-		shadow.append(...els);
-		parent.prepend(shadow_el);
-		Window.set_container(shadow.querySelector('#pw-windows'));
-
-		shadow.querySelector('#open-legend').onclick = async () => {
-			if (!g_map) {
-				return;
-			}
-
-			const win = await LegendWindow.open({ });
-		};
-
-		return shadow;
-
-	}
-
 	async refresh_focused_spawners() {
 		await Promise.all([
 			this.post_canvas_msg({

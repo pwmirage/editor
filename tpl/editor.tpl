@@ -1,3 +1,5 @@
+<script id="tpl-editor" type="text/x-dot-template">
+
 <div>
 	<div id="pw-map-canvas">
 		<div id="pw-map" class="gpu">
@@ -24,12 +26,86 @@
 					<div id="map-name"></div>
 				</div>
 			</div>
-			<div class="display: flex; flex-direction: column; row-gap: 6px;">
+			<div id="changed-objects-container">
 				<div style="display: flex;">
 					<div style="flex: 1;"></div>
 					<div id="more-objects">+ more</div>
 				</div>
 				<div id="changed-objects"></div>
+			</div>
+		</div>
+		<div id="project-info" class="{if !$project}collapsed{/if}">
+			<div class="contents" style="position: relative;">
+			<div class="scroll">
+			{if $project}
+				<div>
+					<div>{@$project.name} #{@$project.id}
+						{assign type = Projects.type.find(t => t.id == $project.type)}
+						<div style="float: right;" class="badge {@$type.color}">{@$type.name}</div>
+					</div>
+					<div>by <a class="externalURL" href="http://miragetest.ddns.net/user/{@$project.author_id}" target="_blank">{@$project.author}</a></div>
+					<div>
+						Status:&nbsp;
+						{assign status = Projects.status.find(s => s.id == $project.status)}
+						<div class="badge {@$status.color}">{@$status.name}</div>
+					</div>
+					<div class="review-status" style="margin-top: 4px;">
+						<div class="minus">-1 by Beta</div>
+						<div class="plus">+1 by Someone</div>
+					</div>
+					<div style="margin-top: 10px;">
+						<label>
+							<input type="checkbox" id="showOnlyLatestComments" checked oninput="Editor.hide_previous_comments(this.checked);">
+							<span>Hide comments from previous revisions</span>
+						</label>
+					</div>
+				</div>
+				{for entry of $project.log}
+					<div class="log" data-type="{@$entry.actionID}" data-param1="{@$entry.param1}">
+						<div style="float:right;">
+							{@Projects.DateUtil.getTimeElement(new Date($entry.time * 1000)).outerHTML}
+						</div>
+						<div><a class="externalURL" href="http://miragetest.ddns.net/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
+						{if $entry.type == 0 && $entry.param1 != 0}
+							<div class="review-status" style="margin-top: 4px;">
+								{if $entry.param1 < 0}
+									<div class="minus">Review -1</div>
+								{else}
+									<div class="plus">Review +1</div>
+								{/if}
+							</div>
+						{else if $entry.type == 1}
+							<div>
+								Published revision {@$entry.param1}
+							</div>
+						{/if}
+						<div>
+							{@escape($entry.text).replaceAll('\n', '<br>')}
+						</div>
+					</div>
+				{/for}
+				<div id="post_comment" class="collapsed" style="margin-top: auto;">
+					<span class="header" onclick="this.parentNode.classList.toggle('collapsed');">Post comment</span>
+					<div class="votes" style="display: flex; column-gap: 20px;">
+						<label>
+							<input type="radio" name="vote" value="-1">
+							Vote -1
+						</label>
+						<label>
+							<input type="radio" name="vote" value="0" checked>
+							Don't vote
+						</label>
+						<label>
+							<input type="radio" name="vote" value="+1">
+							Vote +1
+						</label>
+					</div>
+					<textarea style="width: 100%; min-height: 100px; max-height: 600px; resize: none;" oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'"></textarea>
+					<a class="button buttonPrimary" style="float: right; float: right; margin-top: 6px; font-size: 12px; padding: 4px 9px;" href="javascript:void(0);" onclick="Editor.add_comment(this);">Post comment</a>
+				</div>
+			{/if}
+			</div>
+			<div id="project-info-expand" onclick="Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed')"></div>
 			</div>
 		</div>
 		<div id="rotate-circle" style="display: none;">
@@ -42,6 +118,7 @@
 	<div id="pw-windows"></div>
 </div>
 
+{@@
 <style>
 :host {
 	position: relative;
@@ -102,6 +179,142 @@
 	width: 100vw;
 	height: calc(100vh - 50px);
 	text-align: left;
+}
+
+#project-info {
+	pointer-events: all;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 353px;
+	height: calc(100vh - 50px);
+	background: #ececec;
+	color: black;
+	margin-left: 0;
+	transition: margin-left 0.3s;
+	border-right: 3px solid #dccfcf;
+	font-family: "Open Sans", Arial, Helvetica, sans-serif;
+}
+
+#project-info.collapsed {
+	margin-left: -350px;
+}
+
+#project-info > .contents {
+	height: 100%;
+}
+
+#project-info .scroll {
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 10px 8px;
+	display: flex;
+	flex-direction: column;
+	row-gap: 5px;
+	min-height: 100%;
+	height: 100%;
+}
+
+#project-info .scroll > * {
+	background-color: white;
+	box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 10%);
+	padding: 5px 8px;
+}
+
+#project-info .review-status {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 3px;
+}
+
+#project-info .review-status > * {
+	padding: 2px 4px;
+	background: #ececec;
+	border: 1px solid #cacaca;
+	border-radius: 2px;
+	width: max-content;
+	position: relative;
+}
+
+#project-info .review-status > *:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(255, 0, 0, 0.2);
+	pointer-events: none;
+}
+
+#project-info .review-status > .plus:after {
+	background: rgba(0, 255, 0, 0.2);
+}
+
+#project-info input {
+	vertical-align: top;
+}
+
+#project-info .votes label {
+	padding: 4px;
+}
+
+#project-info #post_comment.loading-spinner {
+	position:relative;
+}
+
+#project-info #post_comment.collapsed {
+	min-height: 30px;
+	max-height: 30px;
+	overflow: hidden;
+}
+
+#project-info #post_comment > .header {
+	cursor: pointer;
+}
+
+#project-info #post_comment > .header:hover {
+	text-decoration: underline;
+}
+
+#project-info #post_comment.loading-spinner:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	opacity: 0.2;
+}
+
+#project-info #project-info-expand {
+	position: absolute;
+	left: 0;
+	top: 50px;
+	margin-left: calc(100% + 3px);
+	width: 39px;
+	height: 40px;
+	background-color: #dccfcf;
+	border-radius: 5px;
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+	border-width: 0;
+	color: rgba(33, 33, 33, 1);
+	cursor: pointer;
+	padding-top: 4px;
+	padding-left: 8px;
+}
+
+#project-info-expand:after {
+	font-family: FontAwesome;
+	font-size: 22px;
+	content: '\\00f02d';
+}
+
+#project-info #project-info-expand:hover {
+	background-color: rgba(156, 120, 120, 1);
+	text-decoration: none;
 }
 
 #pw-map-canvas > * {
@@ -218,6 +431,12 @@
 	white-space: pre;
 }
 
+#changed-objects-container {
+	position: absolute;
+	left: 360px;
+	width: calc(100vw - 370px);
+}
+
 #changed-objects {
 	display: flex;
 	flex: 1;
@@ -249,6 +468,8 @@
 	height: 32px;
 	margin-top: 5px;
 	overflow: hidden;
+	box-sizing: initial;
+	min-width: initial;
 }
 
 #more-objects:hover,
@@ -270,6 +491,8 @@
 #changed-objects > div > img {
 	width: 32px;
 	height: 32px;
+	box-sizing: initial;
+	min-width: initial;
 }
 
 #changed-objects > div > span {
@@ -327,7 +550,7 @@
 
 #open-legend:after {
 	font-family: FontAwesome;
-	content: '\00f278';
+	content: '\\00f278';
 }
 
 #open-legend:hover {
@@ -405,8 +628,8 @@
 }
 
 #pw-loading {
+	display: none;
 	top: 40%;
-
 }
 
 #pw-loading:before {
@@ -431,3 +654,6 @@
 	will-change: transform;
 }
 </style>
+@@}
+
+</script>

@@ -29,6 +29,34 @@ class Editor {
 		await JSDebugClient.init();
 	}
 
+	static add_elements(parent) {
+		const shadow_el = document.createElement('div');
+		shadow_el.id = 'pw-map';
+		shadow_el.style.position = 'relative';
+		shadow_el.style.width = '100vw';
+		shadow_el.style.height = '100vh';
+		shadow_el.style.overflow = 'hidden';
+
+		const shadow = Editor.map_shadow = shadow_el.attachShadow({ mode: 'open' });
+		const tpl = Editor.tpl = new Template('tpl-editor');
+		tpl.compile_cb = (dom) => { HTMLSugar.process(dom, this); Editor.reload_times(); };
+
+		const data = tpl.run({ });
+		shadow.append(data);
+		shadow.append(newStyle(ROOT_URL + 'css/style.css'));
+		shadow.append(newStyle(get_wcf_css().href));
+		parent.prepend(shadow_el);
+		Window.set_container(shadow.querySelector('#pw-windows'));
+
+		shadow.querySelector('#open-legend').onclick = async () => {
+			if (!g_map) {
+				return;
+			}
+
+			const win = await LegendWindow.open({ });
+		};
+	}
+
 	static async load() {
 		console.log('Editor loading');
 
@@ -52,6 +80,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/item_type_chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/diff.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/fuzzysort.js?v=' + MG_VERSION),
+			load_tpl(ROOT_URL + 'tpl/editor.tpl'),
 		]);
 
 		PWDB.init_types();
@@ -61,7 +90,7 @@ class Editor {
 		editor_dom.style.position = 'absolute';
 		editor_dom.style.top = '50px';
 		document.querySelector('#pageContainer').append(editor_dom);
-		Editor.map_shadow = await PWMap.add_elements(editor_dom);
+		Editor.add_elements(editor_dom);
 
 		const date = new Date(MG_VERSION * 1000);
 		const version_str = 'Mirage Editor, Version: ' + date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
@@ -119,12 +148,29 @@ class Editor {
 
 	}
 
+	static reload_times() {
+		if (!Editor.map_shadow) {
+			return;
+		}
+
+		/* force reload all time tags */
+		require(['WoltLabSuite/Core/Date/Time/Relative', 'Dom/ChangeListener'], (TimeRelative, DomChangeListener) => {
+			if (TimeRelative.setElements) {
+				TimeRelative.setElements(Editor.map_shadow.querySelectorAll('time'));
+			}
+			DomChangeListener.trigger();
+		});
+	}
+
 	static async reload_project_info() {
 		if (!Editor.map_shadow) {
 			return;
 		}
 
 		const project = Editor.current_project;
+		Editor.tpl.reload('#project-info', { project });
+		Editor.reload_times();
+
 		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
 		if (project?.id) {
 			proj_info_el.textContent = 'Project: ' + project.name + ' by ' + project.author;
@@ -161,8 +207,10 @@ class Editor {
 					if (minimized) {
 						ret_btn.mgState = window.location.search;
 						history.pushState({}, '', ROOT_URL);
+						Projects.instance.reload_times();
 					} else {
 						history.pushState({}, '', ret_btn.mgState);
+						Editor.reload_times();
 					}
 				};
 			}
@@ -177,6 +225,7 @@ class Editor {
 		const tag_p = Loading.show_tag('Loading project');
 
 		const req_p = get(ROOT_URL + 'api/project/' + pid + '/info', { is_json: 1 });
+		const req_log_p = get(ROOT_URL + 'api/project/' + pid + '/log', { is_json: 1 });
 
 		Editor.map_shadow.querySelector('#pw-loading').style.display = 'block';
 		document.body.classList.remove('mge-background');
@@ -184,7 +233,8 @@ class Editor {
 		await sleep(650);
 
 		const req = await req_p;
-		if (!req.ok) {
+		const req_log = await req_log_p;
+		if (!req.ok || !req_log.ok) {
 			confirm('Error occured while loading this project. Are you sure this project exists and you have access to it?', '', 'Error');
 			await sleep(1);
 			g_confirm_dom.classList.add('noconfirm');
@@ -192,6 +242,7 @@ class Editor {
 		}
 
 		Editor.current_project = req.data;
+		Editor.current_project.log = req_log.data;
 		await Editor.reload_project_info();
 
 		/*const date = new Date();
@@ -222,6 +273,10 @@ class Editor {
 		Editor.map_shadow.querySelector('#pw-loading').style.display = 'none';
 		Loading.hide_tag(tag_p);
 
+		if (curtain_shown) {
+			await Loading.hide_curtain();
+		}
+
 		await new Promise(async (resolve) => {
 			if (localStorage.getItem('mg_welcome_closed')) {
 				resolve();
@@ -235,10 +290,6 @@ class Editor {
 			//const win = await CreateProjectWindow.open();
 			const win = await MapChooserWindow.open({ });
 		});
-
-		if (curtain_shown) {
-			await Loading.hide_curtain();
-		}
 	}
 
 	static onmousemove(e) {
@@ -256,6 +307,53 @@ class Editor {
 	static onresize(e) {
 		if (g_map) g_map.onresize(e);
 		Window.onresize(e);
+	}
+
+	static async add_comment() {
+		const post_comment_el = Editor.map_shadow.querySelector('#project-info #post_comment');
+		post_comment_el.classList.toggle('loading-spinner');
+
+		const text_el = Editor.map_shadow.querySelector('#post_comment textarea');
+		const text = text_el.value;
+		const vote = parseInt(Editor.map_shadow.querySelector('input[name="vote"]:checked')?.value || 0);
+
+		const req = await post(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log/new', { is_json: 1, data: { text, vote }});
+		if (!req.ok) {
+			notify('error', req.data.err || 'Unexpected error occurred');
+			post_comment_el.classList.toggle('loading-spinner');
+			return;
+		}
+
+		const req_log = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log', { is_json: 1 });
+		if (!req_log.ok) {
+			notify('error', 'Unexpected error while refreshing the comment list. ' + (req.data.err || ''));
+			return;
+		}
+
+		text_el.value = '';
+		Editor.current_project.log = req_log.data;
+		Editor.tpl.reload('#project-info', { project: Editor.current_project });
+		notify('success', 'Comment posted');
+	}
+
+	static hide_previous_comments(do_hide) {
+		const comment_els = Editor.map_shadow.querySelectorAll('#project-info .log');
+		if (do_hide) {
+			let publish_found = false;
+			for (let idx = comment_els.length - 1; idx >= 0; idx--) {
+				const c = comment_els[idx];
+				if (c.dataset.type != 0) {
+					publish_found = true;
+				} else if (publish_found) {
+					c.style.display = 'none';
+				}
+			}
+
+		} else {
+			for (const c of comment_els) {
+				c.style.display = 'initial';
+			}
+		}
 	}
 
 	static onerror(err) {
