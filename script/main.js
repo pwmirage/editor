@@ -10,13 +10,6 @@ let MG_VERSION = '0';
 let MG_DEBUG = 0;
 let MG_UNSUPPORTED = false;
 
-try {
-	/* needs to be in / to fetch requests from origin /, .htaccess to the rescue */
-	navigator.serviceWorker.register('/service-worker.js');
-} catch (e) {
-	console.error(e);
-}
-
 const mg_init = async () => {
 	/* check authentication first */
 	await Promise.all([
