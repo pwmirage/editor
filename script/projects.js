@@ -104,6 +104,13 @@ class Projects {
 	}
 
 	async new_project() {
+		if (!Editor.usergroups['user']) {
+			confirm('You need to be logged in to create projects.<br><br>You can still <b>open existing projects</b> and make changes there, although they won\'t be saved on the server.', '', 'Permission denied');
+			await sleep(1);
+			g_confirm_dom.classList.add('noconfirm');
+			return;
+		}
+
 		let req = await post(ROOT_URL + 'api/project/new', { is_json: 1 });
 
 		if (!req.ok) {
