@@ -317,38 +317,40 @@ class Editor {
 		const text = text_el.value;
 		const vote = parseInt(Editor.map_shadow.querySelector('input[name="vote"]:checked')?.value || 0);
 
-		const req = await post(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log/new', { is_json: 1, data: { text, vote }});
+		let req = await post(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log/new', { is_json: 1, data: { text, vote }});
 		if (!req.ok) {
 			notify('error', req.data.err || 'Unexpected error occurred');
 			post_comment_el.classList.toggle('loading-spinner');
 			return;
 		}
 
+		req = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/info', { is_json: 1 });
 		const req_log = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log', { is_json: 1 });
-		if (!req_log.ok) {
+		if (!req.ok || !req_log.ok) {
 			notify('error', 'Unexpected error while refreshing the comment list. ' + (req.data.err || ''));
 			return;
 		}
 
 		text_el.value = '';
+		Editor.current_project = req.data;
 		Editor.current_project.log = req_log.data;
 		Editor.tpl.reload('#project-info', { project: Editor.current_project });
 		notify('success', 'Comment posted');
 	}
 
 	static hide_previous_comments(do_hide) {
+		localStorage.setItem('project_hide_previous_comments', do_hide);
 		const comment_els = Editor.map_shadow.querySelectorAll('#project-info .log');
 		if (do_hide) {
 			let publish_found = false;
 			for (let idx = comment_els.length - 1; idx >= 0; idx--) {
 				const c = comment_els[idx];
-				if (c.dataset.type != 0) {
-					publish_found = true;
-				} else if (publish_found) {
+				if (publish_found) {
 					c.style.display = 'none';
+				} else if (c.dataset.type != 0) {
+					publish_found = true;
 				}
 			}
-
 		} else {
 			for (const c of comment_els) {
 				c.style.display = 'initial';

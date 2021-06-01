@@ -34,7 +34,7 @@
 				<div id="changed-objects"></div>
 			</div>
 		</div>
-		<div id="project-info" class="{if !$project}collapsed{/if}">
+		<div id="project-info" class="{if !$project || $project.last_open_time >= $project.last_edit_time}collapsed{/if}">
 			<div class="contents" style="position: relative;">
 			<div class="scroll">
 			{if $project}
@@ -49,13 +49,27 @@
 						{assign status = Projects.status.find(s => s.id == $project.status)}
 						<div class="badge {@$status.color}">{@$status.name}</div>
 					</div>
-					<div class="review-status" style="margin-top: 4px;">
-						<div class="minus">-1 by Beta</div>
-						<div class="plus">+1 by Someone</div>
+					<div class="review-status summary">
+						{assign votes = []}
+						{for i = $project.log.length - 1; i >= 0; i--}
+							{assign entry = $project.log[$i]}
+							{if $entry.actionID == 0 && $entry.param1 != 0 && !$votes.find(v => v.userID == $entry.userID)}
+								{$votes.push($entry)}
+							{/if}
+
+							{if $entry.actionID == 1}
+								{break}
+							{/if}
+						{/for}
+						{for vote of $votes}
+							{if $vote != 0}
+								<div class="{if $vote.param1 > 0}plus{else}minus{/if}">{if $vote.param1 > 0}+1{else}-1{/if} by {@$vote.username}</div>
+							{/if}
+						{/for}
 					</div>
 					<div style="margin-top: 10px;">
 						<label>
-							<input type="checkbox" id="showOnlyLatestComments" checked oninput="Editor.hide_previous_comments(this.checked);">
+							<input type="checkbox" id="showOnlyLatestComments" oninput="Editor.hide_previous_comments(this.checked);" data-onload="{if localStorage.getItem('project_hide_previous_comments')}this.checked = true; this.oninput();{/if}">
 							<span>Hide comments from previous revisions</span>
 						</label>
 					</div>
@@ -66,7 +80,7 @@
 							{@Projects.DateUtil.getTimeElement(new Date($entry.time * 1000)).outerHTML}
 						</div>
 						<div><a class="externalURL" href="http://miragetest.ddns.net/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
-						{if $entry.type == 0 && $entry.param1 != 0}
+						{if $entry.actionID == 0 && $entry.param1 != 0}
 							<div class="review-status" style="margin-top: 4px;">
 								{if $entry.param1 < 0}
 									<div class="minus">Review -1</div>
@@ -74,7 +88,7 @@
 									<div class="plus">Review +1</div>
 								{/if}
 							</div>
-						{else if $entry.type == 1}
+						{else if $entry.actionID == 1}
 							<div>
 								Published revision {@$entry.param1}
 							</div>
@@ -221,6 +235,10 @@
 	padding: 5px 8px;
 }
 
+#project-info .review-status.summary:not(:empty) {
+	margin-top: 4px;
+}
+
 #project-info .review-status {
 	display: flex;
 	flex-wrap: wrap;
@@ -267,6 +285,10 @@
 	min-height: 30px;
 	max-height: 30px;
 	overflow: hidden;
+}
+
+#project-info #post_comment.collapsed > :not(:first-child) {
+	display: none;
 }
 
 #project-info #post_comment > .header {
