@@ -191,7 +191,7 @@ class PWDB {
 			];
 
 		init_type_arr('tasks', 'Quest', [
-			_id('start_by', 'Start by', TaskWindow.task_obtain_ways),
+			_id('start_by', 'Start by', TaskWindow.tabs_obtain_ways),
 			_id('avail_frequency', 'Repeatable', TaskWindow.avail_frequency_types),
 			_id('type', 'Icon', TaskWindow.task_types),
 			_i('time_limit_sec', 'Time limit (sec)'),
