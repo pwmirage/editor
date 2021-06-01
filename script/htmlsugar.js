@@ -855,8 +855,12 @@ class HTMLSugar {
 		el.append(link_el);
 		const link = HTMLSugar.link_el(link_el);
 
-		const dummy_obj = el._mg_select.values().next().value;
-		const type = dummy_obj._db.type;
+		let dummy_obj = el._mg_select.values().next().value;
+		if (!dummy_obj && f_str.startsWith('db.')) {
+			dummy_obj = { _db: { type: f_str.substring(3).trim() } };
+		}
+
+		let type = dummy_obj._db.type;
 		const obj_details = PWPreview.get_obj_type(dummy_obj);
 
 		const update_label = (auto = false) => {
