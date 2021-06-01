@@ -83,7 +83,7 @@ class Projects {
 
 		this.shadow.append(data);
 
-		const tabname = localStorage.getItem('projects_list_tab') || 'my';
+		const tabname = localStorage.getItem('projects_list_tab') || 'all';
 		this.select_tab(tabname);
 	}
 
