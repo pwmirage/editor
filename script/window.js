@@ -62,14 +62,14 @@ class Window {
 				this.dom_win.parentNode.style.height = '100%';
 			}
 
-			this.full_bounds = this.dom_win.getBoundingClientRect();
+			this.full_bounds = this.bounds = this.dom_win.getBoundingClientRect();
 		} else {
 			if (Window.container) {
 				Window.container.append(this.dom);
 			}
 
 			this.focus();
-			this.full_bounds = this.dom_win.getBoundingClientRect();
+			this.full_bounds = this.bounds = this.dom_win.getBoundingClientRect();
 
 			let x, y;
 			if (this.args.x !== undefined || this.args.y !== undefined) {
@@ -92,7 +92,7 @@ class Window {
 				this.move(20, 20);
 			}
 
-			this.full_bounds = this.dom_win.getBoundingClientRect();
+			this.full_bounds = this.bounds = this.dom_win.getBoundingClientRect();
 			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
 		}
 
@@ -408,7 +408,7 @@ class Window {
 	minimize() {
 		const minimized = this.dom_win.classList.toggle('minimized');
 		if (minimized) {
-			this.full_bounds = this.dom_win.getBoundingClientRect();
+			this.full_bounds = this.bounds = this.dom_win.getBoundingClientRect();
 			this.dom_win.style.overflow = 'hidden';
 			this.dom_win.style.maxHeight = this.full_bounds.height + 'px';
 			this.dom_win.style.maxHeight = this.dom_header.offsetHeight + 'px';
@@ -439,6 +439,9 @@ class Window {
 				this.minimize();
 				this.was_minimized = false;
 			}
+		}
+		if (this.onresize) {
+			this.onresize();
 		}
 	}
 
@@ -494,7 +497,7 @@ class SingleInstanceWindow extends Window {
 		}
 
 		let win = arr.get(args.obj);
-		if (win) {
+		if (win && Window.container.contains(win.dom)) {
 			win.focus();
 			return;
 		}

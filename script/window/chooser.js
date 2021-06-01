@@ -55,8 +55,8 @@ class ChooserWindow extends Window {
 
 		setTimeout(() => {
 			this.resizing = false;
-			this.tpl.reload('#items');
 			this.recalculate_pager();
+			this.tpl.reload('#items');
 			this.move_pager(0);
 		}, 500);
 	}
@@ -64,7 +64,8 @@ class ChooserWindow extends Window {
 	reload_items() {
 		let overflown_items = 0;
 		const items_el = this.shadow.querySelector('#items');
-		const items_bounds = items_el.getBoundingClientRect();
+		const win_bounds = this.dom_win.getBoundingClientRect();
+		const pager_height = this.shadow.querySelector('#pager').offsetHeight;
 		const items = items_el.children;
 		for (let i = items.length - 1; i >= 0; i--) {
 			const item = items[i];
@@ -76,7 +77,7 @@ class ChooserWindow extends Window {
 			}
 
 			const b = item.getBoundingClientRect();
-			if (b.bottom - items_bounds.top > this.max_height) {
+			if (b.bottom >= win_bounds.bottom - pager_height - 12) {
 				item.style.display = 'none';
 				overflown_items++;
 			} else {
