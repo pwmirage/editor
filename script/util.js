@@ -13,12 +13,12 @@ const _fetch = async (url, { params, is_json }) => {
 		resp.data = await resp.text();
 	} else {
 		try {
-			resp.data = await resp.json();
-			if (!resp.ok) {
-				return resp;
+			const txt = await resp.text();
+			if (txt) {
+				resp.data = JSON.parse(txt);
+			} else {
+				resp.data = {};
 			}
-
-			return resp;
 		} catch (e) {
 			console.error(e);
 			resp.data = {};
