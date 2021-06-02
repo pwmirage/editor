@@ -24,7 +24,7 @@ class JSDebugClient {
 
 			if (path.endsWith('.tpl')) {
 				console.log('Reloading tpl=' + path);
-				load_tpl(path);
+				load_tpl(ROOT_URL + path);
 			}
 		})
 	}

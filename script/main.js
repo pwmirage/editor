@@ -21,10 +21,14 @@ const mg_init = async () => {
 
 	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION);
 	await load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION);
+
+	await Promise.all([
+		load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION),
+		load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
+		load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
+	]);
 
 	document.head.append(newStyle(ROOT_URL + 'css/style.css'));
 
@@ -36,6 +40,7 @@ const mg_init = async () => {
 	}
 
 	await PWPreview.load_promise;
+	await JSDebugClient.init();
 };
 
 const load_script = (src) => {

@@ -24,13 +24,10 @@ class Editor {
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window/chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/rmenu.js?v=' + MG_VERSION),
-			load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
 			get(ROOT_URL + 'api/project/t', { is_json: 1 }).then(req => {
 				Editor.usergroups = req.ok ? req.data : {};
 			})
 		]);
-
-		await JSDebugClient.init();
 	}
 
 	static add_elements(parent) {
