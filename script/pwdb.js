@@ -37,9 +37,6 @@ class PWDB {
 				return;
 			}
 
-			db.open(project);
-			project.edit_time = Math.floor(Date.now() / 1000);
-			db.commit(project);
 			await PWDB.save(db, false);
 		};
 		const save_fn2 = () => {
@@ -536,7 +533,9 @@ class PWDB {
 	static async save(db, show_tag = true) {
 		let project = db.metadata[1];
 		if (!project || project.read_only || project.author_id != WCF.User.userID) {
-			Loading.notify('warning', 'This project is read-only.');
+			if (show_tag) {
+				Loading.notify('warning', 'Only the project author can save their changes.');
+			}
 			return false;
 		}
 
@@ -550,6 +549,10 @@ class PWDB {
 			}
 			return true;
 		}
+
+		db.open(project);
+		project.edit_time = Math.floor(Date.now() / 1000);
+		db.commit(project);
 
 		const req = await post(ROOT_URL + 'api/project/' + project.pid + '/save', {
 			is_json: 1, data: {
