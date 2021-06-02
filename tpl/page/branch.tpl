@@ -4,7 +4,7 @@
 		{assign branch = $page.selected_branch}
 		<span>Branch: <a class="button branchname" style="background: {@$page.branch_colors[$branch.id]};">{@$branch.name}</a></span>
 		{assign base = $branch.history.find(c => c.id)}
-		<span>Base: <a href="{@'/forum/thread/' + $base?.topic_id}">{@$base?.name} ({@$base?.id || '-'})</a></span>
+		<span>Base: <a href="{@'/editor/?id=' + $base?.id}">{@$base?.name || 'none'}</a></span>
 
 		<span style="flex: 1;"></span>
 		<span style="display: flex; column-gap: 3px; align-items: baseline;">
@@ -33,7 +33,7 @@
 							{if $project.pck_patch_id}
 								<td title="c {@$project.commit_id}"><a href="javascript:void(0);"><u style="color: #77002c; font-weight: bold;">File:</u> {@$project.name}</a></td>
 							{else}
-								<td title="c {@$project.commit_id}"><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
+								<td title="c {@$project.commit_id}"><a href="{@'/editor/?id=' + $project.id}">{@$project.name}</a></td>
 							{/if}
 							{if !$project.is_removed && !$project.is_being_removed && !$project.removed_id}
 								<td style="cursor: pointer;" onclick="{serialize $page}.unmerge({@$project.id});"><i class="fa fa-close"></i>
@@ -97,9 +97,9 @@
 					{for project of $mergables}
 						<tr>
 							<td>{@$project.id}</td>
-							<td><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
+							<td><a href="{@'/editor/?id=' + $project.id}">{@$project.name}</a></td>
 							<td>
-								<a href="{@'/forum/thread/' + $project.base_topic_id}" title="{@$project.base_name || 'None'}">
+								<a href="{@'/editor/?id=' + $project.base_id}" title="{@$project.base_name || 'None'}">
 									{if $project.can_be_merged}
 										<i class="fa fa-check" style="color: green;"></i>
 									{else}
@@ -140,7 +140,7 @@
 						{/if}
 						<tr>
 							<td style="width: 65px;">{@$project.id}</td>
-							<td><a href="{@'/forum/thread/' + $project.topic_id}">{@$project.name}</a></td>
+							<td><a href="{@'/editor/?id=' + $project.id}">{@$project.name}</a></td>
 							{assign date = new Date($project.edit_time * 1000)}
 							<td style="width: 200px;">{@$date.toLocaleDateString("en-US", \{ year: 'numeric', month: 'long', day: 'numeric' \})}<br>{@$date.toLocaleTimeString("en-US")}</td>
 							<td style="width: 250px;">

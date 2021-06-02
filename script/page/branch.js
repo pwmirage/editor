@@ -20,7 +20,7 @@ g_mg_pages['branch'] = new class {
 		this.cur_branch_id = parseInt(args.id || 1);
 
 		let req;
-		req = await get(ROOT_URL + 'api/project/admin/pck_patches', { is_json: 1});
+		req = await get(ROOT_URL + 'api/game/admin/pck_patches', { is_json: 1});
 		this.patches = req.data;
 
 		req = await get(ROOT_URL + 'api/project/admin/branches', { is_json: 1});
