@@ -291,10 +291,22 @@ class ItemTooltip {
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.item = item;
 		const newdata = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
+		newdata.style.visibility = 'hidden';
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
-		this.dom.style.left = bounds.right + 3 + 'px';
-		this.dom.style.top = bounds.top + 'px';
+		const tooltip_bounds = newdata.getBoundingClientRect();
+		if (bounds.right + 3 + tooltip_bounds.width < Window.bounds.right) {
+			this.dom.style.left = bounds.right + 3 + 'px';
+		} else {
+			this.dom.style.left = bounds.left - 3 - tooltip_bounds.width + 'px';
+		}
+
+		if (bounds.top + tooltip_bounds.height < Window.bounds.bottom) {
+			this.dom.style.top = bounds.top + 'px';
+		} else {
+			this.dom.style.top = bounds.bottom - tooltip_bounds.height + 'px';
+		}
+		newdata.style.visibility = 'visible';
 	}
 
 }
@@ -346,10 +358,22 @@ class RecipeTooltip {
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
 		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: prev || { id: -1 }, edit: this.edit, simplified: this.simplified });
+		newdata.style.visibility = 'hidden';
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
-		this.dom.style.left = bounds.right + 3 + 'px';
-		this.dom.style.top = bounds.top + 'px';
+		const tooltip_bounds = newdata.getBoundingClientRect();
+		if (bounds.right + 3 + tooltip_bounds.width < Window.bounds.right) {
+			this.dom.style.left = bounds.right + 3 + 'px';
+		} else {
+			this.dom.style.left = bounds.left - 3 - tooltip_bounds.width + 'px';
+		}
+
+		if (bounds.top + tooltip_bounds.height < Window.bounds.bottom) {
+			this.dom.style.top = bounds.top + 'px';
+		} else {
+			this.dom.style.top = bounds.bottom - tooltip_bounds.height + 'px';
+		}
+		newdata.style.visibility = 'visible';
 	}
 
 	toggle_pin(e) {

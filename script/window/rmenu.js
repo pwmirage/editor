@@ -51,8 +51,18 @@ class RMenuWindow extends Window {
 			const menu_bounds = menu_el.getBoundingClientRect();
 			const around_el = this.args.around_el;
 			const bounds = Window.get_el_coords(around_el);
-			x = bounds.left + 1;
-			y = bounds.bottom + (this.args.around_margin || 0);
+			if (bounds.left + 1 + menu_bounds.width < Window.bounds.right) {
+				x = bounds.left + 1;
+			} else {
+				x = bounds.right + 1 - menu_bounds.width;
+			}
+
+			if (bounds.bottom + (this.args.around_margin || 0) + menu_bounds.height <
+					Window.bounds.bottom) {
+				y = bounds.bottom + (this.args.around_margin || 0);
+			} else {
+				y = bounds.top + (this.args.around_margin || 0) - menu_bounds.height;
+			}
 		}
 
 		menu_el.style.left = x + 'px';
