@@ -179,7 +179,14 @@ class DB {
 			return obj;
 		}
 
+		/* we'll need two states:
+		 * - the latest one to detect changes
+		 *   between any two commits() (which are cassed to the callback)
+		 * - the generation initial one to detect when fields are changed
+		 *   back and forth and shouldn't be included in the changelog
+		 */
 		obj._db.latest_state = DB.clone_obj(obj);
+		obj._db.initial_gen_state = DB.clone_obj(obj);
 
 		/* first time open */
 		if (!obj._db.changesets) {
@@ -201,7 +208,7 @@ class DB {
 	 */
 	commit(obj) {
 		console.assert(obj._db);
-		console.assert(obj._db.latest_state);
+		console.assert(obj._db.latest_state && obj._db.initial_gen_state);
 		console.assert(obj._db.changesets);
 
 		const last_changelog = this.changelog[this.changelog.length - 1];
@@ -267,8 +274,7 @@ class DB {
 					return is_diff;
 				}
 
-				const prev_state = obj._db.changesets[obj._db.changesets.length - 2];
-				changeset_empty = !diff_and_clean(changeset, prev_state);
+				changeset_empty = !diff_and_clean(changeset, obj._db.initial_gen_state);
 				changeset.id = obj.id;
 
 				if (changeset_empty) {
@@ -291,6 +297,7 @@ class DB {
 		if ((!diff || changeset_empty) && obj._db.changesets.length == 1) {
 			/* no changes and no history, just delete the original copy */
 			obj._db.latest_state = undefined;
+			obj._db.initial_gen_state = undefined;
 			obj._db.changesets = undefined;
 		} else if (diff) {
 			DB.apply_diff(obj._db.latest_state, diff);
@@ -431,6 +438,7 @@ class DB {
 			const obj = change._db.obj;
 			/* close the object, a new state will be generated on open() */
 			obj._db.latest_state = null;
+			obj._db.initial_gen_state = null;
 		}
 
 		this.changelog.push(new Set());
