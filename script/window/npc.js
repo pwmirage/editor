@@ -271,7 +271,7 @@ class NPCGoodsWindow extends SingleInstanceWindow {
 					},
 				});
 			} else if (e.which == 3) {
-				HTMLSugar.open_undo_rmenu(hover_el, this.crafts, {
+				HTMLSugar.open_undo_rmenu(hover_el, this.goods, {
 					undo_path: [ 'pages', this.selected_tab, 'item_id', item_idx ],
 					undo_fn: () => this.tpl.reload('#items')
 				});
