@@ -58,6 +58,7 @@ class PWDB {
 		PWDB.last_saved_changeset = 0;
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
+		PWDB.db_version = 2;
 		PWDB.type_fields = [
 			'string',
 			'int',
@@ -786,7 +787,7 @@ class PWDB {
 		PWDB.g_db_promises[type] = new Promise((r) => { final_resolve = r; });
 
 		try {
-			const cache = await IDB.open('db-cache', 1);
+			const cache = await IDB.open('db-cache', PWDB.db_version);
 			g_db[type] = await IDB.get(cache, type);
 		} catch (e) { }
 
@@ -804,7 +805,7 @@ class PWDB {
 
 			/* save to cache */
 			try {
-				const cache = await IDB.open('db-cache', 1, 'readwrite');
+				const cache = await IDB.open('db-cache', PWDB.db_version, 'readwrite');
 				await IDB.set(cache, type, g_db[type]);
 			} catch (e) { }
 		}

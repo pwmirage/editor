@@ -14,6 +14,9 @@ class IDB {
 
 			request.onupgradeneeded = (e) => {
 				const db = e.target.result;
+				if (e.oldVersion) {
+					db.deleteObjectStore('entries');
+				}
 				db.createObjectStore('entries', { keyPath: 'id' });
 				resolve(db);
 			}
