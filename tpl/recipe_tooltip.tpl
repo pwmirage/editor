@@ -5,13 +5,12 @@
 {assign recipe_id = $recipe.id}
 {assign data_preview = 'data-preview'}
 {assign get_default = (a,b) => (a ?? b) || 0}
-{assign is_modified = (field) => $recipe[field] !== $prev[field] }
+{assign is_modified = (field) => (!!$recipe[field] != !!$prev[field]) || (($recipe[field] || $prev[field]) && $recipe[field] != $prev[field]) }
 {if $recipe_id > 0 && !$recipe._db?.type}
-	<p class="data nowrap">Unknown Recipe #{@$recipe_id}</p>
+	<p class="data nowrap">Unknown Recipe {@DB.serialize_id($recipe_id)}</p>
 {else if $recipe_id > 0}
-
-	{if $prev.name && $is_modified('name')}<p class="prev">Name: {@$prev.name || "(unnamed)"}</p>{/if}
-	<p class="data {if $recipe.name && !$prev.name}diff-plus{/if}">Name: {@$recipe.name || "(unnamed)"}</p>
+	{if $prev.recipe_level && $is_modified('recipe_level')}<p class="prev">Recipe Lv {@$prev.recipe_level} {@DB.serialize_id($recipe_id)}</p>{/if}
+	<p class="data">Recipe Lv {@$recipe.recipe_level} {@DB.serialize_id($recipe_id)}</p>
 
 	<p style="display: flex; flex-direction: column; margin: 5px 0;">
 		{if $prev.num_to_make && $is_modified('num_to_make')}<span class="prev">Crafted: {@$prev.num_to_make || 0}x:</span>{/if}
@@ -246,7 +245,12 @@
 	margin: 2px -1px;
 }
 
+.flex-equal {
+	display: flex;
+}
+
 .flex-equal > * {
+	flex-grow: 1;
 	flex-basis: unset;
 }
 

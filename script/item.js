@@ -327,7 +327,7 @@ class RecipeTooltip {
 
 		this.tpl = new Template('tpl-recipe-info');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
-		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: { id: -1 }, edit: this.edit, simplified: this.simplified });
+		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: { id: 0 }, edit: this.edit, simplified: this.simplified });
 
 		this.dom = document.createElement('div');
 		this.dom.className = 'window';
@@ -357,7 +357,7 @@ class RecipeTooltip {
 
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
-		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: prev || { id: -1 }, edit: this.edit, simplified: this.simplified });
+		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: prev || { id: 0 }, edit: this.edit, simplified: this.simplified });
 		newdata.style.visibility = 'hidden';
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';

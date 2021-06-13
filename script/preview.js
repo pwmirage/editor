@@ -196,12 +196,15 @@ class PWPreview {
 		return entry_tpl.func(entry_tpl, { f: entry, val: data, prev });
 	}
 
-	static is_recipe_modified(obj) {
+	static is_recipe_modified(obj, initial_state) {
 		if (!obj) {
 			return false;
 		}
 
-		const initial_state = obj._db.project_initial_state;
+		if (initial_state === undefined) {
+			initial_state = obj._db.project_initial_state;
+		}
+
 		if (!initial_state) {
 			return false;
 		}
@@ -210,7 +213,9 @@ class PWPreview {
 
 		for (const field in diff) {
 			/* don't count 'crafts' as change */
-			if (field != 'crafts') {
+			if (field != 'crafts' &&
+					field != 'id' &&
+					field != '_allocated') {
 				return true;
 			}
 		}

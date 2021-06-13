@@ -155,6 +155,7 @@
 		{if !$diff.pages[$i]}{continue}{/if}
 		{assign pageid = $i}
 		{assign page = $diff.pages[$i]}
+		{assign obj_page = $obj.pages[$i]}
 		{assign prev_page = $prev.pages[$i]}
 		<div class="block">
 			<span class="header">Tab "{@($page.title ?? $prev.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
@@ -166,25 +167,27 @@
 				</div>
 			{/if}
 			{assign rows = new Set()}
-			{for p_recipe_id in ($page.recipe_id || \{\})}
+			{assign modified_ids = new Set()}
+			{for p_recipe_id in ($obj_page?.recipe_id || \{\})}
+				{assign prev_id = $prev_page?.recipe_id?.[$p_recipe_id] || 0}
+				{assign cur_id = $obj_page?.recipe_id?.[$p_recipe_id] || $prev_id}
+				{assign is_changed = PWPreview.is_recipe_modified(db.recipes[$cur_id], db.recipes[$prev_id]?._db?.project_initial_state)}
+				{if !$is_changed}
+					{continue}
+				{/if}
 				{assign rowid = Math.floor($p_recipe_id / 8)}
 				{$rows.add($rowid)}
+				{$modified_ids.add(parseInt($p_recipe_id))}
 			{/for}
 			{for rowid of $rows}
 				<div class="block">
 					<span class="header">Row {@$rowid}</span>
 					<div class="crafts">
-					<div class="flex-rows" style="gap: 2px;">
-						<span class="minus"></span>
-						<span class="plus"></span>
-					</div>
 					{for i = 0; i < 8; i++}
 						{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
 						{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
 						<div class="flex-rows" style="gap: 2px;">
-							{assign is_changed = ($prev_id != $cur_id) || PWPreview.is_recipe_modified(db.recipes[$cur_id])}
-							<span class="recipe {if !$is_changed}unchanged{/if}" data-id="{@$prev_id}" data-prev="1"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($prev_id)}" alt=""></span>
-							<span class="recipe {if !$is_changed}unchanged{/if}" data-id="{@$cur_id}" data-prev="1"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
+							<span class="recipe {if !$modified_ids.has($rowid * 8 + $i)}unchanged{/if}" data-id="{@$cur_id}" data-prev="{@$prev_id || -1}"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
 						</div>
 					{/for}
 					</div>

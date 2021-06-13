@@ -333,7 +333,7 @@ class HTMLSugar {
 		const is_float = el.classList.contains('is_float');
 		let is_number = false;
 		const set_el_val = (val) => {
-			if (f_str && obj._db.base && !val_obj.hasOwnProperty(p)) {
+			if (f_str && obj?._db?.base && !val_obj.hasOwnProperty(p)) {
 				el.classList.add('forked');
 			} else {
 				el.classList.remove('forked');
@@ -1077,7 +1077,16 @@ class HTMLSugar {
 
 		params.db = params.db || document.db;
 		const obj = params.db[type][id] || { id };
-		const prev_obj = prev_id ? obj._db?.project_initial_state : null;
+		let prev_obj;
+		if (!prev_id) {
+			prev_obj = obj;
+		} else if (prev_id < 0) {
+			prev_obj = obj._db?.project_initial_state;
+		} else {
+			const o = params.db[type][prev_id] || { id: prev_id };
+			prev_obj = o?._db?.project_initial_state || o;
+		}
+
 		const bounds = el.getBoundingClientRect();
 		win.reload(obj, prev_obj, bounds, params.db);
 	}
