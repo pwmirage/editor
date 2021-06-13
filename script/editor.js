@@ -278,7 +278,7 @@ class Editor {
 			await Loading.hide_curtain();
 		}
 
-		await new Promise(async (resolve) => {
+		new Promise(async (resolve) => {
 			if (localStorage.getItem('mg_welcome_closed')) {
 				resolve();
 			} else {
