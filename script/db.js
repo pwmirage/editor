@@ -107,6 +107,10 @@ class DB {
 					};
 				}
 
+				if (k == DB.force_null) {
+					return undefined;
+				}
+
 				const id = DB.parse_id(k);
 				let obj = map.get(id);
 				if (obj) {
@@ -677,6 +681,9 @@ class DB {
 			}
 		}
 
+		if (Array.isArray(obj) && Array.isArray(org) && obj.length < org.length) {
+			return true;
+		}
 		return false;
 	}
 
