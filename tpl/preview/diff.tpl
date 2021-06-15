@@ -28,7 +28,7 @@
 		{/for}
 	{else if $f.type == 5}
 		{assign is_item_row = $f.schema.length == 2 && $f.schema[0].id == 'amount' && $f.schema[1].id == 'id' }
-		<div style="display: flex;" class="{if $is_item_row}item-row{/if}">
+		<div style="display: flex; flex-wrap: wrap;" class="{if $is_item_row}item-row{/if}">
 		{for idx in $val}
 			{assign cval = $val[$idx]}
 			{assign cprev = $prev?.[$idx]}
@@ -71,7 +71,7 @@
 		<span class="minus"><div class="item" data-id="{@$prev}"><img src="{@Item.get_icon_by_item(db, $prev)}"></div></span>
 		<span class="plus" style="margin-top: 2px;"><div class="item" data-id="{@$val}"><img src="{@Item.get_icon_by_item(db, $val)}"></div></span>
 	{else if $f.type == 9}
-		<div style="display: flex;" class="item-row">
+		<div style="display: flex; flex-wrap: wrap;" class="item-row">
 		{for idx in $val}
 			{assign cval = $val[$idx]}
 			{assign cprev = $prev?.[$idx]}

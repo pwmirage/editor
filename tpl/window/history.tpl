@@ -183,6 +183,7 @@ table {
 	flex-wrap: wrap;
 	column-gap: 5px;
 	padding: 2px;
+	width: 100%;
 }
 
 #changed-objects > div {
