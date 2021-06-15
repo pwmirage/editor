@@ -62,8 +62,8 @@ const fuzzysort = {
 		if (!search) {
 			const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 			return index.filter(e => e.obj.name).sort((a, b) => {
-				const a_recent = a.obj._db.chooser_recent_idx || 0;
-				const b_recent = b.obj._db.chooser_recent_idx || 0;
+				const a_recent = a.obj._db?.chooser_recent_idx || 0;
+				const b_recent = b.obj._db?.chooser_recent_idx || 0;
 
 				if (a_recent == b_recent) {
 					return collator.compare(a.obj.name, b.obj.name);
