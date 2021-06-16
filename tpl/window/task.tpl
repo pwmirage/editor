@@ -411,6 +411,10 @@
 						<span>New quest:</span>
 						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-select="db.tasks"></a>
 					</div>
+					<div class="flex-columns">
+						<span>Coins:</span>
+						<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'coins'"></span>
+					</div>
 
 					<div class="data-field" style="align-items: unset;">
 						<span>Items: </span>
@@ -522,6 +526,10 @@
 								{/for}
 								<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('failure_award');"></span>
 							</div>
+						</div>
+						<div class="flex-columns">
+							<span>Give Coins on failure:</span>
+							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'failure_award', 'coins'"></span>
 						</div>
 						{if !$task.parent_quest}
 							<div class="flex-columns">
