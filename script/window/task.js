@@ -911,7 +911,7 @@ class TaskWindow extends SingleInstanceWindow {
 
 	fix_award_probability(group_idx) {
 		db.open(this.task);
-		cleanup_id_arr(this.task.award.item_groups[group_idx].items);
+		cleanup_id_arr(this.task.award.item_groups[group_idx].items || []);
 		for (let i = 0; i < 4; i++) {
 			if (get_obj_field(this.task, [ 'award', 'item_groups', group_idx, 'items', i, 'id' ])) {
 				this.task.award.item_groups[group_idx].items[i].probability = 1.0;
