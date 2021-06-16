@@ -310,6 +310,20 @@ class Editor {
 		Window.onresize(e);
 	}
 
+	static async refresh_project_info() {
+		const req = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/info', { is_json: 1 });
+		const req_log = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log', { is_json: 1 });
+		if (!req.ok || !req_log.ok) {
+			notify('error', 'Unexpected error while refreshing the project status. ' + (req.data.err || ''));
+			return false;
+		}
+
+		Editor.current_project = req.data;
+		Editor.current_project.log = req_log.data;
+		Editor.tpl.reload('#project-info', { project: Editor.current_project });
+		return true;
+	}
+
 	static async add_comment() {
 		const post_comment_el = Editor.map_shadow.querySelector('#project-info #post_comment');
 		post_comment_el.classList.toggle('loading-spinner');
@@ -325,18 +339,10 @@ class Editor {
 			return;
 		}
 
-		req = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/info', { is_json: 1 });
-		const req_log = await get(ROOT_URL + 'api/project/' + Editor.current_project.id + '/log', { is_json: 1 });
-		if (!req.ok || !req_log.ok) {
-			notify('error', 'Unexpected error while refreshing the comment list. ' + (req.data.err || ''));
-			return;
+		const ok = await Editor.refresh_project_info();
+		if (ok) {
+			notify('success', 'Comment posted');
 		}
-
-		text_el.value = '';
-		Editor.current_project = req.data;
-		Editor.current_project.log = req_log.data;
-		Editor.tpl.reload('#project-info', { project: Editor.current_project });
-		notify('success', 'Comment posted');
 	}
 
 	static hide_previous_comments(do_hide) {

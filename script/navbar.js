@@ -156,23 +156,22 @@ class Navbar {
 		}
 
 		b.proj_test.onclick = async () => {
+			Editor.map_shadow.querySelector('#pw-loading').style.display = 'block';
+
 			const ok = await PWDB.save(db, false);
 			if (!ok) {
 				return;
 			}
 
-			const pinfo = await PWDB.get_proj_info(db.metadata[1].pid);
-			if (!pinfo.ok) {
-				notify('error', 'Couldn\'t retrieve project data');
-			}
-
-			if (!pinfo.data.is_merged) {
+			if (!Editor.current_project.is_merged) {
 				await PWDB.publish(db, false);
 				await post(ROOT_URL + 'api/project/admin/' + pinfo.data.id + '/merge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
 			} else {
 				await post(ROOT_URL + 'api/project/admin/' + pinfo.data.id + '/quickmerge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
 
 			}
+
+			await Editor.refresh_project_info();
 
 			const req = await post(ROOT_URL + 'api/project/admin/publish', { is_json: 1, data: { branch: 2 } });
 			if (req.ok) {
@@ -181,6 +180,8 @@ class Navbar {
 			} else {
 				notify('error', req.data.msg || 'Unexpected error, couldn\'t restart the server');
 			}
+
+			Editor.map_shadow.querySelector('#pw-loading').style.display = 'none';
 		}
 
 		const set_enabled = (btn, enabled) => {

@@ -598,10 +598,6 @@ class PWDB {
 		}
 	}
 
-	static get_proj_info(pid) {
-		return get(ROOT_URL + 'api/project/' + pid + '/info', { is_json: 1 });
-	}
-
 	static find_usages(db, obj) {
 		if (!obj) {
 			return [];

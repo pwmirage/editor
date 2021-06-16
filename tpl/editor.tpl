@@ -139,10 +139,10 @@
 			<div class="dot"></div>
 		</div>
 	</div>
+	<div id="pw-windows"></div>
 	<div id="pw-loading">
 		<div class="loading-spinner"></div>
 	</div>
-	<div id="pw-windows"></div>
 	<div id="publish_project_dialogue" style="display: none;">
 	{if $project}
 		<p>You are about to publish project <b>{@escape($project.name)}</b>.</p>
