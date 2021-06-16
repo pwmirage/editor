@@ -444,7 +444,7 @@ class PWDB {
 						db.new_id_start = 0x80000000 + pid * 0x100000;
 						db.load(changesets[i], { join_changesets: true });
 					}
-					db.project_changelog_start_gen = db.changelog.length - 1;
+					db.project_changelog_start_gen = db.changelog.length;
 
 					for (const changeset of db.changelog) {
 						for (const c of changeset) {
