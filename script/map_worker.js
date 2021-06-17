@@ -264,7 +264,7 @@ const filter_spawners = (canvas) => {
 		}
 
 		let type = spawner.type;
-		if (type && !map_filters[type](spawner)) {
+		if (type && (!map_filters[type] || !map_filters[type](spawner))) {
 			continue;
 		}
 
