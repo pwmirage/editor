@@ -337,7 +337,7 @@ class TaskWindow extends SingleInstanceWindow {
 								if (q.parent_id != -1) {
 									const parent_q = d.questions.find(tmpq => tmpq.id == q.parent_id);
 									const parent_c = parent_q.choices.find(c => c.id == q.id);
-									parent_c.id = 0;
+									parent_c.id = -1;
 								}
 								q.id = 0;
 								q.text = "";
