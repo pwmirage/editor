@@ -123,7 +123,6 @@ class PWDB {
 		]);
 
 		init_type_arr('recipes', 'Recipe', [
-			_s('name', 'Name'),
 			_i('duration', 'Craft time'),
 			_i('major_type', 'Major type'), /* TODO */
 			_i('minor_type', 'Minor type'),
@@ -136,17 +135,14 @@ class PWDB {
 		]);
 
 		init_type_arr('npc_sells', 'Goods', [
-			_s('name', 'Name'),
 			_s('option', 'NPC Option Name'),
 		]);
 
 		init_type_arr('npc_crafts', 'Crafts', [
-			_s('name', 'Name'),
 			_s('option', 'NPC Option Name'),
 		]);
 
 		init_type_arr('mines', 'Resources', [
-			_s('name', 'Name'),
 			_s('file_model', 'Model'),
 			_id('id_type', 'Type', 'mines'),
 			_item('item_required', 'Item required'),
@@ -310,6 +306,15 @@ class PWDB {
 				_s('ready', 'Ready to finish'),
 			]),
 			_id_arr('sub_quests', 'Sub quests', 'tasks'),
+		]);
+
+		init_type_arr('items', 'Item', [
+			_s('file_model', 'Model'),
+			_id('type', 'Type', Item.types_arr),
+			_i('price', 'Price'),
+			_i('shop_price', 'Shop Price'),
+			_i('stack_max', 'Stack max.'),
+			_i('proc_type', 'Item properties'),
 		]);
 	}
 

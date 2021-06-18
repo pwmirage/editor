@@ -45,6 +45,8 @@ class Item {
 		{ id: 38, name: 'Dye' }
 	];
 
+	static types_arr = init_id_array(Item.types);
+
 	static proc_types = [
 		{ id: 0, name: 'Doesn\'t drop on death', mask: 0x0001 },
 		{ id: 1, name: 'Unable to drop', mask: 0x0002 },
