@@ -320,10 +320,10 @@ class PWMap {
 			}
 
 			const was_modified = this.modified_db_objs.has(obj);
-			if (diff.name !== undefined && was_modified) {
+			if (was_modified && (diff.name !== undefined && was_modified
+					|| diff._removed !== undefined)) {
 				const mod_el = changed_objects_map.get(obj)
-				mod_el.children[1].textContent =
-					(obj.name || mod_el.dataset.type_name) + ' ' + DB.serialize_id(obj.id);
+				mod_el.children[1].innerHTML = print_pretty_name(obj, mod_el.dataset.type_name);
 			}
 
 			if ((diff.targets !== undefined || diff.icon !== undefined || diff.type !== undefined) && was_modified) {
@@ -339,7 +339,7 @@ class PWMap {
 				let { name, open_fn } = PWPreview.get_obj_type(obj);
 				img.src = PWPreview.get_obj_img(db, obj);
 
-				span.textContent = (obj.name || name) + ' ' + DB.serialize_id(obj.id);
+				span.innerHTML = print_pretty_name(obj, name);
 				el.appendChild(img);
 				el.appendChild(span);
 				el.onclick = open_fn;

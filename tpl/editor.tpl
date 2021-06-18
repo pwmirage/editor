@@ -518,10 +518,10 @@
 
 #more-objects,
 #changed-objects > div {
-	background-color: #dccfcf;
+	background-color: #5d4040;
 	border-radius: 2px;
 	border-width: 0;
-	color: rgba(33, 33, 33, 1);
+	color: #ffffff;
 	cursor: pointer;
 	display: flex;
 	font-weight: 400;
@@ -542,9 +542,7 @@
 
 #more-objects:hover,
 #changed-objects > div:hover {
-	background-color: rgba(156, 120, 120, 1);
-	color: rgba(255, 255, 255, 1);
-	text-decoration: none;
+	background-color: #7b5a5a;
 }
 
 #more-objects {

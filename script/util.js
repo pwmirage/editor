@@ -262,6 +262,22 @@ const cleanup_id_arr = (arr) => {
 	}
 }
 
+const print_pretty_name = (obj, altname) => {
+	if (!obj) {
+		return '(invalid) ' + DB.serialize_id(tid);
+	}
+
+	const name = escape(obj.name) || altname || '(unnamed)';
+
+	/* pass the object through a dummy element to close all <span> tags */
+	const valid_obj = document.createElement('span');
+	valid_obj.innerHTML = name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + DB.serialize_id(obj.id);
+	if (obj._removed) {
+		valid_obj.style.textDecoration = 'line-through';
+	}
+	return valid_obj.outerHTML;
+};
+
 const get_wcf_css = () => {
 	const styles = document.querySelectorAll('head > link[rel="stylesheet"]');
 	for (const s of styles) {
