@@ -315,7 +315,7 @@ class HTMLSugar {
 		const get_val_obj = (populate = false) => {
 			let o = obj;
 			for (let i = 0; i < path.length - 1; i++) {
-				if (!(path[i] in o)) {
+				if (!o || !(path[i] in o)) {
 					if (populate) {
 						o[path[i]] = isNaN(path[i]) ? {} : [];
 					} else {
