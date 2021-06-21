@@ -357,7 +357,7 @@
 
 
 	{* ======== COMMON FOR ALL ITEM TYPES ========= *}
-	<div class="section flex-rows">
+	<div class="section flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
 		{for proc of Item.proc_types}
 			{if $proc.mask & 0x80000000}
 				{if $edit}
@@ -379,7 +379,7 @@
 		<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
 			{if $edit}
 				<span class="section-header">Description</span>
-				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'"></div>
+				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'" style="flex: 1;"></div>
 			{else}
 				<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
 			{/if}
