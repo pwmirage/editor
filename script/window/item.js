@@ -10,6 +10,7 @@ class ItemChooserWindow extends ChooserWindow {
 		this.args.height = 36;
 		this.pager_offset = 0;
 		this.items_gen = 0;
+		this.filter_gen = 0;
 		this.all_items = this.args.items || db.items;
 		this.items = [];
 		this.tabs = [];
@@ -38,21 +39,30 @@ class ItemChooserWindow extends ChooserWindow {
 
 	reload_items() {
 		const gen = ++this.items_gen;
-		const els = this.shadow.querySelector('#items').children;
+		const els_container = this.shadow.querySelector('#items');
 		let count = 0;
 		let el_idx = 0;
 
+		this.items_per_page = this.max_items_per_page;
+
 		(async () => {
 			let i = 0;
-			for (const el of els) {
+			let el = els_container.firstChild;
+			while (el) {
 				const item = this.items[this.pager_offset + i++];
+
+				if (!el.firstElementChild) {
+					el.remove();
+					el = el.nextSibling;
+					continue;
+				}
 
 				if (item) {
 					el.firstElementChild.src = Item.get_icon(item.icon || 0);
 					el.dataset.id = item.is_icon ? 0 : item.id;
-					el.style.display = '';
 				} else {
-					el.style.display = 'none';
+					els_container.insertBefore(newElement('<div style="width: 100%; height: 9999px;">&nbsp;</div>'), el.nextSibling);
+					return;
 				}
 
 				if (i % 64 == 0) {
@@ -62,19 +72,26 @@ class ItemChooserWindow extends ChooserWindow {
 				if (gen != this.items_gen) {
 					return;
 				}
+
+				el = el.nextSibling;
 			}
 		})();
-
-		super.reload_items();
 	}
 
 	filter(str) {
-		let items;
+		this.filter_gen++;
+		this.filter_str = str;
+		const gen = this.filter_gen;
+		setTimeout(() => {
+			if (gen !== this.filter_gen) {
+				return;
+			}
 
-		items = fuzzysort.go(str, this.items_index);
-		this.items = items.map(i => i.obj);
-		this.pager_offset = 0;
-		this.move_pager(0);
+			const items = fuzzysort.go(this.filter_str, this.items_index);
+			this.items = items.map(i => i.obj);
+			this.pager_offset = 0;
+			this.move_pager(0);
+		}, 100);
 	}
 
 	select_tab(idx) {

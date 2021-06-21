@@ -150,12 +150,6 @@ class SimpleChooserWindow extends ChooserWindow {
 	}
 
 	reload_items() {
-		const items_el = this.shadow.querySelector('#items');
-		const items_parent_el = items_el.parentNode;
-		const els = items_el.children;
-		let count = 0;
-		let el_idx = 0;
-
 		this.tpl.reload('#items');
 		super.reload_items();
 	}

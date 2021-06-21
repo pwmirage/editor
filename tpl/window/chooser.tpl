@@ -12,22 +12,24 @@
 		<i class="close fa fa-close" aria-hidden="true"></i>
 	</div>
 </div>
-<div class="content flex-rows">
-	<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
-		<span>Search:</span>
-		<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" tabindex="1">
-		{for i = 0; i < $win.tabs.length; i++}
-			{assign tab = $win.tabs[i]}
-			<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
-		{/for}
+<div class="content flex-rows" style="overflow: hidden;">
+	<div style="position: relative;">
+		<div id="search" class="flex-columns" style="align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+			<span>Search:</span>
+			<input type="text" style="flex: 1; max-width: 368px;" oninput="{serialize $win}.filter(this.value);" tabindex="1">
+			{for i = 0; i < $win.tabs.length; i++}
+				{assign tab = $win.tabs[i]}
+				<a class="button tab {if $win.selected_tab == $i}selected{/if}" onclick="{serialize $win}.select_tab({@$i});">{@$tab.name}</a>
+			{/for}
+		</div>
+		<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
+			{for i = 0; i < $win.max_items_per_page; i++}
+				<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"><img src="data:," alt=""></span>
+			{/for}
+		</div>
 	</div>
-	<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
-		{for i = 0; i < $win.max_items_per_page; i++}
-			<span class="item" ondblclick="{serialize $win}.choose('{@$i}');" data-type="{@$i}" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"><img src="data:," alt=""></span>
-		{/for}
-	</div>
-	<div style="flex: 1;"></div>
-	<div id="pager" style="float: right; width: auto;">
+
+	<div id="pager" style="position: absolute; bottom: 0; right: 0; padding-right: 20px; padding-bottom: 10px; background: #fafafa; width: 100%; ">
 		<span style="margin-right: 10px;">{@1 + $win.pager_offset} - {@Math.min($win.pager_offset + $win.items_per_page, $win.items.length)} of {@$win.items.length}</span>
 		<a class="button {@$win.pager_offset == 0 ? 'disabled' : ''}" onclick="{serialize $win}.move_pager({@-$win.items_per_page});"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
 		<a class="button {@$win.pager_offset + $win.items_per_page >= $win.items.length ? 'disabled' : ''}" onclick="{serialize $win}.move_pager({@$win.items_per_page});"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
@@ -173,6 +175,7 @@
 			{/for}
 		</div>
 	</div>
+
 	<div id="pager" style="position: absolute; bottom: 0; right: 0; padding-right: 20px; padding-bottom: 10px; background: #fafafa; width: 100%; ">
 		<span style="margin-right: 10px;">{@1 + $win.pager_offset} - {@Math.min($win.pager_offset + $win.items_per_page, $win.items.length)} of {@$win.items.length}</span>
 		<a class="button {@$win.pager_offset == 0 ? 'disabled' : ''}" onclick="{serialize $win}.move_pager({@-$win.items_per_page});"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
