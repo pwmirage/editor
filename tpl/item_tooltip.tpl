@@ -32,7 +32,7 @@
 		{/if}
 		<div style="flex: 1;">
 			<span class="flex-columns" style="{if !$edit}font-size: 13px; margin-bottom: 3px;{/if}"><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;{@DB.serialize_id($item.id)}&nbsp;</span>
-			<span style="margin-top: -4px;">{@Item.types[$item.type]?.name || "Invalid item"}</span>
+			<span style="margin-top: -4px;">{@Item.types_arr[$item.type]?.name || "Invalid item"}</span>
 		</div>
 	</div>
 

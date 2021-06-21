@@ -33,7 +33,7 @@ class ItemTypeChooserWindow extends Window {
 	}
 
 	select_type(id) {
-		const type = Item.types[id];
+		const type = Item.types_arr[id];
 		const prev_selected = this.shadow.querySelector('.types > .type.selected');
 		if (prev_selected) prev_selected.classList.remove('selected');
 		this.shadow.querySelector('#type-' + id).classList.add('selected');
@@ -44,6 +44,7 @@ class ItemTypeChooserWindow extends Window {
 	}
 
 	async next() {
+		this.ret = this.selected_type;
 		this.close();
 	}
 
@@ -52,6 +53,6 @@ class ItemTypeChooserWindow extends Window {
 			this.onclose = resolve;
 		});
 
-		return this.selected_type || Item.types[0];
+		return this.ret || Item.types_arr[0];
 	}
 }

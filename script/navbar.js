@@ -223,7 +223,7 @@ class Navbar {
 			const win = await ItemTypeChooserWindow.open();
 			const type = await win.wait();
 
-			if (type == 0) {
+			if (!type?.id) {
 				return;
 			}
 
