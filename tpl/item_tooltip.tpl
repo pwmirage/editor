@@ -415,7 +415,6 @@
 	overflow-x: auto;
 	overflow-y: hidden;
 	width: 100%;
-	height: 100%;
 }
 
 #item_info > * {
