@@ -58,15 +58,8 @@ class RecipeWindow extends Window {
 				update_obj_fn: (new_obj) => {
 					db.open(recipe);
 
-					if (!recipe[type]) {
-						recipe[type] = [];
-					}
-
-					if (!recipe[type][idx]) {
-						recipe[type][idx] = {};
-					}
-
-					recipe[type][idx].id = new_obj?.id;
+					set_obj_field(recipe, [ type, idx ], {});
+					recipe[type][idx].id = new_obj?.id || 0;
 
 					db.commit(recipe);
 					this.tpl.reload('#' + type);

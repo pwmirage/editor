@@ -38,14 +38,22 @@ class NPCCraftsWindow extends SingleInstanceWindow {
 	}
 
 	static get_recipe_icon(recipe_id) {
+		const icon_id = NPCCraftsWindow.get_recipe_icon_id(recipe_id);
+		return Item.get_icon(icon_id);
+	}
+
+	static get_recipe_icon_id(recipe_id) {
 		if (!recipe_id) {
-			return (ROOT_URL + 'img/itemslot.png');
+			return -1;
 		}
 
 		const recipe = db.recipes[recipe_id];
-		const tgt_id = recipe?.targets?.[0]?.id || 0;
+		const tgt_id = recipe?.targets?.[0]?.id;
+		if (tgt_id === 0) {
+			return -1;
+		}
 
-		return Item.get_icon(db.items[tgt_id]?.icon || 0);
+		return db.items[tgt_id]?.icon || 0;
 	}
 
 	onclick(e) {
@@ -150,7 +158,8 @@ class NPCCraftsWindow extends SingleInstanceWindow {
 					obj._db.commit_cb = null;
 
 					db.open(this.crafts);
-					this.crafts.pages[this.selected_tab].recipe_id[this.selected_recipe] = obj.id;
+					const recipe_arr = set_obj_field(this.crafts, [ 'pages', this.selected_tab, 'recipe_id'], []);
+					recipe_arr[this.selected_recipe] = obj.id;
 					db.commit(this.crafts);
 
 					db.open(obj);

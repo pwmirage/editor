@@ -187,7 +187,9 @@
 						{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
 						{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
 						<div class="flex-rows" style="gap: 2px;">
-							<span class="recipe {if !$modified_ids.has($rowid * 8 + $i)}unchanged{/if}" data-id="{@$cur_id}" data-prev="{@$prev_id || -1}"><img{ } src="{@NPCCraftsWindow.get_recipe_icon($cur_id)}" alt=""></span>
+							{assign unchanged = !$modified_ids.has($rowid * 8 + $i)}
+							{assign icon_id = NPCCraftsWindow.get_recipe_icon_id($cur_id)}
+							<span class="recipe {if $unchanged}unchanged{/if}" data-id="{if $unchanged && $icon_id == -1}0{else}{@$cur_id}{/if}" data-prev="{@$prev_id || -1}"><img{ } src="{@Item.get_icon($icon_id)}" alt=""></span>
 						</div>
 					{/for}
 					</div>

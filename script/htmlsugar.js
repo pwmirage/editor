@@ -1068,7 +1068,8 @@ class HTMLSugar {
 		}
 
 		const id = parseInt(el.dataset.id);
-		if (!id) {
+		const nopreview = parseInt(el.dataset.nopreview);
+		if (!id || nopreview) {
 			info.style.display = 'none';
 			return;
 		}
