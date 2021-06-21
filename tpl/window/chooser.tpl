@@ -164,7 +164,12 @@
 		</div>
 		<div id="items" class="flex-columns flex-gap" style="flex-wrap: wrap;">
 			{for i = 0; i < $win.max_items_per_page; i++}
-				<a class="button" data-type="{@$i}" onclick="{serialize $win}.click('{@$i}');" ondblclick="{serialize $win}.choose('{@$i}');" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');"></a>
+				<a class="button" data-type="{@$i}" onclick="{serialize $win}.click('{@$i}');" ondblclick="{serialize $win}.choose('{@$i}');" tabindex="{@$i + 100}" onkeydown="if (event.key === 'Enter') {serialize $win}.choose('{@$i}');">
+					{assign item = $win.items[$win.pager_offset + $i]}
+					{if $item}
+						{@$win.name_fn($item)}
+					{/if}
+				</a>
 			{/for}
 		</div>
 	</div>
@@ -223,6 +228,10 @@
 	margin-right: 4px;
 	overflow: hidden;
 	position: relative;
+}
+
+#items > *:empty {
+	display: none;
 }
 
 #items > * > .icon-container {

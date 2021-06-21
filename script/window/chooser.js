@@ -62,30 +62,23 @@ class ChooserWindow extends Window {
 	}
 
 	reload_items() {
-		let overflown_items = 0;
+		let overflown_items = [];
 		const items_el = this.shadow.querySelector('#items');
 		const win_bounds = this.dom_win.getBoundingClientRect();
 		const pager_height = this.shadow.querySelector('#pager').offsetHeight;
-		const items = items_el.children;
-		for (let i = items.length - 1; i >= 0; i--) {
-			const item = items[i];
-			if (item.style.display == 'none') {
-				/* hidden already, no matching this.items[off + i]. continue
-				 * until we reach an element that we can get bounds for */
-				overflown_items++;
-				continue;
-			}
+		let item = items_el.lastChild;
 
+		this.items_per_page = this.max_items_per_page;
+		for (let i = 0; i < this.max_items_per_page; i++) {
 			const b = item.getBoundingClientRect();
-			if (b.bottom >= win_bounds.bottom - pager_height - 12) {
-				item.style.display = 'none';
-				overflown_items++;
-			} else {
+			if (b.bottom < win_bounds.bottom - pager_height) {
+				items_el.insertBefore(newElement('<div style="width: 100%; height: 9999px;">&nbsp;</div>'), item.nextSibling);
 				break;
 			}
-		}
 
-		this.items_per_page = this.max_items_per_page - overflown_items;
+			this.items_per_page--;
+			item = item.previousSibling;
+		}
 	}
 
 	filter() {
@@ -129,18 +122,22 @@ class SimpleChooserWindow extends ChooserWindow {
 	async init() {
 		this.pager_offset = 0;
 		this.items = this.args.items || [];
+		this.type = this.items.values().next().value._db?.type;
 		this.title = this.args.title || 'Chooser';
 		this.name_fn = this.args.name_fn;
+		if (!this.name_fn) {
+			this.name_fn = (item) => {
+				return item.name + ' ' + DB.serialize_id(item.id);
+			};
+		}
 		this.search = this.args.search || '';
-
-		const type = this.type = this.items.values().next().value._db?.type;
 
 		this.tabs = this.args.tabs || [
 			{ name: 'All', filter: (i) => i && !i._removed },
 			{ name: 'Recent', filter: (i) => i && !i._removed && i._db.chooser_recent_idx }
 		];
 
-		if (type === 'items') {
+		if (this.type === 'items') {
 			this.name_fn = (item) => {
 				return '<span class="icon-container"><span class="item"><img src="' + Item.get_icon(item.icon || 0) + '"></span>' + item.name + ' ' + DB.serialize_id(item.id) + '</span>';
 			};
@@ -153,21 +150,13 @@ class SimpleChooserWindow extends ChooserWindow {
 	}
 
 	reload_items() {
-		const els = this.shadow.querySelector('#items').children;
+		const items_el = this.shadow.querySelector('#items');
+		const items_parent_el = items_el.parentNode;
+		const els = items_el.children;
 		let count = 0;
 		let el_idx = 0;
 
-		let i = 0;
-		for (const el of els) {
-			const item = this.items[this.pager_offset + i++];
-			if (!item) {
-				el.style.display = 'none';
-				continue;
-			}
-			el.innerHTML = this.name_fn ? this.name_fn(item) : (item.name + ' ' + DB.serialize_id(item.id));
-			el.style.display = '';
-		}
-
+		this.tpl.reload('#items');
 		super.reload_items();
 	}
 
@@ -192,7 +181,7 @@ class SimpleChooserWindow extends ChooserWindow {
 
 		if (prev_onchoose) {
 			this.onchoose = (obj) => {
-				if (obj?.id) {
+				if (obj?.id && this.type) {
 					PWDB.set_chooser_recent(this.type, obj.id);
 				}
 				return prev_onchoose(obj);
