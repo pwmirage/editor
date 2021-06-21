@@ -17,7 +17,7 @@ table {
 	display: flex;
 	flex-direction: column;
 	transition: max-height 0.2s ease-in-out;
-	border: 1px var(--header-color) solid;
+	border: 1px #4e1b1b solid;
 }
 
 .dom.child-dom {
@@ -256,10 +256,10 @@ input[type="number"].supershort {
 	padding: 2px;
 }
 
-label { height: 25px; display: inline-flex; margin-top: -1px; }
+label { height: 21px; display: inline-flex; margin-top: -1px; }
 input[type="checkbox"] { opacity: 0; z-index: -1; height: 16px; }
 input[type="checkbox"]+span { text-align: left; display: inline-flex; height: 14px; margin-top: 2px; user-select: none; }
-input[type="checkbox"]+span:before { color: #4e4b42; font: 16pt FontAwesome; content: '\00f096'; width: 15pt; margin-left: -15pt; }
+input[type="checkbox"]+span:before { color: #4e4b42; font: 12pt FontAwesome; content: '\00f096'; width: 15pt; margin-left: -15pt; }
 input[type="checkbox"]+span:empty { margin-left: 16pt; }
 input[type="checkbox"]+span:empty:before { margin-left: -16pt; }
 input[type="checkbox"]:checked+span:before { content: '\00f046'; }
