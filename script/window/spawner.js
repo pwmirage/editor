@@ -332,7 +332,6 @@ class SpawnerWindow extends SingleInstanceWindow {
 
 				},
 				edit_obj_fn: (new_obj) => {
-					NPCWindow.open({ obj: new_obj });
 				},
 				usage_name_fn: (spawner) => {
 					const mapid = spawner._db.type.substring('spawners_'.length);
