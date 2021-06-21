@@ -2,7 +2,7 @@
 
 <div class="window" style="width: 305px; height: 448px;">
 <div class="header">
-	<span>Choose item type</span>
+	<span>Create new item</span>
 
 	<div class="menu">
 		<i class="minimize fa"></i>
@@ -33,6 +33,22 @@
 
 {@@
 <style>
+.window {
+	position: relative;
+}
+
+.window:before {
+	content: '';
+	width: 300vw;
+	height: 300vh;
+	position: absolute;
+	left: -100vw;
+	top: -100vh;
+	background: #000;
+	opacity: 0.5;
+	user-events: none;
+}
+
 .window > .content {
 	overflow: hidden;
 }

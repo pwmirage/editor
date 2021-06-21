@@ -322,7 +322,9 @@ class Window {
 			this.focus();
 		}
 
-		if (e.clientY - bounds.top <= this.dom_header?.offsetHeight || 0) {
+		const hbounds = this.dom_header ? this.dom_header.getBoundingClientRect() : {};
+		if (e.clientY >= (hbounds.top || 0) && e.clientY < (hbounds.bottom || 0) &&
+				e.clientX >= (hbounds.left || 0) && e.clientX < (hbounds.right || 0)) {
 			if (this.dom_win.classList.contains('maximized')) {
 				return;
 			}
