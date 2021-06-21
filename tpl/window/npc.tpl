@@ -126,7 +126,7 @@ span.tabname.selected {
 <div class="window" style="width: 316px; height: 352px;">
 <div class="header {if $goods._removed}removed{/if}">
 	<span>
-		Goods: {@$goods.name || ""} #{@$goods.id}
+		Goods: {@$goods.name || ""} {@DB.serialize_id($goods.id)}
 	</span>
 	<div class="menu">
 		<i class="details fa fa-ellipsis-v"></i>
