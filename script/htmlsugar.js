@@ -531,8 +531,6 @@ class HTMLSugar {
 		el.removeAttribute('data-link');
 		const field_name = el.dataset.selectField;
 		el.removeAttribute('data-select-field');
-		const field_typename = el.dataset.selectTypename;
-		el.removeAttribute('data-select-typename');
 		const title_str = el.dataset.title;
 
 		const select_arr = el._mg_select;
@@ -652,7 +650,7 @@ class HTMLSugar {
 
 					div.onclick = async () => {
 						let win;
-						win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr, type: field_typename });
+						win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
 
 						win.onchoose = (type) => {
 							if (type) {
