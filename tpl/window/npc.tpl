@@ -260,7 +260,7 @@ span.tabname.selected {
 		</div>
 		<div id="model" class="flex-columns" style="align-items: center;">
 			<span style="width: 45px;">Model:</span>
-			<span data-select="NPCWindow.models" data-select-field="file" data-link="{serialize $npc} => 'file_model'" style="width: auto; min-width: 100px; flex: 1;"></span>
+			<span data-select="NPCWindow.models" data-select-field="file" data-select-typename="models" data-link="{serialize $npc} => 'file_model'" style="width: auto; min-width: 100px; flex: 1;"></span>
 		</div>
 	</div>
 	<div id="goods" class="flex-columns" style="flex-wrap: wrap; margin-bottom: 5px; align-items: center; justify-content: space-between;">

@@ -122,7 +122,7 @@ class SimpleChooserWindow extends ChooserWindow {
 	async init() {
 		this.pager_offset = 0;
 		this.items = this.args.items || [];
-		this.type = this.items.values().next().value._db?.type;
+		this.type = this.args.type || this.items.values().next().value._db?.type;
 		this.title = this.args.title || 'Chooser';
 		this.name_fn = this.args.name_fn;
 		if (!this.name_fn) {
