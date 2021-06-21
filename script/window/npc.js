@@ -298,30 +298,8 @@ class NPCWindow extends SingleInstanceWindow {
 		{ id: 3216, name: 'Guard' },
 	]);
 
-	static models = null;
-
 	async init() {
 		this.npc = this.obj = this.args.obj;
-
-		if (!NPCWindow.models) {
-			NPCWindow.models = init_id_array([]);
-
-			const file_set = new Set();
-			for (const o of g_db.npcs) {
-				if (!o || !o.file_model) {
-					continue;
-				}
-
-				if (!file_set.has(o.file_model)) {
-					file_set.add(o.file_model);
-					NPCWindow.models[o.id] = {
-						id: o.id,
-						name: o.name + ' ' + DB.serialize_id(o.id),
-						file: o.file_model,
-					};
-				}
-			}
-		}
 
 		if (!this.npc.id_type) {
 			/* fix to default (just like the game does) */
