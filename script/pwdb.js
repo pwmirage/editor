@@ -710,8 +710,12 @@ class PWDB {
 		/* find the changeset with this field (it might not be the last one) */
 		let cur_gen = 0;
 		let cur_val = undefined;
-		for (let i = obj._db.changesets.length - 1; i >= db.project_changelog_start_gen; i--) {
+		for (let i = obj._db.changesets.length - 1; i >= 0; i--) {
 			const c = obj._db.changesets[i];
+
+			if (c._db.generation < db.project_changelog_start_gen) {
+				break;
+			}
 
 			if (get_val(c._db.undone)) {
 				continue;
