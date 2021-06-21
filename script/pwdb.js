@@ -58,7 +58,7 @@ class PWDB {
 		PWDB.last_saved_changeset = 0;
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
-		PWDB.db_version = 2;
+		PWDB.db_version = 3;
 		PWDB.type_fields = [
 			'string',
 			'int',
