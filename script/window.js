@@ -501,7 +501,7 @@ class SingleInstanceWindow extends Window {
 		let win = arr.get(args.obj);
 		if (win && Window.container.contains(win.dom)) {
 			win.focus();
-			return;
+			return win;
 		}
 
 		win = await super.open(args);
