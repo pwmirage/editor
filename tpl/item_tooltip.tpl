@@ -301,24 +301,12 @@
 			</div>
 		{/if}
 
-		<div class="section flex-rows">
+		<div class="section flex-rows" style="min-height: 2px;">
 			<span class="flex-columns section-header"></span>
 
-			<span style="margin-top: 3px;">Price&nbsp;
-				{if $edit}
-					<span data-input class="input-number width-5c" style="margin-left: 30px;" data-link="{serialize $item} => 'price'"></span>
-				{else}
-					<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-				{/if}
-			</span>
-
 			{if $edit}
-				<span style="">Buy Price&nbsp;
-					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
-				</span>
-
 				<span style="margin-top: 5px;">Repair Fee&nbsp;
-					<span data-input class="input-number width-5c" style="margin-left: -5px;" data-link="{serialize $item} => 'repairfee'"></span>
+					<span data-input class="input-number width-5c" data-link="{serialize $item} => 'repairfee'"></span>
 				</span>
 			{/if}
 
@@ -354,11 +342,27 @@
 
 
 	{* ======== COMMON FOR ALL ITEM TYPES ========= *}
-	<div class="section flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
+	<span style="">Price&nbsp;
 		{if $edit}
-			<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
+			<span data-input class="input-number width-5c" data-link="{serialize $item} => 'price'"></span>
+		{else}
+			<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
 		{/if}
+	</span>
 
+	<span style="">Buy Price&nbsp;
+		{if $edit}
+			<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
+		{else}
+			<span>{@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+		{/if}
+	</span>
+
+	{if $edit}
+		<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
+	{/if}
+
+	<div class="section flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
 		{for proc of Item.proc_types}
 			{if $proc.mask & 0x80000000}
 				{if $edit}
