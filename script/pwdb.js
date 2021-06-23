@@ -628,7 +628,7 @@ class PWDB {
 		} else if (obj._db.type == 'recipes') {
 			return db.npc_crafts.filter(c => {
 				for (const p of c.pages) {
-					for (const rid of p.recipe_id) {
+					if (p) for (const rid of (p.recipe_id || [])) {
 						if (rid == obj.id) {
 							return true;
 						}
