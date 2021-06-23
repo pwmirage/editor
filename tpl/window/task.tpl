@@ -21,7 +21,7 @@
 				{for tid of ($tasks_out?.tasks || [])}
 					{if !$tid}{continue}{/if}
 					{if !TaskWindow.is_valid_task_out(db.tasks[$tid], $npc)}{continue}{/if}
-					<div onclick="TaskWindow.open(\{ task: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
+					<div onclick="TaskWindow.open(\{ obj: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
 					{$out_count++}
 				{/for}
 			</div>
@@ -29,7 +29,7 @@
 				{for tid of ($tasks_in?.tasks || [])}
 					{if !$tid}{continue}{/if}
 					{if !TaskWindow.is_valid_task_in(db.tasks[$tid], $npc)}{continue}{/if}
-					<div onclick="TaskWindow.open(\{ task: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
+					<div onclick="TaskWindow.open(\{ obj: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
 					{$in_count++}
 				{/for}
 			</div>
@@ -353,7 +353,7 @@
 								<li class="start"><span>NPC</span>
 									{if $win.sel_opts.dialogue && $task.dialogue?.[$win.sel_opts.dialogue]?.questions?.filter(q => q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
 										<ul>
-											{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], 1)}
+											{@TaskWindow.print_question($task.dialogue[$win.sel_opts.dialogue], TaskWindow.get_first_question($task.dialogue[$win.sel_opts.dialogue])?.id)}
 										</ul>
 									{/if}
 								</li>

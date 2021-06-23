@@ -350,7 +350,7 @@ class TaskWindow extends SingleInstanceWindow {
 					span.oncontextmenu = (e) => { span.onclick(e); return false; };
 				} else if (type == 'choice') {
 					const q_node = node.parentNode.parentNode; /* li.choice -> ul -> li.question */
-					const q_id = parseInt(q_node.dataset.id || 0);
+					const q_id = parseInt(q_node.dataset.id || 0) || 0;
 					const q = d.questions.find(q => q?.id == q_id);
 					const q_idx = d.questions.findIndex((_q) => _q == q);
 
@@ -385,7 +385,7 @@ class TaskWindow extends SingleInstanceWindow {
 						switch(sel) {
 							case 1:
 								db.open(this.task);
-								let newq = d.questions.find(q => q.id == 0);
+								let newq = d.questions.find(q => !q.id && !q.text);
 								if (!newq) {
 									newq = { id: 0, text: "" };
 									d.questions.push(newq);
@@ -757,6 +757,10 @@ class TaskWindow extends SingleInstanceWindow {
 		ret += '</ul>';
 
 		return ret;
+	}
+
+	static get_first_question(d) {
+		return d?.questions?.find(q => q?.id == 0) || d?.questions?.find(q => !q?.id == 1);
 	}
 
 	static print_question(d, q_id) {
