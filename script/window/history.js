@@ -10,8 +10,11 @@ class HistoryWindow extends Window {
 		this.tpl = new Template('tpl-history');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
+		this.show_removed_only = this.args.show_removed_only || false;
+
 		const data = await this.tpl.run({ win: this });
 		shadow.append(data);
+
 
 		await super.init();
 	}
@@ -41,6 +44,20 @@ class HistoryWindow extends Window {
 						obj._db.type == 'npc_tasks_in' ||
 						obj._db.type == 'npc_tasks_out' ||
 						obj._db.type == 'recipes') {
+					continue;
+				}
+
+				if (obj._removed) {
+					if (this.show_removed_only) {
+						if (obj._db.changesets[1]._db.generation < db.project_changelog_start_gen) {
+							continue;
+						}
+					} else {
+						if (obj._db.changesets[1]._db.generation >= db.project_changelog_start_gen) {
+							continue;
+						}
+					}
+				} else if (this.show_removed_only) {
 					continue;
 				}
 

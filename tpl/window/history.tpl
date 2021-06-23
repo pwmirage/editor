@@ -1,7 +1,11 @@
 <script id="tpl-history" type="text/x-dot-template">
 <div class="window resizable" style="width: 800px; height: 600px;">
 <div class="header">
-	<span>Project: {@Editor.current_project?.name ?? '(none)'} #{@Editor.current_project?.id || 0}</span>
+	{if $win.show_removed_only}
+		<span>Removed objects of project: {@Editor.current_project?.name ?? '(none)'} #{@Editor.current_project?.id || 0}</span>
+	{else}
+		<span>Summary of project: {@Editor.current_project?.name ?? '(none)'} #{@Editor.current_project?.id || 0}</span>
+	{/if}
 	<div class="menu">
 		<i class="refresh fa fa-refresh"></i>
 	</div>

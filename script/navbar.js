@@ -29,6 +29,7 @@ class Navbar {
 		p = this.add_button(null, 'Project');
 
 		b['proj_summary'] = this.add_button(p, 'Show summary');
+		b['proj_removed_summary'] = this.add_button(p, 'Show removed objects');
 		tmp = this.add_button(p, '');
 		tmp.innerHTML = '<hr>';
 		b['proj_modify'] = this.add_button(p, 'Modify');
@@ -130,6 +131,10 @@ class Navbar {
 		b.proj_modify.onclick = () => Projects.instance.open_project_modify(Editor.current_project);
 		b.proj_summary.onclick = async () => {
 			const win = await HistoryWindow.open();
+			win.maximize();
+		}
+		b.proj_removed_summary.onclick = async () => {
+			const win = await HistoryWindow.open({ show_removed_only: true });
 			win.maximize();
 		}
 		b.proj_save.onclick = () => PWDB.save(db, true);
