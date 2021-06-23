@@ -968,7 +968,24 @@ class HTMLSugar {
 				break;
 			}
 			case 3: { /* create new */
-				const obj = db.new(obj_type);
+				let obj;
+
+				if (obj_type === 'items') {
+					const win = await ItemTypeChooserWindow.open();
+					const type = await win.wait();
+
+					if (!type?.id) {
+						break;
+					}
+
+					obj = db.new('items');
+					db.open(obj);
+					obj.type = type.id;
+					db.commit(obj);
+				} else {
+					obj = db.new(obj_type);
+				}
+
 				update_obj_fn(obj);
 				edit_obj_fn(obj);
 				break;
