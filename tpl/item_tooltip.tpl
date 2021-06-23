@@ -347,9 +347,6 @@
 
 	{else if $item.type == Item.typeid('Quest')}
 		{* ======== QUEST ITEM ========= *}
-		{if $edit}
-			<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
-		{/if}
 	{else}
 		{* ======== UNKNOWN ITEM TYPE ========= *}
 	{/if}
@@ -358,6 +355,10 @@
 
 	{* ======== COMMON FOR ALL ITEM TYPES ========= *}
 	<div class="section flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
+		{if $edit}
+			<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
+		{/if}
+
 		{for proc of Item.proc_types}
 			{if $proc.mask & 0x80000000}
 				{if $edit}
