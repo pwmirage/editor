@@ -342,55 +342,56 @@
 
 
 	{* ======== COMMON FOR ALL ITEM TYPES ========= *}
-	<span style="">Price&nbsp;
-		{if $edit}
-			<span data-input class="input-number width-5c" data-link="{serialize $item} => 'price'"></span>
-		{else}
-			<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-		{/if}
-	</span>
-
-	<span style="">Buy Price&nbsp;
-		{if $edit}
-			<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
-		{else}
-			<span>{@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
-		{/if}
-	</span>
-
-	{if $edit}
-		<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
-	{/if}
-
-	<div class="section flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
-		{for proc of Item.proc_types}
-			{if $proc.mask & 0x80000000}
-				{if $edit}
-					<span style="">{@$proc.name}: <span data-input class="input-number" oninput="{serialize $win}.set_proc({@$proc.id}, this);">{@($item.proc_type >> 20) * 300}</span></span>
-				{else if $item.proc_type & $proc.mask}
-					<span>{@$proc.name} (sec): {@($item.proc_type >> 20) * 300}</span>
-				{/if}
-			{else}
-				{if $edit}
-					<label><input type="checkbox" class="checkbox" {if $item.proc_type & $proc.mask}checked{/if} oninput="{serialize $win}.set_proc({@$proc.id}, this);"><span>{@$proc.name}</span></label>
-				{else if $item.proc_type & $proc.mask}
-					<span>{@$proc.name}</span>
-				{/if}
-			{/if}
-		{/for}
-	</div>
-
-	{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
-		<div class="section flex-rows" style="{if $edit}min-height: 80px;{/if}">
+	<div class="section flex-rows">
+		<span style="">Price&nbsp;
 			{if $edit}
-				<span class="section-header">Description</span>
-				<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'" style="flex: 1;"></div>
+				<span data-input class="input-number width-5c" data-link="{serialize $item} => 'price'"></span>
 			{else}
-				<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+				<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
 			{/if}
-		</div>
-	{/if}
+		</span>
 
+		<span style="">Buy Price&nbsp;
+			{if $edit}
+				<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
+			{else}
+				<span>{@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+			{/if}
+		</span>
+
+		{if $edit}
+			<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'pile_num_max'"></span></span>
+		{/if}
+		<div class="flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
+			{for proc of Item.proc_types}
+				{if $proc.mask & 0x80000000}
+					{if $edit}
+						<span style="">{@$proc.name}: <span data-input class="input-number" oninput="{serialize $win}.set_proc({@$proc.id}, this);">{@($item.proc_type >> 20) * 300}</span></span>
+					{else if $item.proc_type & $proc.mask}
+						<span>{@$proc.name} (sec): {@($item.proc_type >> 20) * 300}</span>
+					{/if}
+				{else}
+					{if $edit}
+						<label><input type="checkbox" class="checkbox" {if $item.proc_type & $proc.mask}checked{/if} oninput="{serialize $win}.set_proc({@$proc.id}, this);"><span>{@$proc.name}</span></label>
+					{else if $item.proc_type & $proc.mask}
+						<span>{@$proc.name}</span>
+					{/if}
+				{/if}
+			{/for}
+		</div>
+
+		{if $edit || $item.desc?.replace(/\^[0-9a-fA-F]{6\}/g, '')?.replace(/[\n\s]/,'')}
+			<div class="flex-rows" style="{if $edit}min-height: 80px;{/if}">
+				{if $edit}
+					<span class="section-header">Description</span>
+					<div class="pw-editable-color-text" data-editable-color-text data-link="{serialize $item} => 'desc'" style="flex: 1;"></div>
+				{else}
+					<div id="desc" style="display: inline-block; white-space: pre-wrap;">{@$item.desc?.replace(/\^([0-9a-fA-F]{6\})/g, '<span style="color: #\$1">') || ''}</div>
+				{/if}
+			</div>
+		{/if}
+
+	</div>
 </div>
 
 {if $edit}
