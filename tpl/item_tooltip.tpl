@@ -32,7 +32,13 @@
 		{/if}
 		<div style="flex: 1;">
 			<span class="flex-columns" style="{if !$edit}font-size: 13px; margin-bottom: 3px;{/if}"><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;{@DB.serialize_id($item.id)}&nbsp;</span>
-			<span style="margin-top: -4px;">{@Item.types_arr[$item.type]?.name || "Invalid item"}</span>
+			{if $edit && $item._db.changesets?.[1] && $item._db.changesets[1]._db.generation >= db.project_changelog_start_gen}
+					<span style="display: flex;">
+						<span data-select="Item.types_arr" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'type'" data-title="Change type of item \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+					</span>
+			{else}
+				<span style="margin-top: -4px;">{@Item.types_arr[$item.type]?.name || "Invalid item"}</span>
+			{/if}
 		</div>
 	</div>
 
