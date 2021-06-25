@@ -43,7 +43,7 @@
 						{assign type = Projects.type.find(t => t.id == $project.type)}
 						<div style="float: right;" class="badge {@$type.color}">{@$type.name}</div>
 					</div>
-					<div>by <a class="externalURL" href="http://miragetest.ddns.net/user/{@$project.author_id}" target="_blank">{@$project.author}</a></div>
+					<div>by <a class="externalURL" href="/user/{@$project.author_id}" target="_blank">{@$project.author}</a></div>
 					<div>
 						Status:&nbsp;
 						{assign status = Projects.status.find(s => s.id == $project.status)}
@@ -79,7 +79,7 @@
 						<div style="float:right;">
 							{@Projects.DateUtil.getTimeElement(new Date($entry.time * 1000)).outerHTML}
 						</div>
-						<div><a class="externalURL" href="http://miragetest.ddns.net/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
+						<div><a class="externalURL" href="/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
 						{if $entry.actionID == 0 && $entry.param1 != 0}
 							<div class="review-status" style="margin-top: 4px;">
 								{if $entry.param1 < 0}
