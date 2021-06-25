@@ -538,14 +538,28 @@ class PWDB {
 
 	static async save(db, show_tag = true) {
 		let project = db.metadata[1];
-		if (!project || project.read_only || project.author_id != WCF.User.userID) {
+		if (!project || (!Editor.usergroups['maintainer'] && project.author_id != WCF.User.userID)) {
 			if (show_tag) {
 				Loading.notify('warning', 'Only the project author can save their changes.');
 			}
 			return false;
 		}
 
-		const data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
+		if (Editor.usergroups['maintainer'] && project.author_id != WCF.User.userID) {
+			/* as a maintainer we can only browse published project with no place to "append" data
+			 * on the go. Just store the changes locally, and send them to the server at the moment
+			 * of publish */
+			const data = db.dump_last(undefined, { spacing: 0 });
+			if (data.length >= 5) {
+				db.new_generation();
+			}
+			if (show_tag) {
+				notify('success', 'Saved');
+			}
+			return true;
+		}
+
+		let data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 		localStorage.removeItem('pwdb_lchangeset_' + project.pid);
 
 		/* check if empty. <5 rules out [[]] and such */
@@ -560,6 +574,7 @@ class PWDB {
 		project.edit_time = Math.floor(Date.now() / 1000);
 		db.commit(project);
 
+		data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 		const req = await post(ROOT_URL + 'api/project/' + project.pid + '/save', {
 			is_json: 1, data: {
 				file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
@@ -584,14 +599,45 @@ class PWDB {
 
 	static async publish(db, show_tag = true) {
 		let project = db.metadata[1];
-		if (!project || project.read_only || project.author_id != WCF.User.userID) {
+		if (!project || (!Editor.usergroups['maintainer'] && project.author_id != WCF.User.userID)) {
 			Loading.notify('warning', 'This project is read-only.');
 			return;
 		}
 
 		await PWDB.save(db, false);
 
-		const req = await post(ROOT_URL + 'api/project/' + project.pid + '/publish', { is_json: 1 });
+		let req;
+		if (Editor.usergroups['maintainer'] && project.author_id != WCF.User.userID) {
+			let data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
+			localStorage.removeItem('pwdb_lchangeset_' + project.pid);
+
+			/* check if empty. <5 rules out [[]] and such */
+			if (data.length < 5) {
+				if (show_tag) {
+					notify('success', 'Saved');
+				}
+				return true;
+			}
+
+			db.open(project);
+			project.edit_time = Math.floor(Date.now() / 1000);
+			db.commit(project);
+
+			data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
+			req = await post(ROOT_URL + 'api/project/' + project.pid + '/patch', {
+				is_json: 1, data: {
+					file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
+				}
+			});
+
+			if (!req.ok) {
+				const dump = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
+				localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
+			}
+		} else {
+			req = await post(ROOT_URL + 'api/project/' + project.pid + '/publish',
+				{ is_json: 1 });
+		}
 
 		if (!req.ok) {
 			Loading.notify('error', req.data.err || 'Failed to publish: unknown error');
@@ -601,6 +647,8 @@ class PWDB {
 		if (show_tag) {
 			notify('success', 'Published');
 		}
+
+		await Editor.refresh_project_info();
 	}
 
 	static find_usages(db, obj) {
