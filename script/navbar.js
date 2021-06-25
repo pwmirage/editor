@@ -170,9 +170,9 @@ class Navbar {
 
 			if (!Editor.current_project.is_merged) {
 				await PWDB.publish(db, false);
-				await post(ROOT_URL + 'api/project/admin/' + pinfo.data.id + '/merge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
+				await post(ROOT_URL + 'api/project/admin/' + Editor.current_project.id + '/merge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
 			} else {
-				await post(ROOT_URL + 'api/project/admin/' + pinfo.data.id + '/quickmerge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
+				await post(ROOT_URL + 'api/project/admin/' + Editor.current_project.id + '/quickmerge', { is_json: 1, data: { branch: 2 } }); /* test1 branch */
 
 			}
 
