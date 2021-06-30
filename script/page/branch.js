@@ -92,7 +92,7 @@ g_mg_pages['branch'] = new class {
 		}
 		
 		const b = this.selected_branch;
-		const req = await post(ROOT_URL + 'api/project/admin/merge_pck_patch', { is_json: 1, data: {
+		const req = await post(ROOT_URL + 'api/game/admin/merge_pck_patch', { is_json: 1, data: {
 			branch: b.id, patch: id
 		}});
 
