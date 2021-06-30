@@ -297,13 +297,13 @@ class ItemTooltip {
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
 		const tooltip_bounds = newdata.getBoundingClientRect();
-		if (bounds.right + 3 + tooltip_bounds.width < Window.bounds.right) {
+		if (bounds.right + 3 + tooltip_bounds.width < Window.bounds?.right || window.innerWidth) {
 			this.dom.style.left = bounds.right + 3 + 'px';
 		} else {
 			this.dom.style.left = bounds.left - 3 - tooltip_bounds.width + 'px';
 		}
 
-		if (bounds.top + tooltip_bounds.height < Window.bounds.bottom) {
+		if (bounds.top + tooltip_bounds.height < Window.bounds?.bottom || window.innerHeight) {
 			this.dom.style.top = bounds.top + 'px';
 		} else {
 			this.dom.style.top = bounds.bottom - tooltip_bounds.height + 'px';
@@ -364,13 +364,13 @@ class RecipeTooltip {
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
 		const tooltip_bounds = newdata.getBoundingClientRect();
-		if (bounds.right + 3 + tooltip_bounds.width < Window.bounds.right) {
+		if (bounds.right + 3 + tooltip_bounds.width < Window.bounds?.right || window.innerWidth) {
 			this.dom.style.left = bounds.right + 3 + 'px';
 		} else {
 			this.dom.style.left = bounds.left - 3 - tooltip_bounds.width + 'px';
 		}
 
-		if (bounds.top + tooltip_bounds.height < Window.bounds.bottom) {
+		if (bounds.top + tooltip_bounds.height < Window.bounds?.bottom || window.innerHeight) {
 			this.dom.style.top = bounds.top + 'px';
 		} else {
 			this.dom.style.top = bounds.bottom - tooltip_bounds.height + 'px';
