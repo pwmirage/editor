@@ -163,7 +163,8 @@
 			<textarea id="motd" style="margin-top: 8px; height: 300px;">{@$page.selected_branch.motd || ''}</textarea>
 
 			<div style="float: right; margin-top: 8px;">
-				<a class="button" href="javascript:void(0);" onclick="{serialize $page}.set_motd();">Update MOTD Only</a>
+				<a class="button" href="javascript:void(0);" onclick="{serialize $page}.bump_generation();">Force fresh update</a>
+				<a class="button" href="javascript:void(0);" onclick="{serialize $page}.set_motd();" style="margin-left: 8px;">Update MOTD Only</a>
 				<a class="button" href="javascript:void(0);" onclick="{serialize $page}.publish();" style="margin-left: 8px;">Release!</a>
 			</div>
 

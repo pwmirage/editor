@@ -183,6 +183,16 @@ g_mg_pages['branch'] = new class {
 		}
 	}
 
+	async bump_generation() {
+		const req = await post(ROOT_URL + 'api/project/admin/bump_generation', { is_json: 1, data: { branch: this.selected_branch.id } });
+
+		if (!req.ok) {
+			notify('error', req.data.msg || 'Unexpected error');
+		} else {
+			notify('success', 'Done');
+		}
+	}
+
 	async publish() {
 		let ok;
 
