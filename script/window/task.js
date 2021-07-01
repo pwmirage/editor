@@ -760,7 +760,7 @@ class TaskWindow extends SingleInstanceWindow {
 	}
 
 	static get_first_question(d) {
-		return d?.questions?.find(q => q?.id == 0) || d?.questions?.find(q => !q?.id == 1);
+		return d?.questions?.find(q => (q?.parent_id == -1 || q?.parent_id == 4294967295) && (q?.id || q?.text));
 	}
 
 	static print_question(d, q_id) {
