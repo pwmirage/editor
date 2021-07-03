@@ -49,11 +49,11 @@ class HistoryWindow extends Window {
 
 				if (obj._removed) {
 					if (this.show_removed_only) {
-						if (obj._db.changesets[1]._db.generation < db.project_changelog_start_gen) {
+						if (!obj._db.is_allocated || obj._db.changesets[1]._db.generation <= db.project_changelog_start_gen) {
 							continue;
 						}
 					} else {
-						if (obj._db.changesets[1]._db.generation >= db.project_changelog_start_gen) {
+						if (obj._db.is_allocated && obj._db.changesets[1]._db.generation > db.project_changelog_start_gen) {
 							continue;
 						}
 					}

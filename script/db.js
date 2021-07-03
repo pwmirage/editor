@@ -233,7 +233,7 @@ class DB {
 					diff._db = {};
 				}
 				/* generation 0 is the orig. copy, so always start the real generation at 1+ */
-				diff._db.generation = this.changelog.length;
+				diff._db.generation = this.changelog.length - 1;
 				diff._db.obj = obj;
 
 				obj._db.changesets.push(diff);
