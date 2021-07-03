@@ -70,6 +70,9 @@ g_mg_pages['rebase'] = new class {
 	async rebase() {
 		const base = this.sel_radio;
 
+		g_confirm_dom.querySelector('.dialogCloseButton').click();
+		await new Promise(resolve => setTimeout(resolve, 1));
+
 		const ok = await confirm('Do you want to rebase \"' + this.project.name + '" on "' + this.sel_radio.dataset.fname + '"?');
 		if (!ok) {
 			return;
