@@ -368,7 +368,7 @@
 		{if $edit}
 			<span style="">Max stack: <span {@$data_preview} data-input class="input-number" data-link="{serialize $item} => 'stack_max'"></span></span>
 		{/if}
-		<div class="flex-columns" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between;">
+		<div class="{if $edit}flex-columns{else}flex-rows{/if}" style="flex-wrap: wrap; column-gap: 10px; justify-content: space-between; {if !$edit}margin-top: 3px;{/if}">
 			{for proc of Item.proc_types}
 				{if $proc.mask & 0x80000000}
 					{if $edit}
