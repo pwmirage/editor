@@ -353,7 +353,7 @@
 			{if $edit}
 				<span data-input class="input-number width-5c" data-link="{serialize $item} => 'price'"></span>
 			{else}
-				<span>{@('' + $item.price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+				<span>{@('' + ($item.price || 0)).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
 			{/if}
 		</span>
 
@@ -361,7 +361,7 @@
 			{if $edit}
 				<span data-input class="input-number width-5c" data-link="{serialize $item} => 'shop_price'"></span>
 			{else}
-				<span>{@('' + $item.shop_price).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
+				<span>{@('' + ($item.shop_price || 0)).replace(/(\d)(?=(\d{3\})+\$)/g, '\$1,')}</span>
 			{/if}
 		</span>
 
