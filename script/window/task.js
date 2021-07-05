@@ -419,7 +419,7 @@ class TaskWindow extends SingleInstanceWindow {
 										TaskWindow.dialogue_choice_opts[0x80000006], /* start q */
 										TaskWindow.dialogue_choice_opts[0x80000007], /* finish q */
 										TaskWindow.dialogue_choice_opts[0x80000011], /* previous dialogue */
-										TaskWindow.dialogue_choice_opts[0x80000000], /* exit dialogue */
+										TaskWindow.dialogue_choice_opts[0x80000012], /* exit dialogue */
 										TaskWindow.dialogue_choice_opts[0x80000015], /* give up q */
 									]);
 								}
