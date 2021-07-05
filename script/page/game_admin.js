@@ -12,9 +12,11 @@ class GameAdminPage {
 		this.shadow = this.dom.attachShadow({mode: 'open'});
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
+		this.cur_branch_id = parseInt(args.id || 2);
+
 		let req;
 		req = await post(ROOT_URL + 'api/game/admin/gamereq', { is_json: 1, data: {
-			branch: 2, req: 'status', data: { faction: 1 }
+			branch: this.cur_branch_id, req: 'status', data: { faction: 1 }
 		}});
 		this.online_p = req.data;
 
@@ -35,7 +37,7 @@ class GameAdminPage {
 		let req = confirm('<div class="loading-spinner"></div>', '', 'Character #' + id);
 		await sleep(1);
 
-		const char_page_dom = await char_page.init({ id });
+		const char_page_dom = await char_page.init({ branch_id: this.cur_branch_id, id });
 
 		const content = g_confirm_dom.querySelector('.systemConfirmation > p');
 		for (const c of content.children) { c.remove(); }
@@ -60,7 +62,7 @@ class GameAdminCharPage {
 
 		let req;
 		req = await post(ROOT_URL + 'api/game/admin/gamereq', { is_json: 1, data: {
-			branch: 2, req: 'getrole', data: { id: args.id || 0 }
+			branch: args.branch_id, req: 'getrole', data: { id: args.id || 0 }
 		}});
 		this.player = req.data;
 
