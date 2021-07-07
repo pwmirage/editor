@@ -224,7 +224,7 @@ class DB {
 
 		if (diff) {
 			/* lazy initialization */
-			if (changeset._db.generation < this.changelog.length) {
+			if (changeset._db.generation < this.changelog.length - 1) {
 				/* first change since new generation */
 
 				/* promote diff object to a changeset */
