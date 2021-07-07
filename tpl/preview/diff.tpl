@@ -151,51 +151,54 @@
 	{/for}
 {else if $type == 'npc_crafts'}
 	{for i = 0; i < 8; i++}
-		{if !$diff.pages}{break}{/if}
-		{if !$diff.pages[$i]}{continue}{/if}
 		{assign pageid = $i}
-		{assign page = $diff.pages[$i]}
-		{assign obj_page = $obj.pages[$i]}
-		{assign prev_page = $prev.pages[$i]}
-		<div class="block">
-			<span class="header">Tab "{@($page.title ?? $prev.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
-			{if $page.title !== undefined}
-				<div class="block">
-					<span class="header">Name</span>
-					<span class="minus">{@$prev.pages?.[$i]?.title || '(unnamed)'}</span>
-					<span class="plus">{@$page.title}</span>
-				</div>
+		{assign page = $diff?.pages?.[$i]}
+		{assign obj_page = $obj?.pages?.[$i]}
+		{assign prev_page = $prev?.pages?.[$i]}
+		{if !$obj_page && !$prev_page}{continue}{/if}
+
+		{assign rows = new Set()}
+		{assign modified_ids = new Set()}
+		{for p_recipe_id in ($obj_page?.recipe_id || \{\})}
+			{assign prev_id = $prev_page?.recipe_id?.[$p_recipe_id] || 0}
+			{assign cur_id = $obj_page?.recipe_id?.[$p_recipe_id] || $prev_id}
+			{assign is_changed = PWPreview.is_recipe_modified(db.recipes[$cur_id], db.recipes[$prev_id]?._db?.project_initial_state)}
+			{if !$is_changed}
+				{continue}
 			{/if}
-			{assign rows = new Set()}
-			{assign modified_ids = new Set()}
-			{for p_recipe_id in ($obj_page?.recipe_id || \{\})}
-				{assign prev_id = $prev_page?.recipe_id?.[$p_recipe_id] || 0}
-				{assign cur_id = $obj_page?.recipe_id?.[$p_recipe_id] || $prev_id}
-				{assign is_changed = PWPreview.is_recipe_modified(db.recipes[$cur_id], db.recipes[$prev_id]?._db?.project_initial_state)}
-				{if !$is_changed}
-					{continue}
-				{/if}
-				{assign rowid = Math.floor($p_recipe_id / 8)}
-				{$rows.add($rowid)}
-				{$modified_ids.add(parseInt($p_recipe_id))}
-			{/for}
-			{for rowid of $rows}
-				<div class="block">
-					<span class="header">Row {@$rowid}</span>
-					<div class="crafts">
-					{for i = 0; i < 8; i++}
-						{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
-						{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
-						<div class="flex-rows" style="gap: 2px;">
-							{assign unchanged = !$modified_ids.has($rowid * 8 + $i)}
-							{assign icon_id = NPCCraftsWindow.get_recipe_icon_id($cur_id)}
-							<span class="recipe {if $unchanged}unchanged{/if}" data-id="{if $unchanged && $icon_id == -1}0{else}{@$cur_id}{/if}" data-prev="{@$prev_id || -1}"><img{ } src="{@Item.get_icon($icon_id)}" alt=""></span>
-						</div>
-					{/for}
+			{assign rowid = Math.floor($p_recipe_id / 8)}
+			{$rows.add($rowid)}
+			{$modified_ids.add(parseInt($p_recipe_id))}
+		{/for}
+
+		{if $rows.size}
+			<div class="block">
+				<span class="header">Tab "{@($obj_page?.title ?? $prev?.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
+				{if $page?.title !== undefined}
+					<div class="block">
+						<span class="header">Name</span>
+						<span class="minus">{@$prev.pages?.[$i]?.title || '(unnamed)'}</span>
+						<span class="plus">{@$page?.title}</span>
 					</div>
-				</div>
-			{/for}
-		</div>
+				{/if}
+				{for rowid of $rows}
+					<div class="block">
+						<span class="header">Row {@$rowid}</span>
+						<div class="crafts">
+						{for i = 0; i < 8; i++}
+							{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
+							{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
+							<div class="flex-rows" style="gap: 2px;">
+								{assign unchanged = !$modified_ids.has($rowid * 8 + $i)}
+								{assign icon_id = NPCCraftsWindow.get_recipe_icon_id($cur_id)}
+								<span class="recipe {if $unchanged}unchanged{/if}" data-id="{if $unchanged && $icon_id == -1}0{else}{@$cur_id}{/if}" data-prev="{@$prev_id || -1}"><img{ } src="{@Item.get_icon($icon_id)}" alt=""></span>
+							</div>
+						{/for}
+						</div>
+					</div>
+				{/for}
+			</div>
+		{/if}
 	{/for}
 {else if $type.startsWith('spawners_')}
 	{if $diff.pos && ($diff.pos[0] || $diff.pos[1] || $diff.pos[2])}
