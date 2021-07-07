@@ -171,34 +171,36 @@
 			{$modified_ids.add(parseInt($p_recipe_id))}
 		{/for}
 
-		{if $rows.size}
-			<div class="block">
-				<span class="header">Tab "{@($obj_page?.title ?? $prev?.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
-				{if $page?.title !== undefined}
-					<div class="block">
-						<span class="header">Name</span>
-						<span class="minus">{@$prev.pages?.[$i]?.title || '(unnamed)'}</span>
-						<span class="plus">{@$page?.title}</span>
-					</div>
-				{/if}
-				{for rowid of $rows}
-					<div class="block">
-						<span class="header">Row {@$rowid}</span>
-						<div class="crafts">
-						{for i = 0; i < 8; i++}
-							{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
-							{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
-							<div class="flex-rows" style="gap: 2px;">
-								{assign unchanged = !$modified_ids.has($rowid * 8 + $i)}
-								{assign icon_id = NPCCraftsWindow.get_recipe_icon_id($cur_id)}
-								<span class="recipe {if $unchanged}unchanged{/if}" data-id="{if $unchanged && $icon_id == -1}0{else}{@$cur_id}{/if}" data-prev="{@$prev_id || -1}"><img{ } src="{@Item.get_icon($icon_id)}" alt=""></span>
-							</div>
-						{/for}
-						</div>
-					</div>
-				{/for}
-			</div>
+		{if !$rows.size && !$page.title}
+			{continue}
 		{/if}
+
+		<div class="block">
+			<span class="header">Tab "{@($obj_page?.title ?? $prev?.pages?.[$i]?.title) || '(unnamed)'}" #{@$i}</span>
+			{if $page?.title !== undefined}
+				<div class="block">
+					<span class="header">Name</span>
+					<span class="minus">{@$prev.pages?.[$i]?.title || '(unnamed)'}</span>
+					<span class="plus">{@$page?.title}</span>
+				</div>
+			{/if}
+			{for rowid of $rows}
+				<div class="block">
+					<span class="header">Row {@$rowid}</span>
+					<div class="crafts">
+					{for i = 0; i < 8; i++}
+						{assign prev_id = $prev_page?.recipe_id?.[$rowid * 8 + $i] || 0}
+						{assign cur_id = $page?.recipe_id?.[$rowid * 8 + $i] ?? $prev_id}
+						<div class="flex-rows" style="gap: 2px;">
+							{assign unchanged = !$modified_ids.has($rowid * 8 + $i)}
+							{assign icon_id = NPCCraftsWindow.get_recipe_icon_id($cur_id)}
+							<span class="recipe {if $unchanged}unchanged{/if}" data-id="{if $unchanged && $icon_id == -1}0{else}{@$cur_id}{/if}" data-prev="{@$prev_id || -1}"><img{ } src="{@Item.get_icon($icon_id)}" alt=""></span>
+						</div>
+					{/for}
+					</div>
+				</div>
+			{/for}
+		</div>
 	{/for}
 {else if $type.startsWith('spawners_')}
 	{if $diff.pos && ($diff.pos[0] || $diff.pos[1] || $diff.pos[2])}
