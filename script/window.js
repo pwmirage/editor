@@ -398,7 +398,7 @@ class Window {
 				/* unset all fields, including any added ones */
 				for (const f in this.obj) {
 					if (f == '_db') continue;
-					delete this.obj[f];
+					this.obj[f] = undefined;
 				}
 				DB.copy_obj_data(this.obj, this.obj._db.project_initial_state);
 				db.commit(this.obj);

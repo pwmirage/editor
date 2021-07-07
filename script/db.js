@@ -710,7 +710,11 @@ class DB {
 				const v = obj[f] || 0;
 				const p = prev ? (prev[f] || 0) : 0;
 				if (v != p) {
-					diff[f] = obj[f];
+					if (obj[f] == null || obj[f] == undefined) {
+						diff[f] = DB.force_null;
+					} else {
+						diff[f] = obj[f];
+					}
 				} else if (diff[f]) {
 					/* delete is super slow, just set to undefined */
 					diff[f] = undefined;
