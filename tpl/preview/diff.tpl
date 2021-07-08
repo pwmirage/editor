@@ -171,7 +171,7 @@
 			{$modified_ids.add(parseInt($p_recipe_id))}
 		{/for}
 
-		{if !$rows.size && !$page.title}
+		{if !$rows.size && !$page?.title}
 			{continue}
 		{/if}
 
