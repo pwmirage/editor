@@ -311,6 +311,8 @@ class PWMap {
 					}
 				}
 
+				crafts._db.modified_recipes.add(obj);
+
 				/* when extra_ref drops to 0, there will be no diff in crafts and its
 				 * marker will disappear as well */
 				db.open(crafts);
