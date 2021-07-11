@@ -571,6 +571,13 @@ class HTMLSugar {
 
 		const onselect_fn = new Function('id', el.dataset.onselect);
 		el._mg_select = (id, text) => {
+			if (el.dataset.selected) {
+				edit_el.dataset.text = edit_el.title = edit_el.textContent = text;
+				edit_el.focus();
+				el.classList.add('selected');
+				return;
+			}
+
 			onselect_fn(id);
 			if (id == -1) {
 				el.classList.remove('selected');
@@ -762,9 +769,10 @@ class HTMLSugar {
 
 		if (el.dataset.selected) {
 			const id = parseInt(el.dataset.selected) || 0;
-			el.removeAttribute('data-selected');
 
 			el._mg_select(id, select_arr[id].name);
+
+			el.removeAttribute('data-selected');
 		}
 	}
 
