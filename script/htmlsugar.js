@@ -4,8 +4,17 @@
 
 document.addEventListener('keydown', (e) => {
 	if (e.key === 'Enter') {
-		if (e.path && e.path[0].classList.contains('input-text')) {
+		const path = e.composedPath();
+		if (!path) {
+			/* unexpected? do the default */
+			return;
+		}
+
+		if (path[0].classList.contains('input-text')) {
 			/* bail */
+		} else if (path[0].classList.contains('redactor-in')) {
+			/* do the default */
+			return;
 		} else {
 			document.execCommand('insertLineBreak');
 		}
