@@ -884,7 +884,7 @@ class HTMLSugar {
 			const id = get_obj_field(link.obj, link.path);
 			const obj = db[type][id];
 			if (obj) {
-				el.textContent = (obj.name || '') + ' ' + DB.serialize_id(obj.id);
+				el.innerHTML = print_pretty_name(obj);
 			} else {
 				el.textContent = '(none)';
 			}
