@@ -248,7 +248,7 @@ class DB {
 
 				/* fields might have been changed back and forth with no diff at the end,
 				 * in such case no changeset should be created - it would be empty otherwise */
-				DB.apply_diff(changeset, diff);
+				DB.apply_diff(changeset, diff, true);
 				const diff_and_clean = (obj, org) => {
 					let is_diff = false;
 					for (const f in obj) {
@@ -304,7 +304,7 @@ class DB {
 			obj._db.initial_gen_state = undefined;
 			obj._db.changesets = undefined;
 		} else if (diff) {
-			DB.apply_diff(obj._db.latest_state, diff);
+			DB.apply_diff(obj._db.latest_state, diff, true);
 		}
 
 		return diff;
@@ -460,7 +460,7 @@ class DB {
 			}
 
 			this.open(org);
-			DB.apply_diff(org, change);
+			DB.apply_diff(org, change, false);
 			this.commit(org);
 
 			/* call the init_cb again */
@@ -515,7 +515,7 @@ class DB {
 		return ret;
 	}
 
-	static apply_diff(obj, diff) {
+	static apply_diff(obj, diff, do_delete = true) {
 		const has_numeric_keys = (obj) => {
 			for (const f in obj) {
 				if (isNaN(f)) {
@@ -535,10 +535,14 @@ class DB {
 					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
 				if (diff[f] == null) {
-					delete obj[f];
+					if (do_delete) {
+						delete obj[f];
+					} else {
+						obj[f] = undefined;
+					}
 					deleted = true;
 				} else {
-					DB.apply_diff(obj[f], diff[f]);
+					DB.apply_diff(obj[f], diff[f], do_delete);
 				}
 			} else {
 				obj[f] = diff[f];
