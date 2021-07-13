@@ -260,8 +260,6 @@ label { height: 21px; display: inline-flex; margin-top: -1px; }
 input[type="checkbox"] { opacity: 0; z-index: -1; height: 16px; }
 input[type="checkbox"]+span { text-align: left; display: inline-flex; height: 14px; margin-top: 2px; user-select: none; }
 input[type="checkbox"]+span:before { color: #4e4b42; font: 12pt FontAwesome; content: '\00f096'; width: 15pt; margin-left: -15pt; }
-input[type="checkbox"]+span:empty { margin-left: 16pt; }
-input[type="checkbox"]+span:empty:before { margin-left: -16pt; }
 input[type="checkbox"]:checked+span:before { content: '\00f046'; }
 input[type="checkbox"]:not(.radio):disabled+span { color: #999; }
 input[type="checkbox"]:not(.radio):not(:disabled)+span:hover:before { text-shadow: 0 1px 2px #77F; }

@@ -416,7 +416,12 @@
 					</div>
 					<div class="flex-columns">
 						<span>New quest:</span>
-						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-select="db.tasks"></a>
+						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'new_quest'" data-select="db.tasks"></a>
+					</div>
+					<div class="flex-columns">
+						<span>Trigger:</span>
+						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+						<label title="Checked = enable trigger" style="margin-top: 4px; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'award', 'ai_trigger_enable'" class="checkbox"><span></span></label>
 					</div>
 					<div class="flex-columns">
 						<span>Coins:</span>
@@ -514,6 +519,7 @@
 						<div class="flex-columns">
 							<span>Trigger on failure:</span>
 							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+							<label title="Checked = enable trigger" style="margin-top: 4px; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'failure_award', 'ai_trigger_enable'" class="checkbox"><span></span></label>
 						</div>
 						<div id="failure_award_items" class="data-field" style="align-items: unset;">
 							<span>Give Items on failure: </span>
@@ -552,6 +558,7 @@
 						<div class="flex-columns">
 							<span>Trigger on start:</span>
 							<a class="button menu-triangle" data-link-button="{serialize $task} => 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
+							<label title="Checked = enable trigger" style="margin-top: 4px; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'ai_trigger_enable'" class="checkbox"><span></span></label>
 						</div>
 					</div>
 
@@ -578,11 +585,6 @@
 							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'x'"></span>
 							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'y'"></span>
 							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'z'"></span>
-						</div>
-
-						<div class="flex-columns">
-							<span>Trigger:</span>
-							<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
 						</div>
 					</div>
 					<div>
