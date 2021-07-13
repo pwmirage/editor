@@ -5,7 +5,7 @@
 class PWDB {
 	static async watch_db() {
 		const cache_save_fn = () => {
-			if (!db || !PWDB.has_unsaved_changes) {
+			if (!db || !PWDB.has_unsaved_changes || !PWDB.loaded) {
 				return;
 			}
 
@@ -343,6 +343,8 @@ class PWDB {
 	}
 
 	static async new_db(args) {
+		PWDB.loaded = false;
+
 		if (!PWDB.g_db_promises) {
 			PWDB.init();
 		}
@@ -554,11 +556,16 @@ class PWDB {
 
 		PWDB.sort_chooser_recent(db);
 		PWDB.last_saved_changeset = db.changelog.length - 2;
+		PWDB.loaded = true;
 
 		return db;
 	}
 
 	static async save(db, show_tag = true) {
+		if (!PWDB.loaded) {
+			return;
+		}
+
 		let project = db.metadata[1];
 		if (!project || (!Editor.usergroups['maintainer'] && project.author_id != WCF.User.userID)) {
 			if (show_tag) {
@@ -620,6 +627,10 @@ class PWDB {
 	}
 
 	static async publish(db, show_tag = true) {
+		if (!PWDB.loaded) {
+			return;
+		}
+
 		let project = db.metadata[1];
 		if (!project || (!Editor.usergroups['maintainer'] && project.author_id != WCF.User.userID)) {
 			Loading.notify('warning', 'This project is read-only.');
