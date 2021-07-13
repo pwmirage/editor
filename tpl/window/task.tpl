@@ -4,6 +4,7 @@
 <div class="header {if $npc._removed}removed{/if}">
 	<span>Tasks related to NPC {@$npc.name} {@DB.serialize_id($npc.id)}</span>
 	<div class="menu">
+		<i class="refresh fa fa-refresh"></i>
 		<i class="details fa fa-ellipsis-v"></i>
 	</div>
 	<div class="menu">
@@ -13,30 +14,36 @@
 	</div>
 </div>
 <div class="content flex-rows">
-	<div class="border flex-rows" style="flex-direction: column-reverse;">
-		{assign in_count = 0}
-		{assign out_count = 0}
-		<div class="scroll flex-columns flex-all">
-			<div class="tasks">
-				{for tid of ($tasks_out?.tasks || [])}
-					{if !$tid}{continue}{/if}
-					{if !TaskWindow.is_valid_task_out(db.tasks[$tid], $npc)}{continue}{/if}
-					<div onclick="TaskWindow.open(\{ obj: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
-					{$out_count++}
-				{/for}
-			</div>
-			<div class="tasks" style="padding-right: 5px;">
-				{for tid of ($tasks_in?.tasks || [])}
-					{if !$tid}{continue}{/if}
-					{if !TaskWindow.is_valid_task_in(db.tasks[$tid], $npc)}{continue}{/if}
-					<div onclick="TaskWindow.open(\{ obj: db.tasks[{@$tid}] \});">{@$win.print_task_by_id($tid)}</div>
-					{$in_count++}
-				{/for}
-			</div>
-		</div>
+	<div id="tasks" class="border flex-rows">
 		<div class="header flex-columns flex-all" style="margin-bottom: 5px;">
-			<span>Tasks given: ({@$out_count})</span>
-			<span>Tasks completed: ({@$in_count})</span>
+			<span>Tasks given: ({@$tasks_out?.tasks?.length || 0})</span>
+			<span>Tasks completed: ({@$tasks_in?.tasks?.length || 0})</span>
+		</div>
+		<div class="scroll flex-columns flex-all">
+			<div id="tasks_out" class="tasks">
+				{assign idx = -1}
+				{for tid of ($tasks_out?.tasks || [])}
+					<div>
+						{$idx++}
+						<div class="num">{@$idx + 1}.</div>
+						<a class="button button-dark menu-triangle" data-link-button="{serialize $tasks_out} => 'tasks', {@$idx}" data-select="db.tasks"></a>
+						<a class="remove-btn" onclick="{serialize $win}.remove_quest('tasks_out', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
+					</div>
+				{/for}
+				<div class="add-container"><div style="flex: 1;"></div><a class="button add" onclick="{serialize $win}.add_quest('tasks_out');">(add) <i class="fa fa-plus"></i></a></div>
+			</div>
+			<div id="tasks_in" class="tasks" style="padding-right: 5px;">
+				{assign idx = -1}
+				{for tid of ($tasks_in?.tasks || [])}
+					<div>
+						{$idx++}
+						<div class="num">{@$idx + 1}.</div>
+						<a class="button button-dark menu-triangle" data-link-button="{serialize $tasks_in} => 'tasks', {@$idx}" data-select="db.tasks"></a>
+						<a class="remove-btn" onclick="{serialize $win}.remove_quest('tasks_in', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
+					</div>
+				{/for}
+				<div class="add-container"><div style="flex: 1;"></div><a class="button add" onclick="{serialize $win}.add_quest('tasks_in');">(add) <i class="fa fa-plus"></i></a></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -48,17 +55,12 @@
 }
 
 .border {
-	background-color: rgba(251, 241, 241, 1);
-	border: 1px solid rgba(224, 176, 176, 1);
 	overflow: hidden;
 	padding: 5px;
 	padding-right: 0;
-	background-color: #5d5959;
-	color: gray;
 }
 
 .border > .header {
-	color: white;
 	font-weight: bold;
 }
 
@@ -77,9 +79,14 @@
 }
 
 .tasks > * {
-	padding: 4px 6px;
-	background-color: #3a3a3a;
-	cursor: pointer;
+	display: flex;
+	column-gap: 5px;
+	align-items: baseline;
+}
+
+.tasks > * > .num {
+	width: 30px;
+	text-align: right;
 }
 </style>
 @@}
@@ -108,7 +115,7 @@
 				<div>
 					{$idx++}
 					<span>{@$idx + 1}.</span>
-					<a class="button menu-triangle" data-link-button="{serialize $task} => 'premise_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
+					<a class="button button-dark menu-triangle" data-link-button="{serialize $task} => 'premise_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
 					<div style="flex: 1;"></div>
 					<a class="remove-btn" onclick="{serialize $win}.remove_quest('premise', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
 				</div>
@@ -122,7 +129,7 @@
 				<div>
 					{$idx++}
 					<span>{@$idx + 1}.</span>
-					<a class="button menu-triangle" data-link-button="{serialize $task} => 'mutex_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
+					<a class="button button-dark menu-triangle" data-link-button="{serialize $task} => 'mutex_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
 					<div style="flex: 1;"></div>
 					<a class="remove-btn" onclick="{serialize $win}.remove_quest('mutex', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
 				</div>
@@ -132,7 +139,7 @@
 		<div class="tasks flex-rows">
 			<div class="header">Next quests:</div>
 			{for next_task of ($win.next_tasks || [])}
-				<div class="task">{@TaskWindow.print_task_name($next_task.name)} {@DB.serialize_id($next_task.id)}</div>
+				<div class="task" onclick="TaskWindow.open(\{ obj: db.tasks[{@$next_task.id}]\});">{@TaskWindow.print_task_name($next_task.name)} {@DB.serialize_id($next_task.id)}</div>
 			{/for}
 		</div>
 	</div>

@@ -22,6 +22,11 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 		await super.init();
 	}
 
+	refresh() {
+		this.tpl.reload('#tasks_in');
+		this.tpl.reload('#tasks_out');
+	}
+
 	print_task_by_id(tid) {
 		const task = db.tasks[tid];
 		if (!task) {
@@ -31,6 +36,55 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 		const name = task?.name || '(unnamed)';
 		return name.replace(/\^([0-9a-fA-F]{6})/g, '<span style="color: #$1">') + ' ' + DB.serialize_id(tid);
 	}
+
+	add_quest(type) {
+		let arr;
+		if (type == 'tasks_in') {
+			/* init the quest list if it's the first quest for that npc */
+			if (!this.tasks_in) {
+				this.tasks_in = db.new('npc_tasks_in');
+				db.open(this.npc);
+				this.npc.id_task_in_service = this.tasks_in.id;
+				db.commit(this.npc);
+			}
+			arr = this.tasks_in;
+		} else {
+			if (!this.tasks_out) {
+				this.tasks_out = db.new('npc_tasks_out');
+				db.open(this.npc);
+				this.npc.id_task_out_service = this.tasks_out.id;
+				db.commit(this.npc);
+			}
+			arr = this.tasks_out;
+		}
+
+		if (!arr.tasks) {
+			db.open(arr);
+			arr.tasks = [];
+			db.commit(arr);
+		}
+
+		if (arr.tasks.length < 32) {
+			db.open(arr);
+			arr.tasks.push(0);
+			db.commit(arr);
+		}
+
+		this.tpl.reload('#' + type);
+	}
+
+	remove_quest(type, idx) {
+		let arr = this[type];
+
+		db.open(arr);
+
+		arr.tasks[idx] = 0;
+		cleanup_arr(arr.tasks);
+
+		db.commit(arr);
+		this.tpl.reload('#' + type);
+	}
+
 
 	async details(details_el, e) {
 		const coords = Window.get_el_coords(details_el);
@@ -221,6 +275,14 @@ class TaskWindow extends SingleInstanceWindow {
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-tasks');
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+
+		if (this.task.award?.item_groups?.length > 1) {
+			this.award_item_type = 2;
+		} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
+			this.award_item_type = 1;
+		} else {
+			this.award_item_type = 0;
+		}
 
 		const data = await this.tpl.run({ win: this, task, root_task: this.root_task });
 		shadow.append(data);

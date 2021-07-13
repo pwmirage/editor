@@ -91,7 +91,7 @@ table {
 }
 
 .window > .header > .menu {
-	display: inline-block;
+	display: inline-flex;
 }
 
 .window.child-dom > .header > .menu > * {
@@ -450,6 +450,15 @@ a.button {
 	line-height: 20px;
 	user-select: none;
 	display: inline-block;
+}
+
+a.button.button-dark {
+	background-color: rgb(43 43 43);
+	color: #fff;
+}
+
+a.button.button-dark:hover:not(.disabled) {
+	background-color: rgb(58 58 58);
 }
 
 a.externalURL:after {
