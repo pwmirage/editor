@@ -47,6 +47,7 @@ class Window {
 		queryEl('.minimize').onclick = () => this.minimize();
 		queryEl('.maximize').onclick = () => this.maximize();
 		queryEl('.close').onclick = () => this.close();
+		queryEl('.refresh').onclick = () => this.refresh();
 
 		await Promise.all(this.style_promises);
 
@@ -445,6 +446,18 @@ class Window {
 		if (this.onresize) {
 			this.onresize();
 		}
+	}
+
+	async refresh() {
+		const obj = this.obj;
+		this.close();
+		const nwin = await this.constructor.open({ obj });
+
+		/* copy pos and size */
+		nwin.dom.style.left = this.dom.style.left;
+		nwin.dom.style.top = this.dom.style.top;
+		nwin.dom_win.style.width = this.dom_win.style.width;
+		nwin.dom_win.style.height = this.dom_win.style.height;
 	}
 
 	focus() {
