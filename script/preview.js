@@ -187,6 +187,24 @@ class PWPreview {
 		await g_latest_db_promise;
 	}
 
+	static get_state_before_gen(obj, generation) {
+		const state = DB.clone_obj(obj._db.changesets[0]);
+		for (const c of obj._db.changesets) {
+			if (c._db.generation == 0) {
+				/* initial object state */
+				continue;
+			}
+
+			if (c._db.generation >= generation) {
+				break;
+			}
+
+			DB.apply_diff(state, c);
+		}
+
+		return state;
+	}
+
 	static render_diff_entry(entry, data, prev) {
 		const entry_tpl = PWPreview.diff_entry_tpl;
 		if (!entry_tpl.func || Template.tpl_generation['diff-entry-tpl'] != entry_tpl.generation) {

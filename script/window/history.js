@@ -39,9 +39,12 @@ class HistoryWindow extends Window {
 			for (const obj of mod_objects) {
 				if (!obj._db.project_initial_state ||
 						obj._db.type == 'metadata' ||
-						obj._db.type == 'npc_tasks_in' ||
-						obj._db.type == 'npc_tasks_out' ||
 						obj._db.type == 'recipes') {
+					continue;
+				}
+
+				if ((obj._db.type == 'npc_tasks_in' ||
+						obj._db.type == 'npc_tasks_out') && obj.npc_id) {
 					continue;
 				}
 
@@ -81,7 +84,7 @@ class HistoryWindow extends Window {
 				header_el.append(span_el);
 				change_el.append(header_el);
 
-				const diff_el = PWPreview.diff_tpl.run({ db, obj, diff, prev: obj._db.project_initial_state });
+				const diff_el = PWPreview.diff_tpl.run({ db, obj, diff, prev: obj._db.project_initial_state, prev_gen: db.project_changelog_start_gen });
 				change_el.append(diff_el);
 				changed_objs_dom.append(change_el);
 

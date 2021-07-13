@@ -264,7 +264,7 @@ const cleanup_id_arr = (arr) => {
 
 const print_pretty_name = (obj, altname) => {
 	if (!obj) {
-		return '(invalid) ' + DB.serialize_id(tid);
+		return '(invalid)';
 	}
 
 	const name = escape(obj.name) || altname || '(unnamed)';

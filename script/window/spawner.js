@@ -232,7 +232,7 @@ class SpawnerWindow extends SingleInstanceWindow {
 				break;
 			}
 			case 3: {
-				DiffWindow.open({ obj: this.spawner, prev: this.spawner._db.project_initial_state });
+				DiffWindow.open({ obj: this.spawner, prev: this.spawner._db.project_initial_state, prev_gen: db.project_changelog_start_gen });
 			}
 		}
 	}

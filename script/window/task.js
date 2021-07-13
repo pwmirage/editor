@@ -11,6 +11,18 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 		this.tasks_in = db.npc_tasks_in[this.npc.id_task_in_service || 0];
 		this.tasks_out = db.npc_tasks_out[this.npc.id_task_out_service || 0];
 
+		if (this.tasks_in && !this.tasks_in.npc_id) {
+			db.open(this.tasks_in);
+			this.tasks_in.npc_id = this.npc.id;
+			db.commit(this.tasks_in);
+		}
+
+		if (this.tasks_in && !this.tasks_in.npc_id) {
+			db.open(this.tasks_in);
+			this.tasks_in.npc_id = this.npc.id;
+			db.commit(this.tasks_in);
+		}
+
 		await g_task_tpl;
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-tasks-by-npc');
@@ -64,6 +76,12 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 			db.commit(arr);
 		}
 
+		if (!arr.npc_id) {
+			db.open(arr);
+			arr.npc_id = this.npc.id;
+			db.commit(arr);
+		}
+
 		if (arr.tasks.length < 32) {
 			db.open(arr);
 			arr.tasks.push(0);
@@ -77,8 +95,8 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 		let arr = this[type];
 
 		db.open(arr);
-
 		arr.tasks[idx] = 0;
+		arr.npc_id = this.npc.id;
 		cleanup_arr(arr.tasks);
 
 		db.commit(arr);
@@ -91,16 +109,32 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 		const x = coords.left;
 		const y = coords.bottom;
 
+		const has_diff = this.npc._db.project_initial_state ||
+				this.tasks_in?._db?.project_initial_state ||
+				this.tasks_out?._db?.project_initial_state;
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
-			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
+			{ id: 3, name: 'Show project diff', disabled: !has_diff },
+			{ id: 4, name: 'Undo all changes', disabled: !has_diff },
 		]});
 		const sel = await win.wait();
 		switch (sel) {
 			case 3: {
-				DiffWindow.open({ obj: this.tasks_in, prev: this.tasks_in._db.project_initial_state });
-				DiffWindow.open({ obj: this.tasks_out, prev: this.tasks_out._db.project_initial_state });
+				DiffWindow.open({ obj: this.tasks_in, prev: this.tasks_in._db.project_initial_state, prev_gen: db.project_changelog_start_gen });
+				DiffWindow.open({ obj: this.tasks_out, prev: this.tasks_out._db.project_initial_state, prev_gen: db.project_changelog_start_gen });
+				break;
+			}
+			case 4: {
+				db.open(this.obj);
+				/* unset all fields, including any added ones */
+				for (const f in this.obj) {
+					if (f == '_db') continue;
+					this.obj[f] = undefined;
+				}
+				DB.copy_obj_data(this.obj, this.obj._db.project_initial_state);
+				db.commit(this.obj);
+				break;
 			}
 		}
 	}
@@ -1059,6 +1093,9 @@ class TaskWindow extends SingleInstanceWindow {
 
 				/* add entry to the npc list */
 				db.open(quests_out);
+				if (!quests_out.npc_id) {
+					quests_out.npc_id = npc.id;
+				}
 				quests_out.tasks[i] = this.task.id;
 				db.commit(quests_out);
 			}
@@ -1069,6 +1106,9 @@ class TaskWindow extends SingleInstanceWindow {
 				const pquests_out = db.npc_tasks_out[pnpc.id_task_out_service];
 				if (pquests_out) {
 					db.open(pquests_out);
+					if (!pquests_out.npc_id) {
+						pquests_out.npc_id = pnpc.id;
+					}
 					for (let i = 0; i < 32; i++) {
 						if (pquests_out.tasks?.[i] == this.task.id) {
 							pquests_out.tasks[i] = 0;
@@ -1123,6 +1163,9 @@ class TaskWindow extends SingleInstanceWindow {
 				/* add entry to the npc list */
 				db.open(quests_in);
 				quests_in.tasks[i] = this.task.id;
+				if (!quests_in.npc_id) {
+					quests_in.npc_id = npc.id;
+				}
 				db.commit(quests_in);
 			}
 
@@ -1132,6 +1175,9 @@ class TaskWindow extends SingleInstanceWindow {
 				const pquests_in = db.npc_tasks_in[pnpc.id_task_in_service];
 				if (pquests_in) {
 					db.open(pquests_in);
+					if (!pquests_in.npc_id) {
+						pquests_in.npc_id = pnpc.id;
+					}
 					for (let i = 0; i < 32; i++) {
 						if (pquests_in.tasks?.[i] == this.task.id) {
 							pquests_in.tasks[i] = 0;

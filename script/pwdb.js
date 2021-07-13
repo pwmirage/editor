@@ -298,7 +298,8 @@ class PWDB {
 			]),
 			_obj('scaled_award', 'Scaled Award'),
 			_obj('failure_scaled_award', 'Scaled Award on failure'),
-			_s('description', 'Description'),
+			_s('briefing', 'Description'),
+			_s('description', 'Additional description'),
 			_arr('dialogue', 'Dialogue',  [
 				_s('initial', 'Initial'),
 				_s('notqualified', 'Requirements not met'),
@@ -315,6 +316,7 @@ class PWDB {
 			_i('shop_price', 'Shop Price'),
 			_i('stack_max', 'Stack max.'),
 			_i('proc_type', 'Item properties'),
+			_s('desc', 'Description'),
 		]);
 	}
 
@@ -509,6 +511,26 @@ class PWDB {
 				}
 			}
 			PWDB.has_unsaved_changes = true;
+
+			if (obj._db.type === 'npc_tasks_in' || obj._db.type === 'npc_tasks_out') {
+				const npc = db.npcs[obj.npc_id || 0];
+				if (npc) {
+					db.open(npc);
+					const prevtasks = (obj._db.project_initial_state.tasks || []);
+					const tasks = (obj.tasks || []);
+					if (prevtasks.length != tasks.length) {
+						npc[obj._db.type + '_changed'] = true;
+					} else {
+						const tasks_sorted = tasks.slice().sort();
+						const prevtasks_sorted = prevtasks.slice().sort();
+						npc[obj._db.type + '_changed'] =
+							!tasks_sorted.every((value, index) => {
+								return value === prevtasks_sorted[index];
+						});
+					}
+					db.commit(npc);
+				}
+			}
 		});
 
 		db.new_id_start = 0x80000000 + project.pid * 0x100000;

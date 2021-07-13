@@ -391,7 +391,7 @@ class Window {
 				break;
 			}
 			case 3: {
-				DiffWindow.open({ obj: this.obj, prev: this.obj._db.project_initial_state });
+				DiffWindow.open({ obj: this.obj, prev: this.obj._db.project_initial_state, prev_gen: db.project_changelog_start_gen });
 				break;
 			}
 			case 4: {

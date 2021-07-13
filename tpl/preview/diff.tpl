@@ -252,5 +252,54 @@
 			{/if}
 		</div>
 	{/for}
+{else if $type == 'npcs'}
+	{if $obj.npc_tasks_out_changed}
+		<div class="block">
+			<span class="header">Tasks given</span>
+			{assign tasks_out_obj = db.npc_tasks_out[$obj?.id_task_out_service] || \{ \} }
+			{assign tasks_out = ($tasks_out_obj.tasks || [])}
+			{assign prev_tasks_out = PWPreview.get_state_before_gen($tasks_out_obj, $prev_gen)?.tasks || $tasks_out}
+
+			<div style="display: flex; flex-direction: column; background-color: #2b2b2b; color: #fff;">
+				{for ptid of $prev_tasks_out}
+					{if !$tasks_out.includes($ptid)}
+						{assign task = db.tasks[$ptid]}
+						<span class="minus" onclick="TaskWindow.open(\{ obj: db.tasks[{@$ptid}] \}); event.stopPropagation();">{@print_pretty_name($task)}</span>
+					{/if}
+				{/for}
+
+				{for tid of $tasks_out}
+					{if ($tid > 0) != $prev_tasks_out.includes($tid)}
+						{assign task = db.tasks[$tid]}
+						<span class="plus" onclick="TaskWindow.open(\{ obj: db.tasks[{@$tid}] \}); event.stopPropagation();">{@print_pretty_name($task)}</span>
+					{/if}
+				{/for}
+			</div>
+		</div>
+	{/if}
+	{if $obj.npc_tasks_in_changed}
+		<div class="block" style="display: flex; flex-direction: column;">
+			<span class="header">Tasks completed</span>
+			{assign tasks_in_obj = db.npc_tasks_in[$obj?.id_task_in_service] || \{ \} }
+			{assign tasks_in = ($tasks_in_obj.tasks || [])}
+			{assign prev_tasks_in = PWPreview.get_state_before_gen($tasks_in_obj, $prev_gen)?.tasks || $tasks_in}
+
+			<div style="display: flex; flex-direction: column; background-color: #2b2b2b; color: #fff;">
+				{for ptid of $prev_tasks_in}
+					{if !$tasks_in.includes($ptid)}
+						{assign task = db.tasks[$ptid]}
+						<span class="minus" onclick="TaskWindow.open(\{ obj: db.tasks[{@$ptid}] \}); event.stopPropagation();">{@print_pretty_name($task)}</span>
+					{/if}
+				{/for}
+
+				{for tid of $tasks_in}
+					{if ($tid > 0) != $prev_tasks_in.includes($tid)}
+						{assign task = db.tasks[$tid]}
+						<span class="plus" onclick="TaskWindow.open(\{ obj: db.tasks[{@$tid}] \}); event.stopPropagation();">{@print_pretty_name($task)}</span>
+					{/if}
+				{/for}
+			</div>
+		</div>
+	{/if}
 {/if}
 </script>
