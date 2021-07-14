@@ -468,6 +468,10 @@ class DB {
 				org = this.new_by_id(change._db.type, change.id);
 			}
 
+			if (change._extra_ref) {
+				delete change._extra_ref;
+			}
+
 			this.open(org);
 			DB.apply_diff(org, change, false);
 			this.commit(org);
