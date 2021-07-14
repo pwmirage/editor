@@ -2,15 +2,22 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_legend_win = null;
-
 class LegendWindow extends Window {
 	static loaded = load_tpl(ROOT_URL + 'tpl/window/map.tpl');
+	static instance = null;
+
+	static async open(args) {
+		if (!LegendWindow.instance) {
+			LegendWindow.instance = await super.open(args);
+		} else {
+			Window.container.append(LegendWindow.instance.dom);
+		}
+
+		g_map.shadow.querySelector('#open-legend').style.display = 'none';
+		return LegendWindow.instance;
+	}
 
 	async init() {
-		if (g_legend_win) return false;
-		g_legend_win = this;
-
 		await LegendWindow.loaded;
 		const shadow = this.dom.shadowRoot;
 		this.tpl = new Template('tpl-map-legend');
@@ -32,8 +39,6 @@ class LegendWindow extends Window {
 		await super.init();
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 125);
 
-		g_map.shadow.querySelector('#open-legend').style.display = 'none';
-		this.filter();
 		return true;
 	}
 
@@ -71,7 +76,6 @@ class LegendWindow extends Window {
 
 	close() {
 		g_map.shadow.querySelector('#open-legend').style.display = 'block';
-		g_legend_win = null;
 		super.close();
 	}
 }

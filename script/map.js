@@ -456,6 +456,10 @@ class PWMap {
 						type: s.type, _dbtype: s._db.type, name: this.get_spawner_name(s) })) || []
 				});
 
+				const lwin = await LegendWindow.open({});
+				lwin.filter();
+				lwin.close();
+
 				this.pos.scale = Math.min(
 					this.map_bounds.width * 0.75 / (this.bg.width - img_off.x * 2),
 					this.map_bounds.height * 0.75 / (this.bg.height - img_off.y * 2)
