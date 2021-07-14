@@ -80,6 +80,15 @@ class DB {
 						return ret;
 					}
 				}
+				if (k === 'map') {
+					return function(fn) {
+						let ret = [];
+						for (const obj of map.values()) {
+							ret.push(fn(obj));
+						}
+						return ret;
+					}
+				}
 				if (k === 'find') {
 					return function(fn) {
 						for (const obj of map.values()) {

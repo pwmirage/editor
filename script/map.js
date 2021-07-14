@@ -79,10 +79,6 @@ class PWMap {
 	async refresh_focused_spawners() {
 		await Promise.all([
 			this.post_canvas_msg({
-				type: 'set_focused_spawners',
-				spawners: [...this.focused_spawners],
-			}),
-			this.post_canvas_msg({
 				type: 'set_selected_spawners',
 				spawners: [...this.selected_spawners],
 			})
@@ -122,8 +118,8 @@ class PWMap {
 				const overlay = overlays[e.data.id];
 				const prev_overlay = overlays[1 - e.data.id];
 
-				const w = Math.floor(8/6 * this.canvas.offsetWidth);
-				const h = Math.floor(8/6 * this.canvas.offsetHeight);
+				const w = this.canvas_width = Math.floor(8/6 * this.canvas.offsetWidth);
+				const h = this.canvas_height = Math.floor(8/6 * this.canvas.offsetHeight);
 				for (const o of overlays) {
 					if (o.styledWidth != w || o.styledHeight != h) {
 						o.style.left = Math.floor(-1/6 * this.canvas.offsetWidth) + 'px';
@@ -140,7 +136,7 @@ class PWMap {
 
 			} else if (e.data.type == 'mouse') {
 				const hovered = e.data.hovered_spawners;
-				const spawners = hovered.map(s => db[s._db.type][s.id]);
+				const spawners = hovered.map(s => db[s._dbtype][s.id]);
 
 				this.hovered_spawners = spawners;
 				if (spawners.length) {
@@ -187,19 +183,6 @@ class PWMap {
 			last_pos.x = pos.x;
 			last_pos.y = pos.y;
 		}, 25);
-
-		this.post_canvas_msg({
-			type: 'set_objs', obj_type: 'monsters',
-			objs: [...db.monsters],
-		});
-		this.post_canvas_msg({
-			type: 'set_objs', obj_type: 'npcs',
-			objs: [...db.npcs],
-		});
-		this.post_canvas_msg({
-			type: 'set_objs', obj_type: 'mines',
-			objs: [...db.mines],
-		});
 
 		this.q_canvas = this.shadow.querySelector('#quick-canvas');
 		this.select_menu = this.shadow.querySelector('#select-menu');
@@ -399,7 +382,12 @@ class PWMap {
 			}
 
 			(async () => {
-				await this.post_canvas_msg({ type: 'update_obj', obj: obj });
+				const s = obj;
+				await this.post_canvas_msg({ type: 'update_obj', obj:
+						{ id: s.id, pos: s.pos, groups: s.groups,
+						type: s.type, _dbtype: s._db.type,
+						name: this.get_spawner_name(s)
+						}, filtered: this.filter_spawner(s) });
 				this.force_mouse_update = true;
 				await this.redraw_dyn_overlay();
 			})();
@@ -463,7 +451,9 @@ class PWMap {
 
 				this.post_canvas_msg({
 					type: 'set_objs', obj_type: 'spawners',
-					objs: [...(db['spawners_' + this.maptype.id] || [])],
+					objs: db['spawners_' + this.maptype.id]?.map(s =>
+						({ id: s.id, pos: s.pos, groups: s.groups,
+						type: s.type, _dbtype: s._db.type, name: this.get_spawner_name(s) })) || []
 				});
 
 				this.pos.scale = Math.min(
@@ -588,6 +578,12 @@ class PWMap {
 		return e.defaultPrevented;
 	}
 
+	get_spawner_name(spawner) {
+		const type = spawner.groups?.[0]?.type;
+		const obj = db.npcs[type] || db.monsters[type] || db.mines[type];
+		return obj?.name + ' ' + DB.serialize_id(spawner.id);
+	};
+
 	async ondblclick(e) {
 		const spawners = this.hovered_spawners;
 		if (e.which == 1 && spawners.length) {
@@ -595,12 +591,7 @@ class PWMap {
 				this.open_spawner(spawners[0], e);
 			} else {
 				let idx = 1;
-				const get_name = (spawner) => {
-					const type = spawner.groups?.[0]?.type;
-					const obj = db.npcs[type] || db.monsters[type] || db.mines[type];
-					return (spawner.name || obj?.name) + ' ' + DB.serialize_id(spawner.id);
-				};
-				const entries = spawners.map(s => ({ name: get_name(s), id: idx++ }));
+				const entries = spawners.map(s => ({ name: this.get_spawner_name(s), id: idx++ }));
 				const x = e.clientX - Window.bounds.left;
 				const y = e.clientY - Window.bounds.top;
 				const win = await RMenuWindow.open({
@@ -877,8 +868,108 @@ class PWMap {
 	}
 
 	async filter_spawners(opts) {
-		await this.post_canvas_msg({ type: 'set_options', opts: opts });
+		this.spawner_opts = opts;
+		const opt = (q) => opts[q];
+
+		const filters = { npc: [], resource: [], monster: [] };
+
+		if (!opt('npc-show')) filters.npc.push((s) => false);
+		if (!opt('npc-show-auto')) filters.npc.push((s) => s.trigger);
+		if (!opt('npc-show-on-trigger')) filters.npc.push((s) => !s.trigger);
+		if (!opt('resource-show')) filters.resource.push((s) => false);
+		if (!opt('resource-show-auto')) filters.resource.push((s) => s.trigger);
+		if (!opt('resource-show-on-trigger')) filters.resource.push((s) => !s.trigger);
+		if (!opt('mob-show')) filters.monster.push((s) => false);
+		if (!opt('mob-show-auto')) filters.monster.push((s) => s.trigger);
+		if (!opt('mob-show-on-trigger')) filters.monster.push((s) => !s.trigger);
+
+		const by_mob = (fn) => {
+			return (s) => {
+				const type = s.groups[0]?.type || 0;
+				const mob = db.monsters[type];
+				if (!mob) return true;
+				return fn(mob);
+			}
+		}
+		if (!opt('mob-show-ground')) filters.monster.push(by_mob((m) => m.stand_mode == 2 || m.swim_speed));
+		if (!opt('mob-show-flying')) filters.monster.push(by_mob((m) => m.stand_mode != 2 || m.swim_speed));
+		if (!opt('mob-show-water')) filters.monster.push(by_mob((m) => !m.swim_speed));
+
+		if (!opt('mob-show-boss')) filters.monster.push(by_mob((m) => !m.show_level));
+		if (!opt('mob-show-nonboss')) filters.monster.push(by_mob((m) => m.show_level));
+		if (!opt('mob-show-aggressive')) filters.monster.push(by_mob((m) => !m.is_aggressive));
+		if (!opt('mob-show-nonaggressive')) filters.monster.push(by_mob((m) => m.is_aggressive));
+
+		const minlevel = typeof(opt('mob-show-lvl-min')) == 'number' ? opt('mob-show-lvl-min') : 0;
+		const maxlevel = typeof(opt('mob-show-lvl-max')) == 'number' ? opt('mob-show-lvl-max') : 150;
+		filters.monster.push(by_mob((m) => m.level >= minlevel && m.level <= maxlevel));
+
+		const map_filters = {};
+
+		for (const type in filters) {
+			map_filters[type] = (s) => {
+				for (const f of filters[type]) {
+					if (!f(s)) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+
+		this.spawner_filters = map_filters;
+
+		const search = typeof(opt('search')) == 'string' ? opt('search').toLowerCase() : '';
+		this.spawner_opts.search = search;
+
+		const drawn_spawners = { npc: [], monster: [], resource: [] };
+		for (const spawner of (db['spawners_' + this.maptype.id] || [])) {
+			if (this.filter_spawner(spawner)) {
+				drawn_spawners[spawner.type].push(spawner.id);
+			}
+		}
+
+		await this.post_canvas_msg({ type: 'set_filtered_spawners', spawners: drawn_spawners });
 		return this.redraw_dyn_overlay();
+	}
+
+	filter_spawner(spawner) {
+		const type = spawner.type;
+		if (type && (!this.spawner_filters[type] || !this.spawner_filters[type](spawner))) {
+			return false;
+		}
+
+		if (spawner._removed && !this.spawner_opts['show-removed-spawners']) {
+			return false;
+		}
+
+		if (this.spawner_opts.search) {
+			let match = false;
+
+			const get_name = (spawner, group_idx = 0) => {
+				let obj = null;
+				const type = spawner.groups[group_idx]?.type;
+				if (spawner.type == 'resource') {
+					obj = db.mines[type];
+				} else {
+					obj = db.npcs[type] || db.monsters[type];
+				}
+				return obj?.name || '';
+			};
+
+			for (let i = 0; i < spawner.groups.length; i++) {
+				if (get_name(spawner, i)?.toLowerCase()?.includes(search)) {
+					match = true;
+					break;
+				}
+			}
+
+			if (!match) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	move_dyn_overlay() {
