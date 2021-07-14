@@ -278,26 +278,36 @@ class PWMap {
 					return;
 				}
 
-				const crafts = db.npc_crafts[obj.crafts];
-				/* modify crafts to show *their* marker instead */
-				let ref = crafts._extra_ref;
-				if (!crafts._db.modified_recipes) {
-					if (DB.is_obj_diff(obj, obj._db.project_initial_state)) {
-						ref = 1;
-					}
+				const is_diff = DB.is_obj_diff(obj, obj._db.project_initial_state);
+				obj._db.is_diff = is_diff;
 
-					crafts._db.modified_recipes = new Set();
+				/* modify crafts to show *their* marker instead */
+				const crafts = db.npc_crafts[obj.crafts];
+				let ref = 0;
+				if (is_diff) {
+					ref = 1;
 				} else {
-					const is_diff = DB.is_obj_diff(obj, obj._db.project_initial_state);
-					const has_ref = crafts._db.modified_recipes.has(obj);
-					if (has_ref && !is_diff) {
-						ref--;
-					} else if (!has_ref && is_diff) {
-						ref++;
+					for (let p = 0; p < 8; p++) {
+						for (let i = 0; i < 32; i++) {
+							const recipe_id = crafts?.pages?.[p]?.recipe_id?.[i];
+
+							if (!recipe_id) {
+								continue;
+							}
+
+							const r = db.recipes[recipe_id];
+							if (!r || !r._db.project_initial_state) {
+								continue;
+							}
+
+							if (r._db.is_diff) {
+								ref = 1;
+								p = 10;
+								break;
+							}
+						}
 					}
 				}
-
-				crafts._db.modified_recipes.add(obj);
 
 				/* when extra_ref drops to 0, there will be no diff in crafts and its
 				 * marker will disappear as well */
