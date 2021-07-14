@@ -972,7 +972,7 @@ class PWMap {
 			};
 
 			for (let i = 0; i < spawner.groups.length; i++) {
-				if (get_name(spawner, i)?.toLowerCase()?.includes(search)) {
+				if (get_name(spawner, i)?.toLowerCase()?.includes(this.spawner_opts.search)) {
 					match = true;
 					break;
 				}
