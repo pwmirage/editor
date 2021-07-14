@@ -104,7 +104,7 @@ class PWMap {
 		this.hover_lbl = this.shadow.querySelector('.label');
 		this.pos_label = this.shadow.querySelector('#pw-map-pos-label');
 
-		this.canvas_worker = new Worker(ROOT_URL + 'script/map_worker.js');
+		this.canvas_worker = new Worker(ROOT_URL + 'script/map_worker.js?v=' + MG_VERSION);
 		const overlays = this.shadow.querySelectorAll('.dyn-canvas');
 		for (let i = 0; i < overlays.length; i++) {
 			const overlay = overlays[i];
@@ -449,7 +449,7 @@ class PWMap {
 					map: { size: this.maptype.size, bg_scale: this.bg_scale },
 				});
 
-				this.post_canvas_msg({
+				await this.post_canvas_msg({
 					type: 'set_objs', obj_type: 'spawners',
 					objs: db['spawners_' + this.maptype.id]?.map(s =>
 						({ id: s.id, pos: s.pos, groups: s.groups,
