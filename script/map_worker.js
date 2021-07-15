@@ -78,16 +78,24 @@ self.onmessage = async (e) => {
 		case 'set_objs': {
 			const obj_type = e.data.obj_type;
 			const objs = e.data.objs;
-			init_objs(obj_type, objs);
+			g_spawners.clear();
+			for (const obj of objs) {
+				g_spawners.set(obj.id, obj);
+			}
 			break;
 		}
 		case 'update_obj': {
 			const obj = e.data.obj;
+			const prev = g_spawners.get(obj.id);
 			g_spawners.set(obj.id, obj);
+
+			if (!g_filtered_spawners[obj.type]) {
+				return;
+			}
+
+			g_filtered_spawners[obj.type].delete(prev);
 			if (e.data.filtered) {
-				g_filtered_spawners[obj.type].set(obj.id, obj);
-			} else {
-				g_filtered_spawners[obj.type].delete(obj.id);
+				g_filtered_spawners[obj.type].add(obj);
 			}
 			break;
 		}
@@ -143,12 +151,6 @@ self.onmessage = async (e) => {
 
 	self.postMessage(resp);
 };
-
-const init_objs = (type, arr) => {
-	for (const obj of arr) {
-		g_spawners.set(obj.id, obj);
-	}
-}
 
 const get_spawners_at = (mx, my) => {
 	if (!g_filtered_spawners) {

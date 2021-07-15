@@ -392,9 +392,13 @@ class PWMap {
 			}
 
 			(async () => {
+				if (!obj.type) {
+					return;
+				}
+
 				const s = obj;
 				await this.post_canvas_msg({ type: 'update_obj', obj:
-						{ id: s.id, pos: s.pos, groups: s.groups,
+						{ id: s.id, pos: s.pos, dir: s.dir, groups: s.groups,
 						type: s.type, _dbtype: s._db.type,
 						name: this.get_spawner_name(s)
 						}, filtered: this.filter_spawner(s) });
@@ -462,7 +466,7 @@ class PWMap {
 				await this.post_canvas_msg({
 					type: 'set_objs', obj_type: 'spawners',
 					objs: db['spawners_' + this.maptype.id]?.map(s =>
-						({ id: s.id, pos: s.pos, groups: s.groups,
+						({ id: s.id, pos: s.pos, dir: s.dir, groups: s.groups,
 						type: s.type, _dbtype: s._db.type, name: this.get_spawner_name(s) })) || []
 				});
 
