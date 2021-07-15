@@ -239,7 +239,16 @@
 					<div>{* Auto *}</div>
 					<div>NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'start_npc'" data-select="db.npcs" style="margin-top: 1px;" oninput="{serialize $win}.update_npc('start_npc', this);"></a>
 					</div>
-					<div>Reach Location: (TODO)</div>
+					<div class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
+						<span>Reach Location:</span>
+						<span data-select="PWMap.maps_arr" data-link="{serialize $task} => 'start_on_enter_world_id'" style="width: auto; min-width: 100px; flex: 1;"></span>
+						East:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'east'"></span>
+						Bottom:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'bottom'"></span>
+						South:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'south'"></span>
+						West:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'west'"></span>
+						Top:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'top'"></span>
+						North:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'north'"></span>
+					</div>
 					<div>{* By Death *}</div>
 				</div>
 			{/if}
@@ -324,8 +333,15 @@
 						<div>Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
 					</div>
 
-					<div>
-						Reach Location: (TODO)
+					<div class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
+						<span>Reach Location:</span>
+						<span data-select="PWMap.maps_arr" data-link="{serialize $task} => 'reach_location_world_id'" style="width: auto; min-width: 100px; flex: 1;"></span>
+						East:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'east'"></span>
+						Bottom:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'bottom'"></span>
+						South:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'south'"></span>
+						West:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'west'"></span>
+						Top:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'top'"></span>
+						North:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'north'"></span>
 					</div>
 
 					<div>
@@ -421,7 +437,7 @@
 					<div class="flex-columns">
 						<span>Trigger:</span>
 						<a class="button menu-triangle" data-link-button="{serialize $task} => 'award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
-						<label title="Checked = enable trigger" style="margin-top: 4px; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'award', 'ai_trigger_enable'" class="checkbox"><span></span></label>
+						<label title="Checked = enable trigger" style="margin-left: -5px; align-items: baseline;"><input type="checkbox" data-link="{serialize $task} => 'award', 'ai_trigger_enable'" class="checkbox"><span></span></label>
 					</div>
 					<div class="flex-columns">
 						<span>Coins:</span>
@@ -519,7 +535,7 @@
 						<div class="flex-columns">
 							<span>Trigger on failure:</span>
 							<a class="button menu-triangle" data-link-button="{serialize $task} => 'failure_award', 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
-							<label title="Checked = enable trigger" style="margin-top: 4px; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'failure_award', 'ai_trigger_enable'" class="checkbox"><span></span></label>
+							<label title="Checked = enable trigger" style="align-items: baseline; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'failure_award', 'ai_trigger_enable'" class="checkbox"><span></span></label>
 						</div>
 						<div id="failure_award_items" class="data-field" style="align-items: unset;">
 							<span>Give Items on failure: </span>
@@ -558,7 +574,7 @@
 						<div class="flex-columns">
 							<span>Trigger on start:</span>
 							<a class="button menu-triangle" data-link-button="{serialize $task} => 'ai_trigger'" data-select="db['triggers_' + (g_map.maptype.id != 'none' ? g_map.maptype.id : 'gs01')]" style="margin-top: 1px; margin-bottom: 1px;"></a>
-							<label title="Checked = enable trigger" style="margin-top: 4px; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'ai_trigger_enable'" class="checkbox"><span></span></label>
+							<label title="Checked = enable trigger" style="align-items: baseline; margin-left: -5px;"><input type="checkbox" data-link="{serialize $task} => 'ai_trigger_enable'" class="checkbox"><span></span></label>
 						</div>
 					</div>
 
@@ -579,12 +595,12 @@
 							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'petbag_slots'"></span>
 						</div>
 
-						<div class="flex-columns">
-							<span>Teleport to (W:X:Y:Z):</span>
-							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'world'"></span>
-							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'x'"></span>
-							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'y'"></span>
-							<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'z'"></span>
+						<div class="flex-columns" style="column-gap: 5px;">
+							<span>Teleport to:</span>
+							<span data-select="PWMap.maps_arr" data-link="{serialize $task} => 'award', 'tp', 'world'" style="width: auto; min-width: 100px; flex: 1;"></span>
+							X:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'x'"></span>
+							Y:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'y'"></span>
+							Z:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'award', 'tp', 'z'"></span>
 						</div>
 					</div>
 					<div>
@@ -1055,6 +1071,15 @@ ul.tree>li:first-child:before {
 
 label {
 	height: auto;
+}
+
+label > input[type="checkbox"] {
+	height: auto;
+}
+
+
+.flex-columns {
+	align-items: baseline;
 }
 </style>
 @@}

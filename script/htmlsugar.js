@@ -540,6 +540,8 @@ class HTMLSugar {
 		el.removeAttribute('data-link');
 		const field_name = el.dataset.selectField;
 		el.removeAttribute('data-select-field');
+		const chooser_no_show_id = el.dataset.selectNoShowID;
+		el.removeAttribute('data-select-no-show-id');
 		const title_str = el.dataset.title;
 
 		const select_arr = el._mg_select;
@@ -641,6 +643,13 @@ class HTMLSugar {
 			select_arr_cp = null;
 		}
 
+		let chooser_name_fn = null;
+		if (chooser_no_show_id) {
+			chooser_name_fn = (obj) => {
+				return obj.name;
+			};
+		}
+
 		edit_el.oninput = () => {
 			const search = edit_el.textContent;
 			let hints;
@@ -666,7 +675,7 @@ class HTMLSugar {
 
 					div.onclick = async () => {
 						let win;
-						win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr });
+						win = await SimpleChooserWindow.open({ title: title_str, search: edit_el.textContent, items: select_arr, name_fn: chooser_name_fn });
 
 						win.onchoose = (type) => {
 							if (type) {
