@@ -394,11 +394,6 @@ class TaskWindow extends SingleInstanceWindow {
 					span.oncontextmenu = (e) => { span.onclick(e); return false; };
 				} else if (type == 'question') {
 					const q = d.questions.find(q => q?.id == id);
-					span.oninput = (e) => {
-						db.open(this.task);
-						q.text = span.innerText;
-						db.commit(this.task);
-					};
 					span.onclick = async (e) => {
 						if (e.which != 3) {
 							return;
@@ -859,15 +854,17 @@ class TaskWindow extends SingleInstanceWindow {
 		return d?.questions?.find(q => (q?.parent_id == -1 || q?.parent_id == 4294967295) && (q?.id || q?.text));
 	}
 
-	static print_question(d, q_id) {
-		let q = d?.questions?.find(q => q?.id == q_id);
-		if (!q) {
+	static print_question(tid, dtype, d, q_id) {
+		let qidx = d?.questions?.findIndex(q => q?.id == q_id);
+		if (qidx == -1) {
 			return '';
 		}
 
+		let q = d.questions[qidx];
+
 		/* FIXME encode all HTML tags */
 
-		let ret = '<li class="question" data-id="' + q_id + '"><span contentEditable="true">' + q.text + '</span>';
+		let ret = '<li class="question" data-id="' + q_id + '"><span class="pw-editable-color-text" style="flex: 1; min-width: 275px; overflow: visible;" data-editable-color-text data-link="db.tasks[' + tid + '] => \'dialogue\', \'' + dtype + '\', \'questions\', ' + qidx + ', \'text\'"></span>';
 		if (q.choices?.filter(c => c.id != 0)?.length) {
 			ret += '<ul>';
 			let idx = 0;
@@ -881,7 +878,7 @@ class TaskWindow extends SingleInstanceWindow {
 					ret += '<li class="choice" data-id="' + idx + '"><span contentEditable="true">' + c.text + '</span>';
 					if (c.id > 0) {
 						ret += '<ul>'
-						ret += TaskWindow.print_question(d, c.id);
+						ret += TaskWindow.print_question(tid, dtype, d, c.id);
 						ret += '</ul>';
 					}
 					ret += '</li>';
