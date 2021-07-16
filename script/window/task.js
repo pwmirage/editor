@@ -168,8 +168,8 @@ class TaskWindow extends SingleInstanceWindow {
 	]);
 
 	static avail_frequency_types = init_id_array([
-		{ id: 0, name: 'Never' },
-		{ id: 6, name: 'Always' },
+		{ id: 0, name: 'Always' },
+		{ id: 6, name: 'Never' },
 		{ id: 1, name: 'Once a Day' },
 		{ id: 2, name: 'Once a Week' },
 		{ id: 3, name: 'Once a Month' },
