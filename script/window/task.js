@@ -1034,6 +1034,10 @@ class TaskWindow extends SingleInstanceWindow {
 
 		if (id == 2) {
 			this.fix_award_probability(0);
+		} else {
+			db.open(this.task);
+			this.task.award.item_groups.length = 1;
+			db.commit(this.task);
 		}
 	}
 
