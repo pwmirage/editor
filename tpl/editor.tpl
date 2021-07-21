@@ -441,6 +441,7 @@
 #pw-overlay,
 #pw-windows {
 	pointer-events: none;
+	z-index: 1;
 }
 
 #pw-windows > * {
