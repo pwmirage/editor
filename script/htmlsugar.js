@@ -848,7 +848,7 @@ class HTMLSugar {
 						update_icon();
 					},
 					edit_obj_fn: (new_obj) => {
-						ItemTooltipWindow.open({ item: new_obj, edit: true, db });
+						ItemTooltipWindow.open({ obj: new_obj, edit: true, db });
 					},
 					usage_name_fn: (obj) => {
 						return (obj.name || '') + ' ' + DB.serialize_id(obj.id);
