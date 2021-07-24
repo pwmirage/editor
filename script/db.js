@@ -271,7 +271,7 @@ class DB {
 						} else {
 							/* check if there's a difference (excluding any mix
 							 * of 0s, empty strings, nulls, undefines) */
-							const v = obj[f] || 0;
+							const v = obj[f] != DB.force_null ? (obj[f] || 0) : 0;
 							const prev = org && org[f] != DB.force_null ? (org[f] || 0) : 0;
 							/* match (!org) as well -> there may be a value at
 							 * earlier changeset different than 0 and we do want
@@ -690,7 +690,7 @@ class DB {
 				}
 			} else {
 				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-				const v = obj[f] || 0;
+				const v = obj[f] != DB.force_null ? (obj[f] || 0) : 0;
 				const prev = org && org[f] != DB.force_null ? (org[f] || 0) : 0;
 				if (v != prev) {
 					return true;
@@ -724,8 +724,8 @@ class DB {
 				}
 			} else {
 				/* check if there's a difference (excluding any mix of 0s, empty strings, nulls, undefines) */
-				const v = obj[f] || 0;
-				const p = prev ? (prev[f] || 0) : 0;
+				const v = obj[f] != DB.force_null ? (obj[f] || 0) : 0;
+				const p = prev && prev[f] != DB.force_null ? (prev[f] || 0) : 0;
 				if (v != p) {
 					if (obj[f] == null || obj[f] == undefined) {
 						diff[f] = DB.force_null;
