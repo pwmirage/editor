@@ -139,7 +139,7 @@
 		<div class="tasks flex-rows">
 			<div class="header">Next quests:</div>
 			{for next_task of ($win.next_tasks || [])}
-				<div class="task" onclick="TaskWindow.open(\{ obj: db.tasks[{@$next_task.id}]\});">{@TaskWindow.print_task_name($next_task.name)} {@DB.serialize_id($next_task.id)}</div>
+				<div class="task" style="cursor: pointer;" onclick="TaskWindow.open(\{ obj: db.tasks[{@$next_task.id}]\});">{@TaskWindow.print_task_name($next_task.name)} {@DB.serialize_id($next_task.id)}</div>
 			{/for}
 		</div>
 	</div>

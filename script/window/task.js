@@ -302,7 +302,7 @@ class TaskWindow extends SingleInstanceWindow {
 		this.task = this.obj = this.args.obj;
 
 		this.selected_task = this.args.obj;
-		this.next_tasks = db.tasks.filter(t => t.premise_quests?.includes(this.task.id));
+		this.next_tasks = db.tasks.filter(t => t.premise_quests?.includes(this.root_task.id));
 		this.sel_opts = {};
 
 		await g_task_tpl;
