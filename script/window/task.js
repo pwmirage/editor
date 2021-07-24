@@ -357,7 +357,7 @@ class TaskWindow extends SingleInstanceWindow {
 				e.preventDefault();
 			};
 
-			for (const span of dialogue.querySelectorAll('li > span')) {
+			for (const span of dialogue.querySelectorAll('li > span:not(.noinput)')) {
 				const node = span.parentNode;
 				const type = node.className;
 				const id = parseInt(node.dataset.id || 0);
@@ -516,8 +516,10 @@ class TaskWindow extends SingleInstanceWindow {
 								}
 
 								const sel_id = await HTMLSugar.show_select({ win: this, around_el: span, around_margin: 5, container: functions });
+								db.open(this.task);
 								c.id = sel_id;
 								c.param = this.task.id;
+								db.commit(this.task);
 								this.select_tab('dialogue', this.sel_opts.dialogue);
 								break;
 							case 2:
@@ -875,7 +877,7 @@ class TaskWindow extends SingleInstanceWindow {
 				}
 
 				if (c.id < 0x80000000) {
-					ret += '<li class="choice" data-id="' + idx + '"><span contentEditable="true">' + c.text + '</span>';
+					ret += '<li class="choice" data-id="' + idx + '"><span contentEditable="true">' + escape(c.text || "") + '</span>';
 					if (c.id > 0) {
 						ret += '<ul>'
 						ret += TaskWindow.print_question(tid, dtype, d, c.id);
@@ -884,7 +886,7 @@ class TaskWindow extends SingleInstanceWindow {
 					ret += '</li>';
 				} else {
 					const ctype = TaskWindow.dialogue_choice_opts[c.id];
-					ret += '<li class="choice" data-id="' + idx + '"><span data-option="true" contentEditable="true">' + c.text + '</span><br><span>' + ctype.name;
+					ret += '<li class="choice" data-id="' + idx + '"><span data-option="true" contentEditable="true">' + c.text + '</span><br><span class="noinput" onmousedown="this.previousSibling.previousSibling.onmousedown(event);" onclick="this.previousSibling.previousSibling.onclick(event);" oncontextmenu="this.onclick(event); return false;">' + ctype.name;
 					if (ctype.param) {
 						ret += ': &nbsp;<input type="text" value="' + (DB.serialize_id(c.param) || c.param) + '">';
 					}
