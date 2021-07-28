@@ -1197,14 +1197,6 @@ class TaskWindow extends SingleInstanceWindow {
 			return false;
 		}
 
-		if (q.parent_quest) {
-			return false;
-		}
-
-		if (q.start_by != 2) {
-			return false;
-		}
-
 		/* don't check start_npc -> it can be different */
 		return true;
 	}
