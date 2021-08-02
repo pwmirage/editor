@@ -59,6 +59,8 @@ class PWDB {
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
 		PWDB.db_version = 7;
+
+		/*
 		PWDB.type_fields = [
 			'string',
 			'int',
@@ -71,6 +73,7 @@ class PWDB {
 			'item_id_ptr',
 			'item_id_ptr_arr',
 		];
+		*/
 	}
 
 	static init_types() {
@@ -345,10 +348,6 @@ class PWDB {
 	static async new_db(args) {
 		PWDB.loaded = false;
 
-		if (!PWDB.g_db_promises) {
-			PWDB.init();
-		}
-
 		if (!args) {
 			args = {};
 		}
@@ -542,10 +541,12 @@ class PWDB {
 				db.load(project_changeset);
 				db.new_generation();
 
-				const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
-				if (changeset_str) {
-					const changeset = JSON.parse(changeset_str);
-					db.load(changeset);
+				if (typeof localStorage !== 'undefined') {
+					const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
+					if (changeset_str) {
+						const changeset = JSON.parse(changeset_str);
+						db.load(changeset);
+					}
 				}
 			} else {
 				db.new_generation();
@@ -991,3 +992,5 @@ class PWDB {
 	}
 
 }
+
+PWDB.init();
