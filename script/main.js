@@ -5,32 +5,26 @@
 const g_db = {};
 
 const ROOT_URL = '/editor/';
-let MG_VERSION_FULL = {};
-let MG_VERSION = '0';
 let MG_DEBUG = 0;
 let MG_UNSUPPORTED = false;
 
 const mg_init = async () => {
-	/* check authentication first */
+	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
+
+	document.head.append(newStyle(ROOT_URL + 'css/style.css'));
+
 	await Promise.all([
-		fetch(ROOT_URL + 'version.php', { is_json: 1 }).then(async (r) => {
-			MG_VERSION_FULL = await r.json();
-			MG_VERSION = MG_VERSION_FULL.mtime;
-		}),
+		load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION),
+		load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION),
+		load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION),
 	]);
 
-	await load_script(ROOT_URL + 'script/util.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/loading.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/template.js?v=' + MG_VERSION);
-	await load_script(ROOT_URL + 'script/htmlsugar.js?v=' + MG_VERSION);
-
 	await Promise.all([
+		load_script(ROOT_URL + 'script/sw_manager.js?v=' + MG_VERSION),
 		load_script(ROOT_URL + 'script/maintainer.js?v=' + MG_VERSION),
 		load_script(ROOT_URL + 'script/preview.js?v=' + MG_VERSION),
 		load_script(ROOT_URL + 'script/debug_client.js?v=' + MG_VERSION),
 	]);
-
-	document.head.append(newStyle(ROOT_URL + 'css/style.css'));
 
 	try {
 		eval("document?.window ?? true");
