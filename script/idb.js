@@ -5,7 +5,7 @@
 class IDB {
 	static async open(table, ver, mode = 'readonly') {
 		const db = await new Promise((resolve, reject) => {
-			const request = window.indexedDB.open(table, ver);
+			const request = indexedDB.open(table, ver);
 			request.onerror = reject;
 
 			request.onsuccess = () => {
@@ -31,11 +31,7 @@ class IDB {
 			request.onerror = reject;
 			request.onsuccess = () => {
 				const resp = request.result;
-				if (resp) {
-					resolve(resp.val);
-				} else {
-					reject();
-				}
+				resolve(resp ? resp.val : undefined);
 			};
 		});
 	}
