@@ -23,10 +23,108 @@ class Loading {
 	static try_cancel_tag() {};
 };
 
+self.importScripts('editor/script/jpeg-encode.js');
+self.importScripts('editor/script/jpeg-decode.js');
 self.importScripts('editor/script/db.js');
 self.importScripts('editor/script/idb.js');
 self.importScripts('editor/script/util.js');
 self.importScripts('editor/script/pwdb.js');
+
+class Icon {
+	static icons = [];
+	static iconset_cache = null;
+
+	static async init(iconset_url) {
+		await Icon.gen_blank();
+		await Icon.load_iconset(iconset_url);
+		/* gen icons in (semi-)background */
+		Icon.gen_promise = Icon.gen_all_icons();
+	}
+
+	static get_icon(index) {
+		if (Icon.icons[index]) {
+			return Icon.icons[index];
+		}
+
+		if (index < 0) {
+			/* the blank icon */
+			return Icon.icons[Icon.icons.length - 1];
+		}
+
+		let width = Icon.atlas_width / 32;
+		let height = Icon.atlas_height / 32;
+		let x = index % width;
+		let y = Math.floor(index / width) || 0;
+
+		if (index >= width * height) {
+			return Icon.icons[0];
+		}
+
+		const arr8_data = new Uint8ClampedArray(32 * 32 * 4);
+		for (let y_off = 0; y_off < 32; y_off++) {
+			for (let x_off = 0; x_off < 32; x_off++) {
+				const doff = y_off * 32 + x_off;
+				const soff = (y * 32 + y_off) * Icon.atlas_width + x * 32 + x_off;
+				arr8_data[doff * 4 + 0] = Icon.atlas_data[soff * 3 + 0];
+				arr8_data[doff * 4 + 1] = Icon.atlas_data[soff * 3 + 1];
+				arr8_data[doff * 4 + 2] = Icon.atlas_data[soff * 3 + 2];
+				arr8_data[doff * 4 + 3] = 1;
+			}
+		}
+
+		const img_data = new ImageData(arr8_data, 32, 32);
+		Icon.icons[index] = encode(img_data, 95).data;
+		return Icon.icons[index];
+	}
+
+	static async gen_blank() {
+		const resp = await fetch(ROOT_URL + 'img/itemslot.png');
+		const buf = await resp.arrayBuffer();
+
+		const width = Icon.atlas_width / 32;
+		const height = Icon.atlas_height / 32;
+		const index = width * height;
+
+
+		Icon.icons[index] = buf;
+		return Icon.icons[index];
+	}
+
+	static async load_iconset(url) {
+		const resp = await fetch(url);
+		const arr_data = await resp.arrayBuffer();
+		const arr8_data = new Uint8Array(arr_data);
+
+		Icon.atlas_width = 4096;
+		Icon.atlas_height = 2048;
+
+		const parser = new JpegDecoder();
+		parser.parse(arr8_data);
+		Icon.atlas_data = parser.getData(Icon.atlas_width, Icon.atlas_height);
+	}
+
+
+	static async gen_all_icons() {
+		return Promise.resolve();
+		if (Icon.gen_promise) {
+			return Icon.gen_promise;
+		}
+
+		const width = Icon.atlas_width / 32;
+		const height = Icon.atlas_height / 32;
+		const icon_count = width * height;
+		let index = 0;
+
+		while (index < icon_count) {
+			for (let i = 0; i < 32; i++) {
+				Icon.get_icon(index++);
+			}
+
+			/* don't block the main thread */
+			await new Promise((res) => setTimeout(res, 1));
+		}
+	}
+}
 
 self.addEventListener('install', event => {
 	event.waitUntil(
@@ -84,7 +182,18 @@ self.addEventListener('fetch', (event) => {
 	const ret = caches.match(req, { ignoreSearch: true }).then(async (cached) => {
 		const date = new Date();
 
-		if (url.match(/^\/editor\/latest_db\/.*/)) {
+		if (url.match(/^\/editor\/icon\/.*/)) {
+			let id = parseInt(url.substring('/editor/icon/'.length) || 0);
+
+			if (!id) {
+				id = 0;
+			}
+
+			const icon_buf = Icon.get_icon(id);
+			return new Response(icon_buf, {
+				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
+			});
+		} else if (url.match(/^\/editor\/latest_db\/.*/)) {
 			const url_simplified = url.substring('/editor/latest_db/'.length);
 
 			const get_body = async (req) => {
@@ -151,3 +260,5 @@ self.addEventListener('message', e => {
 		load_latest_db(MG_BRANCH.head_id);
 	}
 });
+
+Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);

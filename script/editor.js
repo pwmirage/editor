@@ -117,7 +117,7 @@ class Editor {
 
 		const tag_p = Loading.show_tag('Processing item icons');
 		/* don't await icon processing */
-		Item.gen_all_icons().then(() => {
+		Item.preload_all_icons().then(() => {
 			Loading.hide_tag(tag_p);
 		});
 

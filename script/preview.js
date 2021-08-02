@@ -19,11 +19,10 @@ class PWPreview {
 			load_tpl(ROOT_URL + 'tpl/preview/diff.tpl'),
 		]);
 
-		await Item.init(ROOT_URL + 'img/iconlist_ivtrm.png?v=' + MG_VERSION);
-
 		PWPreview.diff_tpl = new Template('tpl-diff');
 		PWPreview.diff_entry_tpl = new Template('tpl-diff-entry');
 
+		await Item.init();
 		await PWPreview.load_latest_db();
 	}
 
