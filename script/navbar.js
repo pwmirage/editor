@@ -9,7 +9,8 @@ class Navbar {
 		this.org_menu_dom = org_menu_dom;
 		this.dom = newElement('<ol class="boxMenu overlayed"></ol>');
 		this.dom.onclick = (e) => {
-			const par = e.path.find(p => p?.className && p.className.includes('boxMenuDepth'));
+			const path = e.composedPath();
+			const par = path.find(p => p?.className && p.className.includes('boxMenuDepth'));
 			if (!par) {
 				return;
 			}

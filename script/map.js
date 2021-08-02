@@ -518,7 +518,8 @@ class PWMap {
 
 	onmousedown(e) {
 		e.preventDefault();
-		this.drag.clicked_el = e.path[0];
+		const path = e.composedPath();
+		this.drag.clicked_el = path[0];
 
 		if (this.forced_map_focus && e.which != 2) {
 			if (this.forced_map_focus_cb) {
@@ -684,12 +685,13 @@ class PWMap {
 
 	onmouseup(e) {
 		const mouse_pos = { x: e.clientX, y: e.clientY };
+		const path = e.composedPath();
 		if (this.drag.is_circle_drag) {
 			this.drag.is_circle_drag = false;
 			if (this.rotation_circle_update_fn) {
 				this.rotation_circle_update_fn(null);
 			}
-		} else if (this.drag.drag_button == 3 && e.path[0] == this.drag.clicked_el) {
+		} else if (this.drag.drag_button == 3 && path[0] == this.drag.clicked_el) {
 			const hovered_spawners = this.hovered_spawners;
 			(async () => {
 				const x = mouse_pos.x - Window.bounds.left;

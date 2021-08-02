@@ -157,7 +157,8 @@ class PWPreview {
 
 				let prev_el = null;
 				document.addEventListener('mousemove', (e) => {
-					const el = e.path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
+					const path = e.composedPath();
+					const el = path?.find(el => el?.classList?.contains('item') || el?.classList?.contains('recipe'));
 
 					if (el === prev_el) {
 						return;

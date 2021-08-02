@@ -459,8 +459,9 @@ class TaskWindow extends SingleInstanceWindow {
 							return;
 						}
 
-						if (e.path[0].tagName == 'INPUT') {
-							e.path[0].onclick(e);
+						const path = e.composedPath();
+						if (path[0].tagName == 'INPUT') {
+							path[0].onclick(e);
 							return;
 						}
 
@@ -554,7 +555,8 @@ class TaskWindow extends SingleInstanceWindow {
 								return;
 							}
 
-							HTMLSugar.open_undo_rmenu(e.path[0], this.task, {
+							const path = e.composedPath();
+							HTMLSugar.open_undo_rmenu(path[0], this.task, {
 								undo_path: [ 'dialogue', this.sel_opts.dialogue, 'questions', q_idx, 'choices', c_idx, 'param' ],
 								undo_fn: () => this.select_tab('dialogue', this.sel_opts.dialogue)
 
@@ -697,7 +699,8 @@ class TaskWindow extends SingleInstanceWindow {
 	}
 
 	async select_subquest(e) {
-		let el = e.path.find(el => el.classList?.contains('taskbtn'));
+		const path = e.composedPath();
+		let el = path.find(el => el.classList?.contains('taskbtn'));
 		if (!el) {
 			/* no particular quest clicked, just the list background */
 			return;

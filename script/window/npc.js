@@ -62,7 +62,8 @@ class NPCCraftsWindow extends SingleInstanceWindow {
 			return;
 		}
 
-		const recipe_el = e.path?.find(el => el?.classList?.contains('recipe'));
+		const path = e.composedPath();
+		const recipe_el = path.find(el => el?.classList?.contains('recipe'));
 		if (!recipe_el) {
 			return;
 		}
@@ -237,7 +238,8 @@ class NPCGoodsWindow extends SingleInstanceWindow {
 	}
 
 	onclick(e) {
-		const hover_el = e.path?.find(el => el?.classList?.contains('item'));
+		const path = e.composedPath();
+		const hover_el = path?.find(el => el?.classList?.contains('item'));
 		if (hover_el == undefined || this.selected_tab == undefined) {
 			return;
 		}
