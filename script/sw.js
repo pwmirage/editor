@@ -170,8 +170,6 @@ const dump2 = (data, spacing = 1) => {
 self.addEventListener('fetch', (event) => {
 	const req = event.request;
 
-
-
 	/* don't cache cross-origin */
 	if (!req.url.startsWith(self.location.origin)) return;
 	
@@ -191,7 +189,25 @@ self.addEventListener('fetch', (event) => {
 			return new Response(icon_buf, {
 				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
 			});
-		} else if (url.match(/^\/editor\/latest_db\/.*/)) {
+		}
+
+		const item_icon_match = url.match(/^\/editor\/item\/([0-9]+)\/icon/);
+		if (item_icon_match) {
+			let id = item_icon_match[1];
+			if (!id) {
+				id = 0;
+			}
+
+			const item = g_latest_db?.items?.[id];
+			const icon = id == 0 ? -1 : (item?.icon || 0);
+
+			const icon_buf = Icon.get_icon(icon);
+			return new Response(icon_buf, {
+				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
+			});
+		}
+
+		if (url.match(/^\/editor\/latest_db\/.*/)) {
 			const url_simplified = url.substring('/editor/latest_db/'.length);
 
 			const get_body = async (req) => {

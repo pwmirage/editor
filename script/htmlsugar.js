@@ -1120,19 +1120,34 @@ class HTMLSugar {
 		const prev_id = parseInt(el.dataset.prev);
 
 		params.db = params.db || document.db;
-		const obj = params.db[type][id] || { id };
+		let obj;
 		let prev_obj;
-		if (!prev_id) {
-			prev_obj = obj;
-		} else if (prev_id < 0) {
-			prev_obj = obj._db?.project_initial_state;
-		} else {
-			const o = params.db[type][prev_id] || { id: prev_id };
-			prev_obj = o?._db?.project_initial_state || o;
+
+		if (params.db) {
+			obj = params.db[type][id] || { id };
+			if (!prev_id) {
+				prev_obj = obj;
+			} else if (prev_id < 0) {
+				prev_obj = obj._db?.project_initial_state;
+			} else {
+				const o = params.db[type][prev_id] || { id: prev_id };
+				prev_obj = o?._db?.project_initial_state || o;
+			}
+
+			const bounds = el.getBoundingClientRect();
+			win.reload(obj, prev_obj, bounds, params.db);
+			return;
 		}
 
-		const bounds = el.getBoundingClientRect();
-		win.reload(obj, prev_obj, bounds, params.db);
+		return new Promise(async (resolve) => {
+			const resp = await get(ROOT_URL + 'latest_db/get/' + type + '/' + id, { is_json: 1 });
+			obj = resp.data;
+
+			const bounds = el.getBoundingClientRect();
+			win.reload(obj, prev_obj, bounds, null);
+			resolve();
+		});
+
 	}
 
 	static show_item_tooltip(item_win, el, params) {

@@ -85,7 +85,7 @@ h1 {
 			{assign idx = -1}
 			{for item of $p.equipment.slots}
 				{$idx++}
-				<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item.id)}" alt=""></span>
+				<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(null, $item.id)}" alt=""></span>
 			{/for}
 		</div>
 	</div>
@@ -101,7 +101,7 @@ h1 {
 
 					{for idx = 0; idx < $p.inventory.icapacity; idx++}
 						{assign item = $assoc_inv[$idx]}
-						<span class="item" data-id="{@$item?.id || 0}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item?.id || 0)}" alt=""></span>
+						<span class="item" data-id="{@$item?.id || 0}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(null, $item?.id || 0)}" alt=""></span>
 					{/for}
 				</div>
 			</div>
@@ -114,7 +114,7 @@ h1 {
 
 					{for idx = 0; idx < $p.safe.capacity; idx++}
 						{assign item = $assoc_inv[$idx]}
-						<span class="item" data-id="{@$item?.id || 0}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item?.id || 0)}" alt=""></span>
+						<span class="item" data-id="{@$item?.id || 0}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(null, $item?.id || 0)}" alt=""></span>
 					{/for}
 				</div>
 			</div>
@@ -124,7 +124,7 @@ h1 {
 					{assign idx = -1}
 					{for item of $p.tasks.invslots}
 						{$idx++}
-						<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(g_latest_db, $item.id)}" alt=""></span>
+						<span class="item" data-id="{@$item.id}" data-idx="{@$idx}" tabindex="0"><img{ } src="{@Item.get_icon_by_item(null, $item.id)}" alt=""></span>
 					{/for}
 				</div>
 			</div>
@@ -147,7 +147,7 @@ h1 {
 							{assign q_off = 8 + $idx * 32}
 							{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
 							{assign child_idx = $d[$q_off + 5]}
-							{assign q = g_latest_db.tasks[$id]}
+							{assign q = g_latest_db?.tasks?.[$id] || \{ \} }
 							<div>
 								{for i = 0; i < $depth; i++}
 									&nbsp; &nbsp; &nbsp;
@@ -175,7 +175,7 @@ h1 {
 						{for idx = 0; idx < $count; idx++}
 							{assign q_off = 4 + $idx * 2}
 							{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
-							{assign q = g_latest_db.tasks[$id]}
+							{assign q = g_latest_db?.tasks?.[$id] || \{ \} }
 							<div>
 								{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
 							</div>
@@ -195,7 +195,7 @@ h1 {
 						{for idx = 0; idx < $count; idx++}
 							{assign q_off = 2 + $idx * 6}
 							{assign id = $d[$q_off + 0] | ($d[$q_off + 1] << 8)}
-							{assign q = g_latest_db.tasks[$id]}
+							{assign q = g_latest_db?.tasks?.[$id] || \{ \} }
 							<div>
 								{@GameAdminCharPage.print_task_name($q?.name || '(unknown)')} #{@$id}
 							</div>
@@ -217,6 +217,11 @@ h1 {
 h2 {
 	font-size: 11pt;
 	font-weight: bold;
+}
+
+.item > img {
+	width: 32px;
+	height: 32px;
 }
 
 .items {

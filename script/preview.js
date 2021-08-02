@@ -142,7 +142,6 @@ class PWPreview {
 	static async load_latest_db() {
 		if (!g_latest_db_promise) {
 			g_latest_db_promise = new Promise(async (resolve) => {
-				g_latest_db = await PWDB.new_db({ pid: 'latest', new: true, no_tag: true });
 
 				const mgeArea = document.querySelector('#mgeArea');
 				PWPreview.item_win = new ItemTooltip({ parent_el: document.body, edit: false });
@@ -167,8 +166,8 @@ class PWPreview {
 					const item = el?.classList.contains('item') ? el : null;
 					const recipe = el?.classList.contains('recipe') ? el : null;
 
-					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db: db || g_latest_db });
-					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db: db || g_latest_db });
+					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db });
+					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db });
 				}, { passive: true });
 
 				document.addEventListener('mousedown', (e) => {

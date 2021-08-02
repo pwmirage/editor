@@ -134,6 +134,10 @@ class Item {
 			return Item.get_icon(-1);
 		}
 
+		if (!db) {
+			return ROOT_URL + 'item/' + id + '/icon';
+		}
+
 		const item = db.items[id];
 		return Item.get_icon(item?.icon || 0);
 	}
