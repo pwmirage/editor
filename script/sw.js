@@ -33,6 +33,8 @@ self.importScripts('editor/script/pwdb.js');
 class Icon {
 	static icons = [];
 	static iconset_cache = null;
+	static atlas_width = 4096;
+	static atlas_height = 2048;
 
 	static async init(iconset_url) {
 		await Icon.gen_blank();
@@ -85,7 +87,6 @@ class Icon {
 		const height = Icon.atlas_height / 32;
 		const index = width * height;
 
-
 		Icon.icons[index] = buf;
 		return Icon.icons[index];
 	}
@@ -94,9 +95,6 @@ class Icon {
 		const resp = await fetch(url);
 		const arr_data = await resp.arrayBuffer();
 		const arr8_data = new Uint8Array(arr_data);
-
-		Icon.atlas_width = 4096;
-		Icon.atlas_height = 2048;
 
 		const parser = new JpegDecoder();
 		parser.parse(arr8_data);
