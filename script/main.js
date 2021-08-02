@@ -146,40 +146,4 @@ const mg_init_page = async (name, args = {}) => {
 	return await page.init(args);
 }
 
-const notify = (type, msg) => {
-	return new Promise(resolve => {
-		require(["Ui/Notification"], function(UiNotification) {
-			UiNotification.show(msg, () => {
-				resolve();
-			}, type);
-		});
-	});
-}
-
-let g_confirm_dom = null;
-const confirm = (msg, html, title = 'Confirmation Required') => {
-	return new Promise(resolve => {
-		require(["Ui/Confirmation"], function(UiConfirmation) {
-			if (g_confirm_dom) {
-				g_confirm_dom.classList.remove('big');
-				g_confirm_dom.classList.remove('noconfirm');
-			}
-
-			UiConfirmation.show({
-				confirm: () => { resolve(true); },
-				cancel: () => { resolve(false); },
-				messageIsHtml: true,
-				message: msg,
-				template: html,
-			});
-
-			g_confirm_dom = document.querySelector('.dialogOverlay .dialogContainer');
-			const title_el = g_confirm_dom.querySelector('.dialogTitle');
-			if (title_el) {
-				title_el.textContent = title;
-			}
-		});
-	});
-}
-
 const g_mg_loaded = mg_init();
