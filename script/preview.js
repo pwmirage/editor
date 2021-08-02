@@ -2,7 +2,7 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_latest_db;
+let g_latest_db = {};
 let g_latest_db_promise;
 let db;
 
@@ -146,6 +146,14 @@ class PWPreview {
 				const mgeArea = document.querySelector('#mgeArea');
 				PWPreview.item_win = new ItemTooltip({ parent_el: document.body, edit: false });
 				PWPreview.recipe_win = new RecipeTooltip({ parent_el: document.body, edit: false });
+
+				if (typeof(MG_IS_EDITOR) === 'undefined') {
+					const resp = await get(ROOT_URL + 'latest_db/static', { is_json: 1 });
+					for (const t in resp.data) {
+						g_latest_db[t] = init_id_array(resp.data[t]);
+					}
+				}
+
 
 				for (const parent of [PWPreview.item_win, PWPreview.recipe_win]) {
 					const s = newStyle(ROOT_URL + 'css/preview.css');

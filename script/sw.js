@@ -14,6 +14,8 @@ let MG_BRANCH = null;
 const ROOT_URL = '/editor/';
 const g_db = {};
 let g_latest_db;
+let g_latest_db_promise_fn;
+const g_latest_db_promise = new Promise(resolve => { g_latest_db_promise_fn = resolve; });
 
 /* mock */
 class Loading {
@@ -185,6 +187,7 @@ self.addEventListener('fetch', (event) => {
 				id = 0;
 			}
 
+			await g_latest_db_promise;
 			const icon_buf = Icon.get_icon(id);
 			return new Response(icon_buf, {
 				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
@@ -198,12 +201,42 @@ self.addEventListener('fetch', (event) => {
 				id = 0;
 			}
 
+			await g_latest_db_promise;
 			const item = g_latest_db?.items?.[id];
 			const icon = id == 0 ? -1 : (item?.icon || 0);
 
 			const icon_buf = Icon.get_icon(icon);
 			return new Response(icon_buf, {
 				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
+			});
+		}
+
+		if (url === '/editor/latest_db/static') {
+			const types = [
+				'weapon_major_types',
+				'weapon_minor_types',
+				'armor_major_types',
+				'armor_minor_types',
+				'decoration_major_types',
+				'decoration_minor_types',
+				'medicine_major_types',
+				'medicine_minor_types',
+				'material_minor_types',
+				'projectile_types',
+				'quiver_types',
+				'armor_sets',
+				'equipment_addons',
+			];
+
+			await g_latest_db_promise;
+
+			const data = {};
+			for (const t of types) {
+				data[t] = [...g_latest_db[t]];
+			}
+
+			return new Response(JSON.stringify(data), { status: 200, statusText: 'OK',
+				headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
 			});
 		}
 
@@ -219,6 +252,7 @@ self.addEventListener('fetch', (event) => {
 				return ret;
 			}
 
+			await g_latest_db_promise;
 
 			const get_match = url_simplified.match(/^get\/([a-zA-Z0-9_]+)\/([0-9]+)[\/]?$/);
 			if (get_match) {
@@ -258,6 +292,7 @@ self.addEventListener('fetch', (event) => {
 
 const load_latest_db = async (pid) => {
 	g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
+	g_latest_db_promise_fn();
 }
 
 self.addEventListener('message', e => {

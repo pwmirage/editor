@@ -167,7 +167,7 @@ class Item {
 class ItemTooltip {
 	constructor(args) {
 		this.edit = args.edit || false;
-		this.db = args.db || document.db;
+		this.db = args.db || document.db || g_latest_db;
 		this.item = args.item || { id: 0, _db: { type: 'items' } };
 
 		this.tpl = new Template('tpl-item-info');
@@ -203,10 +203,7 @@ class ItemTooltip {
 	reload(item, prev, bounds, db) {
 		ItemTooltip.last_reloaded = this;
 
-		if (db) {
-			this.db = db;
-		}
-
+		this.db = db || document.db || g_latest_db;
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.item = item;
 		const newdata = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
@@ -241,7 +238,7 @@ class RecipeTooltip {
 
 	constructor(args) {
 		this.recipe = args.recipe || { id: 0 }
-		this.db = args.db || document.db;
+		this.db = args.db || document.db || g_latest_db;
 		this.simplified = args.simplified;
 
 		this.tpl = new Template('tpl-recipe-info');
@@ -270,10 +267,7 @@ class RecipeTooltip {
 	reload(recipe, prev, bounds, db) {
 		RecipeTooltip.last_reloaded = this;
 
-		if (db) {
-			this.db = db;
-		}
-
+		this.db = db || document.db || g_latest_db;
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
 		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: prev || { id: 0 }, edit: this.edit, simplified: this.simplified });
