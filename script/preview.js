@@ -19,6 +19,7 @@ class PWPreview {
 			load_tpl(ROOT_URL + 'tpl/preview/diff.tpl'),
 		]);
 
+		PWDB.init();
 		PWPreview.diff_tpl = new Template('tpl-diff');
 		PWPreview.diff_entry_tpl = new Template('tpl-diff-entry');
 

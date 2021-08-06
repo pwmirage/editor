@@ -992,5 +992,3 @@ class PWDB {
 	}
 
 }
-
-PWDB.init();
