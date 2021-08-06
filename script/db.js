@@ -542,12 +542,15 @@ class DB {
 		let deleted = false;
 		for (const f in diff) {
 			if (f === '_db') continue;
-			if (typeof(diff[f]) === 'object') {
+			if (typeof(diff[f]) === 'object' || diff[f] === DB.force_null) {
 				if (!obj.hasOwnProperty(f) || obj[f] === undefined || obj[f] === DB.force_null) {
 					/* diff is always an object, so can't use Array.isArray() */
 					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
-				if (diff[f] == null) {
+				if (diff[f] === DB.force_null && do_delete) {
+					delete obj[f];
+					deleted = true;
+				} else if (diff[f] == null) {
 					if (do_delete) {
 						delete obj[f];
 					} else {
