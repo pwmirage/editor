@@ -257,7 +257,7 @@ class DB {
 
 				/* fields might have been changed back and forth with no diff at the end,
 				 * in such case no changeset should be created - it would be empty otherwise */
-				DB.apply_diff(changeset, diff, true);
+				DB.apply_diff(changeset, diff, false);
 				const diff_and_clean = (obj, org) => {
 					let is_diff = false;
 					for (const f in obj) {
