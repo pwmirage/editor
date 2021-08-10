@@ -450,6 +450,7 @@ class PWDB {
 						const proj_change = changeset[0][0];
 						const pid = proj_change.pid;
 						db.new_id_start = 0x80000000 + pid * 0x100000;
+						db.new_id_offset = 0;
 						db.load(changesets[i], { join_changesets: true });
 					}
 					db.project_changelog_start_gen = db.changelog.length;
@@ -535,6 +536,7 @@ class PWDB {
 		});
 
 		db.new_id_start = 0x80000000 + project.pid * 0x100000;
+		db.new_id_offset = 0;
 
 		try {
 			if (project_changeset) {
