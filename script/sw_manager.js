@@ -41,32 +41,29 @@ const onNewServiceWorker = (registration, callback) => {
 	registration.addEventListener('updatefound', listenInstalledStateChange);
 }
 
-window.addEventListener('load', () => {
-	let refreshing;
-	let loaded = false;
-	// When the user asks to refresh the UI, we'll need to reload the window
-	navigator.serviceWorker.addEventListener('controllerchange', (event) => {
-		if (refreshing) return; // prevent infinite refresh loop when you use "Update on Reload"
-		refreshing = true;
-		window.location.reload();
-	});
-
-	navigator.serviceWorker.register('/sw.js')
-		.then((registration) => {
-			if (registration.active) {
-				registration.active.postMessage({ type: 'setbranch', data: MG_BRANCHES.find(b => b.id == MG_DEFBRANCH) });
-			}
-
-			// Track updates to the Service Worker.
-			if (!navigator.serviceWorker.controller) {
-				// The window client isn't currently controlled so it's a new service
-				// worker that will activate immediately
-				return;
-			}
-			registration.update();
-
-			onNewServiceWorker(registration, () => {
-				showRefreshUI(registration);
-			});
-		});
+let g_sw_refreshing;
+// When the user asks to refresh the UI, we'll need to reload the window
+navigator.serviceWorker.addEventListener('controllerchange', (event) => {
+	if (g_sw_refreshing) return; // prevent infinite refresh loop when you use "Update on Reload"
+	g_sw_refreshing = true;
+	window.location.reload();
 });
+
+navigator.serviceWorker.register('/sw.js')
+	.then((registration) => {
+		if (registration.active) {
+			registration.active.postMessage({ type: 'setbranch', data: MG_BRANCHES.find(b => b.id == MG_DEFBRANCH) });
+		}
+
+		// Track updates to the Service Worker.
+		if (!navigator.serviceWorker.controller) {
+			// The window client isn't currently controlled so it's a new service
+			// worker that will activate immediately
+			return;
+		}
+		registration.update();
+
+		onNewServiceWorker(registration, () => {
+			showRefreshUI(registration);
+		});
+	});

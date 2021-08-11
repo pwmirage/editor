@@ -32,6 +32,8 @@ self.importScripts('editor/script/idb.js');
 self.importScripts('editor/script/util.js');
 self.importScripts('editor/script/pwdb.js');
 
+PWDB.init();
+
 class Icon {
 	static icons = [];
 	static iconset_cache = null;
