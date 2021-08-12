@@ -268,14 +268,20 @@ self.addEventListener('fetch', (event) => {
 
 			await g_latest_db_promise;
 
-			const get_match = url_simplified.match(/^get\/([a-zA-Z0-9_]+)\/([0-9]+)[\/]?$/);
+			const get_match = url_simplified.match(/^get\/([a-zA-Z0-9_]+)\/([0-9,]+)[\/]?$/);
 			if (get_match) {
 				const type = get_match[1];
-				const id = get_match[2];
+				const id_str = get_match[2];
 
-				const obj = g_latest_db[type]?.[id] || { _db: { type }};
+				const ids = id_str.split(',');
 
-				return new Response(dump2(obj, 0), { status: 200, statusText: 'OK',
+				const arr = [];
+				for (const id of ids) {
+					const obj = g_latest_db[type]?.[id] || { _db: { type, id: parseInt(id) }};
+					arr.push(obj);
+				}
+
+				return new Response(dump2(arr.length == 1 ? arr[0] : arr, 0), { status: 200, statusText: 'OK',
 					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
 				});
 			} 
