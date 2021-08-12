@@ -254,6 +254,18 @@ self.addEventListener('fetch', (event) => {
 				return ret;
 			}
 
+			if (url === '/editor/latest_db/load') {
+				const params = await get_body(req);
+				if (params.head_id !== MG_BRANCH?.head_id) {
+					MG_BRANCH = params;
+					load_latest_db(MG_BRANCH.head_id);
+				}
+				await g_latest_db_promise;
+				return new Response('{}', { status: 200, statusText: 'OK',
+					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
+				});
+			}
+
 			await g_latest_db_promise;
 
 			const get_match = url_simplified.match(/^get\/([a-zA-Z0-9_]+)\/([0-9]+)[\/]?$/);
@@ -303,12 +315,6 @@ self.addEventListener('message', e => {
 	} else if (e.data === 'skipWaiting') {
 		skipWaiting();
 	} else if (e.data.type === 'setbranch') {
-		if (e.data.data.head_id === MG_BRANCH?.head_id) {
-			return;
-		}
-
-		MG_BRANCH = e.data.data;
-		load_latest_db(MG_BRANCH.head_id);
 	}
 });
 

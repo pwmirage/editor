@@ -51,10 +51,6 @@ navigator.serviceWorker.addEventListener('controllerchange', (event) => {
 
 navigator.serviceWorker.register('/sw.js')
 	.then((registration) => {
-		if (registration.active) {
-			registration.active.postMessage({ type: 'setbranch', data: MG_BRANCHES.find(b => b.id == MG_DEFBRANCH) });
-		}
-
 		// Track updates to the Service Worker.
 		if (!navigator.serviceWorker.controller) {
 			// The window client isn't currently controlled so it's a new service
