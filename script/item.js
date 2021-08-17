@@ -233,7 +233,7 @@ class ItemTooltip {
 		if (bounds.right + 3 + tooltip_bounds.width < (Window.bounds?.right || window.innerWidth)) {
 			this.dom.style.left = bounds.right + 3 + 'px';
 		} else {
-			this.dom.style.left = bounds.left - 3 - tooltip_bounds.width + 'px';
+			this.dom.style.left = bounds.left - 8 - tooltip_bounds.width + 'px';
 		}
 
 		if (bounds.top + tooltip_bounds.height < (Window.bounds?.bottom || window.innerHeight)) {
@@ -297,7 +297,7 @@ class RecipeTooltip {
 		if (bounds.right + 3 + tooltip_bounds.width < (Window.bounds?.right || window.innerWidth)) {
 			this.dom.style.left = bounds.right + 3 + 'px';
 		} else {
-			this.dom.style.left = bounds.left - 3 - tooltip_bounds.width + 'px';
+			this.dom.style.left = bounds.left - 8 - tooltip_bounds.width + 'px';
 		}
 
 		if (bounds.top + tooltip_bounds.height < (Window.bounds?.bottom || window.innerHeight)) {
