@@ -181,6 +181,23 @@ const init_id_array = (arr, fallback) => {
 					return ret;
 				}
 			}
+			if (k === 'map') {
+				return function(fn) {
+					let ret = [];
+					for (const obj of map.values()) {
+						ret.push(fn(obj));
+					}
+					return ret;
+				}
+			}
+			if (k === 'find') {
+				return function(fn) {
+					for (const obj of map.values()) {
+						if (fn(obj)) return obj;
+					}
+					return null;
+				}
+			}
 			if (k === 'size') return map.size;
 			if (k === Symbol.iterator) {
 				return function *() {
