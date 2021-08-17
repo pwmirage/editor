@@ -4,7 +4,11 @@
 
 g_mg_pages['game_accounts'] = new class {
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/game_accounts.tpl');
+		await Promise.all([
+			load_tpl(ROOT_URL + 'tpl/page/game_accounts.tpl'),
+			load_script(ROOT_URL + 'script/game_util.js?v=' + MG_VERSION),
+		]);
+
 		this.tpl = new Template('tpl-game-accounts');
 
 		this.dom = document.createElement('div');
