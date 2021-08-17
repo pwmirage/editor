@@ -14,8 +14,7 @@ let MG_BRANCH = null;
 const ROOT_URL = '/editor/';
 const g_db = {};
 let g_latest_db;
-let g_latest_db_promise_fn;
-const g_latest_db_promise = new Promise(resolve => { g_latest_db_promise_fn = resolve; });
+let g_latest_db_promise = Promise.resolve();
 
 /* mock */
 class Loading {
@@ -31,6 +30,19 @@ self.importScripts('editor/script/db.js');
 self.importScripts('editor/script/idb.js');
 self.importScripts('editor/script/util.js');
 self.importScripts('editor/script/pwdb.js');
+
+(async () => {
+	const idb = await IDB.open('swdata', 1, 'readonly');
+	const oldbranch = await IDB.get(idb, 'branch');
+
+	if (!MG_BRANCH) {
+		MG_BRANCH = oldbranch;
+	}
+
+	if (!g_latest_db && MG_BRANCH?.head_id) {
+		load_latest_db(MG_BRANCH.head_id);
+	}
+})();
 
 PWDB.init();
 
@@ -209,7 +221,9 @@ self.addEventListener('fetch', (event) => {
 
 			const icon_buf = Icon.get_icon(icon);
 			return new Response(icon_buf, {
-				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
+				status: 200, statusText: 'OK', headers: {
+					'Content-Type': 'image/jpeg', 'x-pw-icon-id': icon
+				}
 			});
 		}
 
@@ -258,6 +272,8 @@ self.addEventListener('fetch', (event) => {
 				const params = await get_body(req);
 				if (params.head_id !== MG_BRANCH?.head_id) {
 					MG_BRANCH = params;
+					const idb = await IDB.open('swdata', 1, 'readwrite');
+					IDB.set(idb, 'branch', MG_BRANCH);
 					load_latest_db(MG_BRANCH.head_id);
 				}
 				await g_latest_db_promise;
@@ -311,8 +327,11 @@ self.addEventListener('fetch', (event) => {
 });
 
 const load_latest_db = async (pid) => {
-	g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
-	g_latest_db_promise_fn();
+	await g_latest_db_promise;
+	g_latest_db_promise = new Promise(async (resolve) => {
+		g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
+		resolve();
+	});
 }
 
 self.addEventListener('message', e => {
@@ -320,7 +339,6 @@ self.addEventListener('message', e => {
 		return;
 	} else if (e.data === 'skipWaiting') {
 		skipWaiting();
-	} else if (e.data.type === 'setbranch') {
 	}
 });
 
