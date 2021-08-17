@@ -342,3 +342,19 @@ const confirm = (msg, html, title = 'Confirmation Required') => {
 	});
 }
 
+let g_loading_wait;
+const loading_wait = () => {
+	if (g_loading_wait) {
+		return;
+	}
+
+	g_loading_wait = newElement('<div class="spinner" style="visibility:visible; opacity:1;"><span class="icon icon48 fa-spinner"></span><span>Loading …</span></div>');
+	document.body.append(g_loading_wait);
+}
+
+const loading_wait_done = () => {
+	if (g_loading_wait) {
+		g_loading_wait.remove();
+		g_loading_wait = null;
+	}
+}

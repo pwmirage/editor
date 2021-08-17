@@ -5,26 +5,33 @@
 	<div id="accounts" style="display: flex; flex-direction: column; row-gap: 10px; margin-top: 20px;">
 		{for acc of $page.accounts}
 			<div class="account customSection">
+				<div style="display: flex;">
+					<div>
+						<div class="header">{@$acc.name}</div>
+						<div>Vote Points: 0</div>
+						<div>Characters:</div>
+					</div>
+					<div style="flex: 1"></div>
+					<div style="display: flex; flex-direction: column; row-gap: 5px;">
+						<a class="button" style="display: none;" href="javascript:void(0);" onclick="{serialize $page}.show_details({@$acc.accountID});">Show details</a>
+						<a class="button" style="" href="javascript:void(0);" onclick="{serialize $page}.change_pass({@$acc.id});">Change password</a>
+					</div>
+				</div>
 				<div class="details">
-					<span class="header">{@$acc.name}</span>
-
-					<span>Characters:</span>
 					<div class="roles">
-						{assign idx = 1}
 						{for role of $acc.roles}
-							<div>{@$idx++}. {@$role.name}</div>
+							<div class="role">
+								<img class="class-icon" src="{@ROOT_URL + 'img/class/' + $role.class + '.png'}">
+								<span class="name">{@$role.name}</span>
+								<span class="class">{@GameUtil.classes[$role.class]?.name || 'Unknown Class'} Lv. {@$role.level}</span>
+								<span class="faction">Faction: {@$role.faction_name || '(none)'}</span>
+							</div>
 						{/for}
 						{if $acc.roles.length == 0}
 							<div style="color: gray;">(None)</div>
 						{/if}
 					</div>
 				</div>
-				<div style="flex: 1"></div>
-				<div style="display: flex; flex-direction: column; row-gap: 5px;">
-					<a class="button" style="display: none;" href="javascript:void(0);" onclick="{serialize $page}.show_details({@$acc.accountID});">Show details</a>
-					<a class="button" style="" href="javascript:void(0);" onclick="{serialize $page}.change_pass({@$acc.id});">Change password</a>
-				</div>
-
 			</div>
 		{/for}
 	</div>
@@ -83,6 +90,7 @@
 .account {
 	padding: 20px;
 	display: flex;
+	flex-direction: column;
 }
 
 .account > .details {
@@ -90,16 +98,48 @@
 	flex-direction: column;
 }
 
-.account > .details > .header {
+.account .header {
 	font-size: 18px;
 }
 
 .account > .details > .roles {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
 	margin-left: 10px;
 	margin-top: 10px;
-	column-gap: 20px;
+}
+
+.role {
+	display: flex;
+	align-items: center;
+	column-gap: 10px;
+	padding: 4px;
+	border-bottom: 1px solid rgba(224, 224, 224, 1);
+}
+
+.role:nth-child(odd) {
+	background-color: #f6f6f6;
+}
+
+.role:last-child {
+	border-bottom: none;
+}
+
+.role:hover {
+	background-color: #e8e8e8;
+}
+
+.role .name {
+	width: 140px;
+}
+
+.role .class {
+	width: 160px;
+}
+
+.role .class-icon {
+	width: 36px;
+	height: 36px;
 }
 
 .customSection {
