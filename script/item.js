@@ -72,6 +72,7 @@ class Item {
 		Item.tmp_icon_canvas.width = Item.tmp_icon_canvas.height = 32;
 		Item.tmp_icon_canvas_ctx = Item.tmp_icon_canvas.getContext('2d');
 		Item.icon_cache = [];
+		Item.item_icon_cache = [];
 		Item.cache_loaded = false;
 
 		await Promise.all([
@@ -129,12 +130,30 @@ class Item {
 		return ROOT_URL + 'icon/' + id;
 	}
 
+	static async preload_icon_by_item(id) {
+		const resp = await fetch(ROOT_URL + 'item/' + id + '/icon');
+		const blob = await resp.blob();
+
+		const icon_id = parseInt([...resp.headers.entries()].find(e => e[0] === 'x-pw-icon-id')[1]);
+		const reader = new FileReader();
+		reader.readAsDataURL(blob); 
+		reader.onloadend = () => {
+			Item.icon_cache[icon_id] = reader.result;
+			Item.item_icon_cache[id] = icon_id;
+		}
+	}
+
 	static get_icon_by_item(db, id) {
 		if (!id) {
 			return Item.get_icon(-1);
 		}
 
 		if (!db) {
+			if (Item.item_icon_cache[id]) {
+				return Item.get_icon(Item.item_icon_cache[id]);
+			}
+
+			Item.preload_icon_by_item(id);
 			return ROOT_URL + 'item/' + id + '/icon';
 		}
 
