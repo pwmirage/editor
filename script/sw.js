@@ -35,10 +35,11 @@ self.importScripts('editor/script/pwdb.js');
 	const idb = await IDB.open('swdata', 1, 'readonly');
 	const oldbranch = await IDB.get(idb, 'branch');
 
-	if (!MG_BRANCH) {
-		MG_BRANCH = oldbranch;
+	if (MG_BRANCH) {
+		return;
 	}
 
+	MG_BRANCH = oldbranch;
 	if (!g_latest_db && MG_BRANCH?.head_id) {
 		load_latest_db(MG_BRANCH.head_id);
 	}
@@ -191,7 +192,7 @@ self.addEventListener('fetch', (event) => {
 	
 	const url = req.url.substring(self.location.origin.length);
 
-	const ret = caches.match(req, { ignoreSearch: true }).then(async (cached) => {
+	const ret = caches.match(req, { ignoreSearch: true }).then(async (cached) => { try {
 		const date = new Date();
 
 		if (url.match(/^\/editor\/icon\/.*/)) {
@@ -321,7 +322,7 @@ self.addEventListener('fetch', (event) => {
 
 
 		return fetch(req);
-	});
+	} catch(e) { console.error(e); }});
 
 	event.respondWith(ret);
 });
@@ -329,6 +330,7 @@ self.addEventListener('fetch', (event) => {
 const load_latest_db = async (pid) => {
 	await g_latest_db_promise;
 	g_latest_db_promise = new Promise(async (resolve) => {
+		console.log('SW: Loading DB pid=' + pid);
 		g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
 		resolve();
 	});
