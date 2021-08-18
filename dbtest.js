@@ -312,4 +312,29 @@ testcase('clone_obj', () => {
 	assert(called == 2);
 });
 
+testcase('arr_cleanup', () => {
+	const db = new_test_db1();
+	const obj = db.items[4096];
+	db.new_id_start = 10;
+	let diff;
+
+	db.open(obj);
+	obj.arr = [ 1, 2, 3 ];
+	diff = db.commit(obj);
+
+	assert(JSON.stringify(diff.arr) === '{"0":1,"1":2,"2":3}');
+
+	db.open(obj);
+	obj.arr = [ 3 ];
+	diff = db.commit(obj);
+
+	const dump = db.dump_last();
+	const db2 = new_test_db1();
+	db2.load(JSON.parse(dump));
+
+	const obj_loaded = db2.items[4096];
+	assert(obj_loaded.arr.length == 1);
+	assert(obj_loaded.arr[0] == 3);
+});
+
 console.log('DB tests passed');

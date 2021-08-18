@@ -547,8 +547,12 @@ class DB {
 					/* diff is always an object, so can't use Array.isArray() */
 					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
-				if (diff[f] === DB.force_null && do_delete) {
-					delete obj[f];
+				if (diff[f] === DB.force_null) {
+					if (do_delete) {
+						delete obj[f];
+					} else {
+						obj[f] = diff[f];
+					}
 					deleted = true;
 				} else if (diff[f] == null) {
 					if (do_delete) {
