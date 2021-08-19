@@ -4,6 +4,9 @@
 <div>
 	<div style="display: flex; flex-direction: column;">
 		<div style="padding: 0 20px; margin-top: 10px;">
+			{if $page.accounts.length}
+				<div style="margin-bottom: 8px;">You have <b>{@$page.vote_points}</b> Vote Points</div>
+			{/if}
 			<div style="margin-bottom: 10px; font-size: 20px;">Target Character:</div>
 			<div style="display: flex; column-gap: 10px; align-items: baseline;">
 				<span>Search:</span>
@@ -31,7 +34,6 @@
 									<img class="class-icon" src="{@ROOT_URL + 'img/class/' + $role.class + '.png'}">
 									<span class="name">{@$role.name}</span>
 									<span class="class">{@GameUtil.classes[$role.class]?.shortname || 'Unknown Class'} Lv. {@$role.level}</span>
-									<span class="points">{@$role.vote_points} VP</span>
 								</div>
 							{/for}
 							{if $acc.roles.length == 0}
@@ -41,6 +43,9 @@
 					</div>
 				</div>
 			{/for}
+			{if $page.accounts.length == 0}
+				<div>Please register a game account first</div>
+			{/if}
 		</div>
 	</div>
 </div>
@@ -97,8 +102,13 @@
 			</span>
 		</div>
 
-		<div style="margin-top: 8px;">The character has <b>{@$role.vote_points}</b> Vote Points</div>
-		<div style="margin-top: 2px;">It will have <b class="remaining">{@($role.vote_points - $item.cost)}</b> Vote Points remaining after this purchase.</div>
+		<div style="margin-top: 8px;">You currently have <b>{@$page.vote_points}</b> Vote Points</div>
+		<div style="margin-top: 2px;">You will have <b class="remaining">{@($page.vote_points - $item.cost)}</b> Vote Points remaining after this purchase.</div>
+
+		{if $item.req_level}
+			<div style="margin-top: 8px; {if $item.req_level < $role.level} color: red; font-weight: bold;{/if}">This item can be only bought for Lv. {@$item.req_level}+ characters.</div>
+		{/if}
+
 
 		<div class="wrning" style="margin-top: 8px;">The item will be character bound.</div>
 	{/if}
@@ -237,12 +247,6 @@
 
 .role .class {
 	width: 110px;
-}
-
-.role .points {
-	width: 65px;
-	text-align: right;
-	padding-right: 2px;
 }
 
 .role .class-icon {

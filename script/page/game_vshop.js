@@ -19,6 +19,8 @@ g_mg_pages['game_vshop'] = new class {
 		req = await get(ROOT_URL + 'api/game/accounts', { is_json: 1});
 		this.accounts = req.data;
 
+		this.vote_points = this.accounts[0]?.vote_points || 0;
+
 		if (MG_DEFBRANCH != 1) {
 			this.shop1_raw = JSON.parse('{"_db":{"type":"npc_crafts"},"id":2155872258,"name":"Vote Shop","option":"Manufacture Goods","pages":[{"recipe_id":[2155872259,2155872260,2155872261,2155872262,2155872263,2155872264,2155872265,2155872266,2155872274,2155872273,2155872272,2155872271,2155872270,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,2155872286],"title":"Misc"},{"title":"Mounts","recipe_id":[2155872287,2155872288,2155872289,2155872290,2155872291,2155872297,2155872298,null,null,null,null,null,null,null,null,null,2155872300,2155872301,2155872302,2155872303,2155872304,2155872305,2155872306,null,null,null,null,null,null,null,null,2155872299]},{"title":"Fash 1","recipe_id":[2155872307,2155872308,2155872309,null,2155872311,2155872312,2155872318,null,2155872313,2155872314,2155872315,null,2155872316,2155872317,2155872319,2155872320,2155872321,2155872322,2155872323,2155872324,2155872325,2155872326,2155872327,null,2155872329,2155872330,2155872331,2155872332,2155872333,2155872334,2155872335,2155872336]},{"title":"Fash 2","recipe_id":[2155872337,2155872338,2155872339,null,null,null,null,null,2155872340,2155872341,2155872342,2155872343,null,null,null,null,2155872347,2155872346,2155872345,2155872344]}],"_allocated":true}');
 		} else {
@@ -132,6 +134,10 @@ g_mg_pages['game_vshop'] = new class {
 		const item = this.shop1_raw.items[item_id];
 		item.cost = cost;
 
+		if (item.id == 12813 || item.id == 12816) {
+			item.req_level = 60;
+		}
+
 		const role_id = this.selected_role_id;
 		const role = this.accounts.find(a => a.id == (role_id & (~0xf)))
 			.roles.find(r => r.id == role_id);
@@ -149,7 +155,7 @@ g_mg_pages['game_vshop'] = new class {
 				amount_el.value = '999';
 			}
 			amount = parseInt(amount_el.value);
-			remaining_points = role.vote_points - item.cost * amount;
+			remaining_points = this.vote_points - item.cost * amount;
 			g_confirm_dom.querySelector('.price').textContent = item.cost * amount;
 			g_confirm_dom.querySelector('.remaining').innerHTML = remaining_points;
 
@@ -163,7 +169,7 @@ g_mg_pages['game_vshop'] = new class {
 				'The item will be character bound.' :
 				'<span style="color: red; font-weight: bold;">You don\'t have enough points.</span>';
 
-			if (remaining_points < 0) {
+			if (remaining_points < 0 || (item.req_level ?? 0) < role.level) {
 				g_confirm_dom.querySelector('.buttonPrimary').classList.add('disabled'); 
 			} else {
 				g_confirm_dom.querySelector('.buttonPrimary').classList.remove('disabled'); 
@@ -187,7 +193,7 @@ g_mg_pages['game_vshop'] = new class {
 		}
 
 		notify('success', 'Item sent!');
-		role.vote_points = remaining_points;
+		this.vote_points = remaining_points;
 		this.tpl.reload('#accounts');
 	}
 }
