@@ -252,9 +252,13 @@
 			<div style="flex: 1;"></div>
 			<a class="button no-break" onclick="{serialize $win}.add_group()">(add) &nbsp;<i class="fa fa-plus" aria-hidden="true"></i></a>
 		</div>
-		<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
-			<div class="no-break">Max groups:</div>
-			<input type="number" style="flex: 1;" data-link="{serialize $win.spawner} => 'max_num'">
+		<div class="flex-columns flex-all">
+			<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
+				<div class="no-break">Max groups:</div>
+				<input type="number" style="flex: 1; max-width: 40px;" data-link="{serialize $win.spawner} => 'max_num'">
+			</div>
+			<div></div>
+			<label><input type="checkbox" data-link="{serialize $spawner} => 'auto_respawn'" class="checkbox"><span class="no-break">Auto Respawn</span></label>
 		</div>
 	{/if}
 	<div class="flex-columns" style="margin-bottom: 5px; align-items: center;">
