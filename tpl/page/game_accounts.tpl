@@ -8,7 +8,6 @@
 				<div style="display: flex;">
 					<div>
 						<div class="header">{@$acc.name}</div>
-						<div>Vote Points: 0</div>
 						<div>Characters:</div>
 					</div>
 					<div style="flex: 1"></div>
