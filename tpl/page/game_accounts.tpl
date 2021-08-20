@@ -1,5 +1,5 @@
 <script id="tpl-game-accounts" type="text/x-dot-template">
-<div class="section">
+<div class="section" style="margin-top: 30px;">
 	<div class="info">Character lists are updated every hour. If you just created a new character it might not show up here yet.</div>
 
 	<div id="accounts" style="display: flex; flex-direction: column; row-gap: 10px; margin-top: 20px;">
@@ -139,6 +139,7 @@
 .role .class-icon {
 	width: 36px;
 	height: 36px;
+	object-fit: contain;
 }
 
 .customSection {
