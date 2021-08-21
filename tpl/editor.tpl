@@ -92,6 +92,10 @@
 							<div>
 								Published revision {@$entry.param1}
 							</div>
+						{else if $entry.actionID == 2}
+							<div class="review-status" style="margin-top: 4px;">
+								<div class="plus">Merged</div>
+							</div>
 						{/if}
 						<div>
 							{@escape($entry.text).replaceAll('\n', '<br>')}
