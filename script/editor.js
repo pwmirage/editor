@@ -236,6 +236,7 @@ class Editor {
 		const req = await req_p;
 		const req_log = await req_log_p;
 		if (!req.ok || !req_log.ok) {
+			Loading.hide_tag(tag_p);
 			confirm('Error occured while loading this project. Are you sure this project exists and you have access to it?', '', 'Error');
 			await sleep(1);
 			g_confirm_dom.classList.add('noconfirm');

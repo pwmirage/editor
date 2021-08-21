@@ -96,12 +96,9 @@ class Item {
 			return;
 		}
 
-		const promises = [];
 		for (let i = 0; i < 8192; i++) {
-			promises[i] = Item.preload_icon(i);
+			await Item.preload_icon(i);
 		}
-
-		await Promise.all(promises);
 
 		/* save everything at once */
 		idb = await IDB.open('icon-cache', ICON_CACHE_IDB_VER, 'readwrite');
