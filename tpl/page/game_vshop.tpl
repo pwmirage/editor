@@ -5,7 +5,7 @@
 	<div style="display: flex; flex-direction: column;">
 		<div style="padding: 0 20px; margin-top: 10px;">
 			{if $page.accounts.length}
-				<div style="margin-bottom: 8px;">You have <b>{@$page.vote_points}</b> Vote Points</div>
+				<div id="account-balance" style="margin-bottom: 8px;">You have <b>{@$page.vote_points}</b> Vote Points</div>
 			{/if}
 			<div style="margin-bottom: 10px; font-size: 20px;">Target Character:</div>
 			<div style="display: flex; column-gap: 10px; align-items: baseline;">

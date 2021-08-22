@@ -202,6 +202,6 @@ g_mg_pages['game_vshop'] = new class {
 
 		notify('success', 'Item sent!');
 		this.vote_points = remaining_points;
-		this.tpl.reload('#accounts');
+		this.tpl.reload('#account-balance');
 	}
 }
