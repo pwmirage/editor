@@ -106,7 +106,7 @@
 		<div style="margin-top: 2px;">You will have <b class="remaining">{@($page.vote_points - $item.cost)}</b> Vote Points remaining after this purchase.</div>
 
 		{if $item.req_level}
-			<div style="margin-top: 8px; {if $item.req_level < $role.level} color: red; font-weight: bold;{/if}">This item can be only bought for Lv. {@$item.req_level}+ characters.</div>
+			<div style="margin-top: 8px; {if $item.req_level > $role.level} color: red; font-weight: bold;{/if}">This item can be only bought for Lv. {@$item.req_level}+ characters.</div>
 		{/if}
 
 

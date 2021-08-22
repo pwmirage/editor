@@ -135,7 +135,15 @@ g_mg_pages['game_vshop'] = new class {
 		item.cost = cost;
 
 		if (item.id == 12813 || item.id == 12816) {
+			item.req_level = 45;
+		}
+
+		if (item.id == 26645 || item.id == 26648) {
 			item.req_level = 60;
+		}
+
+		if (item.id == 15761 || item.id == 15760) {
+			item.req_level = 75;
 		}
 
 		const role_id = this.selected_role_id;
@@ -169,7 +177,7 @@ g_mg_pages['game_vshop'] = new class {
 				'The item will be character bound.' :
 				'<span style="color: red; font-weight: bold;">You don\'t have enough points.</span>';
 
-			if (remaining_points < 0 || (item.req_level ?? 0) < role.level) {
+			if (remaining_points < 0 || (item.req_level ?? 0) > role.level) {
 				g_confirm_dom.querySelector('.buttonPrimary').classList.add('disabled'); 
 			} else {
 				g_confirm_dom.querySelector('.buttonPrimary').classList.remove('disabled'); 
