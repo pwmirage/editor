@@ -40,7 +40,7 @@ class IDB {
 
 	static async set(db, id, val) {
 		return new Promise((resolve, reject) => {
-			const request = db.add({ id, val });
+			const request = db.put({ id, val });
 			request.onerror = reject;
 			request.onsuccess = resolve;
 		});
