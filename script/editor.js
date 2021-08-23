@@ -65,6 +65,7 @@ class Editor {
 //  const date = new Date (timestamp * 1000);
 //  $('#pw-version').text('Version: ' + date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + date.toLocaleTimeString("en-US"));
 
+		await PWPreview.load_latest_db();
 
 		await Promise.all([
 			load_script(ROOT_URL + 'script/window/welcome.js?v=' + MG_VERSION),
