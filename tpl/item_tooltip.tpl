@@ -411,8 +411,8 @@
 	border-radius: 3px;
 	padding: 5px;
 	position: relative;
-	writing-mode: vertical-lr;
 	display: flex;
+	flex-direction: column;
 	align-content: flex-start;
 	flex-wrap: wrap;
 	margin-right: -4px;
@@ -427,10 +427,12 @@
 	overflow-x: auto;
 	overflow-y: hidden;
 	width: 100%;
+	height: -moz-available;
+	height: -webkit-fill-available;
+	height: fill-available;
 }
 
 #item_info > * {
-	writing-mode: horizontal-tb;
 	margin-right: 4px;
 }
 
