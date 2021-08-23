@@ -341,6 +341,15 @@
 
 	{else if $item.type == Item.typeid('Quest')}
 		{* ======== QUEST ITEM ========= *}
+	{else if $item.type == Item.typeid('Fashion')}
+		{* ======== FASHION ========= *}
+		{if $edit}
+			<span style="">
+				<span data-select="{serialize $db}.fashion_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change fashion type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+				&nbsp;-&nbsp;
+				<span data-select="{serialize $db}.fashion_sub_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change fashion subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+			</span>
+		{/if}
 	{else}
 		{* ======== UNKNOWN ITEM TYPE ========= *}
 	{/if}
