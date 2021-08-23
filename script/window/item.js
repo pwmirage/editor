@@ -172,8 +172,8 @@ class ItemTooltipWindow extends SingleInstanceWindow {
 		if (!ItemTooltipWindow.icons_db) {
 			const icons_db = ItemTooltipWindow.icons_db = [];
 			const start_len = icons_db.length;
-			icons_db.length += Item.icons.length;
-			for (let i = 0; i < Item.icons.length; i++) {
+			icons_db.length += Item.icon_cache.length;
+			for (let i = 0; i < Item.icon_cache.length; i++) {
 				icons_db[start_len + i] = { id: i, name: ' ', icon: i, is_icon: 1, _db: {} };
 			}
 		}
