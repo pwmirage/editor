@@ -41,25 +41,27 @@ const onNewServiceWorker = (registration, callback) => {
 	registration.addEventListener('updatefound', listenInstalledStateChange);
 }
 
-let g_sw_refreshing;
-// When the user asks to refresh the UI, we'll need to reload the window
-navigator.serviceWorker.addEventListener('controllerchange', (event) => {
-	if (g_sw_refreshing) return; // prevent infinite refresh loop when you use "Update on Reload"
-	g_sw_refreshing = true;
-	window.location.reload();
-});
-
-navigator.serviceWorker.register('/sw.js')
-	.then((registration) => {
-		// Track updates to the Service Worker.
-		if (!navigator.serviceWorker.controller) {
-			// The window client isn't currently controlled so it's a new service
-			// worker that will activate immediately
-			return;
-		}
-		registration.update();
-
-		onNewServiceWorker(registration, () => {
-			showRefreshUI(registration);
-		});
+if (navigator.serviceWorker) {
+	let g_sw_refreshing;
+	// When the user asks to refresh the UI, we'll need to reload the window
+	navigator.serviceWorker.addEventListener('controllerchange', (event) => {
+		if (g_sw_refreshing) return; // prevent infinite refresh loop when you use "Update on Reload"
+		g_sw_refreshing = true;
+		window.location.reload();
 	});
+
+	navigator.serviceWorker.register('/sw.js')
+		.then((registration) => {
+			// Track updates to the Service Worker.
+			if (!navigator.serviceWorker.controller) {
+				// The window client isn't currently controlled so it's a new service
+				// worker that will activate immediately
+				return;
+			}
+			registration.update();
+
+			onNewServiceWorker(registration, () => {
+				showRefreshUI(registration);
+			});
+		});
+}

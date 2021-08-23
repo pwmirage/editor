@@ -24,7 +24,6 @@ class PWPreview {
 		PWPreview.diff_entry_tpl = new Template('tpl-diff-entry');
 
 		await Item.init();
-		await PWPreview.load_latest_db();
 	}
 
 	static is_empty(obj) {
@@ -150,6 +149,11 @@ class PWPreview {
 
 				if (typeof(MG_IS_EDITOR) === 'undefined') {
 					const resp = await get(ROOT_URL + 'latest_db/static', { is_json: 1 });
+					if (!resp.ok) {
+						resolve(false);
+						return;
+					}
+
 					for (const t in resp.data) {
 						g_latest_db[t] = init_id_array(resp.data[t]);
 					}
@@ -189,10 +193,10 @@ class PWPreview {
 					return false;
 				}, { passive: true });
 
-				resolve();
+				resolve(true);
 			});
 		}
-		await g_latest_db_promise;
+		return g_latest_db_promise;
 	}
 
 	static get_state_before_gen(obj, generation) {
