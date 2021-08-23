@@ -238,11 +238,17 @@ self.addEventListener('fetch', (event) => {
 				'decoration_minor_types',
 				'medicine_major_types',
 				'medicine_minor_types',
-				'material_minor_types',
 				'projectile_types',
 				'quiver_types',
 				'armor_sets',
 				'equipment_addons',
+				'stone_types',
+				'monster_addons',
+				'monster_types',
+				'fashion_major_types',
+				'fashion_sub_types',
+				'gm_generator_types',
+				'pet_types',
 			];
 
 			await g_latest_db_promise;

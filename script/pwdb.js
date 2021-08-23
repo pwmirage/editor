@@ -58,7 +58,7 @@ class PWDB {
 		PWDB.last_saved_changeset = 0;
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
-		PWDB.db_version = 7;
+		PWDB.db_version = 8;
 
 		/*
 		PWDB.type_fields = [
@@ -403,8 +403,6 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'decoration_minor_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'medicine_major_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'medicine_minor_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'material_major_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'material_minor_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'projectile_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'quiver_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'armor_sets', 'object_types'),
@@ -412,6 +410,13 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'npc_tasks_in'),
 			PWDB.register_data_type(db, args, 'npc_tasks_out'),
 			PWDB.register_data_type(db, args, 'tasks'),
+			PWDB.register_data_type(db, args, 'stone_types'),
+			PWDB.register_data_type(db, args, 'monster_addons'),
+			PWDB.register_data_type(db, args, 'monster_types'),
+			PWDB.register_data_type(db, args, 'fashion_major_types'),
+			PWDB.register_data_type(db, args, 'fashion_sub_types'),
+			PWDB.register_data_type(db, args, 'gm_generator_types'),
+			PWDB.register_data_type(db, args, 'pet_types'),
 		]);
 
 		if (args.preinit) {
