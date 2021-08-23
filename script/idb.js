@@ -18,7 +18,9 @@ class IDB {
 					db.deleteObjectStore('entries');
 				}
 				db.createObjectStore('entries', { keyPath: 'id' });
-				resolve(db);
+				e.target.oncomplete = (e) => {
+					resolve(db);
+				}
 			}
 		});
 
