@@ -330,7 +330,7 @@ self.addEventListener('fetch', (event) => {
 const load_latest_db = async (pid) => {
 	await g_latest_db_promise;
 	g_latest_db_promise = new Promise(async (resolve) => {
-		console.log('SW: Loading DB pid=' + pid);
+		console.log(new Date() + '\n' + 'SW: Loading DB pid=' + pid);
 		g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
 		resolve();
 	});
