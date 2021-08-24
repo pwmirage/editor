@@ -19,6 +19,11 @@ class Loading {
 		const el = newElement('<div id="mgeLoading"></div>');
 		const shadow = el.attachShadow({mode: 'open'});
 		shadow.append(...newArrElements(Loading.tpl.data));
+
+		while (!document.querySelector('#pageHeader')) {
+			await sleep(100);
+		}
+
 		document.querySelector('#pageHeader').insertBefore(el, document.querySelector('#pageHeaderFacade'));
 
 		Loading.shadow = shadow;
