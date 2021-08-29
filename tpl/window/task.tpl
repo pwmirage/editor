@@ -111,11 +111,11 @@
 		<div id="premise_quests" class="tasks flex-rows">
 			<div class="header">Required quests:</div>
 			{assign idx = -1}
-			{for req_tid of ($task.premise_quests || [])}
+			{for req_tid of ($root_task.premise_quests || [])}
 				<div>
 					{$idx++}
 					<span>{@$idx + 1}.</span>
-					<a class="button button-dark menu-triangle" data-link-button="{serialize $task} => 'premise_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
+					<a class="button button-dark menu-triangle" data-link-button="{serialize $root_task} => 'premise_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
 					<div style="flex: 1;"></div>
 					<a class="remove-btn" onclick="{serialize $win}.remove_quest('premise', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
 				</div>
@@ -125,11 +125,11 @@
 		<div id="mutex_quests" class="tasks flex-rows">
 			<div class="header">Mutually exclusive quests:</div>
 			{assign idx = -1}
-			{for req_tid of ($task.mutex_quests || [])}
+			{for req_tid of ($root_task.mutex_quests || [])}
 				<div>
 					{$idx++}
 					<span>{@$idx + 1}.</span>
-					<a class="button button-dark menu-triangle" data-link-button="{serialize $task} => 'mutex_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
+					<a class="button button-dark menu-triangle" data-link-button="{serialize $root_task} => 'mutex_quests', {@$idx}" data-select="db.tasks" style="margin-top: 1px; margin-bottom: 1px;"></a>
 					<div style="flex: 1;"></div>
 					<a class="remove-btn" onclick="{serialize $win}.remove_quest('mutex', {@$idx});"><i class="close fa fa-minus-circle"></i></a>
 				</div>

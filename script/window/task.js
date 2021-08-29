@@ -606,19 +606,19 @@ class TaskWindow extends SingleInstanceWindow {
 	}
 
 	add_quest(type) {
-		db.open(this.task);
+		db.open(this.root_task);
 		if (type == 'premise') {
-			if (!this.task.premise_quests) {
-				this.task.premise_quests = [];
+			if (!this.root_task.premise_quests) {
+				this.root_task.premise_quests = [];
 			}
-			this.task.premise_quests.push(0);
+			this.root_task.premise_quests.push(0);
 		} else {
-			if (!this.task.mutex_quests) {
-				this.task.mutex_quests = [];
+			if (!this.root_task.mutex_quests) {
+				this.root_task.mutex_quests = [];
 			}
-			this.task.mutex_quests.push(0);
+			this.root_task.mutex_quests.push(0);
 		}
-		db.commit(this.task);
+		db.commit(this.root_task);
 
 		if (type == 'premise') {
 			this.tpl.reload('#premise_quests');
@@ -628,15 +628,15 @@ class TaskWindow extends SingleInstanceWindow {
 	}
 
 	remove_quest(type, idx) {
-		db.open(this.task);
+		db.open(this.root_task);
 		if (type == 'premise') {
-			this.task.premise_quests[idx] = 0;
-			cleanup_arr(this.task.premise_quests);
+			this.root_task.premise_quests[idx] = 0;
+			cleanup_arr(this.root_task.premise_quests);
 		} else {
-			this.task.mutex_quests[idx] = 0;
-			cleanup_arr(this.task.mutex_quests);
+			this.root_task.mutex_quests[idx] = 0;
+			cleanup_arr(this.root_task.mutex_quests);
 		}
-		db.commit(this.task);
+		db.commit(this.root_task);
 
 		if (type == 'premise') {
 			this.tpl.reload('#premise_quests');
