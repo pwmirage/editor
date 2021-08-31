@@ -175,6 +175,7 @@
 				{/if}
 			</div>
 
+			{assign remove_premise_items = false}
 			<div>
 				<div><span style="font-weight: bold;">Prerequisites:</span> {if $task.parent_quest}Inherited from the root quest{/if}</div>
 				{if !$task.parent_quest}
@@ -221,6 +222,7 @@
 					</div>
 
 					<label><input type="checkbox" class="checkbox" data-link="{serialize $task} => 'remove_premise_items'"><span>Remove Items/Coins from EQ</span></label>
+					{assign remove_premise_items = true}
 				</div>
 				{/if}
 			</div>
@@ -326,7 +328,13 @@
 							<span class="item" tabindex="0"><img src="{@ROOT_URL}img/item-add.jpg" onclick="{serialize $win}.item_add_onclick('req');"></span>
 						</div>
 
-						<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
+						<div style="display: flex; align-items: baseline; column-gap: 10px;">
+							<div style="margin-top: 5px;">Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
+							{if !$remove_premise_items}
+								<label><input type="checkbox" class="checkbox" data-link="{serialize $task} => 'remove_premise_items'"><span>Remove Items from EQ</span></label>
+								{assign remove_premise_items = true}
+							{/if}
+						</div>
 					</div>
 
 					<div>
