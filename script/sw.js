@@ -8,6 +8,14 @@ const PRECACHE = 'precache-v3';
 const RUNTIME = 'runtime-v3';
 const PRECACHE_URLS = [];
 
+self.addEventListener('message', e => {
+	if (!e.data) {
+		return;
+	} else if (e.data === 'skipWaiting') {
+		skipWaiting();
+	}
+});
+
 const module = {};
 const MG_VERSION = 1;
 let MG_BRANCH = null;
@@ -351,13 +359,5 @@ const load_latest_db = async (pid) => {
 		resolve();
 	});
 }
-
-self.addEventListener('message', e => {
-	if (!e.data) {
-		return;
-	} else if (e.data === 'skipWaiting') {
-		skipWaiting();
-	}
-});
 
 Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);
