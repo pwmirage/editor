@@ -14,7 +14,8 @@ let MG_BRANCH = null;
 const ROOT_URL = '/editor/';
 const g_db = {};
 let g_latest_db;
-let g_latest_db_promise = Promise.resolve();
+let g_latest_db_load_fn = null;
+let g_latest_db_promise = new Promise((resolve) => { g_latest_db_load_fn = resolve; });
 
 
 /* mock */
@@ -32,7 +33,7 @@ self.importScripts('editor/script/idb.js');
 self.importScripts('editor/script/util.js');
 self.importScripts('editor/script/pwdb.js');
 
-(async () => {
+(async () => { try {
 	const idb = await IDB.open('swdata', 1, 'readonly');
 	const oldbranch = await IDB.get(idb, 'branch');
 
@@ -44,7 +45,7 @@ self.importScripts('editor/script/pwdb.js');
 	if (!g_latest_db && MG_BRANCH?.head_id) {
 		load_latest_db(MG_BRANCH.head_id);
 	}
-})();
+} catch (e) { console.log(e); } })();
 
 PWDB.init();
 
@@ -335,10 +336,18 @@ self.addEventListener('fetch', (event) => {
 });
 
 const load_latest_db = async (pid) => {
-	await g_latest_db_promise;
+	if (!g_latest_db_load_fn) {
+		await g_latest_db_promise;
+	}
 	g_latest_db_promise = new Promise(async (resolve) => {
 		console.log(new Date() + '\n' + 'SW: Loading DB pid=' + pid);
 		g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
+
+		if (g_latest_db_load_fn) {
+			g_latest_db_load_fn();
+			g_latest_db_load_fn = null
+		}
+
 		resolve();
 	});
 }
