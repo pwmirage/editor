@@ -2,6 +2,8 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
+'use strict';
+
 class DB {
 	constructor() {
 		/* assoc array:

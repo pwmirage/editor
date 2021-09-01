@@ -33,12 +33,16 @@ const mg_init = async () => {
 		throw e;
 	}
 
-	await post(ROOT_URL + 'latest_db/load', { is_json: 1, data: {
-		...MG_BRANCHES.find(b => b.id == MG_DEFBRANCH)
-	}});
-
 	await PWPreview.load_promise;
 	await JSDebugClient.init();
+
+	try {
+		await post(ROOT_URL + 'latest_db/load', { is_json: 1, data: {
+			...MG_BRANCHES.find(b => b.id == MG_DEFBRANCH)
+		}});
+	} catch (e) {
+		/* not sure what to do, but we shouldn't fail the website load ? */
+	}
 };
 
 const load_script = (src) => {

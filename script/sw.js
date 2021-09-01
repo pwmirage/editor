@@ -16,6 +16,7 @@ const g_db = {};
 let g_latest_db;
 let g_latest_db_promise = Promise.resolve();
 
+
 /* mock */
 class Loading {
 	static show_tag() {};

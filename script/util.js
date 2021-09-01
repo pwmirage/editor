@@ -215,7 +215,7 @@ const init_id_array = (arr, fallback) => {
 		}
 	});
 
-	for (const obj of arr) {
+	for (const obj of (arr || [])) {
 		if (!obj) continue;
 		obj_map.set(obj.id.toString(), obj);
 	}
