@@ -3,14 +3,24 @@
  */
 
 const _fetch = async (url, { params, is_json }) => {
-	const resp = await fetch(url, params);
+	let resp;
+
+	try {
+		resp = await fetch(url, params);
+		if (!resp.ok) {
+			resp.data = is_json ? {} : '';
+		}
+	} catch (e) {
+		return { ok: false, data: is_json ? {} : '' };
+	}
 
 	if (!is_json) {
-		resp.data = '';
-		if (!resp.ok) {
-			return resp;
+		try {
+			resp.data = await resp.text();
+		} catch (e) {
+			console.error(url, e);
+			resp.data = '';
 		}
-		resp.data = await resp.text();
 	} else {
 		try {
 			const txt = await resp.text();
@@ -20,7 +30,7 @@ const _fetch = async (url, { params, is_json }) => {
 				resp.data = {};
 			}
 		} catch (e) {
-			console.error(e);
+			console.error(url, e);
 			resp.data = {};
 		}
 	}
