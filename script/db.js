@@ -66,7 +66,7 @@ class DB {
 				}
 
 				if (v === undefined) {
-					map.delete(id);
+					map.set(id, null);
 				} else {
 					map.set(id, v);
 				}
@@ -77,7 +77,7 @@ class DB {
 					return function(fn) {
 						let ret = [];
 						for (const obj of map.values()) {
-							if (fn(obj)) ret.push(obj);
+							if (obj && fn(obj)) ret.push(obj);
 						}
 						return ret;
 					}
@@ -86,7 +86,9 @@ class DB {
 					return function(fn) {
 						let ret = [];
 						for (const obj of map.values()) {
-							ret.push(fn(obj));
+							if (obj) {
+								ret.push(fn(obj));
+							}
 						}
 						return ret;
 					}
@@ -94,7 +96,7 @@ class DB {
 				if (k === 'find') {
 					return function(fn) {
 						for (const obj of map.values()) {
-							if (fn(obj)) return obj;
+							if (obj && fn(obj)) return obj;
 						}
 						return null;
 					}
@@ -102,7 +104,11 @@ class DB {
 				if (k === 'size') return map.size;
 				if (k === Symbol.iterator) {
 					return function *() {
-						for (const obj of map.values()) yield obj;
+						for (const obj of map.values()) {
+							if (obj) {
+								yield obj;
+							}
+						}
 					}
 				}
 				if (typeof map[k] === 'function') {
@@ -124,7 +130,7 @@ class DB {
 
 				const id = DB.parse_id(k);
 				let obj = map.get(id);
-				if (obj) {
+				if (obj !== undefined) {
 					return obj;
 				}
 
