@@ -67,10 +67,14 @@
 		<div id="page" class="page">
 			{assign t = $page.tabs[$page.cur_tab]}
 			{for r of $t}
-				<div class="item-entry" onclick="{serialize $page}.buy_item({@$r.id}, {@$r.cost});">
-					<span class="num">{@$r.cost} x <b>VP</b> = </span>
-					<span class="item" data-id="{@$r.id}"><img{ } src="{@Item.get_icon($r.icon)}"></span>
-					<span class="name">{@$r.name}</span>
+				<div class="item-entry {if $r.disabled}disabled{/if}" {if !$r.disabled}onclick="{serialize $page}.buy_item({@$r.id}, {@$r.price});"{/if}>
+					<span class="num">{@$r.price} x <b>VP</b> = </span>
+					{if $r.id > 0}
+						<span class="item" data-id="{@$r.id}"><img{ } src="{@Item.get_icon($r.icon)}"></span>
+					{else}
+						<span></span>
+					{/if}
+					<span class="name">{@$r.name}{if $r.disabled} (upcoming){/if}</span>
 				</div>
 			{/for}
 
@@ -89,7 +93,7 @@
 			<span style="font-weight: bold;">{@$item.name}</span>
 			<div style="flex: 1;"></div>
 			<span>for</span>
-			<span class="price" style="font-weight: bold;">{@$item.cost}</span>
+			<span class="price" style="font-weight: bold;">{@$item.price}</span>
 			<span>Vote Points</span>
 		</div>
 		<div style="margin-top: 12px;">It will be mailed to:</div>
@@ -103,10 +107,10 @@
 		</div>
 
 		<div style="margin-top: 8px;">You currently have <b>{@$page.vote_points}</b> Vote Points</div>
-		<div style="margin-top: 2px;">You will have <b class="remaining">{@($page.vote_points - $item.cost)}</b> Vote Points remaining after this purchase.</div>
+		<div style="margin-top: 2px;">You will have <b class="remaining">{@($page.vote_points - $item.price)}</b> Vote Points remaining after this purchase.</div>
 
-		{if $item.req_level}
-			<div style="margin-top: 8px; {if $item.req_level > $role.level} color: red; font-weight: bold;{/if}">This item can be only bought for Lv. {@$item.req_level}+ characters.</div>
+		{if $item.minlevel}
+			<div style="margin-top: 8px; {if $item.minlevel > $role.level} color: red; font-weight: bold;{/if}">This item can be only bought for Lv. {@$item.minlevel}+ characters.</div>
 		{/if}
 
 
@@ -172,6 +176,10 @@
 	cursor: pointer;
 }
 
+.item-entry.disabled {
+	color: grey;
+}
+
 .item-entry:hover {
 	background: #eaeaea;
 }
@@ -179,7 +187,7 @@
 .item-entry > .num {
 	white-space: pre;
 	display: block;
-	width: 65px;
+	width: 75px;
 	margin-right: -5px;
 }
 
