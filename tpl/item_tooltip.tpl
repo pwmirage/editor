@@ -28,7 +28,7 @@
 
 	<div class="flex-columns" style="align-items: end;">
 		{if $edit}
-			<span class="item icon" ondblclick="{serialize $win}.select_icon();" oncontextmenu="{serialize $win}.icon_onclick(event, this); return false;" style="cursor: pointer;"><img{ } src="{@Item.get_icon($item.icon || 0)}"></span>
+			<span class="item icon" onclick="{serialize $win}.select_icon();" oncontextmenu="{serialize $win}.icon_onclick(event, this); return false;" style="cursor: pointer; align-self: baseline;"><img{ } src="{@Item.get_icon($item.icon || 0)}"></span>
 		{/if}
 		<div style="flex: 1;">
 			<span class="flex-columns" style="{if !$edit}font-size: 13px; margin-bottom: 3px;{/if}"><span {@$data_preview} data-input class="noalign" style="{if $edit}flex:1{/if}" data-link="{serialize $item} => 'name'"></span>&nbsp;&nbsp;{@DB.serialize_id($item.id)}&nbsp;</span>
@@ -572,6 +572,12 @@
 
 .flex-columns {
 	align-items: baseline;
+}
+
+.item.icon:hover {
+	box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.25);
+	border: 1px solid var(--header-color);
+	margin: -1px;
 }
 </style>
 @@}
