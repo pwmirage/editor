@@ -67,6 +67,23 @@ class Item {
 		return Item.types.find((t) => t.name.toLowerCase().includes(name))?.id || -1;
 	}
 
+	static genders = [
+		{ id: 0, name: 'Male' },
+		{ id: 1, name: 'Female' },
+	];
+
+	static genders_arr = init_id_array(Item.genders);
+
+	static equip_location = [
+		{ id: 1, name: 'Body' },
+		{ id: 2, name: 'Hands' },
+		{ id: 3, name: 'Lower Body' },
+		{ id: 4, name: 'Feet' },
+		{ id: 5, name: 'Full Dress' },
+	];
+
+	static equip_location_arr = init_id_array(Item.equip_location);
+
 	static async init() {
 		Item.tmp_icon_canvas = document.createElement('canvas');
 		Item.tmp_icon_canvas.width = Item.tmp_icon_canvas.height = 32;

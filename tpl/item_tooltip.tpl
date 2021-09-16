@@ -344,11 +344,26 @@
 	{else if $item.type == Item.typeid('Fashion')}
 		{* ======== FASHION ========= *}
 		{if $edit}
-			<span style="">
-				<span data-select="{serialize $db}.fashion_major_types" class="noalign" data-link="{serialize $item} => 'major_type'" data-title="Change fashion type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+		<div class="section flex-rows">
+			<span style="display: flex;">
+				<span data-select="{serialize $db}.fashion_sub_types" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'minor_type'" data-title="Change fashion subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 				&nbsp;-&nbsp;
-				<span data-select="{serialize $db}.fashion_sub_types" class="noalign" data-link="{serialize $item} => 'minor_type'" data-title="Change fashion subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+				<span data-select="Item.equip_location_arr" class="noalign" style="flex: 1;" data-link="{serialize $item} => 'equip_location'" data-title="Change fashion subtype of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
 			</span>
+			<span style="">
+			</span>
+			<span style="margin-top: 3px; display: flex; column-gap: 5px;">
+				<span data-select="Item.genders_arr" class="noalign" data-link="{serialize $item} => 'gender'" data-title="Change fashion type of \"{@$item.name || '(unnamed)'}\" #{@$item.id}"></span>
+				<span>Model path:</span>
+				<span data-input class="noalign" style="flex: 1;" data-link="{serialize $item} => 'realname'"></span>
+			</span>
+			<span style="margin-top: 3px; display: flex; column-gap: 5px;">
+				<span>Req. level:</span>
+				<span data-input class="noalign" style="flex: 1;" data-link="{serialize $item} => 'require_level'"></span>
+				<span>Dye count:</span>
+				<span data-input class="noalign" style="flex: 1;" data-link="{serialize $item} => 'require_dye_count'"></span>
+			</span>
+		</div>
 		{/if}
 	{else}
 		{* ======== UNKNOWN ITEM TYPE ========= *}
