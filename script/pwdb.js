@@ -538,6 +538,15 @@ class PWDB {
 					db.commit(npc);
 				}
 			}
+
+			if (obj._db.type == 'items' && diff.realname) {
+				const trimmed = obj.realname.trim();
+				if (trimmed != obj.realname) {
+					db.open(obj);
+					obj.realname = trimmed;
+					db.commit(obj);
+				}
+			}
 		});
 
 		db.new_id_start = 0x80000000 + project.pid * 0x100000;
