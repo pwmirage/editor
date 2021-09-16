@@ -248,6 +248,7 @@ input[type=text]:focus {
 	content: attr(data-placeholder);
 	color: #a39f9f;
 	cursor: text;
+	position: absolute;
 }
 
 input[type="text"].supershort,
