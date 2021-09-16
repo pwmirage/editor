@@ -367,9 +367,9 @@
 			</span>
 			<span style="margin-top: 3px; display: flex; column-gap: 5px;">
 				<span>Req. level:</span>
-				<span data-input class="noalign" style="flex: 1;" data-link="{serialize $item} => 'require_level'"></span>
+				<span data-input class="input-number noalign" style="flex: 1;" data-link="{serialize $item} => 'require_level'"></span>
 				<span>Dye count:</span>
-				<span data-input class="noalign" style="flex: 1;" data-link="{serialize $item} => 'require_dye_count'"></span>
+				<span data-input class="input-number noalign" style="flex: 1;" data-link="{serialize $item} => 'require_dye_count'"></span>
 			</span>
 		</div>
 		{/if}
