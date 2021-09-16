@@ -341,6 +341,14 @@
 
 	{else if $item.type == Item.typeid('Quest')}
 		{* ======== QUEST ITEM ========= *}
+	{else if $item.type == Item.typeid('Consumable')}
+		{* ======== CONSUMABLE ITEM ========= *}
+		{if $edit}
+			<span style="display: flex; column-gap: 5px;">
+				Quest:
+			<a class="button button-dark menu-triangle" data-link-button="{serialize $item} => 'tasks', 0, 'id'" data-select="db.tasks" onclick="const i = {serialize $item}; db.open(i); i.tasks[0].prob = 1; db.commit(i);"></a>
+			</span>
+		{/if}
 	{else if $item.type == Item.typeid('Fashion')}
 		{* ======== FASHION ========= *}
 		{if $edit}
