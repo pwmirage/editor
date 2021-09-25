@@ -690,7 +690,14 @@ class TaskWindow extends SingleInstanceWindow {
 			db.commit(t);
 		} else if (tab_type == 'dialogue') {
 			this.tpl.reload('.dialogue-diagram');
-			const npc_id = id == 'ready' ? this.task.finish_npc : this.task.start_npc;
+			let npc_id;
+			if (id == 'ready') {
+				npc_id = this.task.finish_npc;
+			} else if (id == 'unfinished') {
+				npc_id = this.task.finish_npc || this.task.start_npc;
+			} else {
+				npc_id = this.task.start_npc;
+			}
 			const npc_name = db.npcs[npc_id || 0]?.name || '(unnamed)';
 			this.shadow.querySelector('.dialogue-diagram li.start > span').textContent = npc_id ? (npc_name + ' ' + DB.serialize_id(npc_id)) : '(no npc)';
 
