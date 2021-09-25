@@ -68,8 +68,9 @@
 						</div>
 					</td>
 					<td>
-						<a href="{@ROOT_URL + '?id=' + $project.id}">
-							{@$project.username}
+						<a href="{@ROOT_URL + '?id=' + $project.id}" class="username">
+							<img src="{@$project.avatar}">
+							<span>{@$project.username}</span>
 						</a>
 					</td>
 					<td><a href="{@ROOT_URL + '?id=' + $project.id}">
@@ -270,6 +271,11 @@
 }
 
 .projects .labels {
+	display: flex;
+	column-gap: 5px;
+}
+
+.projects .username {
 	display: flex;
 	column-gap: 5px;
 }
