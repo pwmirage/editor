@@ -87,6 +87,52 @@ class Projects {
 		this.select_tab(tabname);
 	}
 
+	on_list_refresh() {
+		const limit = 25;
+
+		this.list_incomplete = (this.list.length > limit && this.list.length % limit == 1);
+		if (this.list_incomplete) {
+			this.list.length--;
+		}
+	}
+
+	onsearch(str) {
+		this.search_str = str;
+		if (this.search_int) {
+			return;
+		}
+
+		this.search_int = setTimeout(async () => {
+			let req;
+			console.log(this.search_str);
+
+			const data = { type: this.cur_tab, name: this.search_str };
+
+			req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data });
+			this.list = req.data;
+
+			this.on_list_refresh();
+			this.tpl.reload('.projects-container > .projects', { loading: false });
+
+			this.search_int = null;
+		}, 1000);
+	}
+
+	async load_more() {
+		if (this.load_more_pending) {
+			return;
+		}
+
+		this.load_more_pending = true;
+		const data = { type: this.cur_tab, name: this.search_str || '', offset: this.list.length };
+		const req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data });
+
+		this.load_more_pending = false;
+		this.list.push(...req.data);
+		this.on_list_refresh();
+		this.tpl.reload('.projects-container', { loading: false });
+	}
+
 	async select_tab(name) {
 		this.cur_tab = name;
 		const data = {};
@@ -98,6 +144,7 @@ class Projects {
 		this.tpl.reload('.loading', { loading: true });
 		req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data });
 		this.list = req.data;
+		this.on_list_refresh();
 
 		localStorage.setItem('projects_list_tab', name);
 		this.tpl.reload('.projects-container', { loading: false });

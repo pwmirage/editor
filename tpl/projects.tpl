@@ -20,6 +20,7 @@
 			<div onclick="{serialize $projects}.select_tab('my')" class="{if $projects.cur_tab == 'my'}selected{/if}">My projects</div>
 			<div onclick="{serialize $projects}.select_tab('all')" class="{if $projects.cur_tab == 'all'}selected{/if}">All projects</div>
 			<div onclick="{serialize $projects}.select_tab('review')" class="{if $projects.cur_tab == 'review'}selected{/if}">Awaiting review</div>
+			<div onclick="{serialize $projects}.select_tab('approved')" class="{if $projects.cur_tab == 'approved'}selected{/if}">Ready for testing</div>
 			<div onclick="{serialize $projects}.select_tab('merged')" class="{if $projects.cur_tab == 'merged'}selected{/if}">Merged</div>
 			<div onclick="{serialize $projects}.select_tab('trashed')" class="{if $projects.cur_tab == 'trashed'}selected{/if}">Trashed</div>
 		</div>
@@ -27,7 +28,7 @@
 
 	<div class="projects-container">
 		<div class="search">
-			<input type="text" placeholder="(Search ...)" id="search" autocomplete="off">
+			<input type="text" placeholder="(Search ...)" id="search" value="{@$projects.search_str || ''}" autocomplete="off" oninput="{serialize $projects}.onsearch(this.value);">
 		</div>
 
 		<div class="loading" style="position: relative; width: 100%; z-index: 99; {if !$loading}display: none;{/if}">
@@ -79,8 +80,14 @@
 					<td onclick="{serialize $projects}.onclick_project_dots(this, event, {@$project.id}); event.stopPropagation();" class="details-button"><i class="fa fa-ellipsis-v"></i></td>
 				</tr>
 			{/for}
+
 		</table>
 
+		{if $projects.list_incomplete}
+			<div style="display: flex;">
+				<a class="button" style="margin: auto; margin-top: 8px;" onclick="{serialize $projects}.load_more(this);">Load More</a>
+			</div>
+		{/if}
 		<a class="button buttonPrimary" style="float: right; margin-top: 14px;" href="javascript:void(0);" onclick="{serialize $projects}.new_project();">New project</a>
 	</div>
 
