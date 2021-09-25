@@ -139,6 +139,7 @@ class Projects {
 		let req;
 
 		data.type = name;
+		this.search_str = '';
 
 		this.tpl.reload('.categories');
 		this.tpl.reload('.loading', { loading: true });
