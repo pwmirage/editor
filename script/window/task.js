@@ -383,7 +383,7 @@ class TaskWindow extends SingleInstanceWindow {
 
 								const newq = set_obj_field(this.task, [ 'dialogue', this.sel_opts.dialogue, 'questions', 0 ], { });
 								newq.id = 1;
-								newq.text = ' ';
+								newq.text = '';
 								newq.parent_id = -1;
 
 								db.commit(this.task);
@@ -856,7 +856,7 @@ class TaskWindow extends SingleInstanceWindow {
 	}
 
 	static get_first_question(d) {
-		return d?.questions?.find(q => (q?.parent_id == -1 || q?.parent_id == 4294967295) && (q?.id || q?.text));
+		return d?.questions?.find(q => (q?.parent_id == -1 || q?.parent_id == 4294967295) && (q?.id || q?.text || q?.choices?.filter(c => c.id > 0)?.length));
 	}
 
 	static print_question(tid, dtype, d, q_id) {

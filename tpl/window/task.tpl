@@ -382,7 +382,7 @@
 									</li>
 								{/if}
 								<li class="start"><span>NPC</span>
-									{if $win.sel_opts.dialogue && $task.dialogue?.[$win.sel_opts.dialogue]?.questions?.filter(q => q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
+									{if $win.sel_opts.dialogue && $task.dialogue?.[$win.sel_opts.dialogue]?.questions?.filter(q => q.id || q.text || q.choices?.filter(c => c.id > 0)?.length)?.length}
 										<ul>
 											{@TaskWindow.print_question($task.id, $win.sel_opts.dialogue, $task.dialogue[$win.sel_opts.dialogue], TaskWindow.get_first_question($task.dialogue[$win.sel_opts.dialogue])?.id)}
 										</ul>
