@@ -162,7 +162,7 @@ class Item {
 			return Item.get_icon(-1);
 		}
 
-		if (!db) {
+		if (!db?.items?.[id]) {
 			if (Item.item_icon_cache[id]) {
 				return Item.get_icon(Item.item_icon_cache[id]);
 			}
