@@ -174,9 +174,7 @@ class PWPreview {
 
 
 				for (const parent of [PWPreview.item_win, PWPreview.recipe_win]) {
-					const s = newStyle(ROOT_URL + 'css/preview.css');
-					await new Promise((resolve) => { s.onload = resolve; });
-					parent.shadow.prepend(s);
+					await addStyleAsync(parent.shadow,ROOT_URL + 'css/preview.css');
 				}
 
 				let prev_el = null;
@@ -322,12 +320,7 @@ class MiragePreviewElement extends HTMLElement {
 		this.selected_tab = 0;
 		const data = await this.tpl.run({ page: this, obj: this.share.obj, db: this.db, loading: true });
 
-		const s = newStyle(ROOT_URL + 'css/window.css');
-		const s_p = new Promise((resolve) => { s.onload = resolve; });
-		this.shadow.append(s);
-
-		await s_p;
-
+		await addStyleAsync(this.shadow,ROOT_URL + 'css/window.css');
 		this.shadow.append(data);
 
 		return this.dom;

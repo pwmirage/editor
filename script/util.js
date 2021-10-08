@@ -93,6 +93,18 @@ const newStyle = (url) => {
 
 	return style;
 }
+const addStyleAsync = (parent, url) => {
+	return new Promise((resolve) => {
+		const linkElem = document.createElement('link');
+		linkElem.rel = 'stylesheet';
+		linkElem.type = 'text/css';
+		linkElem.onload = linkElem.onerror = async () => {
+			return resolve(linkElem);
+		};
+		linkElem.href = url;
+		parent.prepend(linkElem);
+	});
+}
 
 const g_util_task_queues = new Set();
 const queueTask = (id, fn) => {
