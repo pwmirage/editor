@@ -10,7 +10,7 @@
 	<p class="data nowrap">Unknown Recipe {@DB.serialize_id($recipe_id)}</p>
 {else if $recipe_id > 0}
 	{if $prev.recipe_level && $is_modified('recipe_level')}<p class="prev">Recipe Lv {@$prev.recipe_level} {@DB.serialize_id($recipe_id)}</p>{/if}
-	<p class="data">Recipe Lv {@$recipe.recipe_level} {@DB.serialize_id($recipe_id)}</p>
+	<p class="data">Recipe Lv {@$recipe.recipe_level || 0} {@DB.serialize_id($recipe_id)}</p>
 
 	<p style="display: flex; flex-direction: column; margin: 5px 0;">
 		{if $prev.num_to_make && $is_modified('num_to_make')}<span class="prev">Crafted: {@$prev.num_to_make || 0}x:</span>{/if}
@@ -24,7 +24,7 @@
 					{assign tgt = $prev.targets[$i] || \{ id: 0 \}}
 					<span class="prob">{@$sanitize_f(($tgt.prob || 0) * 100)}%</span>
 					<span class="item" data-id="{@$tgt.id}" tabindex="0">
-						<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
+						<img{ } src="{@$tgt.id ? Item.get_icon_by_item($db, $tgt.id) : (ROOT_URL + 'img/itemslot.png')}">
 					</span>
 				</div>
 			{/for}
@@ -36,7 +36,7 @@
 				{assign tgt = $recipe.targets[$i] || \{ id: 0 \}}
 				<span class="prob">{@$sanitize_f(($tgt.prob || 0) * 100)}%</span>
 				<span class="item" data-id="{@$tgt.id}" tabindex="0">
-					<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
+					<img{ } src="{@$tgt.id ? Item.get_icon_by_item($db, $tgt.id) : (ROOT_URL + 'img/itemslot.png')}">
 				</span>
 			</div>
 		{/for}
@@ -49,7 +49,7 @@
 					{if $get_default($prev.skill_id, $recipe.skill_id) === 0}
 						Generic Craft
 					{else}
-						(Req. {@RecipeTooltip.craft_types[$get_default($prev.skill_id, $recipe.skill_id)]?.name} Lv {@$get_default($prev.skill_level, $recipe.skill_level)})
+						Req. {@RecipeTooltip.craft_types[$get_default($prev.skill_id, $recipe.skill_id)]?.name} Lv {@$get_default($prev.skill_level, $recipe.skill_level)}
 					{/if}
 				</span>
 				<span>Fail chance: {@$get_default($prev.fail_prob, $recipe.fail_prob || 0) * 100}%</span>
@@ -60,7 +60,7 @@
 				{if !$recipe.skill_id}
 					Generic Craft
 				{else}
-					(Req. {@RecipeTooltip.craft_types[$recipe.skill_id]?.name} Lv {@$recipe.skill_level})
+					Req. {@RecipeTooltip.craft_types[$recipe.skill_id]?.name} Lv {@$recipe.skill_level}
 				{/if}
 			</span>
 			<span>Fail chance: {@$sanitize_f(($recipe.fail_prob || 0) * 100)}%</span>
@@ -79,7 +79,7 @@
 						{assign tgt = $prev.mats?.[$i] || \{ id: 0 \}}
 						<span class="num">{@$tgt.num || "0"}</span>
 						<span class="item" data-id="{@$tgt.id}" tabindex="0">
-							<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
+							<img{ } src="{@$tgt.id ? Item.get_icon_by_item($db, $tgt.id) : (ROOT_URL + 'img/itemslot.png')}">
 						</span>
 					</div>
 				{/for}
@@ -91,7 +91,7 @@
 					{assign tgt = $recipe.mats?.[$i] || \{ id: 0 \}}
 					<span class="num">{@$tgt.num || "0"}</span>
 					<span class="item" data-id="{@$tgt.id}" tabindex="0">
-						<img{ } src="{@$tgt.id ? Item.get_icon($db.items[$tgt.id]?.icon || 0) : (ROOT_URL + 'img/itemslot.png')}">
+						<img{ } src="{@$tgt.id ? Item.get_icon_by_item($db, $tgt.id) : (ROOT_URL + 'img/itemslot.png')}">
 					</span>
 				</div>
 			{/for}
