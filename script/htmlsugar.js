@@ -1143,6 +1143,14 @@ class HTMLSugar {
 			const resp = await get(ROOT_URL + 'latest_db/get/' + type + '/' + id, { is_json: 1 });
 			obj = resp.data;
 
+			if (win.hover_el != el) {
+				/* something else was hovered while we were async */
+				return;
+			}
+
+			/* TODO disabled for now */
+			prev_obj = { id: -1 };
+
 			const bounds = el.getBoundingClientRect();
 			win.reload(obj, prev_obj, bounds, null);
 			resolve();
