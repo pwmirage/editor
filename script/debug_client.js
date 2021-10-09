@@ -25,6 +25,15 @@ class JSDebugClient {
 			if (path.endsWith('.tpl')) {
 				console.log('Reloading tpl=' + path);
 				load_tpl(ROOT_URL + path);
+			} else if (path.startsWith('script/page/')) {
+				const file = path.substring('script/page/'.length);
+				const prev = document.querySelector('script[src*="' + file + '"]');
+
+				console.log('Reloading page=' + path);
+				if (prev) {
+					prev.remove();
+				}
+				load_script(ROOT_URL + path + '?v=' + MG_VERSION);
 			}
 		})
 	}
