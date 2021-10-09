@@ -51,7 +51,7 @@ self.importScripts('editor/script/pwdb.js');
 
 	MG_BRANCH = oldbranch;
 	if (!g_latest_db && MG_BRANCH?.head_id) {
-		load_latest_db(MG_BRANCH.head_id);
+		await load_latest_db(MG_BRANCH);
 	}
 } catch (e) { console.log(e); } })();
 
@@ -312,7 +312,7 @@ self.addEventListener('fetch', (event) => {
 					MG_BRANCH = params;
 					const idb = await IDB.open('swdata', 1, 'readwrite');
 					IDB.set(idb, 'branch', MG_BRANCH);
-					load_latest_db(MG_BRANCH.head_id);
+					await load_latest_db(MG_BRANCH);
 				}
 				await g_latest_db_promise;
 				return new Response('{}', { status: 200, statusText: 'OK',
@@ -364,21 +364,37 @@ self.addEventListener('fetch', (event) => {
 	event.respondWith(ret);
 });
 
-const load_latest_db = async (pid) => {
-	if (!g_latest_db_load_fn) {
+const load_latest_db = async (branch) => {
+	let load_fn = g_latest_db_load_fn;
+	if (!load_fn) {
 		await g_latest_db_promise;
 	}
-	g_latest_db_promise = new Promise(async (resolve) => {
-		console.log(new Date() + '\n' + 'SW: Loading DB pid=' + pid);
-		g_latest_db = await PWDB.new_db({ pid, preinit: true, new: false, no_tag: true });
 
-		if (g_latest_db_load_fn) {
-			g_latest_db_load_fn();
-			g_latest_db_load_fn = null
+	g_latest_db_load_fn = null;
+	g_latest_db_promise = new Promise(async (resolve) => { try {
+		console.log(new Date() + '\n' + 'SW: Loading DB head=' + branch.head_id);
+		g_latest_db = await PWDB.new_db({ pid: 0, preinit: true, new: true, no_tag: true });
+
+		const resp = await get(ROOT_URL + 'api/project/load/commit@' + branch.head_id,
+				{ is_json: 1 });
+		if (resp.ok) {
+			const changesets = resp.data;
+			for (let i = 0; i < changesets.length; i++) {
+				const changeset = changesets[i];
+				const proj_change = changeset[0][0];
+				const pid = proj_change.pid;
+				g_latest_db.new_id_start = 0x80000000 + pid * 0x100000;
+				g_latest_db.new_id_offset = 0;
+				g_latest_db.load(changeset, {join_changesets: true});
+			}
+		}
+
+		if (load_fn) {
+			load_fn();
 		}
 
 		resolve();
-	});
+	} catch (e) { console.error(e); }});
 }
 
 Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);
