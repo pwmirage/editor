@@ -238,6 +238,27 @@ self.addEventListener('fetch', (event) => {
 			});
 		}
 
+		const recipe_icon_match = url.match(/^\/editor\/recipe\/([0-9]+)\/icon/);
+		if (recipe_icon_match) {
+			let id = recipe_icon_match[1];
+			if (!id) {
+				id = 0;
+			}
+
+			await g_latest_db_promise;
+			const r = g_latest_db?.recipes?.[id];
+			const item_id = r?.targets?.[0]?.id || 0;
+			const item = g_latest_db?.items?.[item_id];
+			const icon = id == 0 ? -1 : (item?.icon || 0);
+
+			const icon_buf = Icon.get_icon(icon);
+			return new Response(icon_buf, {
+				status: 200, statusText: 'OK', headers: {
+					'Content-Type': 'image/jpeg', 'x-pw-icon-id': icon
+				}
+			});
+		}
+
 		if (url === '/editor/latest_db/static') {
 			const types = [
 				'weapon_major_types',
