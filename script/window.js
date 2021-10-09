@@ -99,7 +99,6 @@ class Window {
 
 		/* remove all text selection */
 		window.getSelection().removeAllRanges();
-
 	}
 
 	tpl_compile_cb(dom) {
@@ -369,6 +368,7 @@ class Window {
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
+			{ id: 5, name: 'Share (get web url)' },
 			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
 			{ id: 4, name: 'Undo all changes', disabled: !this.obj._db.project_initial_state },
 			{ id: 1, name: 'Remove', visible: !this.obj._removed },
@@ -403,6 +403,10 @@ class Window {
 				}
 				DB.copy_obj_data(this.obj, this.obj._db.project_initial_state);
 				db.commit(this.obj);
+				break;
+			}
+			case 5: {
+				this.share_obj();
 				break;
 			}
 		}
@@ -489,6 +493,23 @@ class Window {
 		this.dom.style.marginTop = y + 'px';
 		this.dom.style.marginLeft = x + 'px';
 		this.margins = { x, y };
+	}
+
+	async share_obj() {
+		const type_details = PWPreview.get_obj_type(this.obj);
+		confirm('<div class="loading-spinner"></div>', '',
+				'Share object: ' + (this.obj.name || type_details.name) + ' ' + DB.serialize_id(this.obj.id));
+		await sleep(1);
+
+		const page_dom = await mg_init_page('objshare', { obj: this.obj });
+
+		const content = g_confirm_dom.querySelector('.systemConfirmation > p');
+		for (const c of content.children) { c.remove(); }
+
+		content.append(page_dom);
+		g_confirm_dom.classList.add('big');
+		g_confirm_dom.classList.add('nopadding');
+		g_confirm_dom.classList.add('noconfirm');
 	}
 
 	close() {

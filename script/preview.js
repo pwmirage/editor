@@ -25,6 +25,8 @@ class PWPreview {
 
 		await Item.init();
 
+		customElements.define('pw-preview', MiragePreviewElement);
+
 		const db_ok = await PWPreview.load_latest_db();
 		if (!db_ok) {
 			let msg = 'Can\'t load latest game data. Are you running an old browser?';
@@ -265,6 +267,80 @@ class PWPreview {
 	}
 
 	static load_promise;
+}
+
+class MiragePreviewElement extends HTMLElement {
+	static tpls = {};
+	constructor() {
+		super();
+
+		this.dom = this;
+		this.shadow = this.dom.attachShadow({mode: 'open'});
+		this.dom.style.display = 'inline-block';
+
+		this.project_id = this.getAttribute('data-pid');
+		this.type = this.getAttribute('data-type').replaceAll('-', '_');
+		this.id_str = this.getAttribute('data-id');
+		this.id = DB.parse_id(this.id_str);
+
+		if (this.project_id && this.type && this.id_str) {
+			this.init();
+		}
+	}
+
+	async init(args = {}) {
+		if (!MiragePreviewElement.tpls[this.type]) {
+			const tpl_els = await load_tpl(ROOT_URL + 'tpl/preview/' + this.type + '.tpl');
+			MiragePreviewElement.tpls[this.type] = tpl_els[0];
+		}
+		const tplname = MiragePreviewElement.tpls[this.type].id;
+		this.tpl = new Template(tplname);
+		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
+
+		let resp;
+
+		if (!(/[a-zA-Z0-9_]+$/.test(this.type))) {
+			return;
+		}
+
+		if (!this.share) {
+			this.share = { opts: {}, obj: {}, aux: [] };
+			resp = await get(ROOT_URL + 'latest_db/get/' + this.type + '/' + this.id, { is_json: 1 });
+			this.share.obj = resp.data;
+		}
+
+		this.db = {};
+		for (const o of this.share.aux) {
+			const type = o._db.type;
+			if (!db[type]) {
+				db[type] = init_id_array([]);
+			}
+
+			db[type][o.id] = o;
+		}
+
+		this.selected_tab = 0;
+		const data = await this.tpl.run({ page: this, obj: this.share.obj, db: this.db, loading: true });
+
+		const s = newStyle(ROOT_URL + 'css/window.css');
+		const s_p = new Promise((resolve) => { s.onload = resolve; });
+		this.shadow.append(s);
+
+		await s_p;
+
+		this.shadow.append(data);
+
+		return this.dom;
+	}
+
+	select_tab(idx) {
+		if (idx == this.selected_tab) {
+			return;
+		}
+
+		this.selected_tab = idx;
+		this.tpl.reload('.content');
+	}
 }
 
 PWPreview.load_promise = PWPreview.load();

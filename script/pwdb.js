@@ -1007,4 +1007,103 @@ class PWDB {
 		db.commit(recent);
 	}
 
+	static async get_share_opts(obj) {
+		const opts = { use_latest_state: 0 };
+		let resp;
+
+		resp = await get(ROOT_URL + 'latest_db/get/' + obj._db.type + '/' + obj.id, { is_json: 1 });
+		let is_diff = DB.is_obj_diff(obj, resp.data);
+
+		const promises = [];
+		switch(obj._db.type) {
+			case 'npc_crafts':
+				for (const p of (obj?.pages || [])) {
+					for (const rid of (p?.recipe_id || [])) {
+						if (!rid) {
+							continue;
+						}
+
+						const r  = db.recipes[rid];
+						if (!r) {
+							continue;
+						}
+
+						const promise = get(ROOT_URL + 'latest_db/get/recipes/' + r.id, { is_json: 1 });
+						promise.then((resp) => {
+							is_diff = is_diff || DB.is_obj_diff(r, resp.data);
+						});
+						promises.push(promise);
+					}
+				}
+				break;
+			case 'npc_sells':
+				for (const p of (obj?.pages || [])) {
+					for (const rid of (p?.item_id || [])) {
+						if (!rid) {
+							continue;
+						}
+
+						const i  = db.items[rid];
+						if (!i) {
+							continue;
+						}
+
+						const promise = get(ROOT_URL + 'latest_db/get/items/' + i.id, { is_json: 1 });
+						promise.then((resp) => {
+							is_diff = is_diff || DB.is_obj_diff(i, resp.data);
+						});
+						promises.push(promise);
+					}
+				}
+				break;
+		}
+
+		await Promise.all(promises);
+
+		if (is_diff) {
+			opts.use_latest_state = -1;
+		}
+
+		return opts;
+	}
+
+
+	static async share_obj(obj, { use_latest_state = false, force_update = false } = {}) {
+		let resp;
+
+		const share = { opts: {}, obj: {}, aux: [] };
+		share.obj = obj;
+		share.opts.use_latest_state = use_latest_state;
+
+		switch(obj._db.type) {
+			case 'npc_crafts':
+				if (!use_latest_state) {
+					for (const p of (obj?.pages || [])) {
+						for (let ridx = 0; ridx < (p?.recipe_id?.length || 0); ridx++) {
+							const rid = p.recipe_id[ridx];
+							if (!rid) {
+								continue;
+							}
+
+							const r = db.recipes[rid];
+							share.aux.push(r);
+						}
+					}
+				}
+				break;
+			default:
+				return { err: 501 };
+				break;
+		}
+
+		const data = DB.dump(share, 0);
+		const req = await post(ROOT_URL + 'api/project/' + Editor.current_project.pid + '/share', {
+			is_json: 1, data: {
+				objectID: obj.id,
+				file: new File([new Blob([data])], 'share.json', { type: 'application/json' }),
+			}
+		});
+
+	}
+
 }
