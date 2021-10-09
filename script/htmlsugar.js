@@ -565,7 +565,15 @@ class HTMLSugar {
 		HTMLSugar.link_el(link_el);
 
 		if (el.hasAttribute('data-preview')) {
-			const obj = select_arr[link_el.textContent];
+			let obj;
+
+			if (el.hasAttribute('data-selected')) {
+				const id = parseInt(el.dataset.selected) || 0;
+				obj = select_arr[id];
+			} else {
+				obj = select_arr[link_el.textContent];
+			}
+
 			if (obj) {
 				el.textContent = obj.name || ('(unnamed #' + link_el.textContent + ')');
 			} else {
@@ -835,6 +843,10 @@ class HTMLSugar {
 
 		el.oncontextmenu = (e) => { el.onclick(e); return false; };
 		el.onclick = (e) => {
+			if (el.hasAttribute('data-preview')) {
+				return;
+			}
+
 			if (e.which == 1) {
 				const id = get_obj_field(link.obj, link.path);
 				const obj = db.items[id || 0];
