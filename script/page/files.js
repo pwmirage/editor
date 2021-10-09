@@ -45,12 +45,7 @@ g_mg_pages['files'] = new class {
 		HTMLSugar.process(dom, this);
 		/* force reload all time tags */
 		if (dom.id == 'files' || dom.querySelector('#files')) {
-			require(['WoltLabSuite/Core/Date/Time/Relative', 'Dom/ChangeListener'], (TimeRelative, DomChangeListener) => {
-				if (TimeRelative.setElements) {
-					TimeRelative.setElements(dom.querySelectorAll('time'));
-				}
-				DomChangeListener.trigger();
-			});
+			DateTime.setElements(dom.querySelectorAll('time'));
 		}
 	}
 

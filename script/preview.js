@@ -17,9 +17,11 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb_meta.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/datetime.js?v=' + MG_VERSION),
 			load_tpl(ROOT_URL + 'tpl/preview/diff.tpl'),
 		]);
 
+		DateTime.setup();
 		PWDB.init();
 		PWPreview.diff_tpl = new Template('tpl-diff');
 		PWPreview.diff_entry_tpl = new Template('tpl-diff-entry');

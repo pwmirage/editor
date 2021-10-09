@@ -40,12 +40,7 @@ class Projects {
 
 	reload_times() {
 		/* force reload all time tags */
-		require(['WoltLabSuite/Core/Date/Time/Relative', 'Dom/ChangeListener'], (TimeRelative, DomChangeListener) => {
-			if (TimeRelative.setElements) {
-				TimeRelative.setElements(this.shadow.querySelectorAll('time'));
-			}
-			DomChangeListener.trigger();
-		});
+		DateTime.setElements(this.shadow.querySelectorAll('time'));
 	}
 
 	async load() {

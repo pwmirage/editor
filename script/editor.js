@@ -156,12 +156,7 @@ class Editor {
 		}
 
 		/* force reload all time tags */
-		require(['WoltLabSuite/Core/Date/Time/Relative', 'Dom/ChangeListener'], (TimeRelative, DomChangeListener) => {
-			if (TimeRelative.setElements) {
-				TimeRelative.setElements(Editor.map_shadow.querySelectorAll('time'));
-			}
-			DomChangeListener.trigger();
-		});
+		DateTime.setElements(Editor.map_shadow.querySelectorAll('time'));
 	}
 
 	static async reload_project_info() {
