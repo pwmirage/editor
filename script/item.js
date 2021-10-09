@@ -158,7 +158,7 @@ class Item {
 	}
 
 	static get_icon_by_item(db, id) {
-		if (!id) {
+		if (!id || id === -1) {
 			return Item.get_icon(-1);
 		}
 
