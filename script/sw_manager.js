@@ -2,20 +2,6 @@
  * ... and modified
  */
 
-const showRefreshUI = async (registration) => {
-	await sleep(1000);
-
-	const ok = await confirm('There is an updated version of this website available.',
-			'Click OK to reload it on all your open tabs.');
-
-	if (!ok) {
-		return;
-	}
-
-	registration.waiting.postMessage('skipWaiting');
-	notify('success', 'Page updated!');
-};
-
 const onNewServiceWorker = (registration, callback) => {
 	if (registration.waiting) {
 		// SW is waiting to activate. Can occur if multiple clients open and
@@ -61,7 +47,7 @@ if (navigator.serviceWorker) {
 			registration.update();
 
 			onNewServiceWorker(registration, () => {
-				showRefreshUI(registration);
+				registration.waiting.postMessage('skipWaiting');
 			});
 		});
 }
