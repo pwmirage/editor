@@ -24,6 +24,17 @@ class PWPreview {
 		PWPreview.diff_entry_tpl = new Template('tpl-diff-entry');
 
 		await Item.init();
+
+		const db_ok = await PWPreview.load_latest_db();
+		if (!db_ok) {
+			let msg = 'Can\'t load latest game data. Are you running an old browser?';
+			if (!navigator.serviceWorker) {
+				msg += '<br>Note that Firefox Private Mode is not supported.';
+			}
+			confirm(msg, '', 'Error');
+			await sleep(1);
+			g_confirm_dom.classList.add('noconfirm');
+		}
 	}
 
 	static is_empty(obj) {
