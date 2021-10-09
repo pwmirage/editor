@@ -48,7 +48,8 @@ g_mg_pages['objshare'] = new class {
             pid = 'latest';
         }
 
-        this.url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + this.obj._db.type + '/' + DB.serialize_id(this.obj.id).substring(1);
+        const type = this.obj._db.type.replaceAll('_', '-');
+        this.url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
 
         //req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data });
         //this.list = req.data;
