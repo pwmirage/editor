@@ -333,6 +333,7 @@ const confirm = (msg, html, title = 'Confirmation Required') => {
 			if (g_confirm_dom) {
 				g_confirm_dom.classList.remove('big');
 				g_confirm_dom.classList.remove('noconfirm');
+				g_confirm_dom.classList.remove('nopadding');
 			}
 
 			UiConfirmation.show({
