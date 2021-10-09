@@ -76,6 +76,7 @@ const load_tpl = async (src) => {
 		throw new Error('Failed to load template: ' + src);
 	}
 
+	const ret = [];
 	const els = newArrElements(file.data);
 	for (const el of els) {
 		if (el.nodeType != 1 || !el.id) {
@@ -91,6 +92,8 @@ const load_tpl = async (src) => {
 		document.head.insertAdjacentElement('beforeend', el);
 		Template.tpl_generation[el.id] = (Template.tpl_generation[el.id] + 1) || 1;
 
+		ret.push(el);
+
 		if (MG_DEBUG) {
 			const tpl_els = [];
 			find_tpls(document.body, el.id, tpl_els);
@@ -103,6 +106,8 @@ const load_tpl = async (src) => {
 			}
 		}
 	}
+
+	return ret;
 }
 
 const mg_open_editor = async (args) => {
