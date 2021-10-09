@@ -16,6 +16,7 @@ class PWPreview {
 			load_script(ROOT_URL + 'script/idb.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/item.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/pwdb.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/pwdb_meta.js?v=' + MG_VERSION),
 			load_tpl(ROOT_URL + 'tpl/preview/diff.tpl'),
 		]);
 
@@ -279,6 +280,7 @@ class MiragePreviewElement extends HTMLElement {
 		this.project_id = this.getAttribute('data-pid');
 		this.type = this.getAttribute('data-type').replaceAll('-', '_');
 		this.id_str = this.getAttribute('data-id');
+		this.view = this.getAttribute('data-view');
 		this.id = DB.parse_id(this.id_str);
 
 		if (this.project_id && this.type && this.id_str) {
@@ -318,9 +320,14 @@ class MiragePreviewElement extends HTMLElement {
 		}
 
 		this.selected_tab = 0;
-		const data = await this.tpl.run({ page: this, obj: this.share.obj, db: this.db, loading: true });
+		const data = await this.tpl.run({
+				page: this, obj: this.share.obj, db: this.db,
+				view: this.view, loading: true });
 
-		await addStyleAsync(this.shadow,ROOT_URL + 'css/window.css');
+		await Promise.all([
+			addStyleAsync(this.shadow,ROOT_URL + 'css/window.css'),
+			addStyleAsync(this.shadow,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css')
+		]);
 		this.shadow.append(data);
 
 		return this.dom;
