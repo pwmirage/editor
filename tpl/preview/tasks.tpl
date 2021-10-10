@@ -36,7 +36,7 @@
                 <span>{content}{@$obj?.award?.coins || ''}{/content}</span>
             </div>{/hascontent}
 
-            <div style="align-items: unset;">
+            <div style="align-items: unset; width: 100%;">
                 {if $obj.award?.item_groups?.length > 1}
                     {assign award_item_type = 2}
                 {else if $obj.award?.item_groups?.[0]?.chosen_randomly}
@@ -44,34 +44,40 @@
                 {else}
                     {assign award_item_type = 0}
                 {/if}
-                <span>Items: </span>
                 {if $award_item_type == 2}
-                    <span>Choose one of the below:</span>
+                    <span>Items: choose one row from the below:</span>
                 {else if $award_item_type == 1}
-                    <span>Receive one random item:</span>
+                    <span>Receive items:</span>
                 {else}
-                    <span>Receive all of the below:</span>
+                    <span>Receive items:</span>
                 {/if}
-                <div id="award_items" style="margin-top: 5px; display: flex; flex-wrap: wrap; row-gap: 10px;">
+                <div>
                     {if $award_item_type == 0 || $award_item_type == 1}
-                        <div style="display: flex; flex-direction: column; row-gap: 5px; padding-right: 4px;">
-                                <span>Num:</span>
-                                <span>%:</span>
-                        </div>
-
                         {assign idx = -1}
-                        {for item of ($obj.award?.item_groups?.[0]?.items || [])}
-                            {$idx++}
-                            {if !$item?.id}{continue}{/if}
-                            <div class="item-w-cnt" style="display: flex;">
-                                <span class="item" data-preview data-link-item="{serialize $obj} => 'award', 'item_groups', 0, 'items', {@$idx}, 'id'" data-default-id="-1" tabindex="0"></span>
-                                <div style="display: flex; flex-direction: column; row-gap: 5px; padding: 0 4px;">
-                                    <span data-input class="input-number" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $obj} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'amount'" data-placeholder="(0)"></span>
-                                    <span data-input class="input-number is_float" style="width: 28px; font-size: 12px; padding: 3px;" data-link="{serialize $obj} => 'award', 'item_groups', 0, 'items', '{@$idx}', 'probability'" data-placeholder="(0)"></span>
+                        {assign items = $obj.award?.item_groups?.[0]?.items?.filter(i => i.id) || []}
+                        {assign p100_items = $items.filter(i => i.probability == 1)}
+                        {assign p_items = $items.filter(i => i.probability && i.probability != 1)}
+                        <div class="award_items">
+                            {for item of $p100_items}
+                                {$idx++}
+                                <div class="item-w-cnt">
+                                    <span>{@$item.amount}x</span>
+                                    <span class="item" data-id="{@$item.id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon_by_item(null, $item.id)}" alt=""></span>
+                                    {if $idx != $items.length - 1}<span>,</span>{/if}
                                 </div>
-                            </div>
-                        {/for}
-
+                            {/for}
+                        </div>
+                        <div class="award_items" style="{if $award_item_type == 0}flex-direction: column{/if}">
+                            {for item of $p_items}
+                                {$idx++}
+                                <div class="item-w-cnt">
+                                    <span>({@($item.probability * 100).toPrecision(7)*1}%)</span>
+                                    <span>{@$item.amount}x</span>
+                                    <span class="item" data-id="{@$item.id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon_by_item(null, $item.id)}" alt=""></span>
+                                    {if $idx != $items.length - 1}<span>,</span>{/if}
+                                </div>
+                            {/for}
+                        </div>
                     {else if $award_item_type == 2}
                         {assign group_idx = -1}
                         <div class="award_item_rows">
@@ -105,8 +111,18 @@
 }
 
 .item-w-cnt {
-	font-size: 0;
-	line-height: 0;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    column-gap: 5px;
+}
+
+.award_items {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
+    column-gap: 10px;"
 }
 
 .award_item_rows {
