@@ -1103,6 +1103,15 @@ class PWDB {
 
 						const r = db.recipes[rid];
 						share.aux.push(r);
+
+						for (const iobj of [...r.targets, ...r.mats]) {
+							if (!iobj?.id) {
+								continue;
+							}
+
+							const i = db.items[iobj.id];
+							share.aux.push(i);
+						}
 					}
 				}
 				break;
