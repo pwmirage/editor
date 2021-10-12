@@ -769,7 +769,7 @@ class DB {
 				}
 			}
 			/* keep the _db at its minimum */
-			if (k === '_db') return { type: v.obj._db.type };
+			if (k === '_db') return { type: v?.obj ? v.obj._db.type : v.type };
 			/* dont include any nulls, undefined results in no output at all */
 			if (v === null) return undefined;
 			if (v === DB.force_null) return null;
