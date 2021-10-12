@@ -11,13 +11,30 @@
         {if $loading}
             <div class="loading-spinner" style="margin-top: 50px;"></div>
         {else}
-            <div style="display: flex;">
-                <input style="flex: 1; cursor: text;" type="text" value="{@$page.url}" disabled>
+            <div style="display: flex; column-gap: 8px;">
+                {if $page.cur_tab == 'latest'}
+                    {if $page.url}
+                        <input style="flex: 1; cursor: text;" type="text" value="{@$page.url}" disabled>
+                    {else}
+                        <div class="error-box" style="flex: 1;">This object doesn't exist in the latest game version</div>
+                    {/if}
+                {else}
+                    {if $page.url}
+                        <a class="button {if $page.url_generated}disabled{/if}" onclick="{serialize $page}.generate_current(this, event);">Refresh URL</a>
+                        <input style="flex: 1; cursor: text;" type="text" value="{@$page.url}" disabled>
+                    {else}
+                        <a class="button" onclick="{serialize $page}.generate_current(this, event);">Generate</a>
+                        <input style="flex: 1; cursor: text;" type="text" value="[ URL not generated yet ]" disabled>
+                    {/if}
+                {/if}
             </div>
 
             <div style="margin-top: 8px; height: 100%; overflow-y: auto;">
                 {if $page.cur_tab == 'current'}
-                    <span style="padding: 4px;">Coming soon!</span>
+                    {if $page.url}
+                        <iframe style="width: 100%; height: calc(100% - 36px); margin-top: 8px;" src="{@$page.url}"></iframe>
+                    {/if}
+                {else if $page.cur_tab == 'latest' && !$opts.exists_in_latest}
                 {else}
                     {if $page.cur_tab == 'latest' && $opts.use_latest_state == -1}
                         <span style="padding: 4px;">Note: Latest state differs from the one in this project</span>
@@ -100,6 +117,15 @@
 	border-right: 2px solid transparent;
 	animation: spinner .6s linear infinite;
 }
+
+.error-box {
+    padding: 5px 10px;
+    background-color: rgb(242, 222, 222);
+    border-left: 5px solid #000;
+    border-color: rgb(235, 204, 204);
+    color: rgb(169, 68, 66);
+}
+
 </style>
 @@}
 </script>

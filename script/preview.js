@@ -175,7 +175,6 @@ class PWPreview {
 					}
 				}
 
-
 				for (const parent of [PWPreview.item_win, PWPreview.recipe_win]) {
 					await addStyleAsync(parent.shadow,ROOT_URL + 'css/preview.css');
 				}
@@ -193,8 +192,8 @@ class PWPreview {
 					const item = el?.classList.contains('item') ? el : null;
 					const recipe = el?.classList.contains('recipe') ? el : null;
 
-					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { db });
-					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { db });
+					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { });
+					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { });
 				}, { passive: true });
 
 				document.addEventListener('mousedown', (e) => {
@@ -280,7 +279,8 @@ class MiragePreviewElement extends HTMLElement {
 		this.dom.style.display = 'inline-block';
 
 		this.project_id = this.getAttribute('data-pid');
-		this.type = this.getAttribute('data-type').replaceAll('-', '_');
+		this.type_str = this.getAttribute('data-type');
+		this.type = this.type_str.replaceAll('-', '_');
 		this.id_str = this.getAttribute('data-id');
 		this.view = this.getAttribute('data-view');
 		this.id = DB.parse_id(this.id_str);
@@ -306,20 +306,30 @@ class MiragePreviewElement extends HTMLElement {
 		}
 
 		if (!this.share) {
-			this.share = { opts: {}, obj: {}, aux: [] };
-			resp = await get(ROOT_URL + 'latest_db/get/' + this.type + '/' + this.id, { is_json: 1 });
-			this.share.obj = resp.data;
+			if (this.project_id == 'latest') {
+				this.share = { opts: {}, obj: {}, aux: [] };
+				resp = await get(ROOT_URL + 'latest_db/get/' + this.type + '/' + this.id, {is_json: 1});
+				this.share.obj = resp.data;
+			} else {
+				resp = await post(ROOT_URL + 'api/project/' + this.project_id + '/getshare', {is_json: 1, data: {
+					objectType: this.type_str,
+					objectID: this.id,
+				}});
+				this.share = resp.data;
+			}
 		}
 
-		this.db = {};
+		this.db = {...g_latest_db};
 		for (const o of this.share.aux) {
 			const type = o._db.type;
-			if (!db[type]) {
-				db[type] = init_id_array([]);
+			if (!this.db[type]) {
+				this.db[type] = init_id_array([], g_latest_db[type]);
 			}
 
-			db[type][o.id] = o;
+			this.db[type][o.id] = o;
 		}
+		PWPreview.item_win.db = this.db;
+		PWPreview.recipe_win.db = this.db;
 
 		this.selected_tab = 0;
 		const data = await this.tpl.run({
@@ -342,6 +352,16 @@ class MiragePreviewElement extends HTMLElement {
 
 		this.selected_tab = idx;
 		this.tpl.reload('.content');
+	}
+
+	get_recipe_icon_url(id) {
+		const r = this.db.recipes?.[id];
+		if (!r) {
+			return ROOT_URL + 'recipe/' + id + '/icon';
+		}
+
+		const tgt_item_id = r.targets?.[0]?.id || 0;
+		return Item.get_icon_by_item(this.db, tgt_item_id);
 	}
 }
 

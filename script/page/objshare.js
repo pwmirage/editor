@@ -8,6 +8,8 @@ g_mg_pages['objshare'] = new class {
         this.tpl = new Template('tpl-page-objshare');
 
         this.obj = args.obj;
+        this.url_generated = false;
+        this.current_url = null;
 
         this.dom = document.createElement('div');
         this.shadow = this.dom.attachShadow({mode: 'open'});
@@ -15,6 +17,12 @@ g_mg_pages['objshare'] = new class {
         this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
         this.opts = await PWDB.get_share_opts(this.obj);
+        if (this.opts.share) {
+            const pid = Editor.current_project.id;
+            const type = this.obj._db.type.replaceAll('_', '-');
+
+            this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+        }
 
         const data = await this.tpl.run({ page: this, loading: true, obj: this.obj, opts: this.opts });
 
@@ -32,27 +40,42 @@ g_mg_pages['objshare'] = new class {
 
     async select_tab(name) {
         this.cur_tab = name;
-        const data = {};
-        let req;
 
-        data.type = name;
-        this.search_str = '';
-
-        this.tpl.reload('.categories');
         this.tpl.reload('#body', { loading: true });
 
-        let pid;
-        if (name == 'current') {
-            pid = Editor.current_project.id;
-        } else {
-            pid = 'latest';
-        }
-
         const type = this.obj._db.type.replaceAll('_', '-');
-        this.url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+
+        if (this.cur_tab == 'latest' && this.opts.exists_in_latest) {
+            const pid = 'latest';
+            this.url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+        } else {
+            this.url = this.current_url ?? null;
+        }
 
         //req = await post(ROOT_URL + 'api/project/list', { is_json: 1, data });
         //this.list = req.data;
         this.tpl.reload('#body', { loading: false });
+    }
+
+    async generate_current(el, e) {
+        el.classList.add('loading-spinner', 'disabled');
+        const resp = await PWDB.share_obj(this.obj, {});
+
+        if (resp.ok) {
+            notify('success', 'URL generated');
+
+            const pid = Editor.current_project.id;
+            const type = this.obj._db.type.replaceAll('_', '-');
+
+            this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+            this.url_generated = true;
+            this.tpl.reload('#body', { loading: false });
+            return;
+        } else {
+            notify('error', resp.data.err || 'Failed to generate an URL: unknown error');
+        }
+
+        el.classList.remove('loading-spinner', 'disabled');
+        el.removeAttribute('disabled');
     }
 };

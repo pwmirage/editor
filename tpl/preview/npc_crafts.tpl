@@ -16,7 +16,7 @@
 		{assign tab = $obj.pages[$page.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.recipe_id[i] || 0}
-			<span class="recipe" data-id="{@$id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@ROOT_URL + 'recipe/' + $id + '/icon'}" alt=""></span>
+			<span class="recipe" data-id="{@$id}" data-prev="0" data-idx="{@$i}"><img{ } src="{@$page.get_recipe_icon_url($id)}" alt=""></span>
 		{/for}
 	</div>
 </div>

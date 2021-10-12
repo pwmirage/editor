@@ -16,7 +16,7 @@
 		{assign tab = $obj.pages[$page.selected_tab || 0]}
 		{for i = 0; i < 32; i++}
 			{assign id = $tab?.item_id[i] || 0}
-			<span class="item" data-id="{@$id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon_by_item(null, $id)}" alt=""></span>
+			<span class="item" data-id="{@$id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon_by_item($db, $id)}" alt=""></span>
 		{/for}
 	</div>
 </div>

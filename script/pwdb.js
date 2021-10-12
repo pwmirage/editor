@@ -1011,8 +1011,15 @@ class PWDB {
 		const opts = { use_latest_state: 0 };
 		let resp;
 
+		const type = obj._db.type.replaceAll('_', '-');
+		resp = await PWDB.get_shares({ obj_id: obj.id, obj_type: type });
+		if (resp.ok && resp.data.length) {
+			opts.share = resp.data[0];
+		}
+
 		resp = await get(ROOT_URL + 'latest_db/get/' + obj._db.type + '/' + obj.id, { is_json: 1 });
-		let is_diff = DB.is_obj_diff(obj, resp.data);
+		let latest_obj = resp.data;
+		let is_diff = DB.is_obj_diff(obj, latest_obj);
 
 		const promises = [];
 		switch(obj._db.type) {
@@ -1064,30 +1071,50 @@ class PWDB {
 			opts.use_latest_state = -1;
 		}
 
+		opts.exists_in_latest = !!latest_obj?.id;
+
 		return opts;
 	}
 
+	static async get_shares({ obj_id, obj_type } = {}) {
+		const resp = await post(ROOT_URL + 'api/project/' + Editor.current_project.id + '/getshare', {
+			is_json: 1, data: {
+				objectType: obj_type,
+				objectID: obj_id,
+				metadata: 1,
+			}
+		});
+		return resp;
+	}
 
-	static async share_obj(obj, { use_latest_state = false, force_update = false } = {}) {
+	static async share_obj(obj, { force_update = false } = {}) {
 		let resp;
 
 		const share = { opts: {}, obj: {}, aux: [] };
 		share.obj = obj;
-		share.opts.use_latest_state = use_latest_state;
 
 		switch(obj._db.type) {
 			case 'npc_crafts':
-				if (!use_latest_state) {
-					for (const p of (obj?.pages || [])) {
-						for (let ridx = 0; ridx < (p?.recipe_id?.length || 0); ridx++) {
-							const rid = p.recipe_id[ridx];
-							if (!rid) {
-								continue;
-							}
-
-							const r = db.recipes[rid];
-							share.aux.push(r);
+				for (const p of (obj?.pages || [])) {
+					for (const rid of (p?.recipe_id || [])) {
+						if (!rid) {
+							continue;
 						}
+
+						const r = db.recipes[rid];
+						share.aux.push(r);
+					}
+				}
+				break;
+			case 'npc_sells':
+				for (const p of (obj?.pages || [])) {
+					for (const iid of (p?.recipe_id || [])) {
+						if (!iid) {
+							continue;
+						}
+
+						const i = db.items[iid];
+						share.aux.push(i);
 					}
 				}
 				break;
@@ -1097,13 +1124,17 @@ class PWDB {
 		}
 
 		const data = DB.dump(share, 0);
-		const req = await post(ROOT_URL + 'api/project/' + Editor.current_project.pid + '/share', {
+		const type = obj._db.type.replaceAll('_', '-');
+		resp = await post(ROOT_URL + 'api/project/' + Editor.current_project.id + '/share', {
 			is_json: 1, data: {
+				forceUpdate: 1,
+				objectType: type,
 				objectID: obj.id,
 				file: new File([new Blob([data])], 'share.json', { type: 'application/json' }),
 			}
 		});
 
+		return resp;
 	}
 
 }
