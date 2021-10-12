@@ -1087,21 +1087,28 @@ class PWDB {
 		return resp;
 	}
 
-	static async share_obj(obj, { force_update = false } = {}) {
+	static async share_obj(obj_org, { force_update = false } = {}) {
 		let resp;
 
+		const obj = JSON.parse(DB.dump(obj_org, 0));
 		const share = { opts: {}, obj: {}, aux: [] };
 		share.obj = obj;
 
 		switch(obj._db.type) {
 			case 'npc_crafts':
 				for (const p of (obj?.pages || [])) {
-					for (const rid of (p?.recipe_id || [])) {
+					for (const ridx in (p?.recipe_id || {})) {
+						const rid = p.recipe_id[ridx];
 						if (!rid) {
 							continue;
 						}
 
 						const r = db.recipes[rid];
+						if (!r?.targets?.[0].id) {
+							p.recipe_id[ridx] = 0;
+							continue;
+						}
+
 						share.aux.push(r);
 
 						for (const iobj of [...r.targets, ...r.mats]) {
