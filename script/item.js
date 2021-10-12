@@ -200,12 +200,12 @@ class Item {
 class ItemTooltip {
 	constructor(args) {
 		this.edit = args.edit || false;
-		this.db = args.db || document.db || g_latest_db;
+		const tpl_db = args.db || document.db || g_latest_db;
 		this.item = args.item || { id: 0, _db: { type: 'items' } };
 
 		this.tpl = new Template('tpl-item-info');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
-		const data = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
+		const data = this.tpl.run({ win: this, db: tpl_db, item: this.item, edit: this.edit });
 
 		this.dom = document.createElement('div');
 		this.dom.className = 'window';
@@ -236,10 +236,10 @@ class ItemTooltip {
 	reload(item, prev, bounds, db) {
 		ItemTooltip.last_reloaded = this;
 
-		this.db = db || document.db || g_latest_db;
+		const tpl_db = this.db || db || document.db || g_latest_db;
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.item = item;
-		const newdata = this.tpl.run({ win: this, db: this.db, item: this.item, edit: this.edit });
+		const newdata = this.tpl.run({ win: this, db: tpl_db, item: this.item, edit: this.edit });
 		newdata.style.visibility = 'hidden';
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';
@@ -271,12 +271,12 @@ class RecipeTooltip {
 
 	constructor(args) {
 		this.recipe = args.recipe || { id: 0 }
-		this.db = args.db || document.db || g_latest_db;
+		const tpl_db = args.db || document.db || g_latest_db;
 		this.simplified = args.simplified;
 
 		this.tpl = new Template('tpl-recipe-info');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
-		const data = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: { id: 0 }, edit: this.edit, simplified: this.simplified });
+		const data = this.tpl.run({ win: this, db: tpl_db, recipe: this.recipe, prev: { id: 0 }, edit: this.edit, simplified: this.simplified });
 
 		this.dom = document.createElement('div');
 		this.dom.className = 'window';
@@ -300,10 +300,10 @@ class RecipeTooltip {
 	reload(recipe, prev, bounds, db) {
 		RecipeTooltip.last_reloaded = this;
 
-		this.db = db || document.db || g_latest_db;
+		const tpl_db = this.db || db || document.db || g_latest_db;
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;
 		this.recipe = recipe;
-		const newdata = this.tpl.run({ win: this, db: this.db, recipe: this.recipe, prev: prev || { id: 0 }, edit: this.edit, simplified: this.simplified });
+		const newdata = this.tpl.run({ win: this, db: tpl_db, recipe: this.recipe, prev: prev || { id: 0 }, edit: this.edit, simplified: this.simplified });
 		newdata.style.visibility = 'hidden';
 		this.shadow.querySelector('div').replaceWith(newdata);
 		this.dom.style.display = 'block';

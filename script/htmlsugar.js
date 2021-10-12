@@ -1131,12 +1131,11 @@ class HTMLSugar {
 
 		const prev_id = parseInt(el.dataset.prev);
 
-		params.db = params.db || document.db;
-		let obj;
+		params.db = win.db || params.db || document.db;
+		let obj = params?.db?.[type]?.[id];
 		let prev_obj;
 
-		if (params.db) {
-			obj = params.db[type][id] || { id };
+		if (obj) {
 			if (!prev_id) {
 				prev_obj = obj;
 			} else if (prev_id < 0) {
