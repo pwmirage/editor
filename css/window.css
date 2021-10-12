@@ -558,14 +558,21 @@ input[type="number"] {
 	width: 100px;
 }
 
+.input-text.disabled,
+.input-number.disabled {
+	background-color: rgba(245, 245, 245, 1) !important;
+	border-color: rgba(174, 176, 179, 1) !important;
+	color: rgba(125, 130, 100, 1) !important;
+}
+
 .input-text:hover,
 .input-text:active,
 .input-number:hover,
 .input-number:active,
 input[type="text"]:hover,
-input[type="text"]:active,,
+input[type="text"]:active,
 input[type="number"]:hover,
-input[type="number"]:active, {
+input[type="number"]:active {
 	background-color: rgba(251, 241, 241, 1);
 	border-color: rgba(191, 68, 68, 1);
 	color: rgba(94, 52, 52, 1);
