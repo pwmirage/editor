@@ -1130,8 +1130,12 @@ class HTMLSugar {
 		}
 
 		const prev_id = parseInt(el.dataset.prev);
+		let global_db;
+		if (typeof(db) !== 'undefined') {
+			global_db = db;
+		}
 
-		params.db = win.db || params.db || document.db;
+		params.db = win.db || params.db || global_db;
 		let obj = params?.db?.[type]?.[id];
 		let prev_obj;
 
