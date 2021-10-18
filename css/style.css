@@ -11,7 +11,6 @@
 .dialogOverlay > .dialogContainer.big .dialogContent {
 	padding-bottom: 62px;
 	box-sizing: content-box;
-	max-height: none !important;
 }
 
 .dialogOverlay > .dialogContainer.big .dialogContent .systemConfirmation {
@@ -26,18 +25,10 @@
 	margin-bottom: 0 !important;
 }
 
-.dialogOverlay > .dialogContainer.big.noconfirm .dialogContent {
-	padding-bottom: 118px;
-}
-
 .dialogOverlay > .dialogContainer.nopadding .dialogContent {
 	padding-top: 0;
 	padding-left: 0;
 	padding-right: 0;
-}
-
-.dialogOverlay > .dialogContainer.big.noconfirm .dialogContent .systemConfirmation {
-	margin-bottom: -102px;
 }
 
 .dialogOverlay > .dialogContainer.noconfirm .formSubmit.dialogFormSubmit {
