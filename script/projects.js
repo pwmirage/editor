@@ -99,7 +99,6 @@ class Projects {
 
 		this.search_int = setTimeout(async () => {
 			let req;
-			console.log(this.search_str);
 
 			const data = { type: this.cur_tab, name: this.search_str };
 
