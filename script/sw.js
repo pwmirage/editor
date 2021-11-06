@@ -249,7 +249,12 @@ self.addEventListener('fetch', (event) => {
 			const r = g_latest_db?.recipes?.[id];
 			const item_id = r?.targets?.[0]?.id || 0;
 			const item = g_latest_db?.items?.[item_id];
-			const icon = id == 0 ? -1 : (item?.icon || 0);
+			let icon = parseInt(id) == 0 ? -1 : (item?.icon || 0);
+
+			if (item_id == 0 && !r?.targets?.filter(i => i?.id)?.length) {
+				/* nothing to craft in this recipe */
+				icon = -1;
+			}
 
 			const icon_buf = Icon.get_icon(icon);
 			return new Response(icon_buf, {

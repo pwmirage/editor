@@ -1163,6 +1163,11 @@ class HTMLSugar {
 				return;
 			}
 
+			if (obj.targets && !obj.targets?.filter(i => i?.id)?.length) {
+				/* empty recipe, don't show anything */
+				return;
+			}
+
 			/* TODO disabled for now */
 			prev_obj = { id: -1 };
 
