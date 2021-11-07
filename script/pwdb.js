@@ -524,16 +524,17 @@ class PWDB {
 				if (npc) {
 					db.open(npc);
 					const prevtasks = (obj._db.project_initial_state.tasks || []);
+					const prevstate = (npc._db.project_initial_state?.[obj._db.type + '_changed'] || 0);
 					const tasks = (obj.tasks || []);
 					if (prevtasks.length != tasks.length) {
-						npc[obj._db.type + '_changed'] = true;
+						npc[obj._db.type + '_changed'] = (parseInt(npc[obj._db.type + '_changed']) || 1) + 1;
 					} else {
 						const tasks_sorted = tasks.slice().sort();
 						const prevtasks_sorted = prevtasks.slice().sort();
 						npc[obj._db.type + '_changed'] =
-							!tasks_sorted.every((value, index) => {
+							tasks_sorted.every((value, index) => {
 								return value === prevtasks_sorted[index];
-						});
+						}) ? prevstate : (parseInt(npc[obj._db.type + '_changed']) || 1) + 1;
 					}
 					db.commit(npc);
 				}
