@@ -823,7 +823,11 @@ class TaskWindow extends SingleInstanceWindow {
 				case 6: { /* remove */
 					const pt = db.tasks[t.parent_quest];
 					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
-					pt.sub_quests.splice(t_id, 1);
+					pt.sub_quests.splice(t_idx, 1);
+
+					db.open(t);
+					t._removed = true;
+					db.commit(t);
 					break;
 				}
 			}
