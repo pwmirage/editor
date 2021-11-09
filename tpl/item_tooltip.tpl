@@ -425,6 +425,30 @@
 			{/if}
 		</div>
 
+	{else if $item.type == Item.typeid('Elf Wings')}
+		{* ======== ELF WINGS ITEM ========= *}
+		<div class="section flex-rows">
+			{if $edit}
+			<span style="display: flex; column-gap: 5px;">
+				<span>Model:</span>
+				<span data-input class="noalign" style="flex: 1;" data-link="{serialize $item} => 'file_model'"></span>
+			</span>
+			{/if}
+			<span style="display: flex; column-gap: 5px;">
+				<span>{if $edit}Req. level:{else}Requisite Lv.{/if}</span>
+				<span data-input {@$data_preview} class="input-number noalign width-5c" style="flex: 1;" data-link="{serialize $item} => 'require_level'"></span>
+			</span>
+			<span style="display: flex; {if !$edit}flex-direction:column;{/if} column-gap: 8px;">
+				<span style="display: flex; column-gap: 5px;">
+					<span>MP at launch</span>
+					<span data-input class="input-number noalign width-5c" style="flex: 1;" data-link="{serialize $item} => 'mp_launch'"></span>
+				</span>
+				<span style="display: flex; column-gap: 5px;">
+					<span>MP per second</span>
+					<span data-input class="input-number noalign width-5c" style="flex: 1;" data-link="{serialize $item} => 'mp_per_second'"></span>
+				</span>
+			</span>
+		</div>
 	{else if $item.type == Item.typeid('Consumable')}
 		{* ======== CONSUMABLE ITEM ========= *}
 		{if $edit}

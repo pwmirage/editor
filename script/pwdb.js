@@ -332,7 +332,9 @@ class PWDB {
 			_f('time_max_min', 'Fast Speed duration min.'),
 			_f('time_max_max', 'Fast Speed duration max.'),
 			_pwclass('character_combo_id', 'Req. Class'),
-			
+			_i('mp_launch', 'MP at launch'),
+			_i('mp_per_second', 'MP per second'),
+			_f('speed_increase', 'Speed'),
 		]);
 	}
 
