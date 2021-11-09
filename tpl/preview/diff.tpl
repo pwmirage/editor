@@ -86,6 +86,19 @@
 			</div>
 		{/for}
 		</div>
+	{else if $f.type == 10}
+		{assign added = ($val || 0) & ~($prev || 0)}
+		{assign removed = ($prev || 0) & ~($val || 0)}
+		{for pwclass of PWDBMeta.classes}
+			{if $removed & (1 << $pwclass.id)}
+				<span class="minus">Requisite Class {@$pwclass.name}</span>
+			{/if}
+		{/for}
+		{for pwclass of PWDBMeta.classes}
+			{if $added & (1 << $pwclass.id)}
+				<span class="plus">Requisite Class {@$pwclass.name}</span>
+			{/if}
+		{/for}
 	{/if}
 </div>
 </script>

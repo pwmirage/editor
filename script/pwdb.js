@@ -58,7 +58,7 @@ class PWDB {
 		PWDB.last_saved_changeset = 0;
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
-		PWDB.db_version = 8;
+		PWDB.db_version = 9;
 
 		/*
 		PWDB.type_fields = [
@@ -72,6 +72,7 @@ class PWDB {
 			'id_ptr_arr',
 			'item_id_ptr',
 			'item_id_ptr_arr',
+			'pw_class',
 		];
 		*/
 	}
@@ -98,6 +99,7 @@ class PWDB {
 		const _id_arr = (id, name, arr) => ({ id, name, type: 7, linked_arr: arr });
 		const _item = (id, name) => ({ id, name, type: 8, linked_arr: 'items' });
 		const _item_arr = (id, name) => ({ id, name, type: 9, linked_arr: 'items' });
+		const _pwclass = (id, name) => ({ id, name, type: 10 });
 
 		init_type_arr('spawners_', 'Spawner', [
 			_b('auto_respawn', 'Auto Respawn'),
@@ -320,6 +322,17 @@ class PWDB {
 			_i('stack_max', 'Stack max.'),
 			_i('proc_type', 'Item properties'),
 			_s('desc', 'Description'),
+			_i('fly_mode', 'Fly Mode (?)'),
+			_i('require_level', 'Req. level'),
+			_f('speed_increase_min', 'Speed min.'),
+			_f('speed_increase_max', 'Speed max.'),
+			_f('speed_rush_increase_min', 'Fash Speed min.'),
+			_f('speed_rush_increase_max', 'Fash Speed max.'),
+			_f('time_increase_per_element', 'Recharge per element'),
+			_f('time_max_min', 'Fast Speed duration min.'),
+			_f('time_max_max', 'Fast Speed duration max.'),
+			_pwclass('character_combo_id', 'Req. Class'),
+			
 		]);
 	}
 

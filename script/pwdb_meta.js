@@ -71,7 +71,7 @@ class PWDBMeta {
         { id: 2, name: "Female" },
     ]);
 
-    static task_classes = init_id_array([
+    static classes = init_id_array([
         { id: 0, name: "Blademaster" },
         { id: 1, name: "Wizard" },
         { id: 3, name: "Venomancer" },
@@ -79,6 +79,7 @@ class PWDBMeta {
         { id: 6, name: "Archer" },
         { id: 7, name: "Cleric" },
     ]);
+    static task_classes = PWDBMeta.classes;
 
     static task_tabs_obtain_ways = init_id_array([
         { id: 0, name: "By parent" },

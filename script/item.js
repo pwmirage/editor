@@ -235,6 +235,7 @@ class ItemTooltip {
 	static last_reloaded = null;
 	reload(item, prev, bounds, db) {
 		ItemTooltip.last_reloaded = this;
+		this.scroll_hidden = false;
 
 		const tpl_db = this.db || db || g_latest_db;
 		this.dom.style.zIndex = Number.MAX_SAFE_INTEGER;

@@ -257,6 +257,10 @@ class HTMLSugar {
 			HTMLSugar.init_link_button(el);
 		}
 
+		for (const el of dom.querySelectorAll('[data-link-class]')) {
+			HTMLSugar.init_link_class(el);
+		}
+
 		for (const el of dom.querySelectorAll('[data-select]')) {
 			HTMLSugar.init_select(el);
 		}
@@ -271,13 +275,11 @@ class HTMLSugar {
 		}
 
 		for (const el of dom.querySelectorAll('[data-input]')) {
-			el.removeAttribute('data-input');
-
 			if (el.hasAttribute('data-preview')) {
-				el.classList.remove('input-number');
 				continue;
 			}
 
+			el.removeAttribute('data-input');
 			el.contentEditable = true;
 			el.classList.add('input');
 			if (el.classList.contains('input-number')) {
@@ -289,6 +291,14 @@ class HTMLSugar {
 
 		for (const el of dom.querySelectorAll('[data-link]')) {
 			HTMLSugar.link_el(el);
+		}
+
+		for (const el of dom.querySelectorAll('[data-input]')) {
+			if (el.hasAttribute('data-preview')) {
+				el.removeAttribute('data-input');
+				el.classList.remove('input-number');
+				continue;
+			}
 		}
 
 		for (const el of dom.querySelectorAll('[data-onhover]')) {
@@ -526,6 +536,43 @@ class HTMLSugar {
 		});
 	}
 
+	static init_link_class(el) {
+		const f_str = el.dataset.linkClass;
+		el.removeAttribute('data-link-class');
+		const link_str = el.dataset.link;
+		el.removeAttribute('data-link');
+		el.classList.add('pw-classes');
+
+		const link_el = newElement('<span class="input-number">');
+		link_el.dataset.link = link_str;
+		link_el.style.display = 'none';
+		el.append(link_el);
+		HTMLSugar.link_el(link_el);
+
+		const state = parseInt(link_el.textContent) || 0;
+
+		for (const pwclass of PWDBMeta.classes) {
+			const checkbox_in_el = newElement('<input type="checkbox" class="checkbox" tabindex="0">');
+			checkbox_in_el.checked = state & (1 << pwclass.id)
+			checkbox_in_el.oninput = (e) => {
+				let state = parseInt(link_el.textContent || 0);
+				if (checkbox_in_el.checked) {
+					state |= (1 << pwclass.id);
+				} else {
+					state &= ~(1 << pwclass.id);
+				}
+				link_el.textContent = state;
+				link_el.oninput();
+
+			};
+			const checkbox_el = newElement('<label></label>');
+			checkbox_el.append(checkbox_in_el);
+			checkbox_el.append(newElement('<span>' + pwclass.name + '</span>'));
+			el.append(checkbox_el);
+		}
+
+	}
+
 	static init_select(el) {
 		const f_str = el.dataset.select;
 		el.removeAttribute('data-select');
@@ -533,7 +580,6 @@ class HTMLSugar {
 		el._mg_select = new Function('return ' + f_str)();
 		HTMLSugar._init_select(el);
 	}
-
 
 	static _init_select(el) {
 		const link_str = el.dataset.link;

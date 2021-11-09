@@ -683,3 +683,10 @@ textarea {
 	visibility: hidden;
 	position: absolute;
 }
+
+.pw-classes {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 3px;
+	row-gap: 3px;
+}
