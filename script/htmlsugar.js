@@ -1158,6 +1158,7 @@ class HTMLSugar {
 			}
 		}
 
+		win.scroll_hidden = false;
 		if (!el && win.pinned) {
 			return;
 		}

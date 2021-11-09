@@ -337,3 +337,8 @@ document.addEventListener('scroll', (e) => {
 	/* hide all tooltips (they're position: fixed) */
 	Item.hide_tooltips();
 }, { passive: true });
+
+document.addEventListener('wheel', (e) => {
+	/* hide all tooltips (they're position: fixed) */
+	Item.hide_tooltips();
+}, { passive: true });
