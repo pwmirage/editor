@@ -279,11 +279,13 @@ class MiragePreviewElement extends HTMLElement {
 		this.dom.style.display = 'inline-block';
 
 		this.project_id = this.getAttribute('data-pid');
+		this.user_id = this.getAttribute('data-uid');
 		this.type_str = this.getAttribute('data-type');
 		this.type = this.type_str.replaceAll('-', '_');
 		this.id_str = this.getAttribute('data-id');
 		this.view = this.getAttribute('data-view');
 		this.id = DB.parse_id(this.id_str);
+		this.uid = parseInt(this.user_id);
 
 		if (this.project_id && this.type && this.id_str) {
 			this.init();
@@ -314,6 +316,7 @@ class MiragePreviewElement extends HTMLElement {
 				resp = await post(ROOT_URL + 'api/project/' + this.project_id + '/getshare', {is_json: 1, data: {
 					objectType: this.type_str,
 					objectID: this.id,
+					userID: this.uid,
 				}});
 				this.share = resp.data;
 			}

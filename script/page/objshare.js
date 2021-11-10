@@ -21,7 +21,7 @@ g_mg_pages['objshare'] = new class {
             const pid = Editor.current_project.id;
             const type = this.obj._db.type.replaceAll('_', '-');
 
-            this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+            this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + WCF.User.userID + '/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
         }
 
         const data = await this.tpl.run({ page: this, loading: true, obj: this.obj, opts: this.opts });
@@ -47,7 +47,7 @@ g_mg_pages['objshare'] = new class {
 
         if (this.cur_tab == 'latest' && this.opts.exists_in_latest) {
             const pid = 'latest';
-            this.url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+            this.url = window.location.origin + ROOT_URL + 'preview/' + WCF.User.userID + '/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
         } else {
             this.url = this.current_url ?? null;
         }
@@ -67,7 +67,7 @@ g_mg_pages['objshare'] = new class {
             const pid = Editor.current_project.id;
             const type = this.obj._db.type.replaceAll('_', '-');
 
-            this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+            this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + WCF.User.userID + '/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
             this.url_generated = true;
             this.tpl.reload('#body', { loading: false });
             return;
