@@ -41,7 +41,7 @@ g_mg_pages['objshare'] = new class {
     async select_tab(name) {
         this.cur_tab = name;
 
-        this.tpl.reload('#body', { loading: true });
+        this.tpl.reload('#root', { loading: true });
 
         const type = this.obj._db.type.replaceAll('_', '-');
 
