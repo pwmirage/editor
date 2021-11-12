@@ -136,7 +136,19 @@
 				{/if}
 			{/if}
 			</div>
-			<div id="project-info-expand" onclick="Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed')"></div>
+			<div id="project-info-expand" onclick="{if $project}Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed'){/if}" style="display: flex; {if !$project}cursor: default;{/if}">
+				{if $project}
+					{assign displayname = 'Project: ' + $project.name}
+					{if $displayname.length > 48}
+						{assign displayname = 'Project: ' + $project.name.substring(0, 45) + '...'}
+					{/if}
+					<span class="icon icon32 fa-file-text" style="align-self: center; margin-right: 4px;"></span>
+					<span class="text" style="align-self: center; max-width: 168px; max-height: 40px; font-weight: 550; overflow: hidden;">{@escape($displayname)}</span>
+				{else}
+					<span>Create a project to store<br>your changes on the server</span>
+				{/if}
+</span>
+			</div>
 			</div>
 		</div>
 		<div id="rotate-circle" style="display: none;">
@@ -363,29 +375,27 @@
 #project-info #project-info-expand {
 	position: absolute;
 	left: 0;
-	top: 50px;
-	margin-left: calc(100% + 3px);
-	width: 39px;
-	height: 40px;
-	background-color: #dccfcf;
+	top: 0;
+	margin-left: 100%;
+	min-width: 39px;
+	width: max-content;
+	height: 46px;
+	display: flex;
+	background-color: #ececec;
 	border-radius: 5px;
 	border-bottom-left-radius: 0;
 	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 	border-width: 0;
 	color: rgba(33, 33, 33, 1);
 	cursor: pointer;
-	padding-top: 4px;
+	padding-top: 2px;
 	padding-left: 8px;
-}
-
-#project-info-expand:after {
-	font-family: FontAwesome;
-	font-size: 22px;
-	content: '\\00f02d';
+	padding-right: 10px;
 }
 
 #project-info #project-info-expand:hover {
-	background-color: rgba(156, 120, 120, 1);
+	background-color: #c0c0c0;
 	text-decoration: none;
 }
 

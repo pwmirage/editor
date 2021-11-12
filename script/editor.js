@@ -167,17 +167,6 @@ class Editor {
 		const project = Editor.current_project;
 		Editor.tpl.reload('#project-info', { project });
 		Editor.reload_times();
-
-		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
-		if (project?.id) {
-			proj_info_el.textContent = 'Project: ' + project.name + ' by ' + project.author;
-
-			const d = new Date(project.last_edit_time * 1000);
-			const d_str = d.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString("en-US");
-			proj_info_el.innerHTML = proj_info_el.textContent + '<br>' + d_str;
-		} else {
-			proj_info_el.innerHTML = 'Create a project to store<br>your changes on the server';
-		}
 	}
 
 	static async open_project(pid) {
