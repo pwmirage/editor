@@ -164,9 +164,17 @@ class Editor {
 			return;
 		}
 
+		const text = Editor.map_shadow.querySelector('#post_comment textarea')?.value || '';
+		const comments_classlist = Editor.map_shadow.querySelector('#post_comment')?.className;
+
 		const project = Editor.current_project;
 		Editor.tpl.reload('#project-info', { project });
 		Editor.reload_times();
+
+		Editor.map_shadow.querySelector('#post_comment textarea').value = text;
+		if (comments_classlist != undefined) {
+			Editor.map_shadow.querySelector('#post_comment').className = comments_classlist;
+		}
 	}
 
 	static async open_project(pid) {
@@ -306,7 +314,8 @@ class Editor {
 
 		Editor.current_project = req.data;
 		Editor.current_project.log = req_log.data;
-		Editor.tpl.reload('#project-info', { project: Editor.current_project });
+		await Editor.reload_project_info();
+
 		return true;
 	}
 
