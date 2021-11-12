@@ -36,107 +36,120 @@
 		</div>
 		<div id="project-info" class="{if !$project || $project.last_open_time >= $project.last_edit_time}collapsed{/if}">
 			<div class="contents" style="position: relative;">
+				{if $project}
+				<div style="padding: 10px 8px; height: 42px;"><div id="projects-tabs" style="display: flex;">
+						<span class="{if Editor.project_info.cur_tab == 'discussion'}selected{/if}" onclick="Editor.select_project_tab('discussion');">Discussion</span>
+						<span class="{if Editor.project_info.cur_tab == 'sets'}selected{/if}" onclick="Editor.select_project_tab('sets');">Sets</span>
+						<span class="{if Editor.project_info.cur_tab == 'revisions'}selected{/if}" onclick="Editor.select_project_tab('revisions');">Revisions</span>
+					</div></div>
+				{/if}
+
 			<div class="scroll">
 			{if $project}
-				<div>
-					<div>{@$project.name} #{@$project.id}
-						{assign type = Projects.type.find(t => t.id == $project.type)}
-						<div style="float: right;" class="badge {@$type.color}">{@$type.name}</div>
-					</div>
-					<div>by <a class="externalURL" href="/user/{@$project.author_id}" target="_blank">{@$project.author}</a></div>
+				<div class="tab tab-discussion {if Editor.project_info.cur_tab == 'discussion'}active{/if}"">
 					<div>
-						Status:&nbsp;
-						{assign status = Projects.status.find(s => s.id == $project.status)}
-						<div class="badge {@$status.color}">{@$status.name}</div>
-					</div>
-					<div class="review-status summary">
-						{assign votes = []}
-						{for i = $project.log.length - 1; i >= 0; i--}
-							{assign entry = $project.log[$i]}
-							{if $entry.actionID == 0 && $entry.param1 != 0 && !$votes.find(v => v.userID == $entry.userID)}
-								{$votes.push($entry)}
-							{/if}
-
-							{if $entry.actionID == 1}
-								{break}
-							{/if}
-						{/for}
-						{for vote of $votes}
-							{if $vote != 0}
-								<div class="{if $vote.param1 > 0}plus{else}minus{/if}">{if $vote.param1 > 0}+1{else}-1{/if} by {@$vote.username}</div>
-							{/if}
-						{/for}
-					</div>
-					<div style="margin-top: 10px;">
-						<label>
-							<input type="checkbox" id="showOnlyLatestComments" oninput="Editor.hide_previous_comments(this.checked);" data-onload="{if localStorage.getItem('project_hide_previous_comments')}this.checked = true; this.oninput();{/if}">
-							<span>Hide comments from previous revisions</span>
-						</label>
-					</div>
-				</div>
-				{for entry of $project.log}
-					<div class="log" data-type="{@$entry.actionID}" data-param1="{@$entry.param1}">
-						<div style="float:right;">
-							{@Projects.DateUtil.getTimeElement(new Date($entry.time * 1000)).outerHTML}
+						<div>{@$project.name} #{@$project.id}
+							{assign type = Projects.type.find(t => t.id == $project.type)}
+							<div style="float: right;" class="badge {@$type.color}">{@$type.name}</div>
 						</div>
-						<div><a class="externalURL" href="/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
-						{if $entry.actionID == 0 && $entry.param1 != 0}
-							<div class="review-status" style="margin-top: 4px;">
-								{if $entry.param1 < 0}
-									<div class="minus">Review -1</div>
-								{else}
-									<div class="plus">Review +1</div>
-								{/if}
-							</div>
-						{else if $entry.actionID == 1}
-							<div>
-								Published revision {@$entry.param1}
-							</div>
-						{else if $entry.actionID == 2}
-							<div class="review-status" style="margin-top: 4px;">
-								<div class="plus">Merged</div>
-							</div>
-						{/if}
+						<div>by <a class="externalURL" href="/user/{@$project.author_id}" target="_blank">{@$project.author}</a></div>
 						<div>
-							{@escape($entry.text).replaceAll('\n', '<br>')}
+							Status:&nbsp;
+							{assign status = Projects.status.find(s => s.id == $project.status)}
+							<div class="badge {@$status.color}">{@$status.name}</div>
+						</div>
+						<div class="review-status summary">
+							{assign votes = []}
+							{for i = $project.log.length - 1; i >= 0; i--}
+								{assign entry = $project.log[$i]}
+								{if $entry.actionID == 0 && $entry.param1 != 0 && !$votes.find(v => v.userID == $entry.userID)}
+									{$votes.push($entry)}
+								{/if}
+
+								{if $entry.actionID == 1}
+									{break}
+								{/if}
+							{/for}
+							{for vote of $votes}
+								{if $vote != 0}
+									<div class="{if $vote.param1 > 0}plus{else}minus{/if}">{if $vote.param1 > 0}+1{else}-1{/if} by {@$vote.username}</div>
+								{/if}
+							{/for}
+						</div>
+						<div style="margin-top: 10px;">
+							<label>
+								<input type="checkbox" id="showOnlyLatestComments" oninput="Editor.hide_previous_comments(this.checked);" data-onload="{if localStorage.getItem('project_hide_previous_comments') == 'true'}this.checked = true; this.oninput();{/if}">
+								<span>Hide comments from previous revisions</span>
+							</label>
 						</div>
 					</div>
-				{/for}
+					{for entry of $project.log}
+						<div class="log" data-type="{@$entry.actionID}" data-param1="{@$entry.param1}">
+							<div style="float:right;">
+								{@Projects.DateUtil.getTimeElement(new Date($entry.time * 1000)).outerHTML}
+							</div>
+							<div><a href="/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
+							{if $entry.actionID == 0 && $entry.param1 != 0}
+								<div class="review-status" style="margin-top: 4px;">
+									{if $entry.param1 < 0}
+										<div class="minus">Review -1</div>
+									{else}
+										<div class="plus">Review +1</div>
+									{/if}
+								</div>
+							{else if $entry.actionID == 1}
+								<div>
+									Published revision {@$entry.param1}
+								</div>
+							{else if $entry.actionID == 2}
+								<div class="review-status" style="margin-top: 4px;">
+									<div class="plus">Merged</div>
+								</div>
+							{/if}
+							<div>
+								{@escape($entry.text).replaceAll('\n', '<br>')}
+							</div>
+						</div>
+					{/for}
 
-				{if Editor.usergroups['user']}
-				<div id="post_comment" class="collapsed" style="margin-top: auto;">
-					<span class="header" onclick="this.parentNode.classList.toggle('collapsed');">
-						Post comment
-					</span>
-					{if Editor.usergroups['maintainer']}
-					<div class="votes">
-						<label>
-							<input type="radio" name="vote" value="-1">
-							Vote -1
-						</label>
-						<label>
-							<input type="radio" name="vote" value="0" checked>
-							Don't vote
-						</label>
-						<label>
-							<input type="radio" name="vote" value="+1">
-							Vote +1
-						</label>
-					</div>
+					{if Editor.usergroups['user']}
+						<div id="post_comment" class="collapsed" style="margin-top: auto;">
+							<span class="header" onclick="this.parentNode.classList.toggle('collapsed'); const scroll_el = this.parentNode.parentNode; scroll_el.scrollTop = scroll_el.scrollHeight - scroll_el.clientHeight;">
+								Post comment
+							</span>
+							{if Editor.usergroups['maintainer']}
+							<div class="votes">
+								<label>
+									<input type="radio" name="vote" value="-1">
+									Vote -1
+								</label>
+								<label>
+									<input type="radio" name="vote" value="0" checked>
+									Don't vote
+								</label>
+								<label>
+									<input type="radio" name="vote" value="+1">
+									Vote +1
+								</label>
+							</div>
+							{/if}
+							<textarea style="width: 100%; min-height: 100px; max-height: 600px; resize: none;" oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'"></textarea>
+							<a class="button buttonPrimary" style="float: right; float: right; margin-top: 6px; font-size: 12px; padding: 4px 9px;" href="javascript:void(0);" onclick="Editor.add_comment(this);">Post comment</a>
+						</div>
+					{else}
+						<div id="post_comment" style="margin-top: auto;">
+							<span>
+								Log in to be able to post comments
+							</span>
+						</div>
 					{/if}
-					<textarea style="width: 100%; min-height: 100px; max-height: 600px; resize: none;" oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'"></textarea>
-					<a class="button buttonPrimary" style="float: right; float: right; margin-top: 6px; font-size: 12px; padding: 4px 9px;" href="javascript:void(0);" onclick="Editor.add_comment(this);">Post comment</a>
 				</div>
-				{else}
-				<div id="post_comment" style="margin-top: auto;">
-					<span>
-						Log in to be able to post comments
-					</span>
-				</div>
-				{/if}
+
+				<div class="tab tab-sets {if Editor.project_info.cur_tab == 'sets'}active{/if}">Not implemented yet</div>
+				<div class="tab tab-revisions{if Editor.project_info.cur_tab == 'revisions'}active{/if}">Not implemented yet</div>
 			{/if}
 			</div>
-			<div id="project-info-expand" onclick="{if $project}Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed'){/if}" style="display: flex; {if !$project}cursor: default;{/if}">
+			<div id="project-info-expand" onclick="{if $project}Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed'){/if}" style="display: flex; {if !$project}cursor: default;{/if} user-select: none;" oncontextmenu="event.stopPropagation();">
 				{if $project}
 					{assign displayname = 'Project: ' + $project.name}
 					{if $displayname.length > 48}
@@ -178,6 +191,7 @@
 			<ul style="list-style: inside;">
 				<li>Modification history for any of the objects</li>
 				<li>"Recent" lists for items, NPCs, and all other objects</li>
+				<li>Any objects you created but removed later on</li>
 			</ul>
 		</p>
 		<p style="margin-top: 14px;">
@@ -278,15 +292,22 @@
 #project-info .scroll {
 	overflow-x: hidden;
 	overflow-y: auto;
-	padding: 10px 8px;
 	display: flex;
 	flex-direction: column;
-	row-gap: 5px;
-	min-height: 100%;
-	height: 100%;
+	min-height: calc(100% - 50px);
+	height: calc(100% - 50px);
+	margin-top: 8px;
 }
 
-#project-info .scroll > * {
+#project-info .scroll .tab {
+	padding: 10px 8px;
+	padding-top: 0;
+	display: flex;
+	row-gap: 2px;
+	flex-direction: column;
+}
+
+#project-info .scroll > .tab > * {
 	background-color: white;
 	box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 10%);
 	padding: 5px 8px;
@@ -397,6 +418,30 @@
 #project-info #project-info-expand:hover {
 	background-color: #c0c0c0;
 	text-decoration: none;
+}
+
+#projects-tabs {
+	padding: 0 !important;
+	border: 1px solid #c3c3c3;
+}
+
+#projects-tabs > * {
+	flex: 1;
+	text-align: center;
+	cursor: pointer;
+	user-select: none;
+	padding: 5px 8px;
+	background: #ececec;
+	color: #a1a1a1;
+}
+
+#projects-tabs > *.selected {
+	background: #ffffff;
+	color: #000000;
+}
+
+#project-info .scroll > .tab:not(.active) {
+	display: none;
 }
 
 #pw-map-canvas > * {

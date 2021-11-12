@@ -42,7 +42,9 @@ class Editor {
 		const tpl = Editor.tpl = new Template('tpl-editor');
 		tpl.compile_cb = (dom) => { HTMLSugar.process(dom, this); Editor.reload_times(); };
 
-		const data = tpl.run({ });
+		Editor.project_info = { cur_tab: 'discussion' };
+
+		const data = tpl.run({ project_info: Editor.project_info });
 		shadow.append(data);
 		shadow.append(newStyle(ROOT_URL + 'css/style.css'));
 		shadow.append(newStyle(get_wcf_css().href));
@@ -164,17 +166,26 @@ class Editor {
 			return;
 		}
 
+		const collapsed = Editor.map_shadow.querySelector('#project_info')?.className;
 		const text = Editor.map_shadow.querySelector('#post_comment textarea')?.value || '';
 		const comments_classlist = Editor.map_shadow.querySelector('#post_comment')?.className;
 
 		const project = Editor.current_project;
 		Editor.tpl.reload('#project-info', { project });
-		Editor.reload_times();
 
 		Editor.map_shadow.querySelector('#post_comment textarea').value = text;
 		if (comments_classlist != undefined) {
+			Editor.map_shadow.querySelector('#project-info').className = collapsed;
 			Editor.map_shadow.querySelector('#post_comment').className = comments_classlist;
+			Editor.map_shadow.querySelector('#post_comment').classList.remove('loading-spinner');
 		}
+	}
+
+	static async select_project_tab(name) {
+		Editor.project_info.cur_tab = name;
+		Editor.tpl.reload('#projects-tabs', {});
+		Editor.map_shadow.querySelector('#project-info .scroll > .active').classList.remove('active');
+		Editor.map_shadow.querySelector('#project-info .scroll > .tab-' + name).classList.add('active');
 	}
 
 	static async open_project(pid) {
@@ -334,7 +345,13 @@ class Editor {
 			return;
 		}
 
+		if (req.ok) {
+			Editor.map_shadow.querySelector('#post_comment textarea').value = '';
+		}
+
 		const ok = await Editor.refresh_project_info();
+		const scroll_el = Editor.map_shadow.querySelector('#project-info .scroll');
+		scroll_el.scrollTop = scroll_el.scrollHeight - scroll_el.clientHeight;
 		if (ok) {
 			notify('success', 'Comment posted');
 		}
@@ -343,11 +360,19 @@ class Editor {
 	static hide_previous_comments(do_hide) {
 		localStorage.setItem('project_hide_previous_comments', do_hide);
 		const comment_els = Editor.map_shadow.querySelectorAll('#project-info .log');
+
+		let first_hidden = null;
 		if (do_hide) {
 			let publish_found = false;
 			for (let idx = comment_els.length - 1; idx >= 0; idx--) {
 				const c = comment_els[idx];
 				if (publish_found) {
+					if (!first_hidden) {
+						first_hidden = c;
+						/* show one extra comment before
+						 * the last publish */
+						continue;
+					}
 					c.style.display = 'none';
 				} else if (c.dataset.type != 0) {
 					publish_found = true;
