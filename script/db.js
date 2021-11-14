@@ -227,10 +227,11 @@ class DB {
 		let changeset = obj._db.changesets[obj._db.changesets.length - 1];
 
 		/* gather modified fields */
-		const diff = DB.get_obj_diff(obj, obj._db.latest_state);
+		const aux_diff = {};
+		const diff = DB.get_obj_diff(obj, obj._db.latest_state, aux_diff);
 		let changeset_empty = true;
 
-		if (diff) {
+		if (diff && aux_diff.has_public_fields) {
 			/* lazy initialization */
 			if (changeset._db.generation < this.changelog.length - 1) {
 				/* first change since new generation */
@@ -261,6 +262,10 @@ class DB {
 					let is_diff = false;
 					for (const f in obj) {
 						if (f === '_db') continue;
+						if (f[0] === '_' && f !== '_removed' && f !== '_allocated') {
+							obj[f] = undefined;
+							continue;
+						}
 						if (typeof(obj[f]) === 'object') {
 							if (diff_and_clean(obj[f], org ? org[f] : undefined)) {
 								is_diff = true;
@@ -315,7 +320,7 @@ class DB {
 			DB.apply_diff(obj._db.latest_state, diff, true);
 		}
 
-		return diff;
+		return diff || {};
 	}
 
 	clone(obj, commit_cb) {
@@ -710,11 +715,16 @@ class DB {
 		return false;
 	}
 
-	static get_obj_diff(obj, prev) {
+	static get_obj_diff(obj, prev, ret) {
 		const diff = {};
+		let has_public_fields = false;
 
 		for (const f in obj) {
 			if (!obj.hasOwnProperty(f)) continue;
+			if (f[0] !== '_' || f === '_removed' || f === '_allocated') {
+				has_public_fields = true;
+			}
+
 			if (f === '_db') {
 				if ((!!obj._db.base && (!prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev._db && !!prev._db.base)) {
 					diff[f] = { base: obj._db.base };
@@ -752,6 +762,10 @@ class DB {
 			}
 		}
 
+		if (ret) {
+			ret.has_public_fields = has_public_fields;
+		}
+
 		/* just check if it has any fields, return null otherwise */
 		for (const field in diff) {
 			return diff;
@@ -769,7 +783,7 @@ class DB {
 				}
 			}
 			/* keep the _db at its minimum */
-			if (k === '_db') return { type: v?.obj ? v.obj._db.type : v.type };
+			if (k === '_db') return { type: v.obj ? v.obj._db.type : v.type };
 			/* dont include any nulls, undefined results in no output at all */
 			if (v === null) return undefined;
 			if (v === DB.force_null) return null;

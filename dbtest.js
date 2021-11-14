@@ -337,4 +337,39 @@ testcase('arr_cleanup', () => {
 	assert(obj_loaded.arr[0] == 3);
 });
 
+testcase('underscore_fields', () => {
+	const db = new_test_db1();
+	const obj = db.items[4096];
+	db.new_id_start = 10;
+	let diff;
+
+	db.open(obj);
+	obj._ufield = 2;
+	diff = db.commit(obj);
+
+	assert('_ufield' in diff);
+
+	db.open(obj);
+	obj.nfield = 3;
+	obj._ufield = 4;
+	diff = db.commit(obj);
+
+	assert(diff.nfield == 3);
+	assert(diff._ufield == 4);
+
+	db.open(obj);
+	obj._ufield = 5;
+	diff = db.commit(obj);
+
+	assert(diff._ufield == 5);
+
+	const dump = db.dump_last();
+	assert(!dump.includes('_ufield'));
+	assert(dump.includes('nfield'));
+
+	const obj2 = db.clone(obj);
+	assert(obj2.nfield == obj.nfield);
+	assert(obj2._ufield == obj._ufield);
+});
+
 console.log('DB tests passed');
