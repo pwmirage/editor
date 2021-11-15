@@ -7,6 +7,7 @@
 	</span>
 	<div class="menu">
 		<i class="refresh fa fa-refresh"></i>
+		<i class="details fa fa-ellipsis-v"></i>
 	</div>
 	<div class="menu">
 		<i class="minimize fa"></i>

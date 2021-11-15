@@ -392,7 +392,7 @@ class Window {
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
-			{ name: 'Add to set', children: sets_arr },
+			{ name: 'Add to set', children: sets_arr, visible: this.obj._db.type !== 'metadata' },
 			{ id: 5, name: 'Share (get web url)' },
 			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
 			{ id: 4, name: 'Undo all changes', disabled: !this.obj._db.project_initial_state },
