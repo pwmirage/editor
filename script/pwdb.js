@@ -75,6 +75,8 @@ class PWDB {
 			'pw_class',
 		];
 		*/
+
+		PWDB.objsets = new Set();
 	}
 
 	static init_types() {
@@ -379,28 +381,37 @@ class PWDB {
 			PWDB.metadata_types = {
 				project: 1,
 				chooser_recent: 2,
+				objset_modified: 3,
 			};
 		}
 
-		const project = {
-			id: PWDB.metadata_types.project,
-			tag: "project",
-			pid: args.pid || 0,
-			base: 0,
-			edit_time: 0,
-		};
-
-		const chooser_recent = {
-			id: PWDB.metadata_types.chooser_recent,
-			tag: "chooser_recent",
-			types: {},
-		};
+		const meta_arr = [
+			{
+				id: PWDB.metadata_types.project,
+				tag: "project",
+				pid: args.pid || 0,
+				base: 0,
+				edit_time: 0,
+			},
+			{
+				id: PWDB.metadata_types.chooser_recent,
+				tag: "chooser_recent",
+				types: {},
+			},
+			{
+				id: PWDB.metadata_types.objset_modified,
+				tag: "objset",
+				types: {},
+				name: "All Modified",
+				entries: {},
+			},
+		];
 
 		let spawner_arrs = null;
 		const spawners_tag = args.no_tag ? null : Loading.show_tag('Loading spawners');
 
 		await Promise.all([
-			db.register_type('metadata', init_id_array([project, chooser_recent])),
+			db.register_type('metadata', init_id_array(meta_arr)),
 			PWDB.register_data_type(db, args, 'mines'),
 			PWDB.register_data_type(db, args, 'recipes'),
 			PWDB.register_data_type(db, args, 'npc_sells'),
@@ -433,6 +444,11 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'gm_generator_types'),
 			PWDB.register_data_type(db, args, 'pet_types'),
 		]);
+
+		PWDB.objsets = new Set();
+		PWDB.objsets.add(db.metadata[PWDB.metadata_types.objset_modified]);
+
+		const project = db.metadata[PWDB.metadata_types.project];
 
 		if (args.preinit) {
 			db.metadata.init();
@@ -504,7 +520,15 @@ class PWDB {
 				obj.name = diff.name = diff.name.replace(/[\n\r]/g, '');
 			}
 
-			if (obj._db.type != 'metadata' && !obj._db.project_initial_state) {
+			if (obj._db.type === 'metadata' && obj.tag === 'objset') {
+				if (obj._removed) {
+					PWDB.objsets.remove(obj);
+				} else {
+					PWDB.objsets.add(obj);
+				}
+			}
+
+			if (obj._db.type !== 'metadata' && !obj._db.project_initial_state) {
 				if (diff._allocated) {
 					PWDB.set_chooser_recent(obj._db.type, obj.id);
 				}
@@ -565,7 +589,7 @@ class PWDB {
 			}
 		});
 
-		db.new_id_start = 0x80000000 + project.pid * 0x100000;
+		db.new_id_start = 0x80000000 + (args.pid || 0) * 0x100000;
 		db.new_id_offset = 0;
 
 		try {
@@ -631,10 +655,6 @@ class PWDB {
 			}
 			return true;
 		}
-
-		db.open(project);
-		project.edit_time = Math.floor(Date.now() / 1000);
-		db.commit(project);
 
 		data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 		const req = await post(ROOT_URL + 'api/project/' + project.pid + '/save', {
@@ -1169,4 +1189,22 @@ class PWDB {
 		return resp;
 	}
 
+	static add_objset_entry(objset, obj) {
+		const key = obj._db.type + '_' + obj.id;
+		if (objset.entries[key]) {
+			/* nothing to do */
+			return;
+		}
+
+		db.open(objset);
+		objset.entries[key] = 1;
+		db.commit(objset);
+	}
+
+	static remove_objset_entry(objset, obj) {
+		const key = obj._db.type + '_' + obj.id;
+		db.open(objset);
+		objset.entries[key] = 0;
+		db.commit(objset);
+	}
 }

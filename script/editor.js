@@ -83,6 +83,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/trigger.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/item_type_chooser.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/diff.js?v=' + MG_VERSION),
+			load_script(ROOT_URL + 'script/window/objset.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/fuzzysort.js?v=' + MG_VERSION),
 			load_tpl(ROOT_URL + 'tpl/editor.tpl'),
 		]);
@@ -182,10 +183,33 @@ class Editor {
 	}
 
 	static async select_project_tab(name) {
+		if (name === 'sets' && Editor.project_info.cur_tab !== name) {
+			Editor.tpl.reload('#project-info .tab-sets', {});
+		}
+
 		Editor.project_info.cur_tab = name;
 		Editor.tpl.reload('#projects-tabs', {});
 		Editor.map_shadow.querySelector('#project-info .scroll > .active').classList.remove('active');
 		Editor.map_shadow.querySelector('#project-info .scroll > .tab-' + name).classList.add('active');
+	}
+
+	static create_new_set() {
+		const set = db.new('metadata');
+		db.open(set);
+		set.tag = 'objset';
+		set.entries = [];
+		db.commit(set);
+
+		const win = ObjsetWindow.open({ obj: set });
+	}
+
+	static async collapse_project_tab() {
+		const collapsed = Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed');
+
+		Editor.project_info.collapsed = collapsed;
+		if (!collapsed && Editor.project_info.cur_tab == 'sets') {
+			Editor.tpl.reload('#project-info .tab-sets');
+		}
 	}
 
 	static async open_project(pid) {
@@ -258,23 +282,23 @@ class Editor {
 		/* db is global */
 		db = await PWDB.new_db({ preinit: true, pid: pid });
 
-		/*
-		const proj_info_el = Editor.map_shadow.querySelector('#pw-project-info');
-		if (args.pid) {
-			proj_info_el.textContent = 'Project: ' + PROJECT_NAME + ' by ' + db.metadata[1].author;
+		db.register_commit_cb((obj, diff, prev_vals) => {
+			if (obj._db.type === 'metadata' && obj.tag === 'objset') {
+				if (Editor.project_info.collapsed) {
+					return;
+				}
 
-			const d = new Date(PROJECT_LAST_EDIT * 1000);
-			const d_str = d.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString("en-US");
-			proj_info_el.innerHTML = proj_info_el.textContent + '<br>' + d_str;
-		} else {
-			proj_info_el.innerHTML = 'Create a project to store<br>your changes on the server';
-		}
-		*/
+				if (('_removed' in diff) || ('name' in diff) || diff.tag) {
+					Editor.tpl.reload('#project-info .tab-sets', {});
+				}
+			}
+		});
 
 		await g_map.reinit('none');
 		await g_map.reload_db();
 
 		Editor.navbar.reload()
+		Editor.tpl.reload('#project-info .tab-sets', {});
 
 		Editor.map_shadow.querySelector('#pw-loading').style.display = 'none';
 		Loading.hide_tag(tag_p);

@@ -145,11 +145,24 @@
 					{/if}
 				</div>
 
-				<div class="tab tab-sets {if Editor.project_info.cur_tab == 'sets'}active{/if}">Not implemented yet</div>
-				<div class="tab tab-revisions{if Editor.project_info.cur_tab == 'revisions'}active{/if}">Not implemented yet</div>
+				<div class="tab tab-sets {if Editor.project_info.cur_tab == 'sets'}active{/if}" style="flex-direction: row; flex-wrap: wrap; gap: 5px; font-weight: bold;">
+					{for set of PWDB.objsets}
+						<span onclick="ObjsetWindow.open(\{ obj: db.metadata[{@$set.id}] \})">{@$set.name || 'Set'} {@DB.serialize_id($set.id)}</span>
+					{/for}
+					{if PWDB.objsets.size == 0}
+						<span>No object sets found</span>
+					{/if}
+
+					<div style="background: initial; box-shadow: none; display: flex; padding: 0; padding-top: 4px; align-self: top; width: 100%;">
+						<a class="button buttonPrimary" style="float: right; float: right; font-size: 12px; padding: 6px 12px;" href="javascript:void(0);" onclick="Editor.create_new_set();">Create new</a>
+					</div>
+				</div>
+				<div class="tab tab-revisions{if Editor.project_info.cur_tab == 'revisions'}active{/if}">
+					<span>Not implemented yet</span>
+				</div>
 			{/if}
 			</div>
-			<div id="project-info-expand" onclick="{if $project}Editor.map_shadow.querySelector('#project-info').classList.toggle('collapsed'){/if}" style="display: flex; {if !$project}cursor: default;{/if} user-select: none;" oncontextmenu="event.stopPropagation();">
+			<div id="project-info-expand" onclick="{if $project}Editor.collapse_project_tab(){/if}" style="display: flex; {if !$project}cursor: default;{/if} user-select: none;" oncontextmenu="return false;">
 				{if $project}
 					{assign displayname = 'Project: ' + $project.name}
 					{if $displayname.length > 48}
@@ -308,9 +321,16 @@
 }
 
 #project-info .scroll > .tab > * {
-	background-color: white;
+	background: white;
 	box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 10%);
 	padding: 5px 8px;
+	cursor: pointer;
+	user-select: none;
+}
+
+#project-info .scroll > .tab-sets > *:hover {
+	background: #f4f4f4;
+	color: #696969;
 }
 
 #project-info .review-status.summary:not(:empty) {

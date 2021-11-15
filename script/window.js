@@ -365,9 +365,34 @@ class Window {
 		const x = coords.left;
 		const y = coords.bottom;
 
+		const open_set_wins = SingleInstanceWindow.instances['ObjsetWindow'] || [];
+
+		const proj_id = Editor.current_project?.id || 0;
+		const min_set_id = DB.parse_id(proj_id + ':0');
+		let sets = new Set();
+		for (const win of open_set_wins) {
+			sets.add(win[0]);
+		}
+		for (const obj of PWDB.objsets) {
+			if (obj.id >= min_set_id) {
+				sets.add(obj);
+			}
+		}
+
+		sets.delete(db.metadata[PWDB.metadata_types.objset_modified]);
+		const sets_arr = [...sets].map(s => ({ id: s.id, name: s.name + ' ' + DB.serialize_id(s.id) }));
+		if (sets_arr.length > 4) {
+			sets_arr.length = 4;
+		} else if (sets_arr.length == 0) {
+			sets_arr.push({ id: 0, name: 'No sets found', disabled: true });
+		}
+
+		sets_arr.push({ id: 6, name: "+ New set" });
+
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
+			{ name: 'Add to set', children: sets_arr },
 			{ id: 5, name: 'Share (get web url)' },
 			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
 			{ id: 4, name: 'Undo all changes', disabled: !this.obj._db.project_initial_state },
@@ -409,6 +434,21 @@ class Window {
 				this.share_obj();
 				break;
 			}
+			case 6: {
+				const set = db.new('metadata');
+				db.open(set);
+				set.tag = 'objset';
+				set.entries = {};
+				db.commit(set);
+				PWDB.add_objset_entry(set, this.obj);
+
+				const win = ObjsetWindow.open({ obj: set });
+			}
+		}
+
+		if (sel >= 0x80000000 && db.metadata[sel]) {
+			const set = db.metadata[sel];
+			PWDB.add_objset_entry(set, this.obj);
 		}
 	}
 

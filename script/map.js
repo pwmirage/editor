@@ -266,7 +266,7 @@ class PWMap {
 			changed_objects_more_el.style.display = (last_bounds.y < objects_bounds.y) ? 'block' : 'none';
 		};
 
-		const changed_objects_map = new Map();
+		const changed_objects_map = PWMap.changed_objects_map = new Map();
 		const set_modified_obj = (obj, diff) => {
 			if (obj._db.type == 'metadata') {
 				return;
