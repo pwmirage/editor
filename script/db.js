@@ -726,7 +726,7 @@ class DB {
 			}
 
 			if (f === '_db') {
-				if ((!!obj._db.base && (!prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev._db && !!prev._db.base)) {
+				if ((!!obj._db.base && (!prev || !prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev && !!prev._db && !!prev._db.base)) {
 					diff[f] = { base: obj._db.base };
 				} else if (diff[f]) {
 					diff[f] = undefined;
