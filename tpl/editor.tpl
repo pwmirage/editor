@@ -324,8 +324,12 @@
 	background: white;
 	box-shadow: 0px 0px 2px 0px rgb(0 0 0 / 10%);
 	padding: 5px 8px;
-	cursor: pointer;
+}
+
+#project-info .scroll > .tab-sets > *,
+#project-info .scroll > .tab-revisions > * {
 	user-select: none;
+	cursor: pointer;
 }
 
 #project-info .scroll > .tab-sets > *:hover {
