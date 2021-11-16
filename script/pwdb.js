@@ -410,6 +410,12 @@ class PWDB {
 		let spawner_arrs = null;
 		const spawners_tag = args.no_tag ? null : Loading.show_tag('Loading spawners');
 
+		const task_init_cb = (obj) => {
+			if (!obj.premise_class) {
+				obj.premise_class = 255;
+			}
+		};
+
 		await Promise.all([
 			db.register_type('metadata', init_id_array(meta_arr)),
 			PWDB.register_data_type(db, args, 'mines'),
@@ -435,7 +441,7 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 			PWDB.register_data_type(db, args, 'npc_tasks_in'),
 			PWDB.register_data_type(db, args, 'npc_tasks_out'),
-			PWDB.register_data_type(db, args, 'tasks'),
+			PWDB.register_data_type(db, {...args, init_cb: task_init_cb }, 'tasks'),
 			PWDB.register_data_type(db, args, 'stone_types'),
 			PWDB.register_data_type(db, args, 'monster_addons'),
 			PWDB.register_data_type(db, args, 'monster_types'),
@@ -964,7 +970,7 @@ class PWDB {
 		}
 
 		await PWDB.load_db_file(type, url);
-		db.register_type(type, g_db[type]);
+		db.register_type(type, g_db[type], args.init_cb);
 		if (args.preinit) {
 			db[type].init();
 		}

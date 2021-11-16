@@ -344,6 +344,13 @@ class DB {
 		this[obj._db.type][id] = obj;
 
 		DB.init_obj_data(obj, base);
+		obj.id = id;
+		const typeinfo = this.type_info[obj._db.type];
+		if (typeinfo.obj_init_cb) {
+			typeinfo.obj_init_cb(obj);
+		}
+		obj.id = 0;
+
 		/* create a dummy change to have this object stored in changelog.
 		 * Otherwise it could be lost if there are no changes to it - even
 		 * if it's referenced somewhere */
@@ -377,6 +384,14 @@ class DB {
 		const base = this[type].values().next().value;
 		DB.init_obj_data(obj, base);
 		obj.id = id;
+
+		const typeinfo = this.type_info[obj._db.type];
+		if (typeinfo.obj_init_cb) {
+			typeinfo.obj_init_cb(obj);
+		}
+
+		obj.id = 0;
+
 		/* create a dummy change to have this object stored in changelog */
 		this.open(obj);
 		obj._allocated = true;
