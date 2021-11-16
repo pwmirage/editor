@@ -58,7 +58,7 @@ class PWDB {
 		PWDB.last_saved_changeset = 0;
 		PWDB.type_fields = {};
 		PWDB.type_names = {};
-		PWDB.db_version = 9;
+		PWDB.db_version = 10;
 
 		/*
 		PWDB.type_fields = [
@@ -235,7 +235,7 @@ class PWDB {
 			_s('show_without_premise_faction_role', 'Show even without faction role req.'),
 			_id('premise_gender', 'Gender req.', TaskWindow.genders),
 			_b('show_without_premise_gender', 'Show even for the other gender'),
-			_i('premise_class', 'Prereq. class'),
+			_pwclass('premise_class', 'Req. Class'),
 			_b('show_without_class', 'Show even without req. class'),
 			_b('premise_be_married', 'Prereq. be married'),
 			_b('show_without_marriage', 'Show even without marriage'),

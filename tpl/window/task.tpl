@@ -199,9 +199,8 @@
 
 					<div style="display: flex; flex-wrap: wrap; column-gap: 5px;">
 						<span>Class: </span>
-						{for pwclass of TaskWindow.classes}
-							<label><input type="checkbox" class="checkbox pw-class" data-id="{@$pwclass.id}" checked><span>{@$pwclass.name}</span></label>
-						{/for}
+						<span data-link-class class="noalign" style="flex: 1;" data-link="{serialize $task} => 'premise_class'"></span>
+
 					</div>
 
 					<div class="data-field">
