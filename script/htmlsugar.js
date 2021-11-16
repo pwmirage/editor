@@ -991,7 +991,7 @@ class HTMLSugar {
 			} else if (e.which == 3) {
 				HTMLSugar.open_undo_rmenu(el, link.obj, {
 					undo_path: link.path,
-					undo_fn: () => update_label
+					undo_fn: update_label
 				});
 			}
 		}
