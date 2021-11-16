@@ -950,8 +950,10 @@ class HTMLSugar {
 		const update_label = (auto = false) => {
 			const id = get_obj_field(link.obj, link.path);
 			const obj = db[type][id];
-			if (obj) {
+			if (id && obj) {
 				el.innerHTML = print_pretty_name(obj);
+			} else if (id) {
+				el.textContent = '(invalid ' + DB.serialize_id(id) + ')';
 			} else {
 				el.textContent = '(none)';
 			}
