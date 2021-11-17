@@ -719,6 +719,15 @@ class TaskWindow extends SingleInstanceWindow {
 		const t_id = parseInt(el.dataset.id);
 		const t = db.tasks[t_id];
 
+		/* navigate to parent .ul -> parent .task */
+		const p_el = el.parentNode.parentNode;
+		let pt_id = 0;
+		let pt = undefined;
+		if (p_el?.classList?.contains('task')) {
+			pt_id = parseInt(p_el.dataset.id);
+			pt = db.tasks[pt_id];
+		}
+
 		const sel_active_q = (t) => {
 			this.task = t;
 			if (this.task.award?.item_groups?.length > 1) {
@@ -739,12 +748,13 @@ class TaskWindow extends SingleInstanceWindow {
 		};
 
 		if (e.which == 1) {
-			sel_active_q(t);
+			if (t) {
+				sel_active_q(t);
+			}
 			e.stopPropagation();
 		} else if (e.which == 3) {
 			const can_move_up = () => {
-				const pt = db.tasks[t.parent_quest];
-				if (!pt) {
+				if (!pt || !t) {
 					return false;
 				}
 
@@ -753,8 +763,7 @@ class TaskWindow extends SingleInstanceWindow {
 			};
 
 			const can_move_down = () => {
-				const pt = db.tasks[t.parent_quest];
-				if (!pt) {
+				if (!pt || !t) {
 					return false;
 				}
 
@@ -765,18 +774,19 @@ class TaskWindow extends SingleInstanceWindow {
 			const win = await RMenuWindow.open({
 			around_el: el.firstChild, bg: false,
 			entries: [
-				{ id: 1, name: 'Add next', disabled: !t.parent_quest },
-				{ id: 2, name: 'Add child' },
+				{ id: 1, name: 'Add next', disabled: !t || !pt_id },
+				{ id: 2, name: 'Add child', disabled: !t },
 				{ id: 3, name: 'Move up', disabled: !can_move_up() },
 				{ id: 4, name: 'Move down', disabled: !can_move_down() },
-				{ id: 5, name: 'Change parent', disabled: !t.parent_quest },
-				{ id: 6, name: 'Remove', disabled: !t.parent_quest },
+				{ id: 5, name: 'Change parent', disabled: !pt_id },
+				{ id: 6, name: 'Remove', disabled: !pt_id },
 			]});
 			const sel = await win.wait();
 
 			if (sel > 0) {
-				db.open(t);
-				const pt = db.tasks[t.parent_quest];
+				if (t) {
+					db.open(t);
+				}
 				if (pt) {
 					db.open(pt);
 				}
@@ -787,7 +797,6 @@ class TaskWindow extends SingleInstanceWindow {
 					const nt = db.new('tasks');
 					nt.parent_quest = t.parent_quest;
 
-					const pt = db.tasks[t.parent_quest];
 					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
 					pt.sub_quests.splice(t_idx + 1, 0, nt.id);
 					break;
@@ -800,8 +809,6 @@ class TaskWindow extends SingleInstanceWindow {
 					break;
 				}
 				case 3: { /* move up */
-					const pt = db.tasks[t.parent_quest];
-
 					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
 					const prev_id = pt.sub_quests[t_idx - 1];
 					pt.sub_quests[t_idx - 1] = t.id;
@@ -809,8 +816,6 @@ class TaskWindow extends SingleInstanceWindow {
 					break;
 				}
 				case 4: { /* move down */
-					const pt = db.tasks[t.parent_quest];
-
 					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
 					const next_id = pt.sub_quests[t_idx + 1];
 					pt.sub_quests[t_idx + 1] = t.id;
@@ -822,20 +827,22 @@ class TaskWindow extends SingleInstanceWindow {
 					break;
 				}
 				case 6: { /* remove */
-					const pt = db.tasks[t.parent_quest];
-					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
+					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t_id);
 					pt.sub_quests.splice(t_idx, 1);
 
-					db.open(t);
-					t._removed = true;
-					db.commit(t);
+					if (t) {
+						db.open(t);
+						t._removed = true;
+						db.commit(t);
+					}
 					break;
 				}
 			}
 
 			if (sel > 0) {
-				db.commit(t);
-				const pt = db.tasks[t.parent_quest];
+				if (t) {
+					db.commit(t);
+				}
 				if (pt) {
 					db.commit(pt);
 				}
@@ -856,8 +863,13 @@ class TaskWindow extends SingleInstanceWindow {
 			const sub = db.tasks[sub_id];
 
 			ret += '<li class="task" data-id="' + sub_id + '" data-idx="' + idx + '">';
-			ret += '<a class="taskbtn">' + TaskWindow.print_task_name(sub.name) + ' ' + DB.serialize_id(sub.id) + '</a>'
-			ret += TaskWindow.print_subquests(sub);
+			ret += '<a class="taskbtn">';
+			if (sub) {
+				ret += TaskWindow.print_task_name(sub.name) + ' ' + DB.serialize_id(sub.id) + '</a>'
+				ret += TaskWindow.print_subquests(sub);
+			} else {
+				ret += '(invalid ' + DB.serialize_id(sub_id) + ')</a>';
+			}
 			ret += '</li>';
 
 			idx++;
