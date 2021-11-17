@@ -321,6 +321,7 @@ class TaskWindow extends SingleInstanceWindow {
 		const data = await this.tpl.run({ win: this, task, root_task: this.root_task });
 		shadow.append(data);
 
+		this.details_mask = 0xffff & ~(1 << 4);
 		await super.init();
 
 		this.shadow.querySelector('#container .task[data-id="' + this.task.id + '"] > a').click();

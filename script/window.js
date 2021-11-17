@@ -389,15 +389,17 @@ class Window {
 
 		sets_arr.push({ id: 6, name: "+ New set" });
 
+		const details_mask = this.details_mask || 0xffff;
+
 		const win = await RMenuWindow.open({
 		x, y, bg: false,
 		entries: [
-			{ name: 'Add to set', children: sets_arr, visible: this.obj._db.type !== 'metadata' },
-			{ id: 5, name: 'Share (get web url)' },
-			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state },
-			{ id: 4, name: 'Undo all changes', disabled: !this.obj._db.project_initial_state },
-			{ id: 1, name: 'Remove', visible: !this.obj._removed },
-			{ id: 2, name: 'Restore', visible: !!this.obj._removed },
+			{ name: 'Add to set', children: sets_arr, visible: this.obj._db.type !== 'metadata' && ((1 << 6) & details_mask) },
+			{ id: 5, name: 'Share (get web url)', visible: (1 << 5) & details_mask },
+			{ id: 3, name: 'Show project diff', disabled: !this.obj._db.project_initial_state, visible: (1 << 3) & details_mask },
+			{ id: 4, name: 'Undo all changes', disabled: !this.obj._db.project_initial_state, visible: (1 << 4) & details_mask },
+			{ id: 1, name: 'Remove', visible: !this.obj._removed && ((1 << 1) & details_mask) },
+			{ id: 2, name: 'Restore', visible: !!this.obj._removed && ((1 << 2) & details_mask) },
 		]});
 		const sel = await win.wait();
 		switch (sel) {
