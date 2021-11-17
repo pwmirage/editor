@@ -424,11 +424,13 @@ class Window {
 			case 4: {
 				db.open(this.obj);
 				/* unset all fields, including any added ones */
+				const id = this.obj.id;
 				for (const f in this.obj) {
 					if (f == '_db') continue;
 					this.obj[f] = undefined;
 				}
 				DB.copy_obj_data(this.obj, this.obj._db.project_initial_state);
+				this.obj.id = id;
 				db.commit(this.obj);
 				break;
 			}
