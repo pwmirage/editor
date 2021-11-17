@@ -174,8 +174,8 @@ class Editor {
 		const project = Editor.current_project;
 		Editor.tpl.reload('#project-info', { project });
 
-		Editor.map_shadow.querySelector('#post_comment textarea').value = text;
 		if (comments_classlist != undefined) {
+			Editor.map_shadow.querySelector('#post_comment textarea').value = text;
 			Editor.map_shadow.querySelector('#project-info').className = collapsed;
 			Editor.map_shadow.querySelector('#post_comment').className = comments_classlist;
 			Editor.map_shadow.querySelector('#post_comment').classList.remove('loading-spinner');
