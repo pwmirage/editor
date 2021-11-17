@@ -708,16 +708,15 @@ class PWDB {
 			/* check if empty. <5 rules out [[]] and such */
 			if (data.length < 5) {
 				if (show_tag) {
-					notify('success', 'Saved');
+					notify('warning', 'Nothing to publish (?)');
 				}
 				return true;
 			}
 
-			db.open(project);
-			project.edit_time = Math.floor(Date.now() / 1000);
-			db.commit(project);
+			const last_changeset = PWDB.last_saved_changeset;
+			data = db.dump_last(last_changeset + 1, { spacing: 0 });
+			PWDB.last_saved_changeset = db.changelog.length - 2;
 
-			data = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 			req = await post(ROOT_URL + 'api/project/' + project.pid + '/patch', {
 				is_json: 1, data: {
 					file: new File([new Blob([data])], 'project.json', { type: 'application/json' }),
@@ -725,6 +724,7 @@ class PWDB {
 			});
 
 			if (!req.ok) {
+				PWDB.last_saved_changeset = last_changeset;
 				const dump = db.dump_last(PWDB.last_saved_changeset + 1, { spacing: 0 });
 				localStorage.setItem('pwdb_lchangeset_' + project.pid, dump);
 			}
