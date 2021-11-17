@@ -96,7 +96,7 @@
 
 <div class="window resizable" style="width: 1050px; min-height: 800px; height: 800px;">
 <div class="header">
-	<span>Task: {@($task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@DB.serialize_id($task.id)}</span>
+	<span>Task: {@($root_task?.name || '').replace(/\^[0-9a-fA-F]\{6\}/g, '')} {@DB.serialize_id($root_task.id)}</span>
 	<div class="menu">
 		<i class="details fa fa-ellipsis-v"></i>
 	</div>

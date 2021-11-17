@@ -287,8 +287,9 @@ class TaskWindow extends SingleInstanceWindow {
 		{ id: 2, name: "Chooser" },
 	]);
 
-	async init() {
-		let task = this.args.obj;
+	static async open(args) {
+		let task = args.obj;
+		args.sel_task = task;
 
 		while (task?.parent_quest) {
 			task = db.tasks[task.parent_quest];
@@ -298,10 +299,14 @@ class TaskWindow extends SingleInstanceWindow {
 			throw new Error('Task without a valid parent: ' + task.id);
 		}
 
-		this.root_task = task;
-		this.task = this.obj = this.args.obj;
+		args.obj = task;
+		return super.open(args);
+	}
 
-		this.selected_task = this.args.obj;
+	async init() {
+		this.root_task = this.args.obj;
+		this.task = this.obj = this.args.sel_task;
+
 		this.next_tasks = db.tasks.filter(t => t.premise_quests?.includes(this.root_task.id));
 		this.sel_opts = {};
 
@@ -318,7 +323,7 @@ class TaskWindow extends SingleInstanceWindow {
 			this.award_item_type = 0;
 		}
 
-		const data = await this.tpl.run({ win: this, task, root_task: this.root_task });
+		const data = await this.tpl.run({ win: this, task: this.task, root_task: this.root_task });
 		shadow.append(data);
 
 		this.details_mask = 0xffff & ~(1 << 4);
