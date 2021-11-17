@@ -599,8 +599,11 @@ class PWDB {
 		db.new_id_offset = 0;
 
 		try {
+			PWDB.last_saved_changeset = db.changelog.length - 1;
 			if (project_changeset) {
 				db.load(project_changeset);
+
+				PWDB.last_saved_changeset = db.changelog.length - 1;
 				db.new_generation();
 
 				if (typeof localStorage !== 'undefined') {
@@ -618,7 +621,6 @@ class PWDB {
 		}
 
 		PWDB.sort_chooser_recent(db);
-		PWDB.last_saved_changeset = db.changelog.length - 2;
 		PWDB.loaded = true;
 
 		return db;
