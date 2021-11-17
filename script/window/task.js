@@ -800,7 +800,9 @@ class TaskWindow extends SingleInstanceWindow {
 			switch(sel) {
 				case 1: { /* add next */
 					const nt = db.new('tasks');
+					db.open(nt);
 					nt.parent_quest = t.parent_quest;
+					db.commit(nt);
 
 					const t_idx = pt.sub_quests.findIndex(_tid => _tid == t.id);
 					pt.sub_quests.splice(t_idx + 1, 0, nt.id);
@@ -808,7 +810,9 @@ class TaskWindow extends SingleInstanceWindow {
 				}
 				case 2: { /* add child */
 					const nt = db.new('tasks');
+					db.open(nt);
 					nt.parent_quest = t.id;
+					db.commit(nt);
 
 					set_obj_field(t, [ 'sub_quests' ], []).push(nt.id);
 					break;
