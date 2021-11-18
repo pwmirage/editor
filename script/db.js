@@ -229,44 +229,24 @@ class DB {
 		/* gather modified fields */
 		const diff = DB.get_obj_diff(obj, obj._db.latest_state);
 		let changeset_empty = true;
-		let has_public_fields = false;
-		let is_diff_empty = true;
-		/* check if it has any non-private fields */
 
-		for (const f in diff) {
-			is_diff_empty = false;
-			if (f[0] !== '_' || f === '_removed' || f === '_allocated') {
-				has_public_fields = true;
-				break;
-			}
-		}
-
-		if (!is_diff_empty && has_public_fields) {
+		if (diff) {
 			/* lazy initialization */
 			if (changeset._db.generation < this.changelog.length - 1) {
 				/* first change since new generation */
 
-				/* create new changeset.
-				 * generation 0 is the orig. copy,
-				 * so always start the real generation at 1+ */
-				changeset = { id: 0, _db: {} };
-				DB.apply_diff(changeset, diff, false);
-				if (diff._db) {
-					changeset._db = diff._db;
+				/* promote diff object to a changeset */
+				diff.id = obj.id;
+				if (!diff._db) {
+					diff._db = {};
 				}
+				/* generation 0 is the orig. copy, so always start the real generation at 1+ */
+				diff._db.generation = this.changelog.length - 1;
+				diff._db.obj = obj;
 
-				changeset.id = obj.id;
-				changeset._db.generation = this.changelog.length - 1;
-				changeset._db.obj = obj;
-
-				for (const f in changeset) {
-					if (f[0] === '_' && f !== '_db' && f !== '_removed' && f !== '_allocated') {
-						changeset[f] = undefined;
-					}
-				}
-
-				obj._db.changesets.push(changeset);
-				last_changelog.add(changeset);
+				obj._db.changesets.push(diff);
+				last_changelog.add(diff);
+				changeset = diff;
 				changeset_empty = false;
 
 				/* add to global changelog */
@@ -281,10 +261,6 @@ class DB {
 					let is_diff = false;
 					for (const f in obj) {
 						if (f === '_db') continue;
-						if (f[0] === '_' && f !== '_removed' && f !== '_allocated') {
-							obj[f] = undefined;
-							continue;
-						}
 						if (typeof(obj[f]) === 'object') {
 							if (diff_and_clean(obj[f], org ? org[f] : undefined)) {
 								is_diff = true;
@@ -320,7 +296,7 @@ class DB {
 			}
 		}
 
-		if (!is_diff_empty) {
+		if (diff) {
 			for (const cb of this.commit_cbs) {
 				cb(obj, diff, obj._db.latest_state);
 			}
@@ -330,16 +306,16 @@ class DB {
 			}
 		}
 
-		if ((is_diff_empty || changeset_empty) && obj._db.changesets.length == 1) {
+		if ((!diff || changeset_empty) && obj._db.changesets.length == 1) {
 			/* no changes and no history, just delete the original copy */
 			obj._db.latest_state = undefined;
 			obj._db.initial_gen_state = undefined;
 			obj._db.changesets = undefined;
-		} else if (!is_diff_empty) {
+		} else if (diff) {
 			DB.apply_diff(obj._db.latest_state, diff, true);
 		}
 
-		return diff;
+		return diff || {};
 	}
 
 	clone(obj, commit_cb) {
@@ -754,6 +730,7 @@ class DB {
 
 		for (const f in obj) {
 			if (!obj.hasOwnProperty(f)) continue;
+
 			if (f === '_db') {
 				if ((!!obj._db.base && (!prev || !prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev && !!prev._db && !!prev._db.base)) {
 					diff[f] = { base: obj._db.base };
@@ -764,14 +741,7 @@ class DB {
 				const nested_diff = DB.get_obj_diff(obj[f], prev ? prev[f] : undefined);
 				/* we want to avoid iterable undefined fields in diff[f],
 				 * set it only if needed */
-
-				let is_diff_empty = true;
-				for (const f in nested_diff) {
-					is_diff_empty = false;
-					break;
-				}
-
-				if (!is_diff_empty || diff[f]) {
+				if (nested_diff || diff[f]) {
 					diff[f] = nested_diff;
 				}
 			} else {
@@ -798,7 +768,11 @@ class DB {
 			}
 		}
 
-		return diff;
+		/* just check if it has any fields, return null otherwise */
+		for (const field in diff) {
+			return diff;
+		}
+		return undefined;
 	}
 
 	static dump(data, spacing = 1, custom_fn) {
@@ -812,6 +786,9 @@ class DB {
 			}
 			/* keep the _db at its minimum */
 			if (k === '_db') return { type: v.obj ? v.obj._db.type : v.type };
+			if (k[0] === '_' && k !== '_removed' && k !== '_allocated') {
+				return undefined;
+			}
 			/* dont include any nulls, undefined results in no output at all */
 			if (v === null) return undefined;
 			if (v === DB.force_null) return null;

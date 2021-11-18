@@ -63,13 +63,7 @@ class HistoryWindow extends Window {
 				}
 
 				const diff = DB.get_obj_diff(obj, obj._db.project_initial_state);
-
-				let is_diff_empty = true;
-				for (const f in diff) {
-					is_diff_empty = false;
-					break;
-				}
-				if (is_diff_empty) {
+				if (!diff) {
 					continue;
 				}
 
