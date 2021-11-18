@@ -348,7 +348,10 @@ testcase('underscore_fields', () => {
 	diff = db.commit(obj);
 
 	assert('_ufield' in diff);
+	const dump1 = db.dump_last();
+	assert(!dump1.includes('_ufield'));
 
+	db.new_generation();
 	db.open(obj);
 	obj.nfield = 3;
 	obj._ufield = 4;
@@ -356,6 +359,9 @@ testcase('underscore_fields', () => {
 
 	assert(diff.nfield == 3);
 	assert(diff._ufield == 4);
+	const dump2 = db.dump_last();
+	assert(!dump2.includes('_ufield'));
+	assert(dump2.includes('nfield'));
 
 	db.open(obj);
 	obj._ufield = 5;
@@ -363,9 +369,9 @@ testcase('underscore_fields', () => {
 
 	assert(diff._ufield == 5);
 
-	const dump = db.dump_last();
-	assert(!dump.includes('_ufield'));
-	assert(dump.includes('nfield'));
+	const dump3 = db.dump_last();
+	assert(!dump3.includes('_ufield'));
+	assert(dump3.includes('nfield'));
 
 	const obj2 = db.clone(obj);
 	assert(obj2.nfield == obj.nfield);

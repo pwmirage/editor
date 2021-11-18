@@ -227,27 +227,46 @@ class DB {
 		let changeset = obj._db.changesets[obj._db.changesets.length - 1];
 
 		/* gather modified fields */
-		const aux_diff = {};
-		const diff = DB.get_obj_diff(obj, obj._db.latest_state, aux_diff);
+		const diff = DB.get_obj_diff(obj, obj._db.latest_state);
 		let changeset_empty = true;
+		let has_public_fields = false;
+		let is_diff_empty = true;
+		/* check if it has any non-private fields */
 
-		if (diff && aux_diff.has_public_fields) {
+		for (const f in diff) {
+			is_diff_empty = false;
+			if (f[0] !== '_' || f === '_removed' || f === '_allocated') {
+				has_public_fields = true;
+				break;
+			}
+		}
+
+		if (!is_diff_empty && has_public_fields) {
 			/* lazy initialization */
 			if (changeset._db.generation < this.changelog.length - 1) {
 				/* first change since new generation */
 
-				/* promote diff object to a changeset */
-				diff.id = obj.id;
-				if (!diff._db) {
-					diff._db = {};
+				/* create new changeset.
+				 * generation 0 is the orig. copy,
+				 * so always start the real generation at 1+ */
+				changeset = { id: 0, _db: {} };
+				DB.apply_diff(changeset, diff, false);
+				if (diff._db) {
+					changeset._db = diff._db;
 				}
-				/* generation 0 is the orig. copy, so always start the real generation at 1+ */
-				diff._db.generation = this.changelog.length - 1;
-				diff._db.obj = obj;
 
-				obj._db.changesets.push(diff);
-				last_changelog.add(diff);
-				changeset = diff;
+				changeset.id = obj.id;
+				changeset._db.generation = this.changelog.length - 1;
+				changeset._db.obj = obj;
+
+				for (const f in changeset) {
+					if (f[0] === '_' && f !== '_db' && f !== '_removed' && f !== '_allocated') {
+						changeset[f] = undefined;
+					}
+				}
+
+				obj._db.changesets.push(changeset);
+				last_changelog.add(changeset);
 				changeset_empty = false;
 
 				/* add to global changelog */
@@ -301,7 +320,7 @@ class DB {
 			}
 		}
 
-		if (diff) {
+		if (!is_diff_empty) {
 			for (const cb of this.commit_cbs) {
 				cb(obj, diff, obj._db.latest_state);
 			}
@@ -311,16 +330,16 @@ class DB {
 			}
 		}
 
-		if ((!diff || changeset_empty) && obj._db.changesets.length == 1) {
+		if ((is_diff_empty || changeset_empty) && obj._db.changesets.length == 1) {
 			/* no changes and no history, just delete the original copy */
 			obj._db.latest_state = undefined;
 			obj._db.initial_gen_state = undefined;
 			obj._db.changesets = undefined;
-		} else if (diff) {
+		} else if (!is_diff_empty) {
 			DB.apply_diff(obj._db.latest_state, diff, true);
 		}
 
-		return diff || {};
+		return diff;
 	}
 
 	clone(obj, commit_cb) {
@@ -730,16 +749,11 @@ class DB {
 		return false;
 	}
 
-	static get_obj_diff(obj, prev, ret) {
+	static get_obj_diff(obj, prev) {
 		const diff = {};
-		let has_public_fields = false;
 
 		for (const f in obj) {
 			if (!obj.hasOwnProperty(f)) continue;
-			if (f[0] !== '_' || f === '_removed' || f === '_allocated') {
-				has_public_fields = true;
-			}
-
 			if (f === '_db') {
 				if ((!!obj._db.base && (!prev || !prev._db || !prev._db.base || prev._db.base != obj._db.base)) || (!obj._db.base && !!prev && !!prev._db && !!prev._db.base)) {
 					diff[f] = { base: obj._db.base };
@@ -750,7 +764,14 @@ class DB {
 				const nested_diff = DB.get_obj_diff(obj[f], prev ? prev[f] : undefined);
 				/* we want to avoid iterable undefined fields in diff[f],
 				 * set it only if needed */
-				if (nested_diff || diff[f]) {
+
+				let is_diff_empty = true;
+				for (const f in nested_diff) {
+					is_diff_empty = false;
+					break;
+				}
+
+				if (!is_diff_empty || diff[f]) {
 					diff[f] = nested_diff;
 				}
 			} else {
@@ -777,15 +798,7 @@ class DB {
 			}
 		}
 
-		if (ret) {
-			ret.has_public_fields = has_public_fields;
-		}
-
-		/* just check if it has any fields, return null otherwise */
-		for (const field in diff) {
-			return diff;
-		}
-		return undefined;
+		return diff;
 	}
 
 	static dump(data, spacing = 1, custom_fn) {
