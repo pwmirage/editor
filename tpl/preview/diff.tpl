@@ -91,12 +91,12 @@
 		{assign removed = ($prev || 0) & ~($val || 0)}
 		{for pwclass of PWDBMeta.classes}
 			{if $removed & (1 << $pwclass.id)}
-				<span class="minus">Requisite Class {@$pwclass.name}</span>
+				<span class="minus">{@$pwclass.name}</span>
 			{/if}
 		{/for}
 		{for pwclass of PWDBMeta.classes}
 			{if $added & (1 << $pwclass.id)}
-				<span class="plus">Requisite Class {@$pwclass.name}</span>
+				<span class="plus">{@$pwclass.name}</span>
 			{/if}
 		{/for}
 	{/if}
