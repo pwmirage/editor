@@ -246,129 +246,27 @@ class PWMap {
 	reload_db() {
 		this.modified_db_objs = new Set();
 
-		const changed_objects_el = this.shadow.querySelector('#changed-objects');
-		const changed_objects_more_el = this.shadow.querySelector('#more-objects');
-		while (changed_objects_el.firstChild) {
-			changed_objects_el.firstChild.remove();
-		}
-
-		changed_objects_more_el.onclick = () => HistoryWindow.open();
-
-		this.check_overflown_changed_objs = () => {
-			const last_button = changed_objects_el.lastChild;
-			if (!last_button) {
-				changed_objects_more_el.style.display = 'none';
-				return;
-			}
-			const last_bounds = last_button.getBoundingClientRect();
-			const objects_bounds = changed_objects_el.getBoundingClientRect();
-
-			changed_objects_more_el.style.display = (last_bounds.y < objects_bounds.y) ? 'block' : 'none';
-		};
-
 		const changed_objects_map = PWMap.changed_objects_map = new Map();
 		const set_modified_obj = (obj, diff) => {
 			if (obj._db.type == 'metadata') {
 				return;
 			}
 
-			if ((obj._db.type == 'npc_tasks_in' ||
-				obj._db.type == 'npc_tasks_out') && obj.npc_id) {
-				return;
-			}
 
-			if (obj._db.type == 'recipes') {
-				/* we quietly integrate recipes into crafts */
-				if (!obj.crafts || !db.npc_crafts[obj.crafts]) {
-					/* unexpected? */
-					return;
-				}
-
-				const is_diff = DB.is_obj_diff(obj, obj._db.project_initial_state);
-				obj._db.is_diff = is_diff;
-
-				/* modify crafts to show *their* marker instead */
-				const crafts = db.npc_crafts[obj.crafts];
-				let ref = 0;
-				if (is_diff) {
-					ref = 1;
-				} else {
-					for (let p = 0; p < 8; p++) {
-						for (let i = 0; i < 32; i++) {
-							const recipe_id = crafts?.pages?.[p]?.recipe_id?.[i];
-
-							if (!recipe_id) {
-								continue;
-							}
-
-							const r = db.recipes[recipe_id];
-							if (!r || !r._db.project_initial_state) {
-								continue;
-							}
-
-							if (r._db.is_diff) {
-								ref = 1;
-								p = 10;
-								break;
-							}
-						}
-					}
-				}
-
-				/* when extra_ref drops to 0, there will be no diff in crafts and its
-				 * marker will disappear as well */
-				db.open(crafts);
-				crafts._extra_ref = ref;
-				db.commit(crafts);
-				return;
-			}
 
 			const was_modified = this.modified_db_objs.has(obj);
-			if (was_modified && (diff.name !== undefined && was_modified
-					|| diff._removed !== undefined)) {
-				const mod_el = changed_objects_map.get(obj)
-				mod_el.children[1].innerHTML = print_pretty_name(obj, mod_el.dataset.type_name);
-			}
 
-			if ((diff.targets !== undefined || diff.icon !== undefined || diff.type !== undefined) && was_modified) {
-				const mod_el = changed_objects_map.get(obj)
-				mod_el.children[0].src = PWPreview.get_obj_img(db, obj);
-			}
 
 			if (!was_modified) {
-				const el = document.createElement('div');
-				const img = document.createElement('img');
-				const span = document.createElement('span');
-
-				let { name, open_fn } = PWPreview.get_obj_type(obj);
-				img.src = PWPreview.get_obj_img(db, obj);
-
-				span.innerHTML = print_pretty_name(obj, name);
-				el.appendChild(img);
-				el.appendChild(span);
-				el.onclick = open_fn;
-				el.dataset.type_name = name;
-
-				changed_objects_el.append(el);
-				changed_objects_map.set(obj, el);
-
-				this.check_overflown_changed_objs();
+				changed_objects_map.set(obj, 1);
 			}
 
 			this.modified_db_objs.add(obj);
 			if ((obj._removed && obj._db.is_allocated && obj._db.changesets[1]?._db?.generation >= db.project_changelog_start_gen) || !DB.is_obj_diff(obj, obj._db.project_initial_state)) {
 				this.modified_db_objs.delete(obj);
-				const el = changed_objects_map.get(obj);
-				el.remove();
 				changed_objects_map.delete(obj);
 			}
 		};
-
-		for (let i = db.project_changelog_start_gen; i < db.changelog.length; i++) {
-			for (const c of db.changelog[i]) {
-				set_modified_obj(c._db.obj, {});
-			}
-		}
 
 		if (db._map_commit_registered) {
 			return;
@@ -376,25 +274,8 @@ class PWMap {
 
 		db._map_commit_registered = true;
 		db.register_commit_cb((obj, diff, prev_vals) => {
-			set_modified_obj(obj, diff);
-
 			if (!obj._db.type.startsWith('spawners_')) {
 				return;
-			}
-
-			if (obj.type == 'npc') {
-				/* always put spawner type in the diff */
-				const changesets = obj._db.changesets;
-				const last = changesets[changesets.length - 1];
-				set_obj_field(last, [ 'groups', 0, 'type' ], obj?.groups?.[0]?.type || 0);
-				last.type = obj.type;
-			}
-
-			if (obj.type == 'items') {
-				/* ^ same with items */
-				const changesets = obj._db.changesets;
-				const last = changesets[changesets.length - 1];
-				last.type = obj.type;
 			}
 
 			(async () => {

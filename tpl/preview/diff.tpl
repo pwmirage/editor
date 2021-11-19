@@ -107,18 +107,18 @@
 {assign type = $obj._db.type}
 {assign generic_fields = PWDB.get_type_fields($type) || \{\} }
 
-{assign is_diff = false}
-{for fname in $diff}
-	{assign is_diff = true }
-	{assign f = $generic_fields[$fname]}
-	{if !$f}{continue}{/if}
-	{* there might be no diff in the end (happens sometimes) *}
-	{if DB.cmp($diff[$fname], $prev[$fname]) == 0}{continue}{/if}
+{if $diff}
+	{for fname in $diff}
+		{assign f = $generic_fields[$fname]}
+		{if !$f}{continue}{/if}
+		{* there might be no diff in the end (happens sometimes) *}
+		{if DB.cmp($diff[$fname], $prev[$fname]) == 0}{continue}{/if}
 
-	{@PWPreview.render_diff_entry($f, $diff[$fname], $prev[$fname])}
-{/for}
+		{@PWPreview.render_diff_entry($f, $diff[$fname], $prev[$fname])}
+	{/for}
+{/if}
 
-{if !$is_diff}
+{if !$diff}
 	<div class="block">No changes</div>
 {else if $type == 'npc_sells'}
 	{for i = 0; i < 8; i++}

@@ -520,12 +520,16 @@ class PWDB {
 
 		}
 
+		db.project_modified_objects = new Set();
 		db.register_commit_cb((obj, diff, prev_vals) => {
+			PWDB.has_unsaved_changes = true;
+
 			if (diff.name && diff.name.includes('\n')) {
 				/* no newlines in objects' names */
 				obj.name = diff.name = diff.name.replace(/[\n\r]/g, '');
 			}
 
+			/* track objsets */
 			if (obj._db.type === 'metadata' && obj.tag === 'objset') {
 				if (obj._removed) {
 					PWDB.objsets.remove(obj);
@@ -534,6 +538,7 @@ class PWDB {
 				}
 			}
 
+			/* set project_initial_state */
 			if (obj._db.type !== 'metadata' && !obj._db.project_initial_state) {
 				if (diff._allocated) {
 					PWDB.set_chooser_recent(obj._db.type, obj.id);
@@ -556,17 +561,34 @@ class PWDB {
 				obj._db.project_initial_state = state;
 			}
 
+			/* setup undo history */
 			const c = obj._db.changesets[obj._db.changesets.length - 1];
 			if (c._db.undone) {
 				for (const f in diff) {
 					c._db.undone[f] = undefined;
 				}
 			}
-			PWDB.has_unsaved_changes = true;
 
-			if (obj._db.type === 'npc_tasks_in' || obj._db.type === 'npc_tasks_out') {
-				const npc = db.npcs[obj.npc_id || 0];
-				if (npc) {
+			/* always put spawner type in the spawner's diff */
+			if (obj._db.type.startsWith('spawners_') && obj.type == 'npc') {
+				const changesets = obj._db.changesets;
+				const last = changesets[changesets.length - 1];
+				set_obj_field(last, [ 'groups', 0, 'type' ], obj?.groups?.[0]?.type || 0);
+				last.type = obj.type;
+			}
+
+			let is_project_diff = undefined;
+			switch (obj._db.type) {
+				case 'metadata':
+					is_project_diff = false;
+					break;
+				case 'npc_tasks_in':
+				case 'npc_tasks_out': {
+					const npc = db.npcs[obj.npc_id || 0];
+					if (!npc) {
+						break;
+					}
+
 					db.open(npc);
 					const prevtasks = (obj._db.project_initial_state.tasks || []);
 					const prevstate = (npc._db.project_initial_state?.[obj._db.type + '_changed'] || 0);
@@ -582,16 +604,81 @@ class PWDB {
 						}) ? prevstate : (parseInt(npc[obj._db.type + '_changed']) || 1) + 1;
 					}
 					db.commit(npc);
+
+					is_project_diff = false;
+					break;
+
+				}
+				case 'items': {
+					/* trim fashion dir name */
+					if (diff.realname) {
+						const trimmed = obj.realname.trim();
+						if (trimmed != obj.realname) {
+							db.open(obj);
+							obj.realname = trimmed;
+							db.commit(obj);
+						}
+					}
+					break;
+
+				}
+				case 'recipes': {
+					/* we quietly integrate recipes into crafts */
+					if (!obj.crafts || !db.npc_crafts[obj.crafts]) {
+						/* unexpected? */
+						break;
+					}
+
+					const is_diff = DB.is_obj_diff(obj, obj._db.project_initial_state);
+					obj._db.is_diff = is_diff;
+
+					/* modify crafts to show *their* marker instead */
+					const crafts = db.npc_crafts[obj.crafts];
+					let ref = 0;
+					if (is_diff) {
+						ref = 1;
+					} else {
+						for (let p = 0; p < 8; p++) {
+							for (let i = 0; i < 32; i++) {
+								const recipe_id = crafts?.pages?.[p]?.recipe_id?.[i];
+
+								if (!recipe_id) {
+									continue;
+								}
+
+								const r = db.recipes[recipe_id];
+								if (!r || !r._db.project_initial_state) {
+									continue;
+								}
+
+								if (r._db.is_diff) {
+									ref = 1;
+									p = 10;
+									break;
+								}
+							}
+						}
+					}
+
+					/* when extra_ref drops to 0, there will be no diff in crafts and its
+					 * marker will disappear as well */
+					db.open(crafts);
+					crafts._extra_ref = ref;
+					db.commit(crafts);
+
+					is_project_diff = false;
+					break;
 				}
 			}
 
-			if (obj._db.type == 'items' && diff.realname) {
-				const trimmed = obj.realname.trim();
-				if (trimmed != obj.realname) {
-					db.open(obj);
-					obj.realname = trimmed;
-					db.commit(obj);
-				}
+			if (is_project_diff === undefined) {
+				is_project_diff = DB.is_obj_diff(obj, obj._db.project_initial_state);
+			}
+
+			if (is_project_diff) {
+				db.project_modified_objects.add(obj);
+			} else {
+				db.project_modified_objects.delete(obj);
 			}
 		});
 

@@ -22,7 +22,7 @@
 	</div>
 	<div id="entries" oncontextmenu="return false;">
 		{if $obj.id == PWDB.metadata_types.objset_modified}
-			{assign entries = PWMap.changed_objects_map.keys()}
+			{assign entries = db.project_modified_objects}
 			{assign keys = $entries}
 		{else}
 			{assign entries = $obj.entries}
