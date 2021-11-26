@@ -1184,7 +1184,8 @@ class HTMLSugar {
 			global_db = db;
 		}
 
-		params.db = win.db || params.db || global_db;
+		win.db = params.db;
+		params.db = params.db || global_db;
 		let obj = params?.db?.[type]?.[id];
 		let prev_obj;
 

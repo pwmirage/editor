@@ -192,8 +192,17 @@ class PWPreview {
 					const item = el?.classList.contains('item') ? el : null;
 					const recipe = el?.classList.contains('recipe') ? el : null;
 
-					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, { });
-					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, { });
+					const params = {};
+					const preview = path?.find(el => el.nodeName === 'PW-PREVIEW');
+					if (preview) {
+						params.db = preview.db;
+					} else if (item && PWPreview.recipe_win.hover_el) {
+						params.db = PWPreview.recipe_win.db;
+					}
+
+
+					HTMLSugar.show_item_tooltip(PWPreview.item_win, item, params);
+					HTMLSugar.show_recipe_tooltip(PWPreview.recipe_win, recipe, params);
 				}, { passive: true });
 
 				document.addEventListener('mousedown', (e) => {
@@ -331,8 +340,6 @@ class MiragePreviewElement extends HTMLElement {
 
 			this.db[type][o.id] = o;
 		}
-		PWPreview.item_win.db = this.db;
-		PWPreview.recipe_win.db = this.db;
 
 		this.selected_tab = 0;
 		const data = await this.tpl.run({
