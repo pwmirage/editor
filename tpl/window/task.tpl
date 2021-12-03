@@ -145,7 +145,7 @@
 	</div>
 
 	<div id="container" style="flex: 1; display: flex; margin-top: 5px; column-gap: 5px;">
-		<div class="left tasks" style="padding: 3px; min-width: 200px;">
+		<div class="left tasks" style="padding: 3px; min-width: 200px; overflow: auto;">
 			<ul class="tree">
 				<li id="root_task" data-id="{@$root_task.id}" class="task root" oncontextmenu="this.onclick(event); return false;" onclick="{serialize $win}.select_subquest(event)">
 					<a class="taskbtn">{@TaskWindow.print_task_name($root_task.name)} {@DB.serialize_id($root_task.id)}</a>
