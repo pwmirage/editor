@@ -341,6 +341,12 @@ class MiragePreviewElement extends HTMLElement {
 			this.db[type][o.id] = o;
 		}
 
+		const objtype = this.share.obj._db.type;
+		if (!this.db[objtype]) {
+			this.db[objtype] = init_id_array([], g_latest_db[objtype]);
+			this.db[objtype][this.share.obj.id] = this.share.obj;
+		}
+
 		this.selected_tab = 0;
 		const data = await this.tpl.run({
 				page: this, obj: this.share.obj, db: this.db,

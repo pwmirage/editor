@@ -1297,8 +1297,10 @@ class PWDB {
 					}
 				}
 				break;
+			case 'items':
+				break;
 			default:
-				return { err: 501 };
+				return { data: { err: 'This object type can\'t be shared yet (not implemented)' } };
 		}
 
 		const data = DB.dump(share, 0);
