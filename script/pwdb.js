@@ -1194,6 +1194,26 @@ class PWDB {
 					}
 				}
 				break;
+			case 'tasks':
+				for (const ig of (obj?.award?.item_groups || [])) {
+					for (const ie of (ig?.items || [])) {
+						if (!ie.id) {
+							continue;
+						}
+
+						const i  = db.items[ie.id];
+						if (!i) {
+							continue;
+						}
+
+						const promise = get(ROOT_URL + 'latest_db/get/items/' + i.id, { is_json: 1 });
+						promise.then((resp) => {
+							is_diff = is_diff || DB.is_obj_diff(i, resp.data);
+						});
+						promises.push(promise);
+					}
+				}
+				break;
 		}
 
 		await Promise.all(promises);
@@ -1265,9 +1285,20 @@ class PWDB {
 					}
 				}
 				break;
+			case 'tasks':
+				for (const ig of (obj_org?.award?.item_groups || [])) {
+					for (const ie of (ig?.items || [])) {
+						if (!ie.id) {
+							continue;
+						}
+
+						const i = db.items[ie.id];
+						share.aux.push(i);
+					}
+				}
+				break;
 			default:
 				return { err: 501 };
-				break;
 		}
 
 		const data = DB.dump(share, 0);

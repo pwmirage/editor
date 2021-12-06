@@ -22,6 +22,10 @@ g_mg_pages['objshare'] = new class {
             const type = this.obj._db.type.replaceAll('_', '-');
 
             this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + WCF.User.userID + '/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+	    if (this.obj._db.type == 'tasks') {
+	        this.url += '?v=awards';
+	        this.current_url = this.url;
+	    }
         }
 
         const data = await this.tpl.run({ page: this, loading: true, obj: this.obj, opts: this.opts });
@@ -48,6 +52,10 @@ g_mg_pages['objshare'] = new class {
         if (this.cur_tab == 'latest' && this.opts.exists_in_latest) {
             const pid = 'latest';
             this.url = window.location.origin + ROOT_URL + 'preview/' + WCF.User.userID + '/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+	    if (this.obj._db.type == 'tasks') {
+	        this.url += '?v=awards';
+	    }
+
         } else {
             this.url = this.current_url ?? null;
         }
@@ -68,6 +76,10 @@ g_mg_pages['objshare'] = new class {
             const type = this.obj._db.type.replaceAll('_', '-');
 
             this.url = this.current_url = window.location.origin + ROOT_URL + 'preview/' + WCF.User.userID + '/' + pid + '/' + type + '/' + DB.serialize_id(this.obj.id).substring(1);
+	    if (this.obj._db.type == 'tasks') {
+		    this.url += '?v=awards';
+		    this.current_url = this.url;
+	    }
             this.url_generated = true;
             this.tpl.reload('#body', { loading: false });
             return;
