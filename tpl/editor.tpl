@@ -46,7 +46,7 @@
 
 			<div class="scroll">
 			{if $project}
-				<div class="tab tab-discussion {if Editor.project_info.cur_tab == 'discussion'}active{/if}"">
+				<div class="tab tab-discussion {if Editor.project_info.cur_tab == 'discussion'}active{/if}" style="flex: 1;">
 					<div>
 						<div>{@$project.name} #{@$project.id}
 							{assign type = Projects.type.find(t => t.id == $project.type)}
