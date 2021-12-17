@@ -840,6 +840,11 @@ class PWMap {
 		return this.redraw_dyn_overlay();
 	}
 
+	async set_spawner_opts(opts) {
+		await this.post_canvas_msg({ type: 'set_options', opts });
+		return this.redraw_dyn_overlay();
+	}
+
 	filter_spawner(spawner) {
 		const type = spawner.type;
 		if (type && (!this.spawner_filters[type] || !this.spawner_filters[type](spawner))) {

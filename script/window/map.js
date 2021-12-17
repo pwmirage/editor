@@ -26,20 +26,29 @@ class LegendWindow extends Window {
 		const data = await this.tpl.run( { win: this });
 		shadow.append(data);
 
-		shadow.querySelectorAll('input').forEach((e) => {
-			e.oninput = () => this.filter();
-		});
-
-		let b = shadow.querySelector('#show-real-bg');
-		b.onclick = () => {
-			g_map.show_real_bg = b.checked;
-			g_map.refresh_bg_img();
-		};
-
 		await super.init();
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 125);
 
 		return true;
+	}
+
+	tpl_compile_cb(dom) {
+		super.tpl_compile_cb(dom);
+
+		dom.querySelectorAll('#filters input').forEach((e) => {
+			e.oninput = () => this.filter();
+		});
+
+		dom.querySelectorAll('#options input').forEach((e) => {
+			e.oninput = () => this.set_opts();
+		});
+
+		dom.querySelectorAll('#show-real-bg').forEach((e) => {
+			e.oninput = () => {
+				g_map.show_real_bg = e.checked;
+				g_map.refresh_bg_img();
+			};
+		});
 	}
 
 	collapse(el) {
@@ -55,7 +64,7 @@ class LegendWindow extends Window {
 	filter() {
 		const opts = {};
 
-		const inputs = this.shadow.querySelectorAll('input');
+		const inputs = this.shadow.querySelectorAll('#filters input');
 		for (const input of inputs) {
 			if (input.type == 'checkbox') {
 				opts[input.id] = input.checked;
@@ -68,6 +77,24 @@ class LegendWindow extends Window {
 
 		g_map.filter_spawners(opts);
 	}
+
+	set_opts() {
+		const opts = {};
+
+		const inputs = this.shadow.querySelectorAll('#options input');
+		for (const input of inputs) {
+			if (input.type == 'checkbox') {
+				opts[input.id] = input.checked;
+			} else if (input.type == 'number') {
+				opts[input.id] = parseInt(input.value);
+			} else {
+				opts[input.id] = input.value;
+			}
+		}
+
+		g_map.set_spawner_opts(opts);
+	}
+
 
 	minimize() {
 		const minimized = super.minimize();
