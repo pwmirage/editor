@@ -243,10 +243,10 @@
 					<div class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
 						<span>Reach Location:</span>
 						<span data-select="PWMap.maps_arr" data-link="{serialize $task} => 'start_on_enter_world_id'" style="width: auto; min-width: 100px; flex: 1;"></span>
-						East:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'east'"></span>
+						West:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'east'"></span>
 						Bottom:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'bottom'"></span>
 						South:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'south'"></span>
-						West:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'west'"></span>
+						East:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'west'"></span>
 						Top:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'top'"></span>
 						North:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'start_on_enter_location', 'north'"></span>
 					</div>
@@ -343,10 +343,10 @@
 					<div class="flex-columns" style="flex-wrap: wrap; column-gap: 5px;">
 						<span>Reach Location:</span>
 						<span data-select="PWMap.maps_arr" data-link="{serialize $task} => 'reach_location_world_id'" style="width: auto; min-width: 100px; flex: 1;"></span>
-						East:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'east'"></span>
+						West:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'east'"></span>
 						Bottom:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'bottom'"></span>
 						South:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'south'"></span>
-						West:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'west'"></span>
+						East:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'west'"></span>
 						Top:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'top'"></span>
 						North:<span data-input class="input-number" style="width: 30px;" data-link="{serialize $task} => 'reach_location', 'north'"></span>
 					</div>
