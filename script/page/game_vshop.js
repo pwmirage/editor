@@ -21,7 +21,7 @@ g_mg_pages['game_vshop'] = new class {
 
 		this.vote_points = this.accounts[0]?.vote_points || 0;
 
-		req = await get(ROOT_URL + 'project/cache/public/vshop.json?v=' + MG_VERSION, { is_json: 1 });
+		req = await get(ROOT_URL + 'project/cache/public/vshop.json?v=' + (args.vshop_ver || MG_VERSION), { is_json: 1 });
 		this.tabs = { 'All': [] };
 
 		for (const t of req.data) {
