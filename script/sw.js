@@ -194,6 +194,10 @@ const dump2 = (data, spacing = 1) => {
 	}, spacing);
 }
 
+const g_idmap = {
+	36000: DB.parse_id('384:73')
+};
+
 self.addEventListener('fetch', (event) => {
 	const req = event.request;
 
@@ -224,6 +228,8 @@ self.addEventListener('fetch', (event) => {
 			let id = item_icon_match[1];
 			if (!id) {
 				id = 0;
+			} else if (g_idmap[id]) {
+				id = g_idmap[id];
 			}
 
 			await g_latest_db_promise;
@@ -335,7 +341,10 @@ self.addEventListener('fetch', (event) => {
 				const ids = id_str.split(',');
 
 				const arr = [];
-				for (const id of ids) {
+				for (let id of ids) {
+					if (g_idmap[id]) {
+						id = g_idmap[id];
+					}
 					const obj = g_latest_db[type]?.[id] || { _db: { type, id: parseInt(id) }};
 					arr.push(obj);
 				}
