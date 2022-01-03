@@ -532,7 +532,7 @@ class PWDB {
 			/* track objsets */
 			if (obj._db.type === 'metadata' && obj.tag === 'objset') {
 				if (obj._removed) {
-					PWDB.objsets.remove(obj);
+					PWDB.objsets.delete(obj);
 				} else {
 					PWDB.objsets.add(obj);
 				}
