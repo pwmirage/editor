@@ -42,6 +42,7 @@ if (navigator.serviceWorker) {
 			if (!navigator.serviceWorker.controller) {
 				// The window client isn't currently controlled so it's a new service
 				// worker that will activate immediately
+				g_sw_refreshing = true;
 				return;
 			}
 			registration.update();
