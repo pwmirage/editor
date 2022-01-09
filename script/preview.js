@@ -37,13 +37,31 @@ class PWPreview {
 
 		const db_ok = await PWPreview.load_latest_db();
 		if (!db_ok) {
-			let msg = 'Can\'t load latest game data. Are you running an old browser?';
-			if (!navigator.serviceWorker) {
-				msg += '<br>Note that Firefox Private Mode is not supported.';
+			const container = document.querySelector('#main');
+			if (!container) {
+				let msg = 'Can\'t load latest game data. Are you running an old browser?';
+				if (!navigator.serviceWorker) {
+					msg += '<br>Note that Firefox Private Mode is not supported.';
+				}
+				confirm(msg, '', 'Error');
+				await sleep(1);
+				g_confirm_dom.classList.add('noconfirm');
+			} else {
+				container.style.position = 'relative';
+				const new_el = newElement('<a href="https://pwmirage.com/forum/thread/280-website-issues-on-firefox/"><i style="margin-right: 8px;" class="fa fa-exclamation-triangle" aria-hidden="true"></i> Some parts of the website are inaccessible</a>');
+				new_el.style.position = 'absolute';
+				new_el.style.top = '0';
+				new_el.style.left = '50%';
+				new_el.style.transform = 'translateX(-50%)';
+				new_el.style.background = '#f8edec';
+				new_el.style.padding = '5px 12px';
+				new_el.style.opacity = '0';
+				new_el.style.color = '#502c2c';
+				new_el.style.transition = 'opacity 0.5s ease';
+				container.insertBefore(new_el, container.firstElementChild);
+				await sleep(1);
+				new_el.style.opacity = '1';
 			}
-			confirm(msg, '', 'Error');
-			await sleep(1);
-			g_confirm_dom.classList.add('noconfirm');
 		}
 	}
 
