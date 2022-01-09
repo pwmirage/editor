@@ -62,8 +62,7 @@
                                 {$idx++}
                                 <div class="item-w-cnt">
                                     <span>{@$item.amount}x</span>
-				    {assign real_item = $db.items[$item.id || 0]}
-                                    <span class="item" data-id="{@$item.id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon($real_item?.icon || -1)}" alt=""></span>
+                                    <span class="item" data-id="{@$item.id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon_by_item($db, $item.id)}" alt=""></span>
                                     {if $idx != $items.length - 1}<span>,</span>{/if}
                                 </div>
                             {/for}
@@ -74,8 +73,7 @@
                                 <div class="item-w-cnt">
                                     <span>({@($item.probability * 100).toPrecision(7)*1}%)</span>
                                     <span>{@$item.amount}x</span>
-				    {assign real_item = $db.items[$item.id || 0]}
-                                    <span class="item" data-id="{@$item.id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon($real_item?.icon || -1)}" alt=""></span>
+                                    <span class="item" data-id="{@$item.id}" data-prev="-1" data-idx="{@$i}"><img{ } src="{@Item.get_icon_by_item($db, $item.id)}" alt=""></span>
                                     {if $idx != $items.length - 1}<span>,</span>{/if}
                                 </div>
                             {/for}
