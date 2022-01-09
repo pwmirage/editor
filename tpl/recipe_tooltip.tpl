@@ -132,13 +132,12 @@
 	border-radius: 3px;
 	padding: 5px;
 	position: relative;
-	writing-mode: vertical-lr;
 	display: flex;
 	align-content: flex-start;
-	flex-wrap: wrap;
 	margin-right: -4px;
 	text-align: left;
 	padding-left: 13px;
+	width: min-content;
 }
 
 #recipe_info.pinned:before {
@@ -153,11 +152,20 @@
 
 #recipe_info:not(.edit) {
 	background-color: rgba(0, 0, 0, 0.9);
+	flex-direction: column;
 }
 
 #recipe_info > * {
-	writing-mode: horizontal-tb;
 	margin-right: 4px;
+}
+
+#recipe_info.edit {
+	writing-mode: vertical-lr;
+	flex-wrap: wrap;
+}
+
+#recipe_info.edit > * {
+	writing-mode: horizontal-tb;
 }
 
 .recipe_info .section {
