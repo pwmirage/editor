@@ -48,7 +48,7 @@ class PWPreview {
 				g_confirm_dom.classList.add('noconfirm');
 			} else {
 				container.style.position = 'relative';
-				const new_el = newElement('<a href="https://pwmirage.com/forum/thread/280-website-issues-on-firefox/"><i style="margin-right: 8px;" class="fa fa-exclamation-triangle" aria-hidden="true"></i> Some parts of the website are inaccessible</a>');
+				const new_el = newElement('<a id="no-game-data-error" href="https://pwmirage.com/forum/thread/280-website-issues-on-firefox/"><i style="margin-right: 8px;" class="fa fa-exclamation-triangle" aria-hidden="true"></i> Some parts of the website are unavailable</a>');
 				new_el.style.position = 'absolute';
 				new_el.style.top = '0';
 				new_el.style.left = '50%';
