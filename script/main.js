@@ -33,13 +33,12 @@ const mg_init = async () => {
 		throw e;
 	}
 
-	setTimeout(() => {
-		post(ROOT_URL + 'latest_db/load', { is_json: 1, data: {
-			...MG_BRANCHES.find(b => b.id == MG_DEFBRANCH)
-		}});
-	}, 100);
+	await sleep(100);
+	post(ROOT_URL + 'latest_db/load', { is_json: 1, data: {
+		...MG_BRANCHES.find(b => b.id == MG_DEFBRANCH)
+	}});
 
-	await PWPreview.load_promise;
+	await PWPreview.load();
 	await JSDebugClient.init();
 };
 

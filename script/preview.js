@@ -8,6 +8,11 @@ let db;
 
 class PWPreview {
 	static async load() {
+		PWPreview.load_promise = PWPreview._load();
+		await PWPreview.load_promise;
+	}
+
+	static async _load() {
 		await Loading.init();
 		console.log('PWPreview loading');
 
@@ -380,5 +385,3 @@ class MiragePreviewElement extends HTMLElement {
 		return Item.get_icon_by_item(this.db, tgt_item_id);
 	}
 }
-
-PWPreview.load_promise = PWPreview.load();
