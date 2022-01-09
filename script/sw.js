@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT
- * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
+ * Copyright(c) 2020-2022 Darek Stojaczyk for pwmirage.com
  */
 
 'use strict';
@@ -24,132 +24,8 @@ const g_db = {};
 let g_latest_db;
 let g_latest_db_load_fn = null;
 let g_latest_db_promise = new Promise((resolve) => { g_latest_db_load_fn = resolve; });
-
-
-/* mock */
-class Loading {
-	static show_tag() {};
-	static hide_tag() {};
-	static show_error_tag() {};
-	static try_cancel_tag() {};
-};
-
-self.importScripts('editor/script/jpeg-encode.js');
-self.importScripts('editor/script/jpeg-decode.js');
-self.importScripts('editor/script/db.js');
-self.importScripts('editor/script/idb.js');
-self.importScripts('editor/script/util.js');
-self.importScripts('editor/script/pwdb.js');
-
-(async () => { try {
-	const idb = await IDB.open('swdata', 1, 'readonly');
-	const oldbranch = await IDB.get(idb, 'branch');
-
-	if (MG_BRANCH) {
-		return;
-	}
-
-	MG_BRANCH = oldbranch;
-	if (!g_latest_db && MG_BRANCH?.head_id) {
-		await load_latest_db(MG_BRANCH);
-	}
-} catch (e) { console.log(e); } })();
-
-PWDB.init();
-
-class Icon {
-	static icons = [];
-	static iconset_cache = null;
-	static atlas_width = 4096;
-	static atlas_height = 2048;
-
-	static async init(iconset_url) {
-		await Icon.gen_blank();
-		await Icon.load_iconset(iconset_url);
-		/* gen icons in (semi-)background */
-		Icon.gen_promise = Icon.gen_all_icons();
-	}
-
-	static get_icon(index) {
-		if (Icon.icons[index]) {
-			return Icon.icons[index];
-		}
-
-		if (index < 0) {
-			/* the blank icon */
-			return Icon.icons[Icon.icons.length - 1];
-		}
-
-		let width = Icon.atlas_width / 32;
-		let height = Icon.atlas_height / 32;
-		let x = index % width;
-		let y = Math.floor(index / width) || 0;
-
-		if (index >= width * height) {
-			return Icon.icons[0];
-		}
-
-		const arr8_data = new Uint8ClampedArray(32 * 32 * 4);
-		for (let y_off = 0; y_off < 32; y_off++) {
-			for (let x_off = 0; x_off < 32; x_off++) {
-				const doff = y_off * 32 + x_off;
-				const soff = (y * 32 + y_off) * Icon.atlas_width + x * 32 + x_off;
-				arr8_data[doff * 4 + 0] = Icon.atlas_data[soff * 3 + 0];
-				arr8_data[doff * 4 + 1] = Icon.atlas_data[soff * 3 + 1];
-				arr8_data[doff * 4 + 2] = Icon.atlas_data[soff * 3 + 2];
-				arr8_data[doff * 4 + 3] = 1;
-			}
-		}
-
-		const img_data = new ImageData(arr8_data, 32, 32);
-		Icon.icons[index] = encode(img_data, 95).data;
-		return Icon.icons[index];
-	}
-
-	static async gen_blank() {
-		const resp = await fetch(ROOT_URL + 'img/itemslot.png');
-		const buf = await resp.arrayBuffer();
-
-		const width = Icon.atlas_width / 32;
-		const height = Icon.atlas_height / 32;
-		const index = width * height;
-
-		Icon.icons[index] = buf;
-		return Icon.icons[index];
-	}
-
-	static async load_iconset(url) {
-		const resp = await fetch(url);
-		const arr_data = await resp.arrayBuffer();
-		const arr8_data = new Uint8Array(arr_data);
-
-		const parser = new JpegDecoder();
-		parser.parse(arr8_data);
-		Icon.atlas_data = parser.getData(Icon.atlas_width, Icon.atlas_height);
-	}
-
-
-	static async gen_all_icons() {
-		return Promise.resolve();
-		if (Icon.gen_promise) {
-			return Icon.gen_promise;
-		}
-
-		const width = Icon.atlas_width / 32;
-		const height = Icon.atlas_height / 32;
-		const icon_count = width * height;
-		let index = 0;
-
-		while (index < icon_count) {
-			for (let i = 0; i < 32; i++) {
-				Icon.get_icon(index++);
-			}
-
-			/* don't block the main thread */
-			await new Promise((res) => setTimeout(res, 1));
-		}
-	}
-}
+let g_init_promise_resolve_fn = null;
+let g_init_promise = new Promise((resolve) => { g_init_promise_resolve_fn = resolve; });
 
 self.addEventListener('install', event => {
 	event.waitUntil(
@@ -192,7 +68,7 @@ const dump2 = (data, spacing = 1) => {
 		if (k === '_db') return { type: v.type };
 		return v;
 	}, spacing);
-}
+};
 
 self.addEventListener('fetch', (event) => {
 	const req = event.request;
@@ -312,6 +188,8 @@ self.addEventListener('fetch', (event) => {
 			}
 
 			if (url === '/editor/latest_db/load') {
+				await g_init_promise;
+
 				const params = await get_body(req);
 				if (params.head_id !== MG_BRANCH?.head_id) {
 					MG_BRANCH = params;
@@ -334,6 +212,8 @@ self.addEventListener('fetch', (event) => {
 
 				const ids = id_str.split(',');
 
+				await g_latest_db_promise;
+
 				const arr = [];
 				for (const id of ids) {
 					const obj = g_latest_db[type]?.[id] || { _db: { type, id: parseInt(id) }};
@@ -349,6 +229,8 @@ self.addEventListener('fetch', (event) => {
 			if (query_match) {
 				const type = query_match[1];
 				const params = await get_body(req);
+
+				await g_latest_db_promise;
 
 				const fn = new Function('obj', 'return (' + (params.fn || '(obj) => false') + ')(obj)');
 				const arr = g_latest_db[type]?.filter(fn);
@@ -402,4 +284,132 @@ const load_latest_db = async (branch) => {
 	} catch (e) { console.error(e); }});
 }
 
+
+self.importScripts('editor/script/jpeg-encode.js');
+self.importScripts('editor/script/jpeg-decode.js');
+self.importScripts('editor/script/db.js');
+self.importScripts('editor/script/idb.js');
+self.importScripts('editor/script/util.js');
+self.importScripts('editor/script/pwdb.js');
+
+(async () => { try {
+	const idb = await IDB.open('swdata', 1, 'readonly');
+	const oldbranch = await IDB.get(idb, 'branch');
+
+	if (MG_BRANCH) {
+		return;
+	}
+
+	MG_BRANCH = oldbranch;
+	if (!g_latest_db && MG_BRANCH?.head_id) {
+		await load_latest_db(MG_BRANCH);
+	}
+} catch (e) { console.log(e); } })();
+
+
+/* mock */
+class Loading {
+	static show_tag() {};
+	static hide_tag() {};
+	static show_error_tag() {};
+	static try_cancel_tag() {};
+};
+
+PWDB.init();
+
+class Icon {
+	static icons = [];
+	static iconset_cache = null;
+	static atlas_width = 4096;
+	static atlas_height = 2048;
+
+	static async init(iconset_url) {
+		await Icon.gen_blank();
+		await Icon.load_iconset(iconset_url);
+		/* gen icons in (semi-)background */
+		Icon.gen_promise = Icon.gen_all_icons();
+	}
+
+	static get_icon(index) {
+		if (Icon.icons[index]) {
+			return Icon.icons[index];
+		}
+
+		if (index < 0) {
+			/* the blank icon */
+			return Icon.icons[Icon.icons.length - 1];
+		}
+
+		let width = Icon.atlas_width / 32;
+		let height = Icon.atlas_height / 32;
+		let x = index % width;
+		let y = Math.floor(index / width) || 0;
+
+		if (index >= width * height) {
+			return Icon.icons[0];
+		}
+
+		const arr8_data = new Uint8ClampedArray(32 * 32 * 4);
+		for (let y_off = 0; y_off < 32; y_off++) {
+			for (let x_off = 0; x_off < 32; x_off++) {
+				const doff = y_off * 32 + x_off;
+				const soff = (y * 32 + y_off) * Icon.atlas_width + x * 32 + x_off;
+				arr8_data[doff * 4 + 0] = Icon.atlas_data[soff * 3 + 0];
+				arr8_data[doff * 4 + 1] = Icon.atlas_data[soff * 3 + 1];
+				arr8_data[doff * 4 + 2] = Icon.atlas_data[soff * 3 + 2];
+				arr8_data[doff * 4 + 3] = 1;
+			}
+		}
+
+		const img_data = new ImageData(arr8_data, 32, 32);
+		Icon.icons[index] = encode(img_data, 95).data;
+		return Icon.icons[index];
+	}
+
+	static async gen_blank() {
+		const resp = await fetch(ROOT_URL + 'img/itemslot.png');
+		const buf = await resp.arrayBuffer();
+
+		const width = Icon.atlas_width / 32;
+		const height = Icon.atlas_height / 32;
+		const index = width * height;
+
+		Icon.icons[index] = buf;
+		return Icon.icons[index];
+	}
+
+	static async load_iconset(url) {
+		const resp = await fetch(url);
+		const arr_data = await resp.arrayBuffer();
+		const arr8_data = new Uint8Array(arr_data);
+
+		const parser = new JpegDecoder();
+		parser.parse(arr8_data);
+		Icon.atlas_data = parser.getData(Icon.atlas_width, Icon.atlas_height);
+	}
+
+
+	static async gen_all_icons() {
+		return Promise.resolve();
+		if (Icon.gen_promise) {
+			return Icon.gen_promise;
+		}
+
+		const width = Icon.atlas_width / 32;
+		const height = Icon.atlas_height / 32;
+		const icon_count = width * height;
+		let index = 0;
+
+		while (index < icon_count) {
+			for (let i = 0; i < 32; i++) {
+				Icon.get_icon(index++);
+			}
+
+			/* don't block the main thread */
+			await new Promise((res) => setTimeout(res, 1));
+		}
+	}
+}
+
 Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);
+g_init_promise_resolve_fn();
