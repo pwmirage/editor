@@ -51,7 +51,7 @@ self.addEventListener('activate', (event) => {
 		const cache = await caches.open(RUNTIME);
 		const reqs = await cache.keys();
 		for (const req of reqs) {
-			const resp = await caches.match(req, { ignoreSearch: true });
+			const resp = await caches.match(req);
 			if (is_resp_expired(resp)) {
 				cache.delete(req);
 			}
@@ -76,9 +76,13 @@ self.addEventListener('fetch', (event) => {
 	/* don't cache cross-origin */
 	if (!req.url.startsWith(self.location.origin)) return;
 	
-	const url = req.url.substring(self.location.origin.length);
+	let url = req.url.substring(self.location.origin.length);
 
-	const ret = caches.match(req, { ignoreSearch: true }).then(async (cached) => { try {
+	/* cut out the query (?p=....) */
+	const url_p = url.match(/^([^?]*)[?]\d+$/);
+    url = url_p ? url_p[1] : url;
+
+	const ret = caches.match(url).then(async (cached) => { try {
 		const date = new Date();
 
 		if (url.match(/^\/editor\/icon\/.*/)) {
@@ -193,8 +197,6 @@ self.addEventListener('fetch', (event) => {
 				const params = await get_body(req);
 				if (params.head_id !== MG_BRANCH?.head_id) {
 					MG_BRANCH = params;
-					const idb = await IDB.open('swdata', 1, 'readwrite');
-					IDB.set(idb, 'branch', MG_BRANCH);
 					await load_latest_db(MG_BRANCH);
 				}
 				await g_latest_db_promise;
@@ -276,6 +278,10 @@ const load_latest_db = async (branch) => {
 			}
 		}
 
+		if (!Icon.gen_promise) {
+			await Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);
+		}
+
 		if (load_fn) {
 			load_fn();
 		}
@@ -284,28 +290,12 @@ const load_latest_db = async (branch) => {
 	} catch (e) { console.error(e); }});
 }
 
-
 self.importScripts('editor/script/jpeg-encode.js');
 self.importScripts('editor/script/jpeg-decode.js');
 self.importScripts('editor/script/db.js');
 self.importScripts('editor/script/idb.js');
 self.importScripts('editor/script/util.js');
 self.importScripts('editor/script/pwdb.js');
-
-(async () => { try {
-	const idb = await IDB.open('swdata', 1, 'readonly');
-	const oldbranch = await IDB.get(idb, 'branch');
-
-	if (MG_BRANCH) {
-		return;
-	}
-
-	MG_BRANCH = oldbranch;
-	if (!g_latest_db && MG_BRANCH?.head_id) {
-		await load_latest_db(MG_BRANCH);
-	}
-} catch (e) { console.log(e); } })();
-
 
 /* mock */
 class Loading {
@@ -411,5 +401,4 @@ class Icon {
 	}
 }
 
-Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);
 g_init_promise_resolve_fn();
