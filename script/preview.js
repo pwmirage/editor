@@ -245,6 +245,10 @@ class PWPreview {
 	}
 
 	static get_state_before_gen(obj, generation) {
+		if (!obj?._db?.changesets?.[0]) {
+			return {};
+		}
+
 		const state = DB.clone_obj(obj._db.changesets[0]);
 		for (const c of obj._db.changesets) {
 			if (c._db.generation == 0) {
