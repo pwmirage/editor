@@ -428,17 +428,17 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'items'),
 			spawners_p,
 			triggers_p,
-			PWDB.register_data_type(db, args, 'weapon_major_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'weapon_minor_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'armor_major_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'armor_minor_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'decoration_major_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'decoration_minor_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'medicine_major_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'medicine_minor_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'projectile_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'quiver_types', 'object_types'),
-			PWDB.register_data_type(db, args, 'armor_sets', 'object_types'),
+			PWDB.register_data_type(db, args, 'weapon_major_types'),
+			PWDB.register_data_type(db, args, 'weapon_minor_types'),
+			PWDB.register_data_type(db, args, 'armor_major_types'),
+			PWDB.register_data_type(db, args, 'armor_minor_types'),
+			PWDB.register_data_type(db, args, 'decoration_major_types'),
+			PWDB.register_data_type(db, args, 'decoration_minor_types'),
+			PWDB.register_data_type(db, args, 'medicine_major_types'),
+			PWDB.register_data_type(db, args, 'medicine_minor_types'),
+			PWDB.register_data_type(db, args, 'projectile_types'),
+			PWDB.register_data_type(db, args, 'quiver_types'),
+			PWDB.register_data_type(db, args, 'armor_sets'),
 			PWDB.register_data_type(db, args, 'equipment_addons'),
 			PWDB.register_data_type(db, args, 'npc_tasks_in'),
 			PWDB.register_data_type(db, args, 'npc_tasks_out'),
@@ -457,24 +457,14 @@ class PWDB {
 
 		const project = db.metadata[PWDB.metadata_types.project];
 
-		if (args.preinit) {
-			db.metadata.init();
-		}
-
 		const spawners = await spawners_p;
 		for (const arr of spawners) {
 			db.register_type('spawners_' + arr.tag, arr.entries);
-			if (args.preinit) {
-				db['spawners_' + arr.tag].init();
-			}
 		}
 
 		const triggers = await triggers_p;
 		for (const arr of triggers) {
 			db.register_type('triggers_' + arr.tag, arr.entries);
-			if (args.preinit) {
-				db['triggers_' + arr.tag].init();
-			}
 		}
 
 		if (tag) {
@@ -1019,12 +1009,9 @@ class PWDB {
 		return req.data;
 	}
 
-	static async register_data_type(db, args, type, tag_category, url) {
+	static async register_data_type(db, args, type, url) {
 		const data = await PWDB.load_db_file(type, url);
 		db.register_type(type, data, args.init_cb);
-		if (args.preinit) {
-			db[type].init();
-		}
 	}
 
 	static sort_chooser_recent(db, type = undefined) {

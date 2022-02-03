@@ -105,11 +105,6 @@ class DB {
 					return (...args) => Reflect.apply(map[k], map, args);
 				}
 
-				if (k === 'init') {
-					return () => {
-					};
-				}
-
 				if (k == DB.force_null) {
 					return undefined;
 				}
