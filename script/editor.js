@@ -119,12 +119,6 @@ class Editor {
 	static async open(args) {
 		await Editor.init();
 
-		const tag_p = Loading.show_tag('Processing item icons');
-		/* don't await icon processing */
-		Item.preload_all_icons().then(() => {
-			Loading.hide_tag(tag_p);
-		});
-
 		await Projects.load();
 		document.querySelector('#pageContainer').append(Projects.instance.dom);
 
@@ -151,6 +145,11 @@ class Editor {
 			await Editor.open_project(args.pid);
 		}
 
+		const tag_p = Loading.show_tag('Processing item icons');
+		/* don't await icon processing */
+		Item.preload_all_icons().then(() => {
+			Loading.hide_tag(tag_p);
+		});
 	}
 
 	static reload_times() {
