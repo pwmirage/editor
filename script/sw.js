@@ -6,7 +6,40 @@
 
 const PRECACHE = 'precache-v3';
 const RUNTIME = 'runtime-v3';
-const PRECACHE_URLS = [];
+const PRECACHE_URLS = [
+	 '/editor/data/base/items.json?v=1',
+	 '/editor/data/base/tasks.json?v=1',
+	 '/editor/data/base/spawners.json?v=1',
+	 '/editor/data/base/monsters.json?v=1',
+	 '/editor/data/base/recipes.json?v=1',
+	 '/editor/data/base/npcs.json?v=1',
+	 '/editor/data/base/triggers.json?v=1',
+	 '/editor/data/base/mines.json?v=1',
+	 '/editor/data/base/npc_tasks_out.json?v=1',
+	 '/editor/data/base/npc_tasks_in.json?v=1',
+	 '/editor/data/base/npc_crafts.json?v=1',
+	 '/editor/data/base/npc_sells.json?v=1',
+	 '/editor/data/base/weapon_major_types.json?v=1',
+	 '/editor/data/base/weapon_minor_types.json?v=1',
+	 '/editor/data/base/armor_major_types.json?v=1',
+	 '/editor/data/base/armor_minor_types.json?v=1',
+	 '/editor/data/base/decoration_major_types.json?v=1',
+	 '/editor/data/base/decoration_minor_types.json?v=1',
+	 '/editor/data/base/medicine_major_types.json?v=1',
+	 '/editor/data/base/medicine_minor_types.json?v=1',
+	 '/editor/data/base/projectile_types.json?v=1',
+	 '/editor/data/base/quiver_types.json?v=1',
+	 '/editor/data/base/armor_sets.json?v=1',
+	 '/editor/data/base/equipment_addons.json?v=1',
+	 '/editor/data/base/stone_types.json?v=1',
+	 '/editor/data/base/monster_addons.json?v=1',
+	 '/editor/data/base/monster_types.json?v=1',
+	 '/editor/data/base/fashion_major_types.json?v=1',
+	 '/editor/data/base/fashion_sub_types.json?v=1',
+	 '/editor/data/base/gm_generator_types.json?v=1',
+	 '/editor/data/base/pet_types.json?v=1',
+	 '/editor/data/images/iconlist_ivtrm.jpg?v=1',
+];
 
 self.addEventListener('message', e => {
 	if (!e.data) {
@@ -84,6 +117,10 @@ self.addEventListener('fetch', (event) => {
 
 	const ret = caches.match(url).then(async (cached) => { try {
 		const date = new Date();
+
+		if (cached) {
+			return cached;
+		}
 
 		if (url.match(/^\/editor\/icon\/.*/)) {
 			let id = parseInt(url.substring('/editor/icon/'.length) || 0);
@@ -279,7 +316,7 @@ const load_latest_db = async (branch) => {
 		}
 
 		if (!Icon.gen_promise) {
-			await Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg?v=' + MG_VERSION);
+			await Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg');
 		}
 
 		if (load_fn) {
