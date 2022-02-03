@@ -407,8 +407,7 @@ class PWDB {
 			},
 		];
 
-		let spawner_arrs = null;
-		const spawners_tag = args.no_tag ? null : Loading.show_tag('Loading spawners');
+		const tag = args.no_tag ? null : Loading.show_tag('Loading PW data');
 
 		const task_init_cb = (obj) => {
 			if (!obj.premise_class) {
@@ -416,8 +415,10 @@ class PWDB {
 			}
 		};
 
+		const spawners_p = PWDB.load_db_file('spawners');
+		const triggers_p = PWDB.load_db_file('triggers');
 		await Promise.all([
-			db.register_type('metadata', init_id_array(meta_arr)),
+			db.register_type('metadata', meta_arr),
 			PWDB.register_data_type(db, args, 'mines'),
 			PWDB.register_data_type(db, args, 'recipes'),
 			PWDB.register_data_type(db, args, 'npc_sells'),
@@ -425,8 +426,8 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'npcs'),
 			PWDB.register_data_type(db, args, 'monsters'),
 			PWDB.register_data_type(db, args, 'items'),
-			PWDB.load_db_file('spawners'),
-			PWDB.load_db_file('triggers'),
+			spawners_p,
+			triggers_p,
 			PWDB.register_data_type(db, args, 'weapon_major_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'weapon_minor_types', 'object_types'),
 			PWDB.register_data_type(db, args, 'armor_major_types', 'object_types'),
@@ -460,22 +461,24 @@ class PWDB {
 			db.metadata.init();
 		}
 
-		for (const arr of g_db.spawners) {
-			db.register_type('spawners_' + arr.tag, init_id_array(arr.entries));
+		const spawners = await spawners_p;
+		for (const arr of spawners) {
+			db.register_type('spawners_' + arr.tag, arr.entries);
 			if (args.preinit) {
 				db['spawners_' + arr.tag].init();
 			}
 		}
 
-		for (const arr of g_db.triggers) {
-			db.register_type('triggers_' + arr.tag, init_id_array(arr.entries));
+		const triggers = await triggers_p;
+		for (const arr of triggers) {
+			db.register_type('triggers_' + arr.tag, arr.entries);
 			if (args.preinit) {
 				db['triggers_' + arr.tag].init();
 			}
 		}
 
-		if (spawners_tag) {
-			Loading.try_cancel_tag(spawners_tag);
+		if (tag) {
+			Loading.try_cancel_tag(tag);
 		}
 
 		db.project_changelog_start_gen = 1;
@@ -1012,67 +1015,15 @@ class PWDB {
 	}
 
 	static async load_db_file(type, url) {
-		let final_resolve = null;
-
-		if (PWDB.g_db_promises[type]) {
-			return PWDB.g_db_promises[type];
-		}
-
-		PWDB.g_db_promises[type] = new Promise((r) => { final_resolve = r; });
-
-		try {
-			const cache = await IDB.open('db-cache', PWDB.db_version);
-			g_db[type] = await IDB.get(cache, type);
-		} catch (e) { }
-
-		if (!g_db[type]) {
-			/* fallback to loading the file */
-			if (!url) {
-				url = ROOT_URL + 'data/base/' + type + '.json';
-			}
-			url += '?v=' + MG_VERSION;
-			console.log('fetching ' + url);
-			const req = await get(url, { is_json: 1, headers: {
-				"Content-Type": "application/json; charset=UTF-8"
-			}});
-			g_db[type] = req.data;
-
-			/* save to cache */
-			try {
-				const cache = await IDB.open('db-cache', PWDB.db_version, 'readwrite');
-				await IDB.set(cache, type, g_db[type]);
-			} catch (e) { }
-		}
-		g_db[type] = init_id_array(g_db[type]);
-
-		final_resolve();
+		const req = await get('/editor/data/base/' + type + '.json', { is_json: 1 });
+		return req.data;
 	}
 
 	static async register_data_type(db, args, type, tag_category, url) {
-		let tag;
-		if (!args.no_tag) {
-			if (!tag_category) tag_category = type;
-			const show_tag = !PWDB.tag_categories[tag_category];
-			tag = show_tag ? Loading.show_tag('Loading ' + tag_category) : null;
-			PWDB.tag_categories[tag_category] = (PWDB.tag_categories[tag_category] || 0) + 1;
-			if (tag) PWDB.tags[tag_category] = tag;
-		}
-
-		await PWDB.load_db_file(type, url);
-		db.register_type(type, g_db[type], args.init_cb);
+		const data = await PWDB.load_db_file(type, url);
+		db.register_type(type, data, args.init_cb);
 		if (args.preinit) {
 			db[type].init();
-		}
-
-		if (tag) Loading.try_cancel_tag(tag);
-
-		if (!args.no_tag) {
-			setTimeout(() => {
-				--PWDB.tag_categories[tag_category];
-				if (PWDB.tag_categories[tag_category] == 0) {
-					Loading.hide_tag(PWDB.tags[tag_category]);
-				}
-			}, 400);
 		}
 	}
 

@@ -44,15 +44,14 @@ class DB {
 		}
 
 		/* at least one object there - as a template for new_obj() */
-		if (!objects) objects = [{ id: 0 }];
+		if (!objects?.length) objects = [{ id: 0 }];
 
 		if (this[name]) throw new Error(`Trying to use reserved type name (${name})`);
 		const type = this.type_info[name] = {};
 		type.obj_init_cb = obj_init_cb;
 
-		const obj_map = new Map();
-		const static_map = objects;
 		const db = this;
+		const obj_map = new Map();
 		this[name] = new Proxy(obj_map, {
 			set(map, k, v) {
 				const id = DB.parse_id(k);
@@ -108,10 +107,6 @@ class DB {
 
 				if (k === 'init') {
 					return () => {
-						for (const obj of static_map) {
-							/* trigger lazy initialization */
-							const o = db[name][obj.id];
-						}
 					};
 				}
 
@@ -119,23 +114,15 @@ class DB {
 					return undefined;
 				}
 
-				const id = DB.parse_id(k);
-				let obj = map.get(id);
-				if (obj !== undefined) {
-					return obj;
-				}
-
-				obj = static_map[id];
-				if (!obj) {
-					return undefined;
-				}
-
-				const clone = DB.clone_obj(obj);
-				db.init(name, clone);
-				map.set(id, clone);
-				return clone;
+				return map.get(k);
 			}
 		});
+
+		for (const obj of objects) {
+			if (!obj) continue;
+			db.init(name, obj);
+			obj_map.set(obj.id.toString(), obj);
+		}
 	}
 
 	/**
