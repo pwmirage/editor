@@ -23,12 +23,7 @@ const _fetch = async (url, { params, is_json }) => {
 		}
 	} else {
 		try {
-			const txt = await resp.text();
-			if (txt) {
-				resp.data = JSON.parse(txt);
-			} else {
-				resp.data = {};
-			}
+			resp.data = await resp.json();
 		} catch (e) {
 			console.error(url, e);
 			resp.data = {};
