@@ -330,7 +330,6 @@ const load_latest_db = async (branch) => {
 self.importScripts('editor/script/jpeg-encode.js');
 self.importScripts('editor/script/jpeg-decode.js');
 self.importScripts('editor/script/db.js');
-self.importScripts('editor/script/idb.js');
 self.importScripts('editor/script/util.js');
 self.importScripts('editor/script/pwdb.js');
 
