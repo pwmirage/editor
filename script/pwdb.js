@@ -362,6 +362,43 @@ class PWDB {
 		return PWDB.type_names[type];
 	}
 
+	static load_changesets(db, changesets, { join_changesets } = {}) {
+		const load_one = (change) => {
+			/* convert legacy resource spawner IDs */
+			if (change.id >= 100000 && change.id < 0x80000000 && change._db.type.startsWith('spawners_')) {
+				change.id -= 100000 - db.type_info['spawners_' + arr.tag].resource_offset;
+			}
+
+			/* strip legacy (or sneaked in) ref counts */
+			if (change._extra_ref) {
+				delete change._extra_ref;
+			}
+
+			db.load_one(change);
+		}
+
+		if (!Array.isArray(changesets)) {
+			return load_one(changesets);
+		}
+
+		for (const changeset of changesets) {
+			if (!changeset) continue;
+			if (!Array.isArray(changeset)) {
+				load_one(changeset);
+				continue;
+			}
+
+			for (const change of changeset) {
+				if (!change) continue;
+				load_one(change);
+			}
+
+			if (!join_changesets && changeset != changesets[changesets.length - 1]) {
+				db.new_generation();
+			}
+		}
+	}
+
 	static async new_db(args) {
 		PWDB.loaded = false;
 
@@ -415,10 +452,19 @@ class PWDB {
 			}
 		};
 
+		db.register_type('metadata', meta_arr);
+		await Promise.all([
+			PWDB.register_data_type(db, args, 'equipment_addons'),
+			PWDB.register_data_type(db, args, 'monster_addons'),
+		]);
+
+		db.objects.clear();
+
+		const idmap_meta_p = PWDB.load_db_file('idmap_meta');
 		const spawners_p = PWDB.load_db_file('spawners');
 		const triggers_p = PWDB.load_db_file('triggers');
 		await Promise.all([
-			db.register_type('metadata', meta_arr),
+			idmap_meta_p,
 			PWDB.register_data_type(db, args, 'mines'),
 			PWDB.register_data_type(db, args, 'recipes'),
 			PWDB.register_data_type(db, args, 'npc_sells'),
@@ -439,12 +485,10 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'projectile_types'),
 			PWDB.register_data_type(db, args, 'quiver_types'),
 			PWDB.register_data_type(db, args, 'armor_sets'),
-			PWDB.register_data_type(db, args, 'equipment_addons'),
 			PWDB.register_data_type(db, args, 'npc_tasks_in'),
 			PWDB.register_data_type(db, args, 'npc_tasks_out'),
 			PWDB.register_data_type(db, {...args, init_cb: task_init_cb }, 'tasks'),
 			PWDB.register_data_type(db, args, 'stone_types'),
-			PWDB.register_data_type(db, args, 'monster_addons'),
 			PWDB.register_data_type(db, args, 'monster_types'),
 			PWDB.register_data_type(db, args, 'fashion_major_types'),
 			PWDB.register_data_type(db, args, 'fashion_sub_types'),
@@ -452,20 +496,33 @@ class PWDB {
 			PWDB.register_data_type(db, args, 'pet_types'),
 		]);
 
-		PWDB.objsets = new Set();
-		PWDB.objsets.add(db.metadata[PWDB.metadata_types.objset_modified]);
-
-		const project = db.metadata[PWDB.metadata_types.project];
+		const triggers = await triggers_p;
+		for (const arr of triggers) {
+			db.register_type('triggers_' + arr.tag, arr.entries);
+		}
 
 		const spawners = await spawners_p;
 		for (const arr of spawners) {
 			db.register_type('spawners_' + arr.tag, arr.entries);
 		}
 
-		const triggers = await triggers_p;
-		for (const arr of triggers) {
-			db.register_type('triggers_' + arr.tag, arr.entries);
+		const idmap_meta = await idmap_meta_p;
+		for (const typename in idmap_meta.alias_offsets) {
+			const off = idmap_meta.alias_offsets[typename];
+
+			db.type_info[typename].alias_offset = off;
 		}
+
+		for (const typename in idmap_meta.resource_offsets) {
+			const off = idmap_meta.resource_offsets[typename];
+
+			db.type_info[typename].resource_offsets = off;
+		}
+
+		PWDB.objsets = new Set();
+		PWDB.objsets.add(db.metadata[PWDB.metadata_types.objset_modified]);
+
+		const project = db.metadata[PWDB.metadata_types.project];
 
 		if (tag) {
 			Loading.try_cancel_tag(tag);
@@ -486,7 +543,7 @@ class PWDB {
 						const pid = proj_change.pid;
 						db.new_id_start = 0x80000000 + pid * 0x100000;
 						db.new_id_offset = 0;
-						db.load(changesets[i], { join_changesets: true });
+						PWDB.load_changesets(db, changesets[i], { join_changesets: true });
 					}
 					db.project_changelog_start_gen = db.changelog.length;
 
@@ -681,7 +738,7 @@ class PWDB {
 		try {
 			PWDB.last_saved_changeset = db.changelog.length - 1;
 			if (project_changeset) {
-				db.load(project_changeset);
+				PWDB.load_changesets(db, project_changeset);
 
 				PWDB.last_saved_changeset = db.changelog.length - 1;
 				db.new_generation();
@@ -690,7 +747,7 @@ class PWDB {
 					const changeset_str = localStorage.getItem('pwdb_lchangeset_' + project.pid);
 					if (changeset_str) {
 						const changeset = JSON.parse(changeset_str);
-						db.load(changeset);
+						PWDB.load_changesets(db, changeset);
 					}
 				}
 			} else {
@@ -1005,7 +1062,7 @@ class PWDB {
 	}
 
 	static async load_db_file(type, url) {
-		const req = await get('/editor/data/base/' + type + '.json', { is_json: 1 });
+		const req = await get(ROOT_URL + 'data/base/' + type + '.json', { is_json: 1 });
 		return req.data;
 	}
 

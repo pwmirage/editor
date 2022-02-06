@@ -11,6 +11,8 @@ class DB {
 		 */
 		this.type_info = {};
 
+		this.objects = new Map();
+
 		if (!DB.force_null) {
 			DB.force_null = Symbol();
 		}
@@ -49,6 +51,7 @@ class DB {
 		if (this[name]) throw new Error(`Trying to use reserved type name (${name})`);
 		const type = this.type_info[name] = {};
 		type.obj_init_cb = obj_init_cb;
+		type.alias_offset = undefined;
 
 		const db = this;
 		const obj_map = new Map();
@@ -109,7 +112,13 @@ class DB {
 					return undefined;
 				}
 
-				return map.get(k);
+				let int_k = DB.parse_id(k);
+				if (type.alias_offset !== undefined &&
+						int_k < 0x80100000 + type.alias_offset) {
+					int_k = int_k + 0x80100000 + type.alias_offset;
+				}
+
+				return map.get(int_k.toString());
 			}
 		});
 
@@ -143,16 +152,18 @@ class DB {
 	 * db_open() and db_commit() on.
 	 */
 	init(type, obj) {
-		if (!this[type]) throw new Error(`Unknown db type (${type})`);
-
 		obj._db = {};
 		obj._db.type = type;
 
 		const type_info = this.type_info[type];
-		if (!type_info) throw new Error(`Invalid db type (${type})`);
 		if (type_info.obj_init_cb) {
-			return type_info.obj_init_cb(obj);
+			type_info.obj_init_cb(obj);
 		}
+
+		if (obj.id > 0 && this.objects.has(obj.id)) {
+			throw new Error(`Duplicate ID ${obj.id}`);
+		}
+		this.objects.set(obj.id, obj);
 	}
 
 	/**
@@ -453,47 +464,42 @@ class DB {
 		this.changelog.push(new Set());
 	}
 
+	load_one(change) {
+		let org = this[change._db.type][change.id];
+		if (!org) {
+			org = this.new_by_id(change._db.type, change.id);
+		}
+
+		this.open(org);
+		DB.apply_diff(org, change, false);
+		this.commit(org);
+
+		/* call the init_cb again */
+		let type = this.type_info[change._db.type];
+		if (type.obj_init_cb) {
+			type.obj_init_cb(org);
+		}
+	}
+
 	/**
 	* Load the specified list of changes. All objects will be immediately
 	* committed to set their modified state.
 	*/
 	load(changesets, { join_changesets } = {}) {
-		const load_change = (change) => {
-			let org = this[change._db.type][change.id];
-			if (!org) {
-				org = this.new_by_id(change._db.type, change.id);
-			}
-
-			if (change._extra_ref) {
-				delete change._extra_ref;
-			}
-
-			this.open(org);
-			DB.apply_diff(org, change, false);
-			this.commit(org);
-
-			/* call the init_cb again */
-			let type = this.type_info[change._db.type];
-			if (type.obj_init_cb) {
-				type.obj_init_cb(org);
-			}
-		}
-
 		if (!Array.isArray(changesets)) {
-			return load_change(changesets);
+			return this.load_one(changesets);
 		}
 
 		for (const changeset of changesets) {
 			if (!changeset) continue;
 			if (!Array.isArray(changeset)) {
-				load_change(changeset);
+				this.load_one(changeset);
 				continue;
 			}
 
 			for (const change of changeset) {
 				if (!change) continue;
-				load_change(change);
-
+				this.load_one(change);
 			}
 
 			if (!join_changesets && changeset != changesets[changesets.length - 1]) {
