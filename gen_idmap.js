@@ -128,9 +128,14 @@ if (op_type === 'idmap') {
 			const type_id = map_id[t.substring('spawners_'.length)];
 			const type = db.type_info[t];
 			const to_export = db[t].filter(o => o.id && o.id < DB.parse_id('2:0'));
-			const lid_entries = to_export.map(o => ({ lid: DB.serialize_id(o.id), id: o.id - 0x80100000 - type.alias_offset, type: type_id }));
-			for (const e of lid_entries) {
-				console.log(JSON.stringify(e) + ',');
+			const lid_entries = to_export.map(o => ({ lid: DB.serialize_id(o.id), id: o.id, type: type_id }));
+			for (const o of lid_entries) {
+				if (o.id >= 0x80100000 + type.alias_offset + type.resource_offset) {
+					o.id = o.id - 0x80100000 - type.alias_offset - type.resource_offset + 100000;
+				} else {
+					o.id = o.id - 0x80100000 - type.alias_offset;
+				}
+				console.log(JSON.stringify(o) + ',');
 			}
 		};
 	} else if (arr_type === 'recipes') {
