@@ -366,7 +366,7 @@ class PWDB {
 		const load_one = (change) => {
 			/* convert legacy resource spawner IDs */
 			if (change.id >= 100000 && change.id < 0x80000000 && change._db.type.startsWith('spawners_')) {
-				change.id -= 100000 - db.type_info['spawners_' + arr.tag].resource_offset;
+				change.id -= 100000 - db.type_info[change._db.type].resource_offset;
 			}
 
 			/* strip legacy (or sneaked in) ref counts */
@@ -516,7 +516,7 @@ class PWDB {
 		for (const typename in idmap_meta.resource_offsets) {
 			const off = idmap_meta.resource_offsets[typename];
 
-			db.type_info[typename].resource_offsets = off;
+			db.type_info[typename].resource_offset = off;
 		}
 
 		PWDB.objsets = new Set();

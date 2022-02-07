@@ -118,14 +118,14 @@ class DB {
 					int_k = int_k + 0x80100000 + type.alias_offset;
 				}
 
-				return map.get(int_k.toString());
+				return map.get(int_k);
 			}
 		});
 
 		for (const obj of objects) {
 			if (!obj) continue;
 			db.init(name, obj);
-			obj_map.set(obj.id.toString(), obj);
+			obj_map.set(obj.id, obj);
 		}
 	}
 
@@ -378,8 +378,6 @@ class DB {
 			typeinfo.obj_init_cb(obj);
 		}
 
-		obj.id = 0;
-
 		/* create a dummy change to have this object stored in changelog */
 		this.open(obj);
 		obj._allocated = true;
@@ -470,9 +468,14 @@ class DB {
 			org = this.new_by_id(change._db.type, change.id);
 		}
 
+		const prev_change_id = change.id;
+		change.id = org.id;
+
 		this.open(org);
 		DB.apply_diff(org, change, false);
 		this.commit(org);
+
+		change.id = prev_change_id;
 
 		/* call the init_cb again */
 		let type = this.type_info[change._db.type];
