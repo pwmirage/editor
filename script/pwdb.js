@@ -519,13 +519,19 @@ class PWDB {
 			db.type_info[typename].resource_offset = off;
 		}
 
-		PWDB.objsets = new Set();
-		PWDB.objsets.add(db.metadata[PWDB.metadata_types.objset_modified]);
-
-		const project = db.metadata[PWDB.metadata_types.project];
-
 		if (tag) {
 			Loading.try_cancel_tag(tag);
+		}
+
+		const project = db.metadata[PWDB.metadata_types.project];
+		PWDB.objsets = new Set();
+
+		for (const meta of db.metadata) {
+			if (meta.tag !== 'objset') {
+				continue;
+			}
+
+			PWDB.objsets.add(meta);
 		}
 
 		db.project_changelog_start_gen = 1;
