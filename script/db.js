@@ -548,10 +548,6 @@ class DB {
 		for (const f in diff) {
 			if (f === '_db') continue;
 			if (typeof(diff[f]) === 'object' || diff[f] === DB.force_null) {
-				if (!obj.hasOwnProperty(f) || obj[f] === undefined || obj[f] === DB.force_null) {
-					/* diff is always an object, so can't use Array.isArray() */
-					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
-				}
 				if (diff[f] === DB.force_null) {
 					if (do_delete) {
 						delete obj[f];
@@ -559,6 +555,7 @@ class DB {
 						obj[f] = diff[f];
 					}
 					deleted = true;
+					continue;
 				} else if (diff[f] == null) {
 					if (do_delete) {
 						delete obj[f];
@@ -566,9 +563,13 @@ class DB {
 						obj[f] = undefined;
 					}
 					deleted = true;
-				} else {
-					DB.apply_diff(obj[f], diff[f], do_delete);
+					continue;
+				} else if ((!obj.hasOwnProperty(f) || !obj[f] || obj[f] === DB.force_null)) {
+					/* diff is always an object, so can't use Array.isArray() */
+					obj[f] = has_numeric_keys(diff[f]) ? [] : {};
 				}
+
+				DB.apply_diff(obj[f], diff[f], do_delete);
 			} else {
 				obj[f] = diff[f];
 
