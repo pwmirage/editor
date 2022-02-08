@@ -1319,7 +1319,7 @@ class PWDB {
 	}
 
 	static add_objset_entry(objset, obj) {
-		const key = obj._db.type + '_' + obj.id;
+		const key = obj.id;
 		if (objset.entries[key]) {
 			/* nothing to do */
 			return;
@@ -1331,7 +1331,7 @@ class PWDB {
 	}
 
 	static remove_objset_entry(objset, obj) {
-		const key = obj._db.type + '_' + obj.id;
+		const key = obj.id;
 		db.open(objset);
 		objset.entries[key] = 0;
 		db.commit(objset);
