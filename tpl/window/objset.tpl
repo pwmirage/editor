@@ -1,5 +1,3 @@
-<script id="tpl-objset" type="text/x-dot-template">
-
 <div class="window resizable narrow" style="width: 300px; height: 470px;"">
 <div class="header">
 	<span>
@@ -138,5 +136,3 @@
 
 </style>
 @@}
-</script>
-

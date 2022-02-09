@@ -1,4 +1,3 @@
-<script id="tpl-recipe" type="text/x-dot-template">
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
 <div class="window resizable" style="position: static; width: 312px;">
@@ -106,4 +105,3 @@
 
 </style>
 @@}
-</script>

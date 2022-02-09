@@ -2,10 +2,10 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_item_tpl = load_tpl(ROOT_URL + 'tpl/item_tooltip.tpl');
 class ItemChooserWindow extends ChooserWindow {
+	static _tpl_id = 'window/item_chooser.tpl';
+
 	async init() {
-		this.args.tpl = 'tpl-item-chooser';
 		this.args.width = 36;
 		this.args.height = 36;
 		this.pager_offset = 0;
@@ -104,16 +104,14 @@ class ItemChooserWindow extends ChooserWindow {
 }
 
 class ItemTooltipWindow extends SingleInstanceWindow {
+	static _tpl_id = 'item_tooltip.tpl';
+
 	async init() {
 		this.item = this.obj = this.args.obj || db.items.entries().next().value[1];
 		this.edit = this.args.edit || false;
 		this.db = this.args.db;
 
-		await g_item_tpl;
-		this.tpl = new Template('tpl-item-info');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 		const data = this.tpl.run({ win: this, item: this.item, edit: this.edit, db: this.db });
-
 		this.shadow.append(data);
 		await super.init();
 

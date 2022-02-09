@@ -3,7 +3,7 @@
  */
 
 class LegendWindow extends Window {
-	static loaded = load_tpl(ROOT_URL + 'tpl/window/map.tpl');
+	static _tpl_id = 'window/map.tpl';
 	static instance = null;
 
 	static async open(args) {
@@ -18,13 +18,8 @@ class LegendWindow extends Window {
 	}
 
 	async init() {
-		await LegendWindow.loaded;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-map-legend');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run( { win: this });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		await super.init();
 		this.move(5, Window.bounds.bottom - Window.bounds.top - this.dom_win.offsetHeight - 125);

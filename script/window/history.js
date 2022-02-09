@@ -2,18 +2,14 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_history_tpl = load_tpl(ROOT_URL + 'tpl/window/history.tpl');
 class HistoryWindow extends Window {
-	async init() {
-		await g_history_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-history');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
+	static _tpl_id = 'window/history.tpl';
 
+	async init() {
 		this.show_removed_only = this.args.show_removed_only || false;
 
 		const data = await this.tpl.run({ win: this });
-		shadow.append(data);
+		this.shadow.append(data);
 
 
 		await super.init();

@@ -2,9 +2,9 @@
  * Copyright(c) 2021 Darek Stojaczyk for pwmirage.com
  */
 
-const g_task_tpl = load_tpl(ROOT_URL + 'tpl/window/task.tpl');
-
 class TasksByNPCWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/task_npc.tpl';
+
 	async init() {
 		this.npc = this.obj = this.args.obj;
 
@@ -23,13 +23,8 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 			db.commit(this.tasks_in);
 		}
 
-		await g_task_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-tasks-by-npc');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run({ win: this, npc: this.npc, tasks_in: this.tasks_in, tasks_out: this.tasks_out });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		await super.init();
 	}
@@ -142,6 +137,8 @@ class TasksByNPCWindow extends SingleInstanceWindow {
 }
 
 class TaskWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/task.tpl';
+
 	static task_types = init_id_array([
 		{ id: 0, name: 'Normal' },
 		{ id: 1, name: 'Cycle' },
@@ -310,11 +307,6 @@ class TaskWindow extends SingleInstanceWindow {
 		this.next_tasks = db.tasks.filter(t => t.premise_quests?.includes(this.root_task.id));
 		this.sel_opts = {};
 
-		await g_task_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-tasks');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		if (this.task.award?.item_groups?.length > 1) {
 			this.award_item_type = 2;
 		} else if (this.task.award?.item_groups?.[0]?.chosen_randomly) {
@@ -324,7 +316,7 @@ class TaskWindow extends SingleInstanceWindow {
 		}
 
 		const data = await this.tpl.run({ win: this, task: this.task, root_task: this.root_task });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		this.details_mask = 0xffff & ~(1 << 4);
 		await super.init();

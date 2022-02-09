@@ -3,17 +3,12 @@
  */
 
 class ObjsetWindow extends SingleInstanceWindow {
-	static tpl = load_tpl(ROOT_URL + 'tpl/window/objset.tpl');
+	static _tpl_id = 'window/objset.tpl';
 	async init() {
 		this.objset = this.obj = this.args.obj;
 
-		await ObjsetWindow.tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-objset');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run({ win: this, obj: this.obj, objset: this.obj });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		return await super.init();
 	}

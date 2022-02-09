@@ -1,4 +1,3 @@
-<script id="tpl-diff-window" type="text/x-dot-template">
 <div class="window resizable" style="width: 376px: min-width: 376px; height: 400px;">
 {assign project = db.metadata[1]}
 <div class="header">
@@ -126,5 +125,3 @@ table {
 }
 </style>
 @@}
-
-</script>

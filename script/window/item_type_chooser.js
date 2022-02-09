@@ -4,21 +4,15 @@
 
 class ItemTypeChooserWindow extends Window {
 	static is_open = false;
-	static loaded = load_tpl(ROOT_URL + 'tpl/window/item_type_chooser.tpl');
+	static _tpl_id = 'window/item_type_chooser.tpl';
 	async init() {
-		await ItemTypeChooserWindow.loaded;
-
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-item-type-chooser');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run( { win: this });
-		shadow.append(data);
+		this.shadow.append(data);
 
-		const search_el = shadow.querySelector('#search');
+		const search_el = this.shadow.querySelector('#search');
 		search_el.oninput = (e) => {
 			const search = search_el.value.toLowerCase();
-			const options = shadow.querySelectorAll('.types > .type');
+			const options = this.shadow.querySelectorAll('.types > .type');
 			for (const o of options) {
 				o.style.display = o.textContent.toLowerCase().includes(search) ? 'block' : 'none';
 			}

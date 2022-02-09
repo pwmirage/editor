@@ -44,8 +44,8 @@ class Projects {
 	}
 
 	async load() {
-		await load_tpl(ROOT_URL + 'tpl/projects.tpl');
-		this.tpl = new Template('tpl-projects');
+		await load_tpl_once('projects.tpl');
+		this.tpl = new Template('projects.tpl');
 
 		this.dom = document.createElement('div');
 		this.dom.style.position = 'absolute';

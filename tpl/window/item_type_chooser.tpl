@@ -1,5 +1,3 @@
-<script id="tpl-item-type-chooser" type="text/x-dot-template">
-
 <div class="window" style="width: 305px; height: 448px;">
 <div class="header">
 	<span>Create new item</span>
@@ -82,6 +80,3 @@
 }
 </style>
 @@}
-
-</script>
-

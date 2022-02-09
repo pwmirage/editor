@@ -1,5 +1,3 @@
-<script id="tpl-map-chooser" type="text/x-dot-template">
-
 <div class="window resizable" style="width: 305px; height: 448px;">
 <div class="header">
 	<span>
@@ -70,6 +68,3 @@
 }
 </style>
 @@}
-
-</script>
-

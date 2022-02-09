@@ -3,13 +3,16 @@
  */
 
 g_mg_pages['game_accounts'] = new class {
+	static tpl = load_tpl_once('page/game_accounts.tpl');
+
 	async init(args = {}) {
 		await Promise.all([
-			load_tpl(ROOT_URL + 'tpl/page/game_accounts.tpl'),
+			this.constructor.tpl,
 			load_script(ROOT_URL + 'script/game_util.js?v=' + MG_VERSION),
 		]);
 
-		this.tpl = new Template('tpl-game-accounts');
+		const tpl_f = await this.constructor.tpl;
+		this.tpl = new Template(tpl_f.id);
 
 		this.dom = document.createElement('div');
 		this.shadow = this.dom.attachShadow({mode: 'open'});

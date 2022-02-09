@@ -93,8 +93,8 @@ class Item {
 		Item.cache_loaded = false;
 
 		await Promise.all([
-			load_tpl(ROOT_URL + 'tpl/item_tooltip.tpl'),
-			load_tpl(ROOT_URL + 'tpl/recipe_tooltip.tpl'),
+			load_tpl_once('item_tooltip.tpl'),
+			load_tpl_once('recipe_tooltip.tpl'),
 		]);
 	}
 
@@ -203,7 +203,7 @@ class ItemTooltip {
 		const tpl_db = args.db || g_latest_db;
 		this.item = args.item || { id: 0, _db: { type: 'items' } };
 
-		this.tpl = new Template('tpl-item-info');
+		this.tpl = new Template('item_tooltip.tpl');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
 		const data = this.tpl.run({ win: this, db: tpl_db, item: this.item, edit: this.edit });
 
@@ -275,7 +275,7 @@ class RecipeTooltip {
 		const tpl_db = args.db || g_latest_db;
 		this.simplified = args.simplified;
 
-		this.tpl = new Template('tpl-recipe-info');
+		this.tpl = new Template('recipe_tooltip.tpl');
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom);
 		const data = this.tpl.run({ win: this, db: tpl_db, recipe: this.recipe, prev: { id: 0 }, edit: this.edit, simplified: this.simplified });
 

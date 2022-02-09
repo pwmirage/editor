@@ -1,4 +1,3 @@
-<script id="tpl-projects" type="text/x-dot-template">
 <div id="root">
 	<div class="headline">
 		Open a recent project or create a new one
@@ -301,4 +300,3 @@
 }
 </style>
 @@}
-</script>

@@ -4,14 +4,14 @@
 
 class CreateProjectWindow extends Window {
 	static is_open = false;
-	static loaded = load_tpl(ROOT_URL + 'tpl/window/project.tpl');
+	static tpl = load_tpl_once('window/project.tpl');
 	async init() {
-		await CreateProjectWindow.loaded;
+		const tpl_f = await this.constructor.tpl;
 		if (CreateProjectWindow.is_open) {
 			return;
 		}
 		CreateProjectWindow.is_open = true;
-		this.tpl = new Template('tpl-create-project');
+		this.tpl = new Template(tpl_f.id);
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run( { win: this, maps: PWMap.maps });

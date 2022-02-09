@@ -39,7 +39,7 @@ class Editor {
 		shadow_el.style.overflow = 'hidden';
 
 		const shadow = Editor.map_shadow = shadow_el.attachShadow({ mode: 'open' });
-		const tpl = Editor.tpl = new Template('tpl-editor');
+		const tpl = Editor.tpl = new Template('editor.tpl');
 		tpl.compile_cb = (dom) => { HTMLSugar.process(dom, this); Editor.reload_times(); };
 
 		Editor.project_info = { cur_tab: 'discussion' };
@@ -85,7 +85,7 @@ class Editor {
 			load_script(ROOT_URL + 'script/window/diff.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/window/objset.js?v=' + MG_VERSION),
 			load_script(ROOT_URL + 'script/fuzzysort.js?v=' + MG_VERSION),
-			load_tpl(ROOT_URL + 'tpl/editor.tpl'),
+			load_tpl_once('editor.tpl'),
 		]);
 
 		PWDB.init_types();

@@ -3,9 +3,11 @@
  */
 
 g_mg_pages['branches'] = new class {
+	static tpl = load_tpl_once('page/branches.tpl');
+
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/branches.tpl');
-		this.tpl = new Template('tpl-page-branches');
+		const tpl_f = await this.constructor.tpl;
+		this.tpl = new Template(tpl_f.id);
 
 		this.dom = document.createElement('div');
 		/* hack for the HTMLSugar */

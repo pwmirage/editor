@@ -1,4 +1,3 @@
-<script id="tpl-item-info" type="text/x-dot-template">
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
 {* this can be used as an edit window, or as a plain tooltip div *}
@@ -714,5 +713,3 @@
 }
 </style>
 @@}
-
-</script>

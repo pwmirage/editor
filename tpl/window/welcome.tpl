@@ -1,5 +1,3 @@
-<script id="tpl-welcome" type="text/x-dot-template">
-
 <div class="window resizable" style="width: 304px; min-height: 250px;">
 <div class="header">
 	<span>Welcome</span>
@@ -45,5 +43,3 @@
 }
 </style>
 @@}
-</script>
-

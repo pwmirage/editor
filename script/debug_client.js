@@ -24,7 +24,7 @@ class JSDebugClient {
 
 			if (path.endsWith('.tpl')) {
 				console.log('Reloading tpl=' + path);
-				load_tpl(ROOT_URL + path);
+				load_tpl(path);
 			} else if (path.startsWith('script/page/')) {
 				const file = path.substring('script/page/'.length);
 				const prev = document.querySelector('script[src*="' + file + '"]');

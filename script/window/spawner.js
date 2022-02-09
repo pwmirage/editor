@@ -2,36 +2,28 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_spawner_tpl = load_tpl(ROOT_URL + 'tpl/window/spawner.tpl');
-
 class SpawnerGroupWindow extends PopupWindow {
+	static _tpl_id = 'window/spawner_group.tpl';
+
 	async init() {
 		this.spawner = this.args.obj;
 		this.group = this.args.group;
 
-		await g_spawner_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-spawner-group-info');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = this.tpl.run({ win: this, group: this.group, group_idx: this.args.group_idx, spawner: this.spawner });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		return super.init();
 	}
 }
 
 class SpawnerPositionWindow extends Window {
+	static _tpl_id = 'window/spawner_position.tpl';
+
 	async init() {
 		this.spawner = this.args.obj;
 
-		await g_spawner_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-spawner-position');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = this.tpl.run({ win: this, spawner: this.spawner });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		this.dom.classList.add('unforce-map-focus');
 
@@ -63,16 +55,13 @@ class SpawnerPositionWindow extends Window {
 }
 
 class SpawnerRotationWindow extends Window {
+	static _tpl_id = 'window/spawner_rotation.tpl';
+
 	async init() {
 		this.spawner = this.args.obj;
 
-		await g_spawner_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-spawner-rotation');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = this.tpl.run({ win: this, spawner: this.spawner });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		this.dom.classList.add('unforce-map-focus');
 
@@ -117,18 +106,14 @@ class SpawnerRotationWindow extends Window {
 
 
 class SpawnerWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/spawner.tpl';
 	async init() {
 		this.spawner = this.args.obj;
 
 		this.normalize_spawner();
 
-		await g_spawner_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-spawner');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run({ win: this, spawner: this.spawner });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		this.open_groups = [];
 

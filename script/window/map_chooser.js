@@ -3,21 +3,15 @@
  */
 
 class MapChooserWindow extends SingleInstanceWindow {
-	static loaded = load_tpl(ROOT_URL + 'tpl/window/map_chooser.tpl');
+	static _tpl_id = 'window/map_chooser.tpl';
 	async init() {
-		await MapChooserWindow.loaded;
-
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-map-chooser');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run( { win: this, maps: PWMap.maps });
-		shadow.append(data);
+		this.shadow.append(data);
 
-		const search_el = shadow.querySelector('#search');
+		const search_el = this.shadow.querySelector('#search');
 		search_el.oninput = (e) => {
 			const search = search_el.value.toLowerCase();
-			const options = shadow.querySelectorAll('.maps > .map');
+			const options = this.shadow.querySelectorAll('.maps > .map');
 			for (const o of options) {
 				o.style.display = o.textContent.toLowerCase().includes(search) ? 'block' : 'none';
 			}

@@ -3,9 +3,11 @@
  */
 
 g_mg_pages['files'] = new class {
+	static tpl = load_tpl_once('page/files.tpl');
+
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/files.tpl');
-		this.tpl = new Template('tpl-page-files');
+		const tpl_f = await this.constructor.tpl;
+		this.tpl = new Template(tpl_f.id);
 
 		this.dom = document.createElement('div');
 		this.pid = parseInt(args.pid);

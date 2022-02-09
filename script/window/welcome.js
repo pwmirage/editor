@@ -3,13 +3,8 @@
  */
 
 class WelcomeWindow extends Window {
-	static loaded = load_tpl(ROOT_URL + 'tpl/window/welcome.tpl');
+	static _tpl_id = 'window/welcome.tpl';
 	async init() {
-		await WelcomeWindow.loaded;
-
-		this.tpl = new Template('tpl-welcome');
-		this.tpl.compile_cb = (el) => this.tpl_compile_cb(el);
-
 		const data = await this.tpl.run( { win: this });
 		this.shadow.append(data);
 

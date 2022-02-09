@@ -3,9 +3,11 @@
  */
 
 g_mg_pages['branch'] = new class {
+	static tpl = load_tpl_once('page/branch.tpl');
+
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/branch.tpl');
-		this.tpl = new Template('tpl-page-branch');
+		const tpl_f = await this.constructor.tpl;
+		this.tpl = new Template(tpl_f.id);
 
 		this.dom = document.createElement('div');
 		this.shadow = this.dom.attachShadow({ mode: 'open' });

@@ -68,45 +68,47 @@ const find_tpls = (parent, name, list) => {
 	}
 }
 
-let g_tpl_dom = {};
 const load_tpl = async (src) => {
-	const file = await get(src + '?v=' + MG_VERSION);
+	const file = await get(ROOT_URL + 'tpl/' + src + '?v=' + MG_VERSION);
 	if (!file.ok) {
 		throw new Error('Failed to load template: ' + src);
 	}
 
-	const ret = [];
-	const els = newArrElements(file.data);
-	for (const el of els) {
-		if (el.nodeType != 1 || !el.id) {
-			/* a comment, ignore it */
-			continue;
-		}
+	const prev = document.getElementById(src);
+	if (prev) {
+		prev.remove();
+	}
 
-		const prev = document.getElementById(el.id);
-		if (prev) {
-			prev.remove();
-		}
+	const script_el = document.createElement('script');
+	script_el.type = 'text/x-jstemplate';
+	script_el.innerHTML = file.data;
+	const id = src;
+	script_el.id = id;
 
-		document.head.insertAdjacentElement('beforeend', el);
-		Template.tpl_generation[el.id] = (Template.tpl_generation[el.id] + 1) || 1;
+	document.head.insertAdjacentElement('beforeend', script_el);
+	Template.tpl_generation[id] = (Template.tpl_generation[id] + 1) || 1;
 
-		ret.push(el);
+	if (MG_DEBUG) {
+		const tpl_els = [];
+		find_tpls(document.body, id, tpl_els);
 
-		if (MG_DEBUG) {
-			const tpl_els = [];
-			find_tpls(document.body, el.id, tpl_els);
+		for (const el of tpl_els) {
+			const t = el.mgeTemplate;
 
-			for (const el of tpl_els) {
-				const t = el.mgeTemplate;
+			el.replaceWith(t.run(t.args));
 
-				el.replaceWith(t.run(t.args));
-
-			}
 		}
 	}
 
-	return ret;
+	return script_el;
+}
+
+const load_tpl_once = (src) => {
+	if (!Template.tpl_generation[src]) {
+		return load_tpl(src);
+	}
+
+	return document.getElementById(src);
 }
 
 const mg_open_editor = async (args) => {

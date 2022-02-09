@@ -1,4 +1,3 @@
-<script id="tpl-history" type="text/x-dot-template">
 <div class="window resizable" style="width: 800px; height: 600px;">
 <div class="header">
 	{if $win.show_removed_only}
@@ -261,5 +260,3 @@ table {
 
 </style>
 @@}
-
-</script>

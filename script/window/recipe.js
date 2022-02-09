@@ -2,20 +2,15 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_recipe_tpl = load_tpl(ROOT_URL + 'tpl/window/recipe.tpl')
-
 class RecipeWindow extends Window {
+	static _tpl_id = 'window/recipe.tpl';
+
 	async init() {
-		await g_recipe_tpl;
 		this.recipe = this.obj = this.args.obj;
 		this.embedded = this.args.embedded;
 
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-recipe');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		this.tpl_data = await this.tpl.run({ win: this, recipe: this.recipe, embedded: this.embedded });
-		shadow.append(this.tpl_data);
+		this.shadow.append(this.tpl_data);
 
 		await super.init();
 

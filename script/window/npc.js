@@ -2,22 +2,16 @@
  * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
  */
 
-let g_npc_tpl = load_tpl(ROOT_URL + 'tpl/window/npc.tpl')
-
 class NPCCraftsWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/npc_crafts.tpl';
 	static saved_empty_recipe;
 	static reference_empty_recipe;
 
 	async init() {
-		await g_npc_tpl;
 		this.crafts = this.obj = this.args.obj;
 
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-npc-crafts');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run({ win: this, crafts: this.crafts });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		await super.init();
 
@@ -222,16 +216,13 @@ class NPCCraftsWindow extends SingleInstanceWindow {
 }
 
 class NPCGoodsWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/npc_goods.tpl';
+
 	async init() {
-		await g_npc_tpl;
 		this.goods = this.obj = this.args.obj;
 
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-npc-goods');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run({ win: this, goods: this.goods });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		await super.init();
 		this.select(0);
@@ -304,6 +295,8 @@ class NPCGoodsWindow extends SingleInstanceWindow {
 }
 
 class NPCWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/npc.tpl';
+
 	static types = init_id_array([
 		{ id: 3214, name: 'NPC' },
 		{ id: 3216, name: 'Guard' },
@@ -320,13 +313,8 @@ class NPCWindow extends SingleInstanceWindow {
 			db.commit(npc);
 		}
 
-		await g_npc_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-npc');
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		const data = await this.tpl.run({ win: this, npc: this.npc });
-		shadow.append(data);
+		this.shadow.append(data);
 
 		this.npc_initialized = true;
 		super.init();

@@ -2,22 +2,16 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_chooser_tpl = load_tpl(ROOT_URL + 'tpl/window/chooser.tpl');
 class ChooserWindow extends Window {
 	async init() {
-		await g_chooser_tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template(this.args.tpl);
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
-
 		this.args.width = this.args.width || 100;
 		this.args.height = this.args.height || 34;
 		this.args.win = this;
 		this.args.npc = this.npc;
 		this.args.maximized = this.args.maximized ?? true;
-		const data = this.tpl.run(this.args);
 
-		shadow.append(data);
+		const data = this.tpl.run(this.args);
+		this.shadow.append(data);
 		await super.init();
 
 		if (this.args.maximized) {
@@ -119,6 +113,8 @@ class ChooserWindow extends Window {
 }
 
 class SimpleChooserWindow extends ChooserWindow {
+	static _tpl_id = 'window/simple_chooser.tpl';
+
 	async init() {
 		this.pager_offset = 0;
 		this.items = this.args.items || [];
@@ -144,7 +140,6 @@ class SimpleChooserWindow extends ChooserWindow {
 			this.args.width = 175;
 		}
 
-		this.args.tpl = 'tpl-simple-chooser';
 		await super.init();
 		this.select_tab(0);
 	}

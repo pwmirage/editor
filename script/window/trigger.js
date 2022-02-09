@@ -2,15 +2,16 @@
  * Copyright(c) 2021 Darek Stojaczyk for pwmirage.com
  */
 
-const g_trigger_tpl = load_tpl(ROOT_URL + 'tpl/window/trigger.tpl');
-
 class TriggerWindow extends SingleInstanceWindow {
+	static _tpl_id = 'window/trigger.tpl';
+
 	async init() {
 		this.trigger = this.obj = this.args.obj;
 
 		await g_trigger_tpl;
 		const shadow = this.dom.shadowRoot;
-		this.tpl = new Template('tpl-trigger');
+		const tpl_f = await this.constructor.tpl;
+		this.tpl = new Template(tpl_f.id);
 		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const data = await this.tpl.run({ win: this, trigger: this.trigger });

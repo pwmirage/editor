@@ -1,4 +1,3 @@
-<script id="tpl-recipe-info" type="text/x-dot-template">
 {assign sanitize_f = (f) => Math.round(f * Math.pow(10, 5)) / Math.pow(10, 5)}
 
 <div id="recipe_info" class="recipe_info {if $edit}edit{/if} {if $prev.id == -1}no-diff{/if}">
@@ -305,4 +304,3 @@
 }
 </style>
 @@}
-</script>

@@ -160,6 +160,14 @@ class Window {
 	static async open(args) {
 		const win_class = this;
 		const win = new win_class(args);
+		if (win_class._tpl_id) {
+			win_class.tpl = await load_tpl_once(win_class._tpl_id);
+		}
+
+		if (win_class._tpl_id) {
+			win.tpl = new Template(win_class._tpl_id);
+			win.tpl.compile_cb = (dom) => win.tpl_compile_cb(dom);
+		}
 		await win.init();
 		return win;
 	}

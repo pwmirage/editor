@@ -1,5 +1,3 @@
-<script id="tpl-editor" type="text/x-dot-template">
-
 <div>
 	<div id="pw-map-canvas">
 		<div id="pw-map" class="gpu">
@@ -805,5 +803,3 @@
 }
 </style>
 @@}
-
-</script>

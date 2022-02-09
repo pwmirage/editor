@@ -2,13 +2,12 @@
  * Copyright(c) 2020 Darek Stojaczyk for pwmirage.com
  */
 
-const g_rmenu_tpl = load_tpl(ROOT_URL + 'tpl/window/rmenu.tpl');
 class RMenuWindow extends Window {
-	static tpl = new Template('tpl-rmenu');
+	static _tpl_id = 'window/rmenu.tpl';
 	static last_rmenu = null;
 	static enabled = true;
 	async init() {
-		await g_rmenu_tpl;
+		await this.constructor.tpl_f;
 
 		if (!RMenuWindow.enabled) {
 			return false;
@@ -22,9 +21,6 @@ class RMenuWindow extends Window {
 
 		/* keep one cached copy to speed things up. There can be only one RMenu open
 		 * at a time */
-		this.tpl = RMenuWindow.tpl;
-		const shadow = this.dom.shadowRoot;
-		this.tpl.compile_cb = (dom) => this.tpl_compile_cb(dom);
 
 		const tpl_args = {
 			win: this, bg: this.args.bg ?? true,
@@ -36,7 +32,7 @@ class RMenuWindow extends Window {
 		let x, y;
 		x = this.args.x;
 		y = this.args.y;
-		shadow.append(data);
+		this.shadow.append(data);
 		this.args.x = 0;
 		this.args.y = 0;
 		await super.init();

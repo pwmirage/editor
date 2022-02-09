@@ -3,9 +3,10 @@
  */
 
 class GameAdminPage {
+	static tpl = load_tpl_once('page/game_admin.tpl');
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/game_admin.tpl');
-		this.tpl = new Template('tpl-page-game_admin');
+		const tpl_f = await this.contructor.tpl;
+		this.tpl = new Template(tpl_f.id);
 
 		this.dom = document.createElement('div');
 
@@ -50,10 +51,12 @@ class GameAdminPage {
 g_mg_pages['game_admin'] = new GameAdminPage();
 
 class GameAdminCharPage {
+	static tpl = load_tpl_once('page/game_admin.tpl');
+
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/game_admin.tpl');
+		const tpl_f = await this.contructor.tpl;
 		await PWPreview.load_latest_db();
-		this.tpl = new Template('tpl-page-game_admin-char-info');
+		this.tpl = new Template(tpl_f.id);
 
 		this.dom = document.createElement('div');
 

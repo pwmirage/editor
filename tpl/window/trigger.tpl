@@ -1,5 +1,3 @@
-<script id="tpl-trigger" type="text/x-dot-template">
-
 <div class="window resizable" style="width: 300px; height: 448px;"">
 <div class="header {if $trigger._removed}removed{/if}">
 	<span>
@@ -71,5 +69,3 @@
 }
 </style>
 @@}
-</script>
-
