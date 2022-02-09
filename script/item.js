@@ -113,7 +113,7 @@ class Item {
 			return;
 		}
 
-		for (let i = 0; i < 8192; i++) {
+		for (let i = -1; i < 8192; i++) {
 			await Item.preload_icon(i);
 		}
 
@@ -150,7 +150,7 @@ class Item {
 
 		const icon_id = parseInt([...resp.headers.entries()].find(e => e[0] === 'x-pw-icon-id')[1]);
 		const reader = new FileReader();
-		reader.readAsDataURL(blob); 
+		reader.readAsDataURL(blob);
 		reader.onloadend = () => {
 			Item.icon_cache[icon_id] = reader.result;
 			Item.item_icon_cache[id] = icon_id;
