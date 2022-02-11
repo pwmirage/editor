@@ -27,12 +27,14 @@ class PWPreview {
 			load_tpl_once('preview/diff_entry.tpl'),
 		]);
 
-		DateTime.setup();
-		PWDB.init();
+		await Promise.all([
+			DateTime.setup(),
+			PWDB.init(),
+			Item.init(),
+		]);
+
 		PWPreview.diff_tpl = new Template('preview/diff.tpl');
 		PWPreview.diff_entry_tpl = new Template('preview/diff_entry.tpl');
-
-		await Item.init();
 
 		customElements.define('pw-preview', MiragePreviewElement);
 

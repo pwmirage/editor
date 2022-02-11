@@ -34,13 +34,6 @@ class Projects {
 				spinner.classList.add('active');
 			}, 200);
 		}
-
-		this.reload_times();
-	}
-
-	reload_times() {
-		/* force reload all time tags */
-		DateTime.setElements(this.shadow.querySelectorAll('time'));
 	}
 
 	async load() {

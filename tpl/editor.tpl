@@ -84,7 +84,7 @@
 					{for entry of $project.log}
 						<div class="log" data-type="{@$entry.actionID}" data-param1="{@$entry.param1}">
 							<div style="float:right;">
-								{@Projects.DateUtil.getTimeElement(new Date($entry.time * 1000)).outerHTML}
+								<div data-datetime="{@$entry.time}"></div>
 							</div>
 							<div><a href="/user/{@$entry.userID}" target="_blank">{@$entry.username}</a></div>
 							{if $entry.actionID == 0 && $entry.param1 != 0}

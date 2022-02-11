@@ -314,6 +314,12 @@ class HTMLSugar {
 				f.call(el, false);
 			};
 		}
+
+		for (const el of dom.querySelectorAll('[data-datetime]')) {
+			const unix_ts = parseInt(el.dataset.datetime);
+			const new_el = DateTime.new(unix_ts);
+			el.replaceWith(new_el);
+		}
 	}
 
 	static link_el(el) {

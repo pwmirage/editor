@@ -21,7 +21,8 @@
 						</a>
 					</td>
 					<td>
-						{@$page.DateUtil.getTimeElement(new Date($file.edit_time * 1000)).outerHTML}
+						<div data-datetime="{@$file.edit_time}"></div>
+
 					</a>
 					<td><button onclick="{serialize $page}.update_file({@$file.id}); event.stopPropagation();">Update</button></td>
 				</tr>

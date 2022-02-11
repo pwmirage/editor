@@ -74,7 +74,7 @@
 						</a>
 					</td>
 					<td><a href="{@ROOT_URL + '?id=' + $project.id}">
-						{@Projects.DateUtil.getTimeElement(new Date($project.last_edit_time * 1000)).outerHTML}
+						<div data-datetime="{@$project.last_edit_time}"></div>
 					</a></td>
 					<td onclick="{serialize $projects}.onclick_project_dots(this, event, {@$project.id}); event.stopPropagation();" class="details-button"><i class="fa fa-ellipsis-v"></i></td>
 				</tr>

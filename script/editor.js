@@ -40,7 +40,7 @@ class Editor {
 
 		const shadow = Editor.map_shadow = shadow_el.attachShadow({ mode: 'open' });
 		const tpl = Editor.tpl = new Template('editor.tpl');
-		tpl.compile_cb = (dom) => { HTMLSugar.process(dom, this); Editor.reload_times(); };
+		tpl.compile_cb = (dom) => { HTMLSugar.process(dom, this); };
 
 		Editor.project_info = { cur_tab: 'discussion' };
 
@@ -152,15 +152,6 @@ class Editor {
 		});
 	}
 
-	static reload_times() {
-		if (!Editor.map_shadow) {
-			return;
-		}
-
-		/* force reload all time tags */
-		DateTime.setElements(Editor.map_shadow.querySelectorAll('time'));
-	}
-
 	static async reload_project_info() {
 		if (!Editor.map_shadow) {
 			return;
@@ -238,10 +229,8 @@ class Editor {
 					if (minimized) {
 						ret_btn.mgState = window.location.search;
 						history.pushState({}, '', ROOT_URL);
-						Projects.instance.reload_times();
 					} else {
 						history.pushState({}, '', ret_btn.mgState);
-						Editor.reload_times();
 					}
 				};
 			}

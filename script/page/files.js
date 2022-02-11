@@ -45,10 +45,6 @@ g_mg_pages['files'] = new class {
 
 	tpl_compile_cb(dom) {
 		HTMLSugar.process(dom, this);
-		/* force reload all time tags */
-		if (dom.id == 'files' || dom.querySelector('#files')) {
-			DateTime.setElements(dom.querySelectorAll('time'));
-		}
 	}
 
 	async refresh_files() {

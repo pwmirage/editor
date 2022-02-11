@@ -13,8 +13,7 @@ class DateTime {
 		if (document.hidden) {
 			DateTime._isActive = false;
 			DateTime._isPending = false;
-		}
-		else {
+		} else {
 			DateTime._isActive = true;
 			// force immediate refresh
 			if (DateTime._isPending) {
@@ -24,9 +23,14 @@ class DateTime {
 		}
 	}
 
-	static setElements(els) {
-		DateTime._elements = els;
-		DateTime.refresh();
+	static new(unix_ts) {
+		const el = Projects.DateUtil.getTimeElement(new Date(unix_ts * 1000));
+		const date = new Date();
+		const timestamp = (date.getTime() - date.getMilliseconds()) / 1000;
+		DateTime.rebuild(el, date, timestamp);
+		const ref = new WeakRef(el);
+		DateTime._elements.add(ref);
+		return el;
 	}
 
 	static refresh() {
@@ -39,9 +43,15 @@ class DateTime {
 		}
 		const date = new Date();
 		const timestamp = (date.getTime() - date.getMilliseconds()) / 1000;
-		DateTime._elements.forEach((element) => {
-			DateTime.rebuild(element, date, timestamp);
-		});
+		for (const ref of DateTime._elements) {
+			const el = ref.deref();
+			if (el) {
+				DateTime.rebuild(el, date, timestamp);
+			} else {
+				/* element no longer in DOM, stop tracking it */
+				DateTime._elements.delete(ref);
+			}
+		};
 
 	}
 	static rebuild(element, date, timestamp) {
@@ -95,13 +105,16 @@ class DateTime {
 		DateTime._isActive = true;
 		DateTime._isPending = false;
 		DateTime._offset = Math.trunc(Date.now() / 1000 - window.TIME_NOW);
-		DateTime._elements = [];
+		DateTime._elements = new Set();
 
-		require(['WoltLabSuite/Core/Language', 'WoltLabSuite/Core/Date/Util'], (Language, DateUtil) => {
-			DateTime.Language = Language;
-			DateTime.DateUtil = DateUtil;
-			setInterval(DateTime.refresh, 60 * 1000);
-			document.addEventListener("visibilitychange", DateTime.onVisibilityChange);
+		return new Promise((resolve) => {
+			require(['WoltLabSuite/Core/Language', 'WoltLabSuite/Core/Date/Util'], (Language, DateUtil) => {
+				DateTime.Language = Language;
+				DateTime.DateUtil = DateUtil;
+				setInterval(DateTime.refresh, 60 * 1000);
+				document.addEventListener("visibilitychange", DateTime.onVisibilityChange);
+				resolve();
+			});
 		});
 	}
 };
