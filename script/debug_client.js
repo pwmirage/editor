@@ -22,9 +22,9 @@ class JSDebugClient {
 		socket.addEventListener('message', (event) => {
 			const path = event.data;
 
-			if (path.endsWith('.tpl')) {
+			if (path.startsWith('tpl/')) {
 				console.log('Reloading tpl=' + path);
-				load_tpl(path);
+				load_tpl(path.substring('tpl/'.length));
 			} else if (path.startsWith('script/page/')) {
 				const file = path.substring('script/page/'.length);
 				const prev = document.querySelector('script[src*="' + file + '"]');
