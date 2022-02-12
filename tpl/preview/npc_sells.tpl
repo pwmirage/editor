@@ -1,4 +1,3 @@
-<script id="tpl-preview-npc-sells" type="text/x-dot-template">
 <div class="window" style="width: 316px;">
 <div class="header {if $obj._removed}removed{/if}">
 	<span>
@@ -75,4 +74,3 @@
 
 </style>
 @@}
-</script>

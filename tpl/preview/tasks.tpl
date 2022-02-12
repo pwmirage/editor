@@ -1,4 +1,3 @@
-<script id="tpl-preview-npc-tasks" type="text/x-dot-template">
 <div class="window" style="width: 468px;">
 <div class="header {if $obj._removed}removed{/if}">
 	<span>
@@ -139,4 +138,3 @@
 }
 </style>
 @@}
-</script>

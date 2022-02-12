@@ -332,12 +332,8 @@ class MiragePreviewElement extends HTMLElement {
 	}
 
 	async init(args = {}) {
-		if (!MiragePreviewElement.tpls[this.type]) {
-			const tpl_els = await load_tpl(ROOT_URL + 'tpl/preview/' + this.type + '.tpl');
-			MiragePreviewElement.tpls[this.type] = tpl_els[0];
-		}
-		const tplname = MiragePreviewElement.tpls[this.type].id;
-		this.tpl = new Template(tplname);
+		const tpl_els = await load_tpl_once('preview/' + this.type + '.tpl');
+		this.tpl = new Template(tpl_els.id);
 		this.tpl.compile_cb = (dom) => HTMLSugar.process(dom, this);
 
 		let resp;
