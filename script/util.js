@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: MIT
- * Copyright(c) 2019-2020 Darek Stojaczyk for pwmirage.com
+ * Copyright(c) 2019-2022 Darek Stojaczyk for pwmirage.com
  */
+
+const g = {};
 
 const _fetch = async (url, { params, is_json }) => {
 	let resp;
@@ -333,30 +335,37 @@ const notify = (type, msg) => {
 	});
 }
 
+const util_init = async () => {
+	return new Promise(resolve => {
+		require(["Ui/Confirmation"], function (UiConfirmation) {
+			g.UiConfirmation = UiConfirmation;
+			resolve();
+		});
+	});
+};
+
 let g_confirm_dom = null;
 const confirm = (msg, html, title = 'Confirmation Required') => {
+	if (g_confirm_dom) {
+		g_confirm_dom.classList.remove('big');
+		g_confirm_dom.classList.remove('noconfirm');
+		g_confirm_dom.classList.remove('nopadding');
+	}
+
 	return new Promise(resolve => {
-		require(["Ui/Confirmation"], function(UiConfirmation) {
-			if (g_confirm_dom) {
-				g_confirm_dom.classList.remove('big');
-				g_confirm_dom.classList.remove('noconfirm');
-				g_confirm_dom.classList.remove('nopadding');
-			}
-
-			UiConfirmation.show({
-				confirm: () => { resolve(true); },
-				cancel: () => { resolve(false); },
-				messageIsHtml: true,
-				message: msg,
-				template: html,
-			});
-
-			g_confirm_dom = document.querySelector('.dialogOverlay .dialogContainer');
-			const title_el = g_confirm_dom.querySelector('.dialogTitle');
-			if (title_el) {
-				title_el.textContent = title;
-			}
+		g.UiConfirmation.show({
+			confirm: () => { resolve(true); },
+			cancel: () => { resolve(false); },
+			messageIsHtml: true,
+			message: msg,
+			template: html,
 		});
+
+		g_confirm_dom = document.querySelector('.dialogOverlay .dialogContainer');
+		const title_el = g_confirm_dom.querySelector('.dialogTitle');
+		if (title_el) {
+			title_el.textContent = title;
+		}
 	});
 }
 
@@ -376,3 +385,5 @@ const loading_wait_done = () => {
 		g_loading_wait = null;
 	}
 }
+
+util_init();
