@@ -9,16 +9,12 @@
 }
 
 .dialogOverlay > .dialogContainer.big .dialogContent {
-	padding-bottom: 62px;
-	box-sizing: content-box;
+	padding-bottom: 45px;
+    box-sizing: content-box;
 }
 
 .dialogOverlay > .dialogContainer.big .dialogContent .systemConfirmation {
 	margin-bottom: -36px;
-}
-
-.dialogOverlay > .dialogContainer.noconfirm {
-	max-height: calc(80% + 102px);
 }
 
 .dialogOverlay > .dialogContainer.noconfirm .dialogContent {
@@ -32,7 +28,8 @@
 }
 
 .dialogOverlay > .dialogContainer.noconfirm .formSubmit.dialogFormSubmit {
-	display: none;
+	visibility: hidden;
+	pointer-events: none;
 }
 
 @keyframes spinner {
