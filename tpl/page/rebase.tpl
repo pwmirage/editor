@@ -1,4 +1,3 @@
-<script id="tpl-page-rebase" type="text/x-dot-template">
 <div class="mgContent" style="min-height: 276px;">
 	<div>Current base:</div>
 	<div>
@@ -135,4 +134,3 @@
 
 </style>
 @@}
-</script>

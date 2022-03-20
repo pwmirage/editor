@@ -1,4 +1,3 @@
-<script id="tpl-page-branches" type="text/x-dot-template">
 <div class="section">
 <div class="mgContent">
 	<div style="display: flex; flex-direction: column; row-gap: 5px; width: 300px;">
@@ -35,4 +34,3 @@
 
 </style>
 @@}
-</script>

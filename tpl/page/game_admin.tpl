@@ -1,4 +1,3 @@
-<script id="tpl-page-game_admin" type="text/x-dot-template">
 <div class="mgContent" style="min-height: 276px;">
 	<div class="left">
 		<h1>Online Players ({@$online_p.length})</h1>
@@ -263,4 +262,3 @@ h2 {
 
 </style>
 @@}
-</script>

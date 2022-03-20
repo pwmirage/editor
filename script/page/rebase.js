@@ -4,8 +4,8 @@
 
 g_mg_pages['rebase'] = new class {
 	async init(args = {}) {
-		await load_tpl(ROOT_URL + 'tpl/page/rebase.tpl');
-		this.tpl = new Template('tpl-page-rebase');
+		await load_tpl('page/rebase.tpl');
+		this.tpl = new Template('page/rebase.tpl');
 
 		this.dom = document.createElement('div');
 		if (!args.project) {

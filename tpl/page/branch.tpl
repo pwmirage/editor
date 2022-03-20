@@ -1,4 +1,3 @@
-<script id="tpl-page-branch" type="text/x-dot-template">
 <div class="mgContent" style="min-height: 576px;">
 	<div style="display: flex; align-items: baseline; column-gap: 10px;">
 		{assign branch = $page.selected_branch}
@@ -244,4 +243,3 @@ a.button.branchname:hover:after {
 
 </style>
 @@}
-</script>

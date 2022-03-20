@@ -1,4 +1,3 @@
-<script id="tpl-page-objshare" type="text/x-dot-template">
 <div id="root">
 
     <div class="chooser">
@@ -128,4 +127,3 @@
 
 </style>
 @@}
-</script>

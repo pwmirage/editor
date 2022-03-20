@@ -1,4 +1,3 @@
-<script id="tpl-pck-patches" type="text/x-dot-template">
 <div class="mgContent" style="min-height: 276px;">
 	<a class="button buttonPrimary" style="margin-left: auto; margin-top: 4px;" href="javascript:void(0);" onclick="{serialize $page}.new_patch();">New patch</a>
 
@@ -151,4 +150,3 @@
 
 </style>
 @@}
-</script>

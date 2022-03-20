@@ -1,4 +1,3 @@
-<script id="tpl-game-vshop" type="text/x-dot-template">
 <div class="section" style="margin-top: 0;">
 <div style="display: flex;">
 <div>
@@ -269,4 +268,3 @@
 }
 </style>
 @@}
-</script>

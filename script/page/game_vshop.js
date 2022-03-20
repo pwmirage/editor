@@ -5,11 +5,11 @@
 g_mg_pages['game_vshop'] = new class {
 	async init(args = {}) {
 		await Promise.all([
-			load_tpl(ROOT_URL + 'tpl/page/game_vshop.tpl'),
+			load_tpl_once('page/game_vshop.tpl'),
 			load_script(ROOT_URL + 'script/game_util.js?v=' + MG_VERSION),
 		]);
 
-		this.tpl = new Template('tpl-game-vshop');
+		this.tpl = new Template('page/game_vshop.tpl');
 
 		this.dom = document.createElement('div');
 		this.shadow = this.dom.attachShadow({mode: 'open'});
@@ -117,20 +117,20 @@ g_mg_pages['game_vshop'] = new class {
 			g_confirm_dom.querySelector('.price').textContent = item.cost * amount;
 			g_confirm_dom.querySelector('.remaining').innerHTML = remaining_points;
 
-			g_confirm_dom.querySelector('.remaining').innerHTML = 
+			g_confirm_dom.querySelector('.remaining').innerHTML =
 				remaining_points >= 0 ?
 				remaining_points :
 				'<span style="color: red;">' + remaining_points + '</span>';
 
-			g_confirm_dom.querySelector('.wrning').innerHTML = 
+			g_confirm_dom.querySelector('.wrning').innerHTML =
 				remaining_points >= 0 ?
 				'The item will be character bound.' :
 				'<span style="color: red; font-weight: bold;">You don\'t have enough points.</span>';
 
 			if (remaining_points < 0 || (item.minlevel ?? 0) > role.level) {
-				g_confirm_dom.querySelector('.buttonPrimary').classList.add('disabled'); 
+				g_confirm_dom.querySelector('.buttonPrimary').classList.add('disabled');
 			} else {
-				g_confirm_dom.querySelector('.buttonPrimary').classList.remove('disabled'); 
+				g_confirm_dom.querySelector('.buttonPrimary').classList.remove('disabled');
 			}
 		};
 		amount_el.oninput();

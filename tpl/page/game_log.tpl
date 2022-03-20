@@ -1,4 +1,8 @@
-<div class="mgContent" style="min-height: 276px;">
+<div style="min-height: 276px;">
+	<div style="display: flex; align-items: baseline; margin-top: 4px;">
+		<div style="width: 45px;">Name</div>
+		<input type="text" name="name" value="{@$patchfile.name}" disabled style="flex: 1;" autocomplete="off">
+	</div>
 	<div id="files">
 		<table class="files">
 			<tr>
@@ -21,7 +25,6 @@
 					</td>
 					<td>
 						<div data-datetime="{@$file.edit_time}"></div>
-
 					</a>
 					<td><button onclick="{serialize $page}.update_file({@$file.id}); event.stopPropagation();">Update</button></td>
 				</tr>

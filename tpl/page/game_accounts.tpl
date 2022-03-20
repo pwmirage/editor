@@ -1,4 +1,3 @@
-<script id="tpl-game-accounts" type="text/x-dot-template">
 <div class="section" style="margin-top: 30px;">
 	<div class="info">Character lists are updated every hour. If you just created a new character it might not show up here yet.</div>
 
@@ -149,4 +148,3 @@
 }
 </style>
 @@}
-</script>
