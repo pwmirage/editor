@@ -130,7 +130,7 @@ if (op_type === 'idmap') {
 			const to_export = db[t].filter(o => o.id && o.id < DB.parse_id('2:0'));
 			const lid_entries = to_export.map(o => ({ lid: DB.serialize_id(o.id), id: o.id, type: type_id }));
 			for (const o of lid_entries) {
-				if (o.id >= 0x80100000 + type.alias_offset + type.resource_offset) {
+				if (type.resource_offset && o.id >= 0x80100000 + type.alias_offset + type.resource_offset) {
 					o.id = o.id - 0x80100000 - type.alias_offset - type.resource_offset + 100000;
 				} else {
 					o.id = o.id - 0x80100000 - type.alias_offset;
