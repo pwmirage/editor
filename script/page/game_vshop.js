@@ -93,12 +93,17 @@ g_mg_pages['game_vshop'] = new class {
 			return;
 		}
 
-		const item = this.tabs['All'].find(i => i.id == item_id);
-		item.cost = cost;
-
 		const role_id = this.selected_role_id;
 		const role = this.accounts.find(a => a.id == (role_id & (~0xf)))
 			.roles.find(r => r.id == role_id);
+
+		if (item_id < 0) {
+			window.location.href = "/game/?character=" + role_id;
+			return;
+		}
+
+		const item = this.tabs['All'].find(i => i.id == item_id);
+		item.cost = cost;
 
 		this.tpl.reload('#buy_dialogue', { item, role });
 		let req = confirm(this.shadow.querySelector('#buy_dialogue').innerHTML, '', 'Confirm purchase');

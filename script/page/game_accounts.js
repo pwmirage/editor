@@ -40,6 +40,10 @@ g_mg_pages['game_accounts'] = new class {
 		this.shadow.append(data);
 
 		await s_p;
+
+		if (args.character) {
+			this.open_character(parseInt(args.character));
+		}
 		return this.dom;
 	}
 
