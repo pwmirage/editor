@@ -24,6 +24,10 @@ class DateTime {
 	}
 
 	static new(unix_ts) {
+		if (!unix_ts) {
+			return newElement('<span>-</span>');
+		}
+
 		const el = DateTime.DateUtil.getTimeElement(new Date(unix_ts * 1000));
 		const date = new Date();
 		const timestamp = (date.getTime() - date.getMilliseconds()) / 1000;
