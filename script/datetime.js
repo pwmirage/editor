@@ -24,7 +24,7 @@ class DateTime {
 	}
 
 	static new(unix_ts) {
-		const el = Projects.DateUtil.getTimeElement(new Date(unix_ts * 1000));
+		const el = DateTime.DateUtil.getTimeElement(new Date(unix_ts * 1000));
 		const date = new Date();
 		const timestamp = (date.getTime() - date.getMilliseconds()) / 1000;
 		DateTime.rebuild(el, date, timestamp);
