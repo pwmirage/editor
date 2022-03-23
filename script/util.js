@@ -337,6 +337,10 @@ const notify = (type, msg) => {
 
 const util_init = async () => {
 	return new Promise(resolve => {
+		if (typeof(require) === 'undefined') {
+			return;
+		}
+
 		require(["Ui/Confirmation"], function (UiConfirmation) {
 			g.UiConfirmation = UiConfirmation;
 			resolve();
