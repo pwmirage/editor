@@ -54,11 +54,26 @@ const MG_VERSION = 1;
 let MG_BRANCH = null;
 const ROOT_URL = '/editor/';
 const g_db = {};
-let g_latest_db;
-let g_latest_db_load_fn = null;
-let g_latest_db_promise = new Promise((resolve) => { g_latest_db_load_fn = resolve; });
-let g_init_promise_resolve_fn = null;
-let g_init_promise = new Promise((resolve) => { g_init_promise_resolve_fn = resolve; });
+let g_init_promise = null;
+
+const load_db = (force = false) => {
+	if (g_init_promise && !force) {
+		return g_init_promise;
+	}
+
+	g_init_promise = new Promise(async (resolve, reject) => {
+		try {
+			PWDB.init();
+
+			const db = await load_latest_db(MG_BRANCH);
+			resolve(db);
+		} catch (e) {
+			reject(e);
+		}
+	});
+
+	return g_init_promise;
+};
 
 self.addEventListener('install', event => {
 	event.waitUntil(
@@ -108,7 +123,7 @@ self.addEventListener('fetch', (event) => {
 
 	/* don't cache cross-origin */
 	if (!req.url.startsWith(self.location.origin)) return;
-	
+
 	let url = req.url.substring(self.location.origin.length);
 
 	/* cut out the query (?p=....) */
@@ -129,7 +144,7 @@ self.addEventListener('fetch', (event) => {
 				id = 0;
 			}
 
-			await g_latest_db_promise;
+			const db = await load_db();
 			const icon_buf = Icon.get_icon(id);
 			return new Response(icon_buf, {
 				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
@@ -143,8 +158,8 @@ self.addEventListener('fetch', (event) => {
 				id = 0;
 			}
 
-			await g_latest_db_promise;
-			const item = g_latest_db?.items?.[id];
+			const db = await load_db();
+			const item = db?.items?.[id];
 			const icon = id == 0 ? -1 : (item?.icon || 0);
 
 			const icon_buf = Icon.get_icon(icon);
@@ -162,10 +177,10 @@ self.addEventListener('fetch', (event) => {
 				id = 0;
 			}
 
-			await g_latest_db_promise;
-			const r = g_latest_db?.recipes?.[id];
+			const db = await load_db();
+			const r = db?.recipes?.[id];
 			const item_id = r?.targets?.[0]?.id || 0;
-			const item = g_latest_db?.items?.[item_id];
+			const item = db?.items?.[item_id];
 			let icon = parseInt(id) == 0 ? -1 : (item?.icon || 0);
 
 			if (item_id == 0 && !r?.targets?.filter(i => i?.id)?.length) {
@@ -204,11 +219,11 @@ self.addEventListener('fetch', (event) => {
 				'pet_types',
 			];
 
-			await g_latest_db_promise;
+			const db = await load_db();
 
 			const data = {};
 			for (const t of types) {
-				data[t] = [...g_latest_db[t]];
+				data[t] = [...db[t]];
 			}
 
 			return new Response(JSON.stringify(data), { status: 200, statusText: 'OK',
@@ -229,20 +244,18 @@ self.addEventListener('fetch', (event) => {
 			}
 
 			if (url === '/editor/latest_db/load') {
-				await g_init_promise;
-
 				const params = await get_body(req);
 				if (params.head_id !== MG_BRANCH?.head_id) {
 					MG_BRANCH = params;
-					await load_latest_db(MG_BRANCH);
 				}
-				await g_latest_db_promise;
+
+				const db = await load_db();
 				return new Response('{}', { status: 200, statusText: 'OK',
 					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
 				});
 			}
 
-			await g_latest_db_promise;
+			const db = await load_db();
 
 			const get_match = url_simplified.match(/^get\/([a-zA-Z0-9_]+)\/([0-9,]+)[\/]?$/);
 			if (get_match) {
@@ -251,28 +264,24 @@ self.addEventListener('fetch', (event) => {
 
 				const ids = id_str.split(',');
 
-				await g_latest_db_promise;
-
 				const arr = [];
 				for (const id of ids) {
-					const obj = g_latest_db[type]?.[id] || { _db: { type, id: parseInt(id) }};
+					const obj = db[type]?.[id] || { _db: { type, id: parseInt(id) }};
 					arr.push(obj);
 				}
 
 				return new Response(dump2(arr.length == 1 ? arr[0] : arr, 0), { status: 200, statusText: 'OK',
 					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
 				});
-			} 
+			}
 
 			const query_match = url_simplified.match(/^query\/([a-zA-Z0-9_]+)[\/]?$/);
 			if (query_match) {
 				const type = query_match[1];
 				const params = await get_body(req);
 
-				await g_latest_db_promise;
-
 				const fn = new Function('obj', 'return (' + (params.fn || '(obj) => false') + ')(obj)');
-				const arr = g_latest_db[type]?.filter(fn);
+				const arr = db[type]?.filter(fn);
 				return new Response(dump2(arr, 0), { status: 200, statusText: 'OK',
 					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
 				});
@@ -291,40 +300,28 @@ self.addEventListener('fetch', (event) => {
 });
 
 const load_latest_db = async (branch) => {
-	let load_fn = g_latest_db_load_fn;
-	if (!load_fn) {
-		await g_latest_db_promise;
+	console.log(new Date() + '\n' + 'SW: Loading DB head=' + branch.head_id);
+	const db = await PWDB.new_db({ pid: 0, preinit: true, new: true, no_tag: true });
+
+	const resp = await get(ROOT_URL + 'api/project/load/commit@' + branch.head_id,
+			{ is_json: 1 });
+	if (resp.ok) {
+		const changesets = resp.data;
+		for (let i = 0; i < changesets.length; i++) {
+			const changeset = changesets[i];
+			const proj_change = changeset[0][0];
+			const pid = proj_change.pid;
+			db.new_id_start = 0x80000000 + pid * 0x100000;
+			db.new_id_offset = 0;
+			db.load(changeset, {join_changesets: true});
+		}
 	}
 
-	g_latest_db_load_fn = null;
-	g_latest_db_promise = new Promise(async (resolve) => { try {
-		console.log(new Date() + '\n' + 'SW: Loading DB head=' + branch.head_id);
-		g_latest_db = await PWDB.new_db({ pid: 0, preinit: true, new: true, no_tag: true });
+	if (!Icon.gen_promise) {
+		await Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg');
+	}
 
-		const resp = await get(ROOT_URL + 'api/project/load/commit@' + branch.head_id,
-				{ is_json: 1 });
-		if (resp.ok) {
-			const changesets = resp.data;
-			for (let i = 0; i < changesets.length; i++) {
-				const changeset = changesets[i];
-				const proj_change = changeset[0][0];
-				const pid = proj_change.pid;
-				g_latest_db.new_id_start = 0x80000000 + pid * 0x100000;
-				g_latest_db.new_id_offset = 0;
-				g_latest_db.load(changeset, {join_changesets: true});
-			}
-		}
-
-		if (!Icon.gen_promise) {
-			await Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg');
-		}
-
-		if (load_fn) {
-			load_fn();
-		}
-
-		resolve();
-	} catch (e) { console.error(e); }});
+	return db;
 }
 
 self.importScripts('editor/script/jpeg-encode.js');
@@ -340,8 +337,6 @@ class Loading {
 	static show_error_tag() {};
 	static try_cancel_tag() {};
 };
-
-PWDB.init();
 
 class Icon {
 	static icons = [];
@@ -436,5 +431,3 @@ class Icon {
 		}
 	}
 }
-
-g_init_promise_resolve_fn();
