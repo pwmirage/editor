@@ -118,6 +118,221 @@ const dump2 = (data, spacing = 1) => {
 	}, spacing);
 };
 
+const g_url_tree = Object.create(null);
+const g_url_fn_symbol = Symbol();
+
+/**
+ * Call function handler for given url.
+ *
+ * \return handler function or undefined if none found
+ */
+const match_handler = (req, url, args_arr) => {
+	const parts = url.split('/');
+	if (parts[parts.length - 1] == '') {
+		//todo parts.length--;
+	}
+
+	if (parts.length < 2) {
+		return undefined;
+	}
+
+	let tree = g_url_tree;
+	let handler = null;
+
+	for (let i = 1; i < parts.length; i++) {
+		let p = parts[i];
+
+		if (tree['*']) {
+			args_arr.push(p);
+			p = '*';
+		}
+
+		if (tree[p]) {
+			tree = tree[p];
+			if (tree[g_url_fn_symbol]) {
+				handler = tree[g_url_fn_symbol];
+			}
+		} else {
+			break;
+		}
+	}
+
+	return handler;
+};
+
+const validate_tree = (t) => {
+	if (t['*'] && Object.keys(t).length > 1) {
+		return false;
+	}
+
+	return true;
+};
+
+const register_url = (url, fn) => {
+	const parts = url.split('/');
+
+	let tree = g_url_tree;
+	for (let i = 1; i < parts.length; i++) {
+		const p = parts[i];
+
+		let entry = tree[p];
+		if (!entry) {
+			entry = Object.create(null);
+			tree[p] = entry;
+		}
+		if (!validate_tree(tree)) {
+			throw new Error('Registered conflicting URLs: ' + url);
+		}
+
+		tree = entry;
+	}
+
+	if (tree[g_url_fn_symbol]) {
+		throw new Error('Registered conflicting URLs: ' + url);
+	}
+
+	tree[g_url_fn_symbol] = fn;
+};
+
+register_url('/editor/icon/*', async (req, args) => {
+	let id = parseInt(args[1]);
+
+	if (!id) {
+		id = 0;
+	}
+
+	const db = await load_db();
+	const icon_buf = Icon.get_icon(id);
+	return new Response(icon_buf, {
+		status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
+	});
+});
+
+register_url('/editor/item/*/icon', async (req, args) => {
+	let id = parseInt(args[1]);
+	if (!id) {
+		id = 0;
+	}
+
+	const db = await load_db();
+	const item = db?.items?.[id];
+	const icon = id == 0 ? -1 : (item?.icon || 0);
+
+	const icon_buf = Icon.get_icon(icon);
+	return new Response(icon_buf, {
+		status: 200, statusText: 'OK', headers: {
+			'Content-Type': 'image/jpeg', 'x-pw-icon-id': icon
+		}
+	});
+});
+
+register_url('/editor/recipe/*/icon', async (req, args) => {
+	let id = parseInt(args[1]);
+	if (!id) {
+		id = 0;
+	}
+
+	const db = await load_db();
+	const r = db?.recipes?.[id];
+	const item_id = r?.targets?.[0]?.id || 0;
+	const item = db?.items?.[item_id];
+	let icon = parseInt(id) == 0 ? -1 : (item?.icon || 0);
+
+	if (item_id == 0 && !r?.targets?.filter(i => i?.id)?.length) {
+		/* nothing to craft in this recipe */
+		icon = -1;
+	}
+
+	const icon_buf = Icon.get_icon(icon);
+	return new Response(icon_buf, {
+		status: 200, statusText: 'OK', headers: {
+			'Content-Type': 'image/jpeg', 'x-pw-icon-id': icon
+		}
+	});
+});
+
+register_url('/editor/latest_db/static', async (req, args) => {
+	const types = [
+		'weapon_major_types',
+		'weapon_minor_types',
+		'armor_major_types',
+		'armor_minor_types',
+		'decoration_major_types',
+		'decoration_minor_types',
+		'medicine_major_types',
+		'medicine_minor_types',
+		'projectile_types',
+		'quiver_types',
+		'armor_sets',
+		'equipment_addons',
+		'stone_types',
+		'monster_addons',
+		'monster_types',
+		'fashion_major_types',
+		'fashion_sub_types',
+		'gm_generator_types',
+		'pet_types',
+	];
+
+	const db = await load_db();
+
+	const data = {};
+	for (const t of types) {
+		data[t] = [...db[t]];
+	}
+
+	const date = new Date();
+	return new Response(JSON.stringify(data), { status: 200, statusText: 'OK',
+		headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
+	});
+});
+
+register_url('/editor/latest_db/load', async (req, args) => {
+	const params = req.params;
+	if (params.head_id !== MG_BRANCH?.head_id) {
+		MG_BRANCH = params;
+	}
+
+	const db = await load_db();
+	const date = new Date();
+	return new Response('{}', { status: 200, statusText: 'OK',
+		headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
+	});
+});
+
+register_url('/editor/latest_db/get/*/*', async (req, args) => {
+	const db = await load_db();
+
+	const type = args[1];
+	const id_str = args[2];
+
+	const ids = id_str.split(',');
+
+	const arr = [];
+	for (const id of ids) {
+		const obj = db[type]?.[id] || { _db: { type, id: parseInt(id) }};
+		arr.push(obj);
+	}
+
+	const date = new Date();
+	return new Response(dump2(arr.length == 1 ? arr[0] : arr, 0), { status: 200, statusText: 'OK',
+		headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
+	});
+});
+
+register_url('/editor/latest_db/query/*', async (req, args) => {
+	const type = query_match[1];
+	const params = req.params;
+
+	const fn = new Function('obj', 'return (' + (params.fn || '(obj) => false') + ')(obj)');
+	const arr = db[type]?.filter(fn);
+
+	const date = new Date();
+	return new Response(dump2(arr, 0), { status: 200, statusText: 'OK',
+		headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
+	});
+});
+
 self.addEventListener('fetch', (event) => {
 	const req = event.request;
 
@@ -127,173 +342,31 @@ self.addEventListener('fetch', (event) => {
 	let url = req.url.substring(self.location.origin.length);
 
 	/* cut out the query (?p=....) */
-	const url_p = url.match(/^([^?]*)[?]\d+$/);
-    url = url_p ? url_p[1] : url;
+    url = url.split('?')[0];
 
 	const ret = caches.match(url).then(async (cached) => { try {
-		const date = new Date();
-
 		if (cached) {
 			return cached;
 		}
 
-		if (url.match(/^\/editor\/icon\/.*/)) {
-			let id = parseInt(url.substring('/editor/icon/'.length) || 0);
+		const args_arr = [ url ];
+		const fn = match_handler(req, url, args_arr);
 
-			if (!id) {
-				id = 0;
-			}
-
-			const db = await load_db();
-			const icon_buf = Icon.get_icon(id);
-			return new Response(icon_buf, {
-				status: 200, statusText: 'OK', headers: { 'Content-Type': 'image/jpeg' }
-			});
+		if (!fn) {
+			return fetch(req);
 		}
 
-		const item_icon_match = url.match(/^\/editor\/item\/([0-9]+)\/icon/);
-		if (item_icon_match) {
-			let id = item_icon_match[1];
-			if (!id) {
-				id = 0;
-			}
-
-			const db = await load_db();
-			const item = db?.items?.[id];
-			const icon = id == 0 ? -1 : (item?.icon || 0);
-
-			const icon_buf = Icon.get_icon(icon);
-			return new Response(icon_buf, {
-				status: 200, statusText: 'OK', headers: {
-					'Content-Type': 'image/jpeg', 'x-pw-icon-id': icon
+		req.params = {};
+		try {
+			if (req.method === 'POST') {
+				const form_data = await req.formData();
+				for (const e of form_data.entries()) {
+					req.params[e[0]] = e[1];
 				}
-			});
-		}
-
-		const recipe_icon_match = url.match(/^\/editor\/recipe\/([0-9]+)\/icon/);
-		if (recipe_icon_match) {
-			let id = recipe_icon_match[1];
-			if (!id) {
-				id = 0;
 			}
+		} catch (e) {}
 
-			const db = await load_db();
-			const r = db?.recipes?.[id];
-			const item_id = r?.targets?.[0]?.id || 0;
-			const item = db?.items?.[item_id];
-			let icon = parseInt(id) == 0 ? -1 : (item?.icon || 0);
-
-			if (item_id == 0 && !r?.targets?.filter(i => i?.id)?.length) {
-				/* nothing to craft in this recipe */
-				icon = -1;
-			}
-
-			const icon_buf = Icon.get_icon(icon);
-			return new Response(icon_buf, {
-				status: 200, statusText: 'OK', headers: {
-					'Content-Type': 'image/jpeg', 'x-pw-icon-id': icon
-				}
-			});
-		}
-
-		if (url === '/editor/latest_db/static') {
-			const types = [
-				'weapon_major_types',
-				'weapon_minor_types',
-				'armor_major_types',
-				'armor_minor_types',
-				'decoration_major_types',
-				'decoration_minor_types',
-				'medicine_major_types',
-				'medicine_minor_types',
-				'projectile_types',
-				'quiver_types',
-				'armor_sets',
-				'equipment_addons',
-				'stone_types',
-				'monster_addons',
-				'monster_types',
-				'fashion_major_types',
-				'fashion_sub_types',
-				'gm_generator_types',
-				'pet_types',
-			];
-
-			const db = await load_db();
-
-			const data = {};
-			for (const t of types) {
-				data[t] = [...db[t]];
-			}
-
-			return new Response(JSON.stringify(data), { status: 200, statusText: 'OK',
-				headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
-			});
-		}
-
-		if (url.match(/^\/editor\/latest_db\/.*/)) {
-			const url_simplified = url.substring('/editor/latest_db/'.length);
-
-			const get_body = async (req) => {
-				const body = await req.formData();
-				const ret = {};
-				for (const e of body.entries()) {
-					ret[e[0]] = e[1];
-				}
-				return ret;
-			}
-
-			if (url === '/editor/latest_db/load') {
-				const params = await get_body(req);
-				if (params.head_id !== MG_BRANCH?.head_id) {
-					MG_BRANCH = params;
-				}
-
-				const db = await load_db();
-				return new Response('{}', { status: 200, statusText: 'OK',
-					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
-				});
-			}
-
-			const db = await load_db();
-
-			const get_match = url_simplified.match(/^get\/([a-zA-Z0-9_]+)\/([0-9,]+)[\/]?$/);
-			if (get_match) {
-				const type = get_match[1];
-				const id_str = get_match[2];
-
-				const ids = id_str.split(',');
-
-				const arr = [];
-				for (const id of ids) {
-					const obj = db[type]?.[id] || { _db: { type, id: parseInt(id) }};
-					arr.push(obj);
-				}
-
-				return new Response(dump2(arr.length == 1 ? arr[0] : arr, 0), { status: 200, statusText: 'OK',
-					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
-				});
-			}
-
-			const query_match = url_simplified.match(/^query\/([a-zA-Z0-9_]+)[\/]?$/);
-			if (query_match) {
-				const type = query_match[1];
-				const params = await get_body(req);
-
-				const fn = new Function('obj', 'return (' + (params.fn || '(obj) => false') + ')(obj)');
-				const arr = db[type]?.filter(fn);
-				return new Response(dump2(arr, 0), { status: 200, statusText: 'OK',
-					headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
-				});
-			}
-
-			return new Response('', { status: 405, statusText: 'ERR',
-				headers: { 'Content-Type': 'text/plain', 'Date': date.toGMTString() }
-			});
-		}
-
-
-		return fetch(req);
+		return await fn(req, args_arr);
 	} catch(e) { console.error(e); }});
 
 	event.respondWith(ret);
