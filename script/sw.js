@@ -65,7 +65,15 @@ const load_db = (force = false) => {
 		try {
 			PWDB.init();
 
+			const promises = [];
+			if (!Icon.gen_promise) {
+				const p = Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg');
+				promises.push(p);
+			}
+
 			const db = await load_latest_db(MG_BRANCH);
+
+			await Promise.all(promises);
 			resolve(db);
 		} catch (e) {
 			reject(e);
@@ -395,10 +403,6 @@ const load_latest_db = async (branch) => {
 			db.new_id_offset = 0;
 			db.load(changeset, {join_changesets: true});
 		}
-	}
-
-	if (!Icon.gen_promise) {
-		await Icon.init(ROOT_URL + 'data/images/iconlist_ivtrm.jpg');
 	}
 
 	return db;
