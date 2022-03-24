@@ -802,7 +802,7 @@ class HTMLSugar {
 
 			if (field_name) {
 				/* escape all special characters */
-				type = [...select_arr.values()].find((a) => a[field_name] == val);
+				type = [...select_arr.values()].find((a) => a && a[field_name] == val);
 			} else {
 				type = select_arr[val];
 			}
