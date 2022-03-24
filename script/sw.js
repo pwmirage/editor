@@ -300,6 +300,13 @@ register_url('/editor/latest_db/load', async (req, args) => {
 	});
 });
 
+register_url('/editor/latest_db/ping', async (req, args) => {
+	const date = new Date();
+	return new Response('{}', { status: 200, statusText: 'OK',
+		headers: { 'Content-Type': 'application/json', 'Date': date.toGMTString() }
+	});
+});
+
 register_url('/editor/latest_db/get/*/*', async (req, args) => {
 	const db = await load_db();
 

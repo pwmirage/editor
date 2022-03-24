@@ -40,6 +40,11 @@ const mg_init = async () => {
 
 	await PWPreview.load();
 	await JSDebugClient.init();
+
+	/* try to keep the service worker alive; no guarantees though */
+	setInterval(() => {
+		post(ROOT_URL + 'latest_db/ping', { is_json: 1 });
+	}, 20 * 1000);
 };
 
 const load_script = (src) => {
