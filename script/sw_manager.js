@@ -27,7 +27,11 @@ const onNewServiceWorker = (registration, callback) => {
 	registration.addEventListener('updatefound', listenInstalledStateChange);
 }
 
-if (navigator.serviceWorker) {
+let g_sw_promise;
+
+if (!navigator.serviceWorker) {
+	g_sw_promise = Promise.resolve();
+} else {
 	let g_sw_refreshing;
 	// When the user asks to refresh the UI, we'll need to reload the window
 	navigator.serviceWorker.addEventListener('controllerchange', (event) => {
@@ -36,19 +40,23 @@ if (navigator.serviceWorker) {
 		window.location.reload();
 	});
 
-	navigator.serviceWorker.register('/sw.js')
-		.then((registration) => {
-			// Track updates to the Service Worker.
-			if (!navigator.serviceWorker.controller) {
-				// The window client isn't currently controlled so it's a new service
-				// worker that will activate immediately
-				g_sw_refreshing = true;
-				return;
-			}
-			registration.update();
+	g_sw_promise = new Promise(resolve => {
+		navigator.serviceWorker.register('/sw.js')
+			.then((registration) => {
+				// Track updates to the Service Worker.
+				if (!navigator.serviceWorker.controller) {
+					// The window client isn't currently controlled so it's a new service
+					// worker that will activate immediately
+					g_sw_refreshing = true;
+					return;
+				}
+				registration.update();
 
-			onNewServiceWorker(registration, () => {
-				registration.waiting.postMessage('skipWaiting');
+				onNewServiceWorker(registration, () => {
+					registration.waiting.postMessage('skipWaiting');
+				});
+
+				resolve();
 			});
-		});
+	});
 }
