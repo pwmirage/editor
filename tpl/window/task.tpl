@@ -213,6 +213,7 @@
 								<div style="flex: 1;"></div>
 								<a class="button add" onclick="{serialize $win}.add_req_monster();">(add) <i class="fa fa-plus"></i></a>
 							</div>
+							<div><label><input type="checkbox" class="checkbox" data-link="{serialize $task} => 'remove_premise_items'"><span>Remove collected items from EQ (if any)</span></label></div>
 							<div>Report to NPC: <a class="button menu-triangle" data-link-button="{serialize $task} => 'finish_npc'" data-select="db.npcs" oninput="{serialize $win}.update_npc('finish_npc', this);"></a></div>
 						</div>
 					</div>
