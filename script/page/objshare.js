@@ -3,9 +3,11 @@
  */
 
 g_mg_pages['objshare'] = new class {
+    static tpl = load_tpl_once('page/objshare.tpl');
+
     async init(args = {}) {
-        await load_tpl(ROOT_URL + 'tpl/page/objshare.tpl');
-        this.tpl = new Template('tpl-page-objshare');
+        const tpl_f = await this.constructor.tpl;
+        this.tpl = new Template(tpl_f.id);
 
         this.obj = args.obj;
         this.url_generated = false;
